@@ -130,7 +130,7 @@ export const EQUIPMENT_COPY={
  "buckinghamBelt": ["기관총을 3회 맞히면 적에게 불을 붙입니다. 화살탄·포탄·폭탄·갈고리에도 적용되며 화상은 중첩되지 않습니다.", "Three machine-gun hits ignite the target. Darts, shells, bombs and hooks also carry fire; burns do not stack."],
  "cooperRack": ["4초마다 전방 표적에 폭탄 2발을 투하합니다. 보유한 소이·화살·가스·연막·파편 장비의 효과도 전달합니다.", "Drops two bombs at forward targets every 4 seconds. Carries the effects of equipped fire, dart, gas, smoke and shrapnel equipment."],
  "fieryGrapnel": ["적과 가까이 스치며 맞히면 화염 갈고리를 부착합니다. 준비된 쿠퍼 폭탄 1발이나 파편·가스도 함께 전달합니다.", "A close flyby hit attaches a burning hook. It also delivers one ready Cooper bomb or a ready shrapnel or gas charge."],
- "flechettes": ["주무장을 적을 관통하는 화살탄으로 바꿉니다. COW 포탄과 쿠퍼 폭탄은 관통 화살 12발을 퍼뜨립니다.", "Replaces primary rounds with piercing darts. COW shells and Cooper bombs release 12 piercing darts each."],
+ "flechettes": ["기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. COW 포탄과 쿠퍼 폭탄에는 화살이 실립니다.", "Fires separate bursts of 12 piercing darts every 3 seconds. COW shells and Cooper bombs carry darts."],
  "veryPistol": [
   "9초마다 최근 맞힌 전방 표적을 우선 지정해 6초간 집중 공격합니다. 표적이 사라지면 남은 시간에 한 번 재지정합니다.",
   "Every 9 s, prioritize a recently hit forward target for 6 s of focused fire. If it is lost, retarget once within the remaining duration."
@@ -207,7 +207,7 @@ export const EQUIPMENT_CHOICE_COPY={
   "직진 시 지속 속도 증가분만 피해로 바꿉니다(최대 30%).",
   "Straight flight: speed gains add damage, up to 30%. No brief boosts."
  ],
- "flechettes": ["주무장을 관통 화살탄으로 바꿉니다. 포탄·폭탄은 화살 12발을 퍼뜨립니다.", "Fires piercing darts. COW shells and Cooper bombs release 12 darts."],
+ "flechettes": ["기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다.", "Keeps machine guns and fires separate bursts of 12 piercing darts every 3 seconds."],
  "hytheCamera": [
   "3연속 명중한 적에게 6초간 사격 피해가 30% 증가합니다.",
   "3 gun hits in a row: +30% gun damage for 6s."

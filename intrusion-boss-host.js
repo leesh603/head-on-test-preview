@@ -9,7 +9,7 @@ export function tickIntrusionHost(g,dt,window){
  if(g.online&&!g.host||g.mode==='campaign')return;
  if(['lost','won'].includes(g.state)){disposeIntrusion(g,'run-ended');syncIntrusionTarget(g);return;}
  const stages=g.stageBoss?.stages;if(!stages||!window)return;
- const busy=photoReconActive(g)||(g.bossPresentationAfter||0)>(g.t||0)||(g.battleRecoveryUntil||0)>(g.t||0)||(g.enemies||[]).some(e=>!e.intrusionBody&&!e.stageBossBody&&e.hp>0&&!e.expired&&!e.rivalEscaped&&(e.bossPilot||e.type==='boss'))||!!g.eliteEnemies?.active||g.battlefieldEvents?.current?.status==='active'||(g.ruralFronts?.fronts||[]).some(f=>f.status==='active')||!!g.londonBattle||!!g.parisBattle||!!g.verdunBattle;
+ const busy=photoReconActive(g)||(g.bossPresentationAfter||0)>(g.t||0)||(g.battleRecoveryUntil||0)>(g.t||0)||(g.enemies||[]).some(e=>!e.intrusionBody&&!e.stageBossBody&&e.hp>0&&!e.expired&&!e.rivalEscaped&&(e.bossPilot||e.type==='boss'))||!!g.eliteEnemies?.active||g.battlefieldEvents?.current?.status==='active'||(g.ruralFronts?.fronts||[]).some(f=>f.status==='active')||(stages.stageIndex===4&&stages.bossId==='gotha-squadron')||!!g.londonBattle||!!g.parisBattle||!!g.verdunBattle;
  const artReady=id=>typeof Image==='undefined'||intrusionArtReady(id);
  stepIntrusion(g,dt,{...window,phase:stages.phase,orderPosition:stages.orderPosition,faction:stages.teamFaction||g.teamFaction,width:(g.viewWidth||960)/(g.camera?.zoom||1),height:(g.viewHeight||700)/(g.camera?.zoom||1),blocked:busy,artReady,regularBossHp:g.stageBoss.hooks?.getTuning?.({bossId:'gik'})?.maxHp});
  const e=g.intrusionBoss;

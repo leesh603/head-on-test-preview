@@ -11,7 +11,7 @@ export const SYNTHESIS_BALANCE=Object.freeze({gunDelay:.08,cannonDelay:.38,bombD
 export function primaryCount(p){return Math.max(1,p.shots||1)+(p.upgrades?.quadLewis?3:0);}
 export function weaponComposition(p,add){
  const u={...p.upgrades,...(add?{[add]:1}:{})},heavy=!!u.cow37;
- return {weapon:heavy?'cow':'gun',body:u.flechettes?(heavy?'dart-shell':'dart'):(heavy?'shell':'bullet'),count:Math.max(1,p.shots||1)+(u.quadLewis?3:0),incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,rotating:!!u.rearGunner,stagger:!!u.combinedProjectiles,doctrine:p.weaponMods?.GUN||null};
+ return {weapon:heavy?'cow':'gun',body:heavy?(u.flechettes?'dart-shell':'shell'):'bullet',count:Math.max(1,p.shots||1)+(u.quadLewis?3:0),incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,rotating:!!u.rearGunner,stagger:!!u.combinedProjectiles,doctrine:p.weaponMods?.GUN||null};
 }
 const signature=p=>JSON.stringify([weaponComposition(p),p.weapon?.belt,p.pilot,p.plane]);
 function push(p,b){b.ownerId??=p.id||'p1';b.enemy=false;b.hit??=new Set();if(b.synthesisSupport)b.ally=true;(world(p).bullets??=[]).push(b);return b;}
@@ -33,7 +33,6 @@ export function prepareSynthesisRound(p,b,{support=false}={}){
  if(!primary&&!b.rocket&&!b.upgradeRocket&&!b.fieryGrapnel)return b;
  const c=weaponComposition(p);b.synthesisPrepared=true;b.synthesisSupport=support;
  b.synthesisPayload={incendiary:c.incendiary&&(c.body!=='bullet'||b.rocket||b.fieryGrapnel),explosive:c.explosive,darts:primary&&c.body==='dart-shell'};
- if(primary&&c.body==='dart'&&!b.cow37){const a=Math.atan2(b.vy,b.vx);b.vx=Math.cos(a)*800;b.vy=Math.sin(a)*800;b.flechette=true;b.pierce=true;b.sweptProjectile=true;b.collisionRadius=2;b.synthesisDart=true;b.specialColor='#d9d7c8';}
  if(b.cow37&&c.body==='dart-shell')b.synthesisFuse=.7;
  if(b.cow37){b.tacticalPayloadApplied=true;b.synthesisPrimary=true;prepareWWIPrimaryRound(p,b);}
  return b;
@@ -206,7 +205,7 @@ export function synthesisDescription(p,id,locale='ko',compact=false){
  case 'quadLewis':return en?'Adds three firing lanes to the primary weapon. Each fired round consumes ammunition.':'주무장 발사 갈래가 3개 늘어납니다. 발사한 탄환마다 탄약을 소모합니다.';
  case 'flechettes':return c.body==='dart-shell'
   ?(en?'COW shells release 12 piercing darts each. Equipped Cooper bombs also release darts.':'COW 포탄이 관통 화살 12발을 퍼뜨립니다. 쿠퍼 폭탄을 보유하면 폭탄에도 적용됩니다.')
-  :(en?'Replaces primary rounds with piercing darts. Equipped Cooper bombs also release 12 darts each.':'주무장을 적을 관통하는 화살탄으로 바꿉니다. 쿠퍼 폭탄을 보유하면 폭탄마다 관통 화살 12발을 퍼뜨립니다.');
+  :(en?'Fires separate bursts of 12 piercing darts every 3 seconds without using gun ammunition. Equipped Cooper bombs also release 12 darts each.':'기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. 기관총 탄약을 쓰지 않으며 쿠퍼 폭탄에도 화살이 적용됩니다.');
  case 'rearGunner':return en?'Rotates the primary turret at about 66° per second. Also applies to COW and Quad Lewis.':'주무장 총좌가 초당 약 66°씩 회전합니다. COW 포와 쿼드 루이스에도 적용됩니다.';
  case 'combinedProjectiles':return en?'Fires primary volleys and Cooper bombs in staggered bursts. Each shot uses your position and aim when it fires.':'주무장과 쿠퍼 폭탄을 한꺼번에 쏘지 않고 시간차로 발사합니다. 각 탄환은 발사 순간의 기체 위치와 조준 방향을 따릅니다.';
  default:return null;

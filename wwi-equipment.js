@@ -7,7 +7,7 @@ export const WWI_EQUIPMENT=Object.freeze([
  Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총 3회 연속 명중으로 적 기체에 불을 붙입니다.',family:'GUN'}),
  Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'4초마다 전방 적을 향해 소형 폭탄 2발을 연속 투하합니다.',family:'EXPLOSIVE'}),
  Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'3.5초마다 근접 교차한 적기를 선행 조준해 화염 갈고리로 타격하고 3초간 불태웁니다. 직접 피해는 기관총 강화의 50%를 반영합니다 (최대 +50%).',family:'GUN'}),
- Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'주무장을 적을 관통하는 화살탄으로 바꿉니다. COW 포탄과 쿠퍼 폭탄은 관통 화살 12발을 퍼뜨립니다.',family:'GUN'}),
+ Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. COW 포탄과 쿠퍼 폭탄에는 화살이 실립니다.',family:'GUN'}),
  Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 우선 지정해 6초간 집중 공격을 유도합니다. 표적 소실 시 남은 시간 안에서 1회 재지정합니다.',family:'FORMATION'}),
  Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'전방·후방 주무장으로 각각 3회 연속 명중하면 표적을 6초간 분석합니다. 해당 표적에 기관총·직접 기관총 액티브 피해 +30%. 적의 공격 준비를 드러내며 망원경·폰크 점사가 분석 표적을 우선합니다.',family:'GUN'})
 ]);
@@ -401,7 +401,13 @@ export function tickWWIEquipment(owner,world,dt,previousPose){
   tickCooperSecond(owner,world,dt,previousPose);owner.wwiCooperCooldown=Math.max(0,(owner.wwiCooperCooldown||0)-dt);
   if(owner.wwiCooperCooldown<=0&&!owner.wwiCooperSecondIn)beginCooperDrop(owner,world,previousPose,dt);
  }
- // Flechettes now modify live primary rounds and carriers; no independent burst.
+ if(hasEquipment(owner,'flechettes')&&!owner.cow37){
+  const b=WWI_BALANCE.flechettes;
+  owner.wwiFlechetteCooldown=Math.max(0,(owner.wwiFlechetteCooldown||0)-dt);
+  owner.wwiFlechetteNext=(owner.wwiFlechetteNext||0)-dt;
+  if(!(owner.wwiFlechetteRemaining>0)&&owner.wwiFlechetteCooldown<=0&&flechetteTargetAhead(owner,world,dt)){owner.wwiFlechetteRemaining=b.count;owner.wwiFlechetteNext=0;owner.wwiFlechetteCooldown=b.cooldown;}
+  if(owner.wwiFlechetteRemaining>0&&owner.wwiFlechetteNext<=0){fireFlechettes(owner,world,b.count-owner.wwiFlechetteRemaining,dt);owner.wwiFlechetteRemaining=Math.max(0,owner.wwiFlechetteRemaining-b.burst);owner.wwiFlechetteNext=b.stagger;}
+ }else owner.wwiFlechetteRemaining=0;
  if(hasEquipment(owner,'veryPistol')){
   owner.wwiVeryCooldown=Math.max(0,(owner.wwiVeryCooldown||0)-dt);
   if(owner.wwiVeryCooldown<=0&&!beginVerySignal(owner,world))owner.wwiVeryCooldown=.25;
