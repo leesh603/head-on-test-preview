@@ -35,7 +35,7 @@ export function observeUdetPass(p,b,x0,y0){
  if(!pass.approach||ex*dx+ey*dy<=0)return false;
  pass.done=true;
  if(pass.min>UDET_ACROBAT_BALANCE.outer||f.clock-f.lastGrazeAt<UDET_ACROBAT_BALANCE.grazeInterval)return false;
- f.lastGrazeAt=f.clock;f.stacks=Math.min(3,udetStacks(p)+1);f.buffUntil=f.clock+6;f.grazeCount++;
+ f.lastGrazeAt=f.clock;f.stacks=Math.min(3,udetStacks(p)+1);f.buffUntil=f.clock+6;f.grazeCount++;p.passiveMedalEvent?.('graze');
  signatureCue(p,'udetGraze',{x:pass.x,y:pass.y,a:Math.atan2(b.vy,b.vx),life:.42,count:f.stacks});
  return true;
 }

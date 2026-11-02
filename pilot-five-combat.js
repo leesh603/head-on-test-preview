@@ -22,7 +22,7 @@ function distance(p,e){return Math.hypot(e.x-p.x,e.y-p.y);}
 function muzzle(p,heading,size=32){const x=p.x+Math.cos(p.a)*25,y=p.y+Math.sin(p.a)*25;p.identityFx('muzzleTwin',x,y,heading,size,.1,{height:size*.45});p.identityFx('gunSmoke',x+Math.cos(heading)*10,y+Math.sin(heading)*10,heading,27,.25,{height:16,alpha:.28});p.muzzleFlash=.09;p.event('shot','');}
 function impact(p,pos,hot=false){p.identityFx(hot?'fireEngine':'armorSpark',pos.x,pos.y,p.a,hot?32:22,hot?.35:.18,{alpha:.82});}
 function point(burn){if(burn.equipmentAnchor)return wwiBurnPoint({...burn.equipmentAnchor,x:burn.enemy.x,y:burn.enemy.y,a:burn.enemy.a});const body=burn.body,part=burn.part&&body?.support129?.parts.get(burn.target.id),pos=part?body.support129.world(part.nx,part.ny):null;return pos||{x:body?body.x+(burn.part?burn.target.x:0):burn.enemy.x,y:body?body.y+(burn.part?burn.target.y:0):burn.enemy.y};}
-function ignite(p,e,target,pos,strong=false){if(!live(target))return;const s=p.identityState();s.burns.set(target,{enemy:e,target,position:{x:pos.x,y:pos.y},time:strong?4:3,tick:0,damage:p.damage*(strong?.45:.2),part:!!e.stageBossBody&&target!==e.stageBossBody,body:e.stageBossBody});impact(p,pos,true);}
+function ignite(p,e,target,pos,strong=false){if(!live(target))return;const enhanced=p.pilot==='gontermann'&&p.skillEnhanced&&strong,boss=!!(e.stageBossBody||e.finalArenaTarget||e.bossPilot||e.heavyBomber||e.type==='boss');const s=p.identityState();s.burns.set(target,{enemy:e,target,position:{x:pos.x,y:pos.y},time:enhanced?5:strong?4:3,tick:0,damage:p.damage*(strong?.45:.2)*(enhanced?(boss?1.1:1.2):1),part:!!e.stageBossBody&&target!==e.stageBossBody,body:e.stageBossBody});impact(p,pos,true);}
 function lead(p,e,speed=650){const t=Math.min(.7,distance(p,e)/speed),vx=Number.isFinite(e.vx)?e.vx:Math.cos(e.a||0)*(e.speed||0),vy=Number.isFinite(e.vy)?e.vy:Math.sin(e.a||0)*(e.speed||0);return Math.atan2(e.y+vy*t-p.y,e.x+vx*t-p.x);}
 function emit(p,s,phase,heading,power,pierce=false,fan=false){
  if(p.reloadTime>0)return false;
@@ -35,7 +35,7 @@ function emit(p,s,phase,heading,power,pierce=false,fan=false){
   if(!p.unlimitedAmmo)p.ammo[g]-=Math.max(1,n-(p.freeVolleyShots||0));
   const off=(g-(guns-1)/2)*8;
   for(let i=0;i<n;i++){
-   const a=heading+(i-(n-1)/2)*(fan?.10:.016),b={x:p.x+Math.cos(p.a)*25-Math.sin(p.a)*off,y:p.y+Math.sin(p.a)*25+Math.cos(p.a)*off,vx:Math.cos(a)*650,vy:Math.sin(a)*650,life:1.55,enemy:false,ownerId:owner(p),gun:g,damage:p.damage*p.normalGunMultiplier()*power*(p.skillEnhanced?1.3:1)/Math.sqrt(pellets),pierce,hit:new Set(),fiveAceRound:true,fiveAcePhase:phase,fiveAceHeading:heading,fiveAceAngle:a,visualType:'normal'};
+   const a=heading+(i-(n-1)/2)*(fan?.10:.016),b={x:p.x+Math.cos(p.a)*25-Math.sin(p.a)*off,y:p.y+Math.sin(p.a)*25+Math.cos(p.a)*off,vx:Math.cos(a)*650,vy:Math.sin(a)*650,life:1.55,enemy:false,ownerId:owner(p),gun:g,damage:p.damage*p.normalGunMultiplier()*power/Math.sqrt(pellets),pierce,hit:new Set(),fiveAceRound:true,fiveAcePhase:phase,fiveAceHeading:heading,fiveAceAngle:a,visualType:'normal'};
    p.applySpecialRound(b,null);w.bullets.push(b);fired++;p.roundsFired++;
   }
  }
@@ -52,7 +52,7 @@ function lukeBurn(p,target,enemy=target){
 }
 function scheduleDetonation(p,target,enemy=target,snapshot=null){
  const s=fiveAceState(p),burn=snapshot||lukeBurn(p,target,enemy);
- if(!burn||s.detonated.has(burn.target)||s.chainCount>=FIVE_ACE_BALANCE.chainLimit)return false;
+ if(!burn||s.detonated.has(burn.target)||s.chainCount>=(FIVE_ACE_BALANCE.chainLimit+(p.skillEnhanced?1:0)))return false;
  // The existing finite queue owns consumed fires, including a burning wreck.
  // Never copy equipment fire into the personal DOT map or consume another owner.
  if(burn.equipmentTarget)equipmentBurn(p,burn.equipmentTarget,{consume:true});
@@ -91,7 +91,7 @@ function updateLafayette(p,a,dt){
  if(a.fiveLafayette&&!orbit){a.a+=wrap((s.exitHeading??p.a)-a.a)*Math.min(1,dt*2);a.x+=Math.cos(a.a)*230*dt;a.y+=Math.sin(a.a)*230*dt;return true;}
  let threat=rearThreat(p),goal;
  if(orbit){
-  const slot=a.fiveLafayetteSlot??0,angle=s.orbit.angle+s.age*1.12+slot*TAU/3,r=FIVE_ACE_BALANCE.orbitRadius;
+  const slot=a.fiveLafayetteSlot??0,angle=s.orbit.angle+s.age*1.12+slot*TAU/(p.skillEnhanced?4:3),r=FIVE_ACE_BALANCE.orbitRadius+(p.skillEnhanced?15:0);
   goal={x:s.orbit.x+Math.cos(angle)*r,y:s.orbit.y+Math.sin(angle)*r,a:angle+Math.PI/2};
   for(const friend of w.allies||[]){if(friend!==a&&ownLafayette(p,friend)){const e=rearThreat(p,friend);if(e&&(!threat||distance(a,e)<distance(a,threat)))threat=e;}}
  }else{
@@ -122,7 +122,7 @@ function tick(p,dt){
  if(p.pilot==='lufbery'){if(!(p.skillTime>0)){s.active=false;s.orbit=null;}return;}
  // Only this finite attack gates ordinary auto-fire. No temporary stat multiplier.
  p.fire=Math.max(p.fire,dt+.02);
- const times=beats[p.pilot];
+ const times=p.skillEnhanced&&p.pilot==='fonck'?[...beats.fonck,.33]:p.skillEnhanced&&p.pilot==='proctor'?[...beats.proctor,2.52,2.57,2.62]:beats[p.pilot];
  while(s.next<times.length&&s.age+1e-7>=times[s.next]){
   const i=s.next++;
   if(p.pilot==='fonck')emit(p,s,'precision',s.heading,5,true);
@@ -130,13 +130,13 @@ function tick(p,dt){
   else if(p.pilot==='luke')emit(p,s,i<3?'ignite':'detonate',p.a+(i%3-1)*.16,1.5,false,true);
   else if(p.pilot==='proctor'){if(i%3===0)s.heading=p.a;emit(p,s,'suppress',s.heading,1.6,true);s.bursts=Math.ceil(s.next/3);}
  }
- if(s.age>=duration[p.pilot]){s.active=false;p.fire=Math.min(p.fire,.08);}
+ if(s.age>=p.skillDuration()){s.active=false;p.fire=Math.min(p.fire,.08);}
 }
 export function installFivePilots(Game,PILOTS){
  const q=Game.prototype;
  for(const id of IDS){const c=PILOT_IDENTITY_COPY[id].ko;Object.assign(PILOTS[id],{passive:c.passive,skill:c.skill,passiveDesc:c.passiveDetail,desc:c.activeDetail});}
  const ensure=q.ensureRevisionPilot;q.ensureRevisionPilot=function(){ensure.call(this);if(!IDS.has(this.pilot)||this.fiveAceReady)return;this.fiveAceReady=true;if(this.pilot==='lufbery'){this.fiveLafayetteSlot=this.permanentWingman||0;this.permanentWingman=this.fiveLafayetteSlot+1;}};
- const dur=q.skillDuration;q.skillDuration=function(){return IDS.has(this.pilot)?duration[this.pilot]*(this.pilot==='lufbery'&&this.skillEnhanced?1.35:1):dur.call(this)};
+ const dur=q.skillDuration;q.skillDuration=function(){return IDS.has(this.pilot)?duration[this.pilot]*(this.skillEnhanced?(this.pilot==='lufbery'?1.35:this.pilot==='proctor'?1.25:1):1):dur.call(this)};
  const skill=q.skill;q.skill=function(){
   if(!IDS.has(this.pilot))return skill.call(this);
   this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.status==='downed'||this.cooldown>0||this.mission?.unarmed)return false;
@@ -148,7 +148,7 @@ export function installFivePilots(Game,PILOTS){
   if(this.pilot==='lufbery'){
    s.orbit={x:this.x,y:this.y,angle:this.a+Math.PI};s.exitHeading=this.a;
    const w=world(this);w.allies??=[];
-   for(let i=1;i<=2;i++){const side=i===1?-1:1;w.allies.push({ownerId:owner(this),plane:this.plane,x:this.x-Math.cos(this.a)*260-Math.sin(this.a)*side*85,y:this.y-Math.sin(this.a)*260+Math.cos(this.a)*side*85,a:this.a,life:this.skillTime+1.1,fire:.3+i*.1,temporary:true,fiveLafayette:true,fiveLafayetteSlot:i,slot:(this.permanentWingman||0)+i-1});}
+   for(let i=1;i<=(this.skillEnhanced?3:2);i++){const side=i===1?-1:1;w.allies.push({ownerId:owner(this),plane:this.plane,x:this.x-Math.cos(this.a)*260-Math.sin(this.a)*side*85,y:this.y-Math.sin(this.a)*260+Math.cos(this.a)*side*85,a:this.a,life:this.skillTime+1.1,fire:.3+i*.1,temporary:true,fiveLafayette:true,fiveLafayetteSlot:i,slot:(this.permanentWingman||0)+i-1});}
   }
   this.event('skill',PILOTS[this.pilot].skill);return true;
  };

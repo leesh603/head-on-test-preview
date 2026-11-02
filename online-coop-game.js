@@ -1,3 +1,5 @@
+import {LegacyProjectileStream} from './legacy-projectile-stream.js';
+import {legacySquadronSnapshot} from './legacy-squadron-adapter.js';
 import {advanceNungesserReplica} from './nungesser-combat.js';
 import {navarreSuppressionVisual} from './navarre-frommherz-combat.js';
 import * as finalArenaAchievementGate from './achievements.js?v=pandemonium394r2';
@@ -14,8 +16,8 @@ import {stageBossSpeed} from './stageboss-host.js?v=pandemonium394r2&ai=1018&sig
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=pandemonium394r2';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
-const WORLD=['doverMission','zeroDistrict','finalArena','groundFacilities','photoReconDirector','intrusionBoss','intrusionDirector','t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
-const NOTICE=new Set(['intrusionWarning','intrusionPartDestroyed','intrusionDestroyed','intrusionRetreat','intrusionResolved','tacticalActivation','aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
+const WORLD=['doverMission','legacySquadronVisual','squadronArrival','zeroDistrict','finalArena','groundFacilities','photoReconDirector','intrusionBoss','intrusionDirector','t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
+const NOTICE=new Set(['eliteWarn','squadronArrival','intrusionWarning','intrusionPartDestroyed','intrusionDestroyed','intrusionRetreat','intrusionResolved','tacticalActivation','aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
 const ownWithoutPose=entity=>{const data=pack(entity);delete data.x;delete data.y;delete data.a;return data;};
 // Fortress state is an acyclic plain-data render snapshot. The generic packer
 // intentionally omits engine graph keys such as `target`; here these are actual
@@ -38,7 +40,7 @@ export class OnlineCoopGame extends CoopGame {
  constructor(session,start){
   super(start.players,{rng:seededRandom(start.seed),runId:start.runId});
   this.online=true;this.session=session;this.host=session.role==='host';this.localPlayerId=this.host?'p1':'p2';this.netSeed=start.seed;
-  this._netDelta=new FieldDelta();this._netIds=new WeakMap();this._netSerial=0;this._netBullets=new Map();this._netReplica=new Map();this._netTargets=new Map();this._netEvents=[];this._netSeq=0;this._netInputSeq=0;this._netLastInput=0;this._netRemoteInput={};this._netLastAction=0;this._netLastState=0;this._netDisconnected=false;
+  this._netLegacyProjectileVersion=0;this._netLegacyNeedsFull=true;this._netLegacyShots=new LegacyProjectileStream();this._netDelta=new FieldDelta();this._netIds=new WeakMap();this._netSerial=0;this._netBullets=new Map();this._netReplica=new Map();this._netTargets=new Map();this._netEvents=[];this._netSeq=0;this._netInputSeq=0;this._netLastInput=0;this._netRemoteInput={};this._netLastAction=0;this._netLastState=0;this._netDisconnected=false;
   this._netEligibilityRunId=String(start.runId||'');this._netFinalArenaEligibilityChallenge=this.host?newFinalArenaChallenge():null;this._netPeerFinalArenaEligibility=null;this._netEligibilityDisposed=false;this._netFactionFinalReceipts=[];this._netFactionFinalReceiptSeen=new Set();this._netPandemoniumVictory=null;this._netPandemoniumVictorySeen=null;
   this._netInput={};this._netCorrection={x:0,y:0,a:0};this._netEnded=false;this._netFull=true;this._netHaveBase=this.host;this._netResyncAt=0;
   this._netUpgradeSerial=0;this._netUpgradePending=null;this._netUpgradeResults=[];this._netUpgradeReceipts=new Map();
@@ -88,7 +90,7 @@ export class OnlineCoopGame extends CoopGame {
   const ack=this._netFinalArenaReady;
   return !!(local&&!this._netDisconnected&&ack?.ready&&ack.token===a.token&&ack.phase===a.phase&&ack.formToken===(a.formToken||null)&&performance.now()-ack.at<1500);
  }
- disposeOnline(){this._netEligibilityDisposed=true;this._netPeerFinalArenaEligibility=null;this._netFinalArenaEligibilityChallenge=null;clearInterval(this._netTimer);this.session.onGameMessage=null;}
+ disposeOnline(){this._netLegacyShots.clear();this.legacySquadronVisual=null;for(const [id,e] of this._netReplica)if(id.startsWith('legacy:')){this._netTargets.delete(e);this._netReplica.delete(id);}this._netEligibilityDisposed=true;this._netPeerFinalArenaEligibility=null;this._netFinalArenaEligibilityChallenge=null;clearInterval(this._netTimer);this.session.onGameMessage=null;}
  worldRegion(){return this.host?super.worldRegion():this.region;}
  updateCamera(dt){const p=cameraTarget(this);if(!p)return;const k=1-Math.exp(-dt*12);this.camera.x+=(p.x-this.camera.x)*k;this.camera.y+=(p.y-this.camera.y)*k;this.camera.zoom=1;}
  constrainMove(p,x0,y0){
@@ -184,7 +186,7 @@ export class OnlineCoopGame extends CoopGame {
  idOf(entity){let id=this._netIds.get(entity);if(!id){id='n'+(++this._netSerial);this._netIds.set(entity,id);}return id;}
  receive(m){
   if(this.host){
-   if(m.type==='input'&&Number.isSafeInteger(m.seq)&&m.seq>this._netSeq){this._netSeq=m.seq;this._netLastInput=performance.now();this._netRemoteInput=cleanInput(m.input);const proof=m.finalArenaEligibility;
+   if(m.type==='input'&&Number.isSafeInteger(m.seq)&&m.seq>this._netSeq){this._netSeq=m.seq;this._netLastInput=performance.now();this._netRemoteInput=cleanInput(m.input);const legacyVersion=m.legacyProjectileVersion===1?1:0;if(legacyVersion!==this._netLegacyProjectileVersion){this._netLegacyProjectileVersion=legacyVersion;this._netLegacyNeedsFull=true;this._netLegacyShots.clear();}const proof=m.finalArenaEligibility;
     this._netPeerFinalArenaEligibility=proof?.runId===this._netEligibilityRunId&&proof.challenge===this._netFinalArenaEligibilityChallenge&&typeof proof.qualified==='boolean'?{runId:proof.runId,challenge:proof.challenge,qualified:proof.qualified,at:performance.now()}:null;
     const a=this.finalArena,r=m.finalArenaReady;
     if(a&&r?.token===a.token&&r.phase===a.phase&&(r.formToken||null)===(a.formToken||null)&&typeof r.ready==='boolean')this._netFinalArenaReady={token:r.token,phase:r.phase,formToken:r.formToken||null,ready:r.ready,at:performance.now()};
@@ -194,6 +196,7 @@ export class OnlineCoopGame extends CoopGame {
    else if(m.type==='pause'){if(m.paused===true)this.pause();else if(m.paused===false&&!this._netDisconnected)this.resume();}
    else if(m.type==='resync'){this._netDelta.reset();this._netBullets.clear();this._netFull=true;}
    else if(m.type==='peer'){
+    this._netLegacyProjectileVersion=0;this._netLegacyNeedsFull=true;this._netLegacyShots.clear();
     this._netPeerFinalArenaEligibility=null;this._netFinalArenaEligibilityChallenge=newFinalArenaChallenge();this._netFinalArenaReady=null;const wasDisconnected=this._netDisconnected;this._netDisconnected=!m.connected;if(!m.connected){if(!wasDisconnected)this._netResumeAfterPeer=this.state==='playing';this.pause();}
     else {const resume=this._netResumeAfterPeer;this._netResumeAfterPeer=false;this._netSeq=0;this._netLastAction=0;this._netLastInput=0;this._netRemoteInput={};this._netDelta.reset();this._netBullets.clear();this._netFull=true;if(resume)this.resume();}
    }
@@ -202,13 +205,16 @@ export class OnlineCoopGame extends CoopGame {
  }
  networkTick(){
   if(this._netEnded||this.session.closed)return;
-  if(!this.host){if(!this._netHaveBase&&performance.now()-this._netResyncAt>500){this._netResyncAt=performance.now();this.session.send({type:'resync'});}const a=this.finalArena;this.session.send({type:'input',seq:++this._netInputSeq,input:this._netInput,finalArenaEligibility:{runId:this._netEligibilityRunId,challenge:this._netFinalArenaEligibilityChallenge,qualified:this.finalArenaLocalQualified()},finalArenaReady:a?{token:a.token,phase:a.phase,formToken:a.formToken||null,ready:this.finalArenaAssetsReady===true&&!this.finalArenaAssetsError}:null});return;}
+  if(!this.host){if(!this._netHaveBase&&performance.now()-this._netResyncAt>500){this._netResyncAt=performance.now();this.session.send({type:'resync'});}const a=this.finalArena;this.session.send({type:'input',seq:++this._netInputSeq,input:this._netInput,legacyProjectileVersion:1,finalArenaEligibility:{runId:this._netEligibilityRunId,challenge:this._netFinalArenaEligibilityChallenge,qualified:this.finalArenaLocalQualified()},finalArenaReady:a?{token:a.token,phase:a.phase,formToken:a.formToken||null,ready:this.finalArenaAssetsReady===true&&!this.finalArenaAssetsError}:null});return;}
   // A reliable ordered delta stream: descriptors once, changed fields + compact
   // motion tuples at 15 Hz. Ordinary projectile trajectories only at birth.
+  const legacyDelta=this._netLegacyProjectileVersion===1;
+  this.legacySquadronVisual=legacySquadronSnapshot(this,!legacyDelta);
   const world={};for(const key of WORLD)if(this[key]!==undefined)world[key]=key==='finalArena'?packFinalArenaSnapshot(this[key]):pack(this[key]);
   const field=this.alpsMountains;
   world.alpsTerrain=field?pack({seed:field.seed,cellSize:field.cellSize,safeAreas:field.safeAreas,damageFraction:field.damageFraction,cooldown:field.cooldown,time:field.time}):null;
   const message={type:'state',pandemoniumVictory:this._netPandemoniumVictory,factionFinalReceipts:this._netFactionFinalReceipts,finalArenaEligibility:{runId:this._netEligibilityRunId,challenge:this._netFinalArenaEligibilityChallenge,qualified:this.finalArenaLocalQualified()},seq:++this._netLastState,full:!!this._netFull,world:this._netDelta.take('world',world),players:[],lanes:{},shots:[],shotUpdates:[],retired:[],events:this._netEvents.splice(0),upgradeResults:this._netUpgradeResults.splice(0)};this._netFull=false;
+  if(legacyDelta){message.legacyShots=this._netLegacyShots.take(this.eliteEnemies?.projectiles||[],this.t||0,message.full||this._netLegacyNeedsFull);this._netLegacyNeedsFull=false;}
   for(const p of this.players){const data=ownWithoutPose(p);data.navarreFrommherzVisual=captureNavarreFrommherzVisual(p);message.players.push({id:p.id,pose:pose(p),data:this._netDelta.take(p.id,data)});}
   const aliveIds=new Set(['world','boss','p1','p2']);
   for(const lane of LANES){const rows=[];for(const entity of this[lane]||[]){const id=this.idOf(entity);aliveIds.add(id);const data=ownWithoutPose(entity);if(lane==='enemies'){data.formationLeaderId=entity.formationLeader?.id??null;const slow=navarreSuppressionVisual(this,entity);if(slow.length)data.navarreSuppressionFx=slow;}rows.push({id,pose:pose(entity),data:this._netDelta.take(id,data)});}message.lanes[lane]=rows;}
@@ -231,7 +237,7 @@ export class OnlineCoopGame extends CoopGame {
   if(eligibility?.runId===this._netEligibilityRunId&&validFinalArenaChallenge(eligibility.challenge)&&typeof eligibility.qualified==='boolean'){
    this._netFinalArenaEligibilityChallenge=eligibility.challenge;this._netPeerFinalArenaEligibility={runId:eligibility.runId,challenge:eligibility.challenge,qualified:eligibility.qualified,at:performance.now()};this.acceptFactionFinalReceipts(m.factionFinalReceipts);this.acceptPandemoniumVictory(m.pandemoniumVictory);
   }else{this._netPeerFinalArenaEligibility=null;this._netFinalArenaEligibilityChallenge=null;}
-  if(m.full){if(!Object.hasOwn(m.world?.set||{},'finalArena'))this.finalArena=null;if(!Object.hasOwn(m.world?.set||{},'zeroDistrict'))this.zeroDistrict=null;this._netReplica.clear();this._netTargets.clear();this._netBullets.clear();this.bullets=[];}
+  if(m.full){this._netLegacyShots.clear();if(!Object.hasOwn(m.world?.set||{},'legacySquadronVisual'))this.legacySquadronVisual=null;if(!Object.hasOwn(m.world?.set||{},'squadronArrival'))this.squadronArrival=null;if(!Object.hasOwn(m.world?.set||{},'finalArena'))this.finalArena=null;if(!Object.hasOwn(m.world?.set||{},'zeroDistrict'))this.zeroDistrict=null;this._netReplica.clear();this._netTargets.clear();this._netBullets.clear();this.bullets=[];}
   const priorIntrusion=this.intrusionBoss;
   const before=this.state,oldRegion=this.region,priorChoice=this.activeUpgrade?.id,priorRevision=this.activeUpgrade?.revision||0;applyFields(this,m.world);receiveIntrusionVisual(this,priorIntrusion,m.full);
   this._netDisconnected=false;this.restoreTerrain();
@@ -245,6 +251,14 @@ export class OnlineCoopGame extends CoopGame {
   const keep=new Set();for(const [lane,rows] of Object.entries(m.lanes||{})){if(!LANES.includes(lane))continue;const entities=[];
    for(const row of rows){let entity=this._netReplica.get(row.id);if(!entity){entity={};this._netReplica.set(row.id,entity);}applyFields(entity,row.data);this.target(entity,row.pose);keep.add(row.id);entities.push(entity);}this[lane]=entities;
   }
+  // Legacy aircraft remain outside combat lanes, but share native 15 Hz pose interpolation.
+  if(this.legacySquadronVisual)for(const lane of ['members']){
+   this.legacySquadronVisual[lane]=(this.legacySquadronVisual[lane]||[]).map(row=>{const id='legacy:'+lane+':'+row.id;let entity=this._netReplica.get(id);if(!entity){entity={};this._netReplica.set(id,entity);}const position=[row.x,row.y,row.a??Math.atan2(row.vy||0,row.vx||0),row.vx||0,row.vy||0];for(const [key,value]of Object.entries(row))if(!['x','y','a'].includes(key))entity[key]=value;this.target(entity,position);keep.add(id);return entity;});
+  }
+  if(m.legacyShots?.version===1)this._netLegacyShots.accept(m.legacyShots);
+  else if(Object.hasOwn(m.world?.set||{},'legacySquadronVisual'))this._netLegacyShots.accept({full:true,born:this.legacySquadronVisual?.projectiles||[]}); // Older hosts send complete arrays.
+  if(!this.legacySquadronVisual)this._netLegacyShots.clear();
+  else this.legacySquadronVisual.projectiles=this._netLegacyShots.values();
   const enemiesById=new Map(this.enemies.map(e=>[e.id,e]));for(const e of this.enemies)e.formationLeader=enemiesById.get(e.formationLeaderId)||null;
   for(const row of m.shots||[]){const b=unpack(row.data);this._netBullets.set(row.id,b);}
   for(const row of m.shotUpdates||[]){const b=this._netBullets.get(row.id);if(!b||!Array.isArray(row.pose)||row.pose.length!==5||!row.pose.every(Number.isFinite)||!Number.isFinite(row.life))continue;[b.x,b.y,b.a,b.vx,b.vy]=row.pose;b.previousX=b.x;b.previousY=b.y;b.life=row.life;}
@@ -294,6 +308,7 @@ export class OnlineCoopGame extends CoopGame {
     const x=p.x,y=p.y;p.x+=Math.cos(p.a)*velocity*step;p.y+=Math.sin(p.a)*velocity*step;this.constrainMove(p,x,y);
     const k=1-Math.exp(-step*10),c=this._netCorrection;p.x+=c.x*k;p.y+=c.y*k;p.a+=c.a*k;c.x*=1-k;c.y*=1-k;c.a*=1-k;
    }
+   this._netLegacyShots.advance(step);if(this.legacySquadronVisual)this.legacySquadronVisual.projectiles=this._netLegacyShots.values();
    let count=0;for(const b of this.bullets){b.previousX=b.x;b.previousY=b.y;b.x+=b.vx*step;b.y+=b.vy*step;b.life-=step;if(b.life>0)this.bullets[count++]=b;}this.bullets.length=count;
    for(const [entity,target] of this._netTargets){target.age+=step;const k=Math.min(1,target.age*NET_HZ);entity.x=target.from[0]+(target.to[0]-target.from[0])*k;entity.y=target.from[1]+(target.to[1]-target.from[1])*k;entity.a=mixAngle(target.from[2],target.to[2],k);}
   }

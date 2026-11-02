@@ -16,7 +16,7 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
   WEAPONS[id]={...WEAPONS[s.faction==='central'?'albatros':'nieuport'],guns:s.guns,name:id==='airco_dh2'?'Lewis':s.faction==='central'?'Spandau LMG 08/15':'Vickers',reload:s.guns===1?2:2.4};
  }
  PILOTS.hawker={name:'라노 호커',alias:'VICTORIA CROSS',faction:'entente',portrait:1,skill:'모든 것을 공격하라',desc:'5초간 공격속도 +100%, 기관총 탄약 무제한.',cooldown:20};
- PILOTS.berthold={name:'루돌프 베르토홀트',alias:'THE IRON KNIGHT',faction:'central',portrait:0,skill:'불굴의 의지',desc:'5초간 받는 피해 65% 감소. 저체력 패시브와 중첩됩니다.',cooldown:20};
+ PILOTS.berthold={name:'루돌프 베르톨트',alias:'THE IRON KNIGHT',faction:'central',portrait:0,skill:'불굴의 의지',desc:'5초간 받는 피해 65% 감소. 저체력 패시브와 중첩됩니다.',cooldown:20};
  PILOT_PLANES.hawker='airco_dh2';PILOT_PLANES.berthold='pfalz_d3a';
  const passives={baron:['사냥 본능','강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.'],fonck:['정밀의 에이스','기관총 탄퍼짐 감소, 탄속 +25%.'],voss:['고독한 늑대','400 범위 적 1기당 공격력·속도·선회 +4%, 최대 +24%.'],boelcke:['Dicta Boelcke','적 측면·후방에서 기관총 피해 +25%.'],collishaw:['Black Flight','검은 삼엽기 윙맨 2기가 서로 다른 적을 분산 압박합니다.'],baracca:['Cavallino Rampante','적과 정면으로 마주칠 때 기관총 피해 +30%.'],udet:['공중 곡예사','현재 체력이 100보다 낮으면 부족한 체력 1당 공격력 +0.5%, 속도·선회 +0.3%.'],guynemer:['모퇴르 카농','4초마다 피해 90의 대형 관통 기관포 발사.'],bishop:['근접 사냥꾼','300 범위 안의 적에게 기관총 피해 +80%.'],goering:['백색 편대장','백색 윙맨 1기와 상시 출격.'],immelmann:['독일의 독수리','큰 방향전환·선회기동 직후 1.5초간 탄 퍼짐 감소·연사 +20%.'],mannock:['엄호전의 에이스','아군을 공격 중인 적에게 기관총 피해 +15%, 엄호 교전 중 연사 +15%.'],mckeever:['후방사수 · 파월','전방과 후방 동시 사격.'],huffzky:['후방 사수','에만이 후방의 적을 상시 조준하여 견제합니다.'],hawker:['빅토리아 십자훈장 수훈자','선회 속도 손실 −25%. 직진 유지 시 최대 속도 +20%.'],berthold:['철혈의 에이스','체력 50% 이하에서 받는 피해 25% 감소.']};
  for(const[id,[name,desc]]of Object.entries(passives)){PILOTS[id].passive=name;PILOTS[id].passiveDesc=desc;}
@@ -92,7 +92,7 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
    if(this.pilot==='bishop'&&Math.hypot(e.x-this.x,e.y-this.y)<=300)mult*=1.8;
    if(this.pilot==='mannock'&&this.mannockCoverTarget(e))mult*=1.15;
   }
-  if(this.skillEnhanced&&(b.special||b.formation||b.duo||b.blast&&this.skillTime>0))mult*=1.3;
+  // Medal bonuses belong to the owned active attack, never broad projectile families.
   return mult;
  };
  // Read the existing enemy target without changing its AI or acquiring a new target.
@@ -124,7 +124,7 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
    this.a=m.heading+m.direction*Math.PI*maneuverEase(q/.72);this.turn=0;
    this.fire=Math.max(this.fire,dt+.03);
    this.immelmannAltitude=0;
-   if(!m.fired&&q>=.72){m.fired=true;for(let i=-m.spread;i<=m.spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*3.5,pierce:true,hit:new Set(),formation:true})}this.muzzleFlash=.12}
+   if(!m.fired&&q>=.72){m.fired=true;for(let i=-m.spread;i<=m.spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*3.5*(this.skillEnhanced?1.15:1),pierce:true,hit:new Set(),formation:true,immelmannCounter:true})}this.muzzleFlash=.12}
    if(q>=1){this.immelmannTurn=null;this.immelmannAltitude=0;this.eagleTime=1.5;this.immelmannPreviousHeading=this.a}
   }else if(this.pilot==='immelmann')this.immelmannAltitude=0;
   if(this.pilot==='guynemer'){this.passiveCannonTimer=(this.passiveCannonTimer??0)-dt;if(this.passiveCannonTimer<=0){this.passiveCannonTimer=4;this.cannonRecoil129=.24;this.cannonKick129=9;this.identityFx?.('muzzleHeavy',this.x+Math.cos(this.a)*26,this.y+Math.sin(this.a)*26,this.a,58,.15);this.bullets.push({x:this.x,y:this.y,vx:Math.cos(this.a)*460,vy:Math.sin(this.a)*460,life:2.8,ownerId:this.id,enemy:false,motorCannon:true,pierce:true,collisionRadius:18,damage:this.payloadPower(90),hit:new Set()});}}
@@ -162,7 +162,7 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  const fireEnemy=Game.prototype.fireEnemy;Game.prototype.fireEnemy=function(e){const result=fireEnemy.call(this,e);if(e.rapidFireUntil>this.t)e.fire=Math.min(e.fire,.22);return result};
  const target=Game.prototype.enemyCombatTarget;
  Game.prototype.enemyCombatTarget=function(e){return this.revisionDecoyTarget(e)||target.call(this,e)};
- Game.prototype.revisionDecoyTarget=function(e){const decoys=(this.revisionDecoys||[]).filter(d=>Math.hypot(d.x-e.x,d.y-e.y)<600);return decoys.length?decoys[(e.tailId?.length||0)%decoys.length]:null};
+ Game.prototype.revisionDecoyTarget=function(e){const decoys=(this.revisionDecoys||[]).filter(d=>Math.hypot(d.x-e.x,d.y-e.y)<(d.medalDecoy?750:600));return decoys.length?decoys[(e.tailId?.length||0)%decoys.length]:null};
  const supportPlane=Game.prototype.supportPlane;Game.prototype.supportPlane=function(){return this.pilot==='collishaw'?'sopwith':supportPlane.call(this)};
  const support=Game.prototype.supportPower;
  Game.prototype.supportAuraAt=function(){return 1};

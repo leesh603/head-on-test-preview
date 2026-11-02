@@ -5,6 +5,10 @@ import {getLocale,activeName,pilotName} from './i18n.js?v=buildfit1&afc=1&art=pi
 
 
 const EXACT = {
+  '철십자 훈장 1급 · 강화 적용됨':'Iron Cross 1st Class · Enhancement applied',
+  '수훈비행십자훈장 · 강화 적용됨':'Distinguished Flying Cross · Enhancement applied',
+  '반대 전선에 7초 뒤 적 예비대가 도착합니다.': 'Enemy reserves reach the opposite front in 7s.',
+  '3초 뒤 적이 협공합니다. 지금 이탈할 수 있습니다.': 'Pincer attack in 3s. You can disengage now.',
   '블랙 플라이트 · 공격 개시': 'Black Flight · Begin assault',
   '관측기구 격추 · 적 포병 관측망 붕괴 — 12초간 관측포격 중단': 'Observation balloon down · enemy spotting net broken — no observed fire for 12s',
   '기관차 탈선 · 최종 코어 노출': 'Locomotive derailed · final core exposed',

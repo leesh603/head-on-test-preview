@@ -2,8 +2,8 @@
 // Native art is cached without shrinking it; neighbouring tiles only translate.
 export const CAPITAL_TERRAIN_SIZE=2560;
 export const CAPITAL_TERRAIN_SOURCES=Object.freeze({
- 11:'./terrain-capital-london-20261101.webp',
- 18:'./terrain-capital-berlin-20261101.webp'
+ 11:'./terrain-capital-london-20261031.webp',
+ 18:'./terrain-capital-berlin-20261031.webp'
 });
 const baseColor=region=>region===11?'#232a36':'#45514d';
 const createCanvas=(width,height)=>{
@@ -70,7 +70,7 @@ export const paintCapitalTerrain=(context,region,cx,cy,width,height)=>renderer.d
 
 // Conservative banks inside the painted Thames. The same endpoints meet at
 // translated tile boundaries; bridges do not change the approach corridor.
-const THAMES_BANKS=Object.freeze([[0,.38,.55],[.2,.405,.55],[.4,.43,.565],[.6,.45,.59],[.8,.45,.61],[1,.42,.59]]);
+const THAMES_BANKS=Object.freeze([[0,.435,.55],[.2,.405,.52],[.4,.42,.56],[.6,.46,.60],[.8,.46,.61],[1,.435,.55]]);
 export function capitalLondonRiverCover(x,y){
  const u=((x%CAPITAL_TERRAIN_SIZE)+CAPITAL_TERRAIN_SIZE)%CAPITAL_TERRAIN_SIZE/CAPITAL_TERRAIN_SIZE;
  const v=((y%CAPITAL_TERRAIN_SIZE)+CAPITAL_TERRAIN_SIZE)%CAPITAL_TERRAIN_SIZE/CAPITAL_TERRAIN_SIZE;
@@ -81,4 +81,3 @@ export function capitalLondonRiverCover(x,y){
  }
  return false;
 }
-

@@ -634,7 +634,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
  if(layer!=='hazards')drawBossEntryWorld(c,addon.stages.encounter,fx);
  const arrivalDraw=draw=>spec=>{c.save();clipBossEntry(c,spec.entryReveal);c.globalAlpha*=spec.arrivalAlpha??1;try{return draw(spec);}finally{c.restore();}};
- renderStageBossLayer(addon,{layer,bodyBounds:bossEntryBounds,
+ renderStageBossLayer(addon,{layer,view,bodyBounds:bossEntryBounds,
   drawBody:arrivalDraw(b=>{if(layer==='hazards')return;
    if(isCapitalBoss(b.assetKey)){const body=bodyOf(v=>v.id===b.id);if(body)drawCapitalBoss(c,body,{effect:fx,defeat:addon.defeatSequence});return;}
    if((b.assetKey==='zeppelin-l70'||b.assetKey==='hma23')&&drawSkyAirship(c,b,{cloud:(...a)=>bossSprite(c,11,...a),effect:(...a)=>fx(c,...a),mark:(...a)=>partMark(c,...a)}))return;

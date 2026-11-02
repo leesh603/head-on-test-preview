@@ -2,7 +2,7 @@ import {activatePilotSignature,signatureCue} from './pilot-signature-state.js';
 import {tickLotharFlightFx,lotharGunFx} from './lothar-pursuit-fx.js';
 // Lothar's immediate transfer from a falling opponent to the next aircraft
 // inspires this arcade pursuit loop; ammunition recovery is a game abstraction.
-export const LOTHAR_BALANCE=Object.freeze({duration:5,enhancedDuration:6.5,switchWindow:2.5,ammoFraction:.1,turnDuration:1.5,turnMultiplier:1.4,fireRate:1.5,speedMultiplier:1.15,extension:1,extensionCap:3});
+export const LOTHAR_BALANCE=Object.freeze({duration:6.5,enhancedDuration:6.5,switchWindow:2.5,ammoFraction:.1,turnDuration:1.5,turnMultiplier:1.4,fireRate:1.5,speedMultiplier:1.15,extension:1,extensionCap:3});
 const world=p=>p.combatWorld?.()||p;
 const clock=p=>world(p).t||0;
 const playing=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed';
@@ -40,7 +40,7 @@ export function installLothar(Game){
    signatureCue(this,'lotharLinkHit',{x:position.x,y:position.y,a:Math.atan2(b.vy||0,b.vx||0),life:.28});
    this.event('wave','재교전');
   }
-  if(e.hp<=0&&!s.killed.has(e)){s.killed.add(e);s.source=e;s.switchUntil=now+LOTHAR_BALANCE.switchWindow;signatureCue(this,'lotharKill',{x:position.x,y:position.y,a:e.a||0,life:.38});}
+  if(e.hp<=0&&!s.killed.has(e)){s.killed.add(e);s.source=e;s.switchUntil=now+(this.skillEnhanced&&this.skillTime>0?3.5:LOTHAR_BALANCE.switchWindow);signatureCue(this,'lotharKill',{x:position.x,y:position.y,a:e.a||0,life:.38});}
   return result;
  };
  const round=q.applySpecialRound;

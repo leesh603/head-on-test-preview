@@ -12,7 +12,7 @@ export function beginCollishawJetstream(p){
 export function collishawJetstream(p){
  if(!live(p)){runs.delete(p);return null;}
  const run=runs.get(p);if(p.state!=='playing'||!run)return null;
- run.returning=(p.identityState().clock-run.clock)>=Math.min(3.72,run.duration*.62);
+ run.returning=(p.identityState().clock-run.clock)>=(p.skillEnhanced?run.duration*.72:Math.min(3.72,run.duration*.62));
  return run;
 }
 export function advanceCollishawJetstream(p,w,dt,interval){

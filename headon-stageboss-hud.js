@@ -1,4 +1,4 @@
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101b';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
 
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
@@ -19,6 +19,5 @@ export function bossHudDetail(model,locale='ko'){
 }
 // Reuses the main build's existing durability/XP nodes, whether it has one
 // shared XP bar or individual XP bars. No new player HUD or level-up logic.
-
 
 

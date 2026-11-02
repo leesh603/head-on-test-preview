@@ -26,16 +26,16 @@ export function tickThreePilot(p,dt){
   // Intercept only incoming light rounds crossing the small forward quarter.
   // Rear shots, shells, rockets and explosions still have to be avoided.
   const ca=Math.cos(p.a),sa=Math.sin(p.a),world=p.combatWorld();
-  let count=0;
+  const reach=p.skillEnhanced?96:76;let count=0;
   for(const b of world.bullets||[]){
    if(!b.enemy||!(b.life>0)||b.heavy||b.flak||b.rocket||b.bomb||b.fieldShell||b.actualExplosion||b.blast||b.shell||b.aceSpecial||b.visualType==='boss')continue;
    const dx=b.x-p.x,dy=b.y-p.y,vx=b.vx*dt,vy=b.vy*dt;
    if(dx*b.vx+dy*b.vy>=0)continue;
-   const len=vx*vx+vy*vy,dot=dx*vx+dy*vy,outside=dx*dx+dy*dy-76*76;
+   const len=vx*vx+vy*vy,dot=dx*vx+dy*vy,outside=dx*dx+dy*dy-reach*reach;
    let q=0;if(outside>0){const disc=dot*dot-len*outside;if(!len||disc<0)continue;q=(-dot-Math.sqrt(disc))/len;if(q<0||q>1)continue;}
    const x=dx+vx*q,y=dy+vy*q;
    const front=x*ca+y*sa,side=-x*sa+y*ca;
-   if(front<18||front>76||Math.abs(side)>front*.72||x*x+y*y>76*76+.001)continue;
+   if(front<18||front>reach||Math.abs(side)>front*(p.skillEnhanced?.8:.72)||x*x+y*y>reach*reach+.001)continue;
    b.life=0;s.deflections++;
    if(count++<3){const px=p.x+x,py=p.y+y,a=p.a+(side<0?-1:1)*1.05;
     p.metalDeflectionFx?.(px,py,a);

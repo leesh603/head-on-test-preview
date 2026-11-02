@@ -1,15 +1,14 @@
 import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
+import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
 import {equipmentMountArtReady} from './equipment-mount-fx.js?v=equipmentmount20261030';
 import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=equipmentdetail20261030';
 import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=equipmentextension20261030';
 import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=equipmentart20261030';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {WWI_FRAMES} from './wwi-equipment-art-data.js';
 import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
 import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
-import {wwiBurnPoint,wwiWingTarget,currentCameraCue,WWI_BALANCE,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
+import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
 import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
 
 let atlas,bomb,brakePanel,grapnelAtlas;
@@ -19,7 +18,7 @@ const load=(file,set)=>new Promise(resolve=>{
 });
 export const equipmentArtReady=Promise.all([
  load('./wwi-equipment-atlas.webp',im=>atlas=im),load('./bomb-cooper-readable-q92.webp',im=>bomb=im),
- load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./fiery-grapnel-20261028.webp',im=>grapnelAtlas=im),incendiaryArtReady,equipmentSignatureArtReady,equipmentExtensionArtReady,equipmentDetailArtReady,equipmentMountArtReady,equipmentFinishingArtReady
+ load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./fiery-grapnel-20261028.webp',im=>grapnelAtlas=im),incendiaryArtReady,equipmentSignatureArtReady,equipmentExtensionArtReady,equipmentDetailArtReady,equipmentMountArtReady,equipmentFinishingArtReady,hytheCameraArtReady
 ]).then(results=>results.every(Boolean));
 
 function sprite(c,key,x,y,width,angle=0,alpha=1){
@@ -39,12 +38,6 @@ export function drawGrapnelCable(c,x0,y0,x1,y1,z=1,sag=0){
  }c.restore();
 }
 function grapnelSprite(c,key,x,y,width,a){sprite(c,key,x-Math.cos(a)*width*.475,y-Math.sin(a)*width*.475,width,a)}
-
-function brackets(c,x,y,size,color){
- c.strokeStyle=color;c.lineWidth=1;c.beginPath();
- for(const side of [-1,1]){c.moveTo(x+side*size,y-size+3);c.lineTo(x+side*size,y-size);c.lineTo(x+side*(size-3),y-size);c.moveTo(x+side*size,y+size-3);c.lineTo(x+side*size,y+size);c.lineTo(x+side*(size-3),y+size);}
- c.stroke();
-}
 
 function hardware(c,image,x,y,width,height){
  if(!image?.naturalWidth)return;c.drawImage(image,x-width/2,y-height/2,width,height);
@@ -70,7 +63,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    // Already in aircraft-local coordinates, so pass a zero heading.
    drawAirbrakePressure(c,p,0,0,{...options,local:true});
   }
-  if(u.hytheCamera&&p.wwiHytheShutter>0)sprite(c,'hytheShutter',front+10,-5,36,0,Math.min(1,p.wwiHytheShutter*8));
+  if(u.hytheCamera&&p.wwiHytheShutter>.24)sprite(c,'hytheShutter',front+10,-5,15,0,(p.wwiHytheShutter-.24)/.14);
   c.restore();
   const sight=p.wimperisCue;
   if(u.wimperisSight&&sight?.until>world.t&&visible(sight.x,sight.y)){
@@ -100,29 +93,20 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   }
   const cue=currentCameraCue(p,world);
   if(u.hytheCamera){
-   const analyzed=p.wwiHytheVisible>0,id=analyzed?p.wwiHytheAnalyzedId:p.wwiHytheTargetId;
-   const e=resolveWWITarget(p,id);
-   if(e&&id!=null&&(analyzed||p.wwiHytheHits>0)&&visible(e.x,e.y)){
-    const x=sx(e.x),y=sy(e.y),size=Math.max(analyzed?25:20,Math.min(65,(e.hitRadius||e.hullWidth||17)+9))*z;
-    c.save();c.globalAlpha*=analyzed?.95:.5+.35*Math.min(1,p.wwiHytheHits/WWI_BALANCE.hytheCamera.hits);
-    // A camera viewfinder follows the photographed aircraft for the entire bonus window.
-    c.shadowColor='#171812';c.shadowBlur=2;c.shadowOffsetY=1;
-    brackets(c,x,y,size,analyzed?'#f4dfaa':'#c7bb96');
-    c.shadowBlur=0;c.shadowOffsetY=0;
-    drawGameIcon(c,'hytheCamera',x-size-10*z,y-size,22*z);
-    if(analyzed){
-     c.font='600 '+Math.round(11*z)+'px sans-serif';c.textAlign='center';c.textBaseline='bottom';
-     c.lineWidth=3*z;c.strokeStyle='#171812';c.fillStyle='#f4dfaa';
-     const text=getLocale()==='en'?'ANALYZED':'분석 완료';
-     c.strokeText(text,x,y-size-5*z);c.fillText(text,x,y-size-5*z);
+   const shown=new Set();
+   const lanes=['','Rear'].sort((a,b)=>(p['wwiHythe'+b+'Visible']||0)-(p['wwiHythe'+a+'Visible']||0));
+   for(const lane of lanes){
+    const key='wwiHythe'+lane,remaining=p[key+'Visible']||0,hits=p[key+'Hits']||0,analyzed=remaining>0;
+    const id=p[key+(analyzed?'AnalyzedId':'TargetId')],point=cameraTargetPoint(p,id,p[key+(analyzed?'AnalyzedPartId':'PartId')]);
+    if(point&&!shown.has(id)&&(analyzed||hits>0)&&visible(point.x,point.y)){
+     drawHytheFocus(c,sx(point.x),sy(point.y),{hits,remaining,shutter:p.wwiHytheShutter,scale:z,radius:point.radius});shown.add(id);
     }
-    c.restore();
    }
   }
-  if(cue&&Number.isFinite(cue.x)&&Number.isFinite(cue.y)&&visible(cue.x,cue.y)){
-   const x=sx(cue.x),y=sy(cue.y);c.save();c.globalAlpha=.8;brackets(c,x,y,10*z,'#d8d0b0');
-   const a=Number.isFinite(cue.angle)?cue.angle:Number.isFinite(cue.targetX)&&Number.isFinite(cue.targetY)?Math.atan2(cue.targetY-cue.y,cue.targetX-cue.x):null;
-   if(a!==null){c.setLineDash([3*z,5*z]);c.strokeStyle='#d8d0b0';c.lineWidth=1;c.beginPath();c.moveTo(x+Math.cos(a)*14*z,y+Math.sin(a)*14*z);c.lineTo(x+Math.cos(a)*65*z,y+Math.sin(a)*65*z);c.stroke();}c.restore();
+  if(cue&&Number.isFinite(cue.x)&&Number.isFinite(cue.y)){
+   const x=Number.isFinite(cue.targetX)?cue.targetX:cue.x+(Number.isFinite(cue.angle)?Math.cos(cue.angle)*52:0);
+   const y=Number.isFinite(cue.targetY)?cue.targetY:cue.y+(Number.isFinite(cue.angle)?Math.sin(cue.angle)*52:0);
+   if(visible(x,y))drawHytheFocus(c,sx(x),sy(y),{warning:true,scale:z});
   }
  }
  for(const e of equipmentTargets(world)){
@@ -153,9 +137,8 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    }
   }
   if(b.fieryGrapnel)grapnelSprite(c,'grapnelHead',sx(b.x),sy(b.y),36*z,Math.atan2(b.vy,b.vx));
-  else sprite(c,'flechetteDart',sx(b.x),sy(b.y),18*z,Math.atan2(b.vy,b.vx));
+  else sprite(c,'flechetteDart',sx(b.x),sy(b.y),24*z,Math.atan2(b.vy,b.vx));
  }
  c.restore();
 }
-
 

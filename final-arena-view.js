@@ -1,3 +1,4 @@
+import {getLocale} from './i18n.js';
 import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
 import {drawFormationEdgeBadge} from './tactical-marks.js?v=tame3';
 import {finalArenaBosses} from './pandemonium-registry.js';
@@ -87,9 +88,9 @@ export function finalArenaHudModel(g){
 }
 export function drawFinalArenaHud(c,g,W,H){
  if(!finalArenaVisible(g))return;
- c.save();c.textAlign='center';c.textBaseline='middle';
- if(!assets){c.fillStyle='#121b20e8';c.fillRect(12,H*.37,W-24,96);c.fillStyle='#eee5d0';c.font='bold 15px sans-serif';c.fillText(error?'제로구역 원화 로드 실패 · 자동 재시도':'제로구역 원화 준비 중…',W/2,H*.37+32);c.font='12px sans-serif';c.fillText(error?'잠시 후 다시 불러옵니다':'전투 시작 전에 시설과 병기를 준비합니다',W/2,H*.37+62);c.restore();return;}
- if(g.finalArena.waitingForAssets){c.fillStyle='#121b20e8';c.fillRect(12,H*.37,W-24,96);c.fillStyle='#eee5d0';c.font='bold 13px sans-serif';c.fillText('다른 플레이어의 최종맵 준비를 기다리는 중',W/2,H*.37+34);c.font='12px sans-serif';c.fillText('모두 준비되면 안전하게 전투를 시작합니다',W/2,H*.37+62);c.restore();return;}
+ const en=getLocale()==='en';c.save();c.textAlign='center';c.textBaseline='middle';
+ if(!assets){c.fillStyle='#121b20e8';c.fillRect(12,H*.37,W-24,96);c.fillStyle='#eee5d0';c.font='bold 15px sans-serif';c.fillText(error?(en?'Could not load Zero Sector.':'제로구역을 불러오지 못했습니다.'):(en?'Preparing to enter Zero Sector…':'제로구역 진입 준비 중…'),W/2,H*.37+32);c.font='12px sans-serif';c.fillText(error?(en?'Trying again shortly':'잠시 후 다시 불러옵니다'):(en?'Preparing the battlefield before combat':'전투 시작 전에 전장을 준비합니다'),W/2,H*.37+62);c.restore();return;}
+ if(g.finalArena.waitingForAssets){c.fillStyle='#121b20e8';c.fillRect(12,H*.37,W-24,96);c.fillStyle='#eee5d0';c.font='bold 13px sans-serif';c.fillText(en?'Waiting for your teammate to prepare':'동료의 전장 준비를 기다리는 중…',W/2,H*.37+34);c.font='12px sans-serif';c.fillText(en?'Combat begins when everyone is ready':'모두 준비되면 전투를 시작합니다',W/2,H*.37+62);c.restore();return;}
  const a=g.finalArena;
  if(a.phase==='entry'){drawArenaEntry(c,a,W,H);c.restore();return;}
  const bosses=finalArenaBosses(a);

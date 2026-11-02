@@ -5,7 +5,7 @@ export const EXPLOSION_LIFE=Object.freeze({aircraft:.72,fuelFire:3.2,groundShell
 const impactTimes=new WeakMap();
 const replicaAges=new WeakMap();
 export function advanceReplicaImpactFx(world,dt){
- for(const f of world.combatFX||[])if(f.fxProfile==='bulletImpact'||f.fxProfile==='aircraftCritical'||f.fxProfile==='cannonMuzzle'||weaponImpactKind(f)){
+ for(const f of world.combatFX||[])if(f.fxProfile==='bulletImpact'||f.fxProfile==='aircraftCritical'||f.fxProfile==='cannonMuzzle'||EXPLOSION_LIFE[f.fxProfile]||weaponImpactKind(f)){
   let clock=replicaAges.get(f);
   if(!clock||clock.life!==f.life){clock={life:f.life,age:0};replicaAges.set(f,clock);}
   else clock.age+=dt;
@@ -110,7 +110,8 @@ export function drawExplosionProfile(c,f,x,y,fx){
  }
  if(profile==='fuelFire')return drawFuelFire(c,fx,x,y,age,Math.min(78,r*1.3),0,f.life);
  if(profile==='aircraft'){
-  const d=Math.min(110,Math.max(48,r*2.25));
+  const d=Math.min(138,Math.max(56,r*2.5));
+  if(age<.075)fx(c,'profileFlash',x,y,d*.85,d*.85,0,(1-age/.075)*.95);
   if(age<.24)fx(c,FRAMES.air[Math.min(3,Math.floor(age/.06))],x,y,d*(.65+clamp(age/.14)*.35),d,0,clamp((.24-age)/.09));
   if(age>.06)fx(c,'profileTrail',x+d*age*.22,y-d*age*.4,d*(.35+age*.6),d*(.6+age*.45),-.25,clamp((.72-age)/.3)*.38);
   shards(c,fx,x,y,age,d,true,3);
@@ -122,7 +123,7 @@ export function drawExplosionProfile(c,f,x,y,fx){
   const spread=1-Math.pow(1-clamp(age/(heavy?.65:.36)),3),dust=clamp(age/.045)*clamp((T-age)/(heavy?.36:.2))*(heavy?.38:.25);
   for(let i=0;i<(heavy?2:1);i++)fx(c,'profileDust',x+(heavy?(i?1:-1)*d*spread*.32:0),y+d*.08,d*(.8+spread),d*(.5+spread*.2),i?.15:-.12,dust);
   if(age<(heavy?.42:.24)){const heave=.62+.38*clamp(age/(heavy?.1:.06));fx(c,FRAMES.earth[Math.min(3,Math.floor(age/(heavy?.105:.06)))],x,y-d*(heavy?.12:.06),d*.9*heave,d*(heavy?1.12:.95)*heave,0,clamp(((heavy?.42:.24)-age)/.14)*.9);}
-  if(heavy&&age<.1)fx(c,'profileFlash',x,y,d*.62,d*.62,0,(1-age/.1)*.95);
+  if(age<.085)fx(c,'profileFlash',x,y,d*(heavy?.85:.7),d*(heavy?.85:.7),0,(1-age/.085)*.95);
   shards(c,fx,x,y,age,d,false,heavy?4:2,true);
   if(heavy&&q>.12&&q<.65)fx(c,'profileDirt',x,y-d*q*.42,d*.46,d*(.9+q*.5),0,(1-q/.65)*.4);
   if(!f.railImpact&&age>.2)fx(c,'profileOil',x+d*.04,y-d*(.12+q*.22),d*(.5+q*.4),d*(.6+q*.4),-.1,clamp((age-.2)/.12)*clamp((T-age)/.24)*(heavy?.24:.16));

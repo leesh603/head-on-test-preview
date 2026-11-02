@@ -19,11 +19,10 @@ export function drawRedScarf(c,p,x,y,{low=false,local=false}={}){
 export function drawFlechetteTrail(c,b,x,y,{scale=1,low=false}={}){
  if(!b?.flechette||!(b.life>0)||!images.wind||!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(b.vx)||!Number.isFinite(b.vy))return;
  const speed=Math.hypot(b.vx,b.vy);if(!(speed>0))return;
- const z=Math.max(.1,Math.min(4,finite(scale,1))),a=Math.atan2(b.vy,b.vx),length=26*z,height=4.5*z;
+ const z=Math.max(.1,Math.min(4,finite(scale,1))),a=Math.atan2(b.vy,b.vx),length=16*z,height=2*z;
  // This source is dense on its left and fades right: turn it backward so its
  // dense end meets the dart and the painted wisps trail behind, never ahead.
- c.save();c.translate(x-Math.cos(a)*18*z,y-Math.sin(a)*18*z);c.rotate(a+Math.PI);
- c.globalAlpha*=Math.min(1,b.life/.06)*(low?.7:.85);c.imageSmoothingEnabled=true;
+ c.save();c.translate(x-Math.cos(a)*19*z,y-Math.sin(a)*19*z);c.rotate(a+Math.PI);
+ c.globalAlpha*=Math.min(1,b.life/.10)*(low?.25:.32);c.imageSmoothingEnabled=true;
  c.drawImage(images.wind,0,0,256,144,-length/2,-height/2,length,height);c.restore();
 }
-

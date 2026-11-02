@@ -877,6 +877,12 @@ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .
  body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption span{font-size:8.5px!important}
 }
 
+/* Named-squadron emblems keep the shared caption and card anchors while their
+   visible width and height are halved on both desktop and touch layouts. */
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="/squadron-emblems/"]) .boss-cutin-art img{
+ transform:scale(.5)!important;transform-origin:bottom right;
+}
+
 /* ==========================================================================
    23. Special-equipment medals stack vertically under the pause key
        (the slim strip freed that column). Tooltip opens to the left.
@@ -1445,3 +1451,12 @@ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 em{
    recomputed every frame on the phone GPU. Drop it there and make the glass a touch denser. */
 body.astra-ui.playing #flightStack151 *,body.astra-ui.playing #touch,body.astra-ui.playing #touch *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 :is(.flight-survival,.flight-status-panel),body.astra-ui.playing #flightTop151 #pause,body.astra-ui.playing #touch :is(#reload,#touchEvade,#touchSkill){background-color:rgba(14,13,11,.78)!important}
+}
+
+/* Rural-front rows belong to the mission card even when it is reparented to
+   flightTop151. Keep the SVG contract independent of the old notices wrapper;
+   otherwise desktop falls back to a large black, intrinsically-sized SVG. */
+body.astra-ui.playing #eventMissionHud .front-row151{display:flex;align-items:center;gap:5px;min-width:0}
+body.astra-ui.playing #eventMissionHud .front-row151 svg{width:11px;height:11px;max-width:11px;max-height:11px;flex:0 0 11px;fill:none;stroke:#e2c276;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.astra-ui.playing #eventMissionHud .front-row151.protect svg{stroke:#8fd3bf}
+body.astra-ui.playing #eventMissionHud .front-row151 em{font-style:normal;white-space:nowrap}

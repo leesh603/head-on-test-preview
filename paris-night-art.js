@@ -4,11 +4,11 @@ import {fx} from './fx-art.js?v=tame3';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=gal1';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {paintParisTerrain,releaseParisTerrain} from './paris-terrain.js?v=paris20261031';
+import {paintParisTerrain,releaseParisTerrain} from './paris-terrain.js?v=paris20261101';
 let images={};
 export function releaseParisArt(){images={};releaseParisTerrain();}
 export function prepareParisArt(){
- return Promise.all([['map','terrain-paris-night1918.webp'],['materials','paris-ground-materials-20261031.webp'],['blocks','paris-city-blocks-20261031.webp'],['landmarks','paris-landmarks-20261031.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp?v=bomber-style20261024'],['staakenWreck','paris-staaken-wreck-camo-20261030.webp'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp?v=bomber-style20261024'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
+ return Promise.all([['map','paris-city-1918-20261101.webp'],['surround','terrain-london359r2.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp?v=bomber-style20261024'],['staakenWreck','paris-staaken-wreck-camo-20261030.webp'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp?v=bomber-style20261024'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=r5&b=city4';
  })));
 }
@@ -68,5 +68,6 @@ export function drawParisWorld(c,g,locale='ko'){
  if(q?.runTarget){const d=q.runTarget;aimLine(c,q.x,q.y,d.x,d.y,{alpha:.7,chevron:false,dash:[8,9]});impactMark(c,d.x,d.y,78,1-Math.min(1,Math.max(0,q.runRemaining/q.speedRatio())/8));c.fillStyle='#ffd69b';c.fillText((en?'DROP ':'투하 ')+(q.runRemaining/q.speedRatio()).toFixed(1)+'s',d.x,d.y-88);}
  c.restore();
 }
+
 
 

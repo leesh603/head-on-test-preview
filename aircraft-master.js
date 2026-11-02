@@ -14,7 +14,7 @@ const ownerLabels = {
   "udet": ["우데트", "Ernst Udet"],
   "guynemer": ["기네메르", "Georges Guynemer"],
   "goering": ["괴링", "Hermann Göring"],
-  "berthold": ["베르토홀트", "Rudolf Berthold"],
+  "berthold": ["베르톨트", "Rudolf Berthold"],
   "wolff": ["볼프", "Kurt Wolff"],
   "loewenhardt": ["뢰벤하르트", "Erich Löwenhardt"],
   "mccudden": ["맥커든", "James McCudden"],

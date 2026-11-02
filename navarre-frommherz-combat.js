@@ -33,7 +33,7 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
   if(!selected(this))return skill.call(this);
   if(!live(this)||this.cooldown>0||this.mission?.unarmed||this.heineckeEscape>0)return false;
   this.ensureRevisionPilot?.();const s=state(this),seconds=this.skillDuration();
-  if(this.pilot==='navarre')s.zone={x:this.x,y:this.y,until:now(this)+seconds,radius:B.zoneRadius};else s.suppressUntil=now(this)+seconds;
+  if(this.pilot==='navarre')s.zone={x:this.x,y:this.y,until:now(this)+seconds,radius:this.skillEnhanced?300:B.zoneRadius};else s.suppressUntil=now(this)+seconds;
   this.skillTime=seconds;this.cooldown=this.skillCooldown();this.event?.('skill',PILOTS[this.pilot].skill);return true;
  };
  const begin=q.beginRevisionFrame;q.beginRevisionFrame=function(dt,input={}){
@@ -54,7 +54,7 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
   if(!selected(this)||!live(this)||!personal(this,b)||!(combatImpactResult(b,e)?.damage>0)||!aircraft(e))return result;
   const s=state(this);if(this.pilot==='frommherz'){s.target=e;s.targetUntil=now(this)+B.instructorTargetSeconds;}
   if(this.pilot==='navarre'&&s.zone?.until>now(this)&&distance(s.zone,e)<=s.zone.radius){
-   let entries=slows.get(e);if(!entries){entries=new Map();slows.set(e,entries);}const prior=entries.get(this),at=now(this),fxStarted=prior?.state===s&&prior.until>at&&Number.isFinite(prior.fxStarted)&&prior.fxStarted<=at?prior.fxStarted:at;entries.set(this,{state:s,until:at+B.slowSeconds,fxStarted,factor:e.bossPilot||e.type==='boss'||e.heavyBomber||e.type==='zeppelin'?B.aceSlowMultiplier:B.slowMultiplier});
+   let entries=slows.get(e);if(!entries){entries=new Map();slows.set(e,entries);}const prior=entries.get(this),at=now(this),fxStarted=prior?.state===s&&prior.until>at&&Number.isFinite(prior.fxStarted)&&prior.fxStarted<=at?prior.fxStarted:at;entries.set(this,{state:s,until:at+(this.skillEnhanced?2.6:B.slowSeconds),fxStarted,factor:e.bossPilot||e.type==='boss'||e.heavyBomber||e.type==='zeppelin'?B.aceSlowMultiplier:B.slowMultiplier});
    this.identityFx?.('armorSpark',e.x,e.y,e.a||0,15,.18);
   }return result;
  };
@@ -64,8 +64,8 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
   shot.contacts.add(e);
   // The host has already added this target to b.hit. One continuation only;
   // rounds that were already piercing are never downgraded by this passive.
-  if(shot.extra>0){shot.extra--;shot.pendingStop=true;}else if(shot.pendingStop){b.pierce=false;shot.pendingStop=false;}
-  if(active(this,shot.state)&&shot.suppression&&shot.state.suppressUntil>now(this)&&ordinary(e)&&e.hp>0&&Number.isFinite(e.maxHp)&&e.maxHp>0&&e.hp<=e.maxHp*B.landingHpFraction&&combatImpactResult(b,e)?.damage>0){
+  if(shot.extra>0){shot.extra--;shot.pendingStop=true;}else if(shot.pendingStop){b.pierce=false;shot.pendingStop=false;if(combatImpactResult(b,e)?.damage>0&&aircraft(e))this.passiveMedalEvent?.('penetration',{target:e});}
+  if(active(this,shot.state)&&shot.suppression&&shot.state.suppressUntil>now(this)&&ordinary(e)&&e.hp>0&&Number.isFinite(e.maxHp)&&e.maxHp>0&&e.hp<=e.maxHp*(this.skillEnhanced?.25:B.landingHpFraction)&&combatImpactResult(b,e)?.damage>0){
    e.hp=0;e.crashStyle='glide';e.fire=Infinity;e.burstLeft=0;e.frommherzForcedLanding=true;
    // The immediately following solo death block / co-op handleDeath owns all
    // score, loot, achievements and crash animation. Never issue rewards here.

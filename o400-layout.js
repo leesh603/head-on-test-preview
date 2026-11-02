@@ -2,7 +2,7 @@
 // Rendering, weapons and collision share this layout, including the tailplane.
 export const O400_LAYOUT=Object.freeze({
  width:184,height:184*2/3,
- hull:'./o400-hull-20261101.webp',
+ hull:'./o400-painted-20261101.webp',
  parts:Object.freeze([
   ['engine-left',-27,-23,7,.24],['engine-right',27,-23,7,.24],
   ['front-gun',0,-53,5,.13],['rear-gun',0,-14,5,.13],['bomb-bay',0,10,6,.22]

@@ -24,23 +24,38 @@ export function criticalNotice(world,locale='ko',blocked=false){
 }
 export function drawAircraftCritical(c,f,x,y,fx){
  if(f.fxProfile!=='aircraftCritical')return false;
- const age=combatFxAge(f),q=Math.min(1,age/f.maxLife),fade=Math.min(1,(1-q)*1.5),a=f.a||0,scale=f.player?1:1.45;
+ const age=combatFxAge(f);if(age>=f.maxLife||f.life<=0)return true;
+ const q=Math.min(1,age/f.maxLife),fade=Math.min(1,(1-q)*1.8),a=f.a||0,heading=f.airframeA??a,scale=f.player?1:1.25;
+ const flash=(size,time=.075)=>{if(age<time)fx(c,'profileFlash',x,y,size*scale,size*scale,a,(1-age/time)*.95)};
+ const fragments=(metal,count,spread,size)=>{for(let i=0;i<count;i++){
+  const dir=a+(i-(count-1)/2)*spread,travel=(1-Math.exp(-age*7))*(20+i*9)*scale;
+  fx(c,metal?'metalShard'+(i%4):'debrisShard',x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,size,size*.7,dir+age*(i%2?-7:6),fade*.9);
+ }};
  if(f.pilotKill){
-  if(mist?.complete&&mist.naturalWidth){c.save();c.translate(x,y);c.rotate(a);c.globalAlpha*=fade*.55;c.drawImage(mist,-9,-15,44+q*9,30+q*6);c.restore();}
-  if(age<.07)fx(c,'debrisShard',x,y,8,8,a,fade*.65);
-  return true;
+  flash(22,.05);
+  if(mist?.complete&&mist.naturalWidth){c.save();c.translate(x,y);c.rotate(heading);c.globalAlpha*=fade*.65;c.drawImage(mist,-9,-15,44+q*9,30+q*6);c.restore();}
+  fragments(true,2,.7,6);return true;
  }
  if(f.part==='engine'){
-  if(age<.12)fx(c,'profileFlash',x,y,48*scale,48*scale,a,fade*.9);
-  fx(c,'profileEngine',x,y,(46+q*20)*scale,(56+q*20)*scale,a,fade*.95);
-  fx(c,'profileOil',x-Math.cos(a)*q*24,y-Math.sin(a)*q*24,(34+q*24)*scale,(34+q*24)*scale,a,fade*.7);
+  flash(46);
+  if(age<.16)fx(c,'armorSpark',x,y,45*scale,26*scale,a,(1-age/.16)*.95);
+  if(age<.28)fx(c,'profileEngine',x,y,(30+q*24)*scale,(42+q*25)*scale,heading,fade*.9);
+  if(age>.08)fx(c,'profileOil',x-Math.cos(heading)*(12+q*28),y-Math.sin(heading)*(12+q*28),(28+q*35)*scale,(30+q*45)*scale,heading,Math.min(1,(age-.08)/.12)*fade*.65);
+  fragments(true,3,.65,9);
  }else if(f.part==='fuel'){
-  fx(c,f.ignite?'profileEngine':'armorSpark',x,y,(44+q*20)*scale,(54+q*20)*scale,a,fade*.95);
-  if(f.ignite)fx(c,'profileOil',x-Math.cos(a)*q*20,y-Math.sin(a)*q*20,48+q*24,48+q*24,a,fade*.6);
+  flash(f.ignite?60:28);
+  if(f.ignite){
+   if(age<.32)fx(c,'profileAmmo'+Math.min(3,Math.floor(age/.08)),x,y,(36+Math.min(1,age/.12)*35)*scale,(40+Math.min(1,age/.12)*35)*scale,heading,fade*.95);
+   if(age>.08)fx(c,'profileEngine',x,y,(32+q*15)*scale,(48+q*22)*scale,heading,fade*.9);
+   if(age>.16)fx(c,'profileOil',x-Math.cos(heading)*q*34,y-Math.sin(heading)*q*34,(34+q*40)*scale,(38+q*45)*scale,heading,fade*.6);
+  }else{if(age<.15)fx(c,'armorSpark',x,y,32,20,a,fade);fx(c,'smokePuff',x-Math.cos(heading)*q*16,y-Math.sin(heading)*q*16,22+q*22,18+q*20,heading,fade*.42);}
+ }else if(f.part==='cockpit'){
+  flash(24,.055);if(age<.13)fx(c,'armorSpark',x,y,24,16,a,(1-age/.13)*.8);fragments(true,3,.95,6);
+ }else if(f.part==='wing'){
+  flash(28);fx(c,'debris',x,y,34*scale,22*scale,heading+(f.side||1)*.25,fade*.75);fragments(false,4,.46,12);
+  if(age>.06)fx(c,'smokePuff',x-Math.cos(heading)*q*20,y-Math.sin(heading)*q*20,22+q*20,16+q*16,heading,fade*.3);
  }else{
-  if(age<.12)fx(c,'profileFlash',x,y,24*scale,24*scale,a,fade*.9);
-  const count=f.part==='body'?4:3;
-  for(let i=0;i<count;i++){const direction=a+(i-(count-1)/2)*.85,d=q*(22+i*10);fx(c,'debrisShard',x+Math.cos(direction)*d,y+Math.sin(direction)*d,12,15,direction+q*2,fade*.95);}
+  flash(34);fx(c,'debris',x,y,28+q*18,24+q*16,a,fade*.8);fragments(false,5,.82,10);
  }
  return true;
 }

@@ -1,3 +1,4 @@
+import {squadronMusicForGame} from './squadron-score.js';
 // Read-only bridge. Never advances a timer, consumes an event, or changes combat.
 export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin']);
 export const CAMPAIGN_MUSIC=Object.freeze({
@@ -46,6 +47,8 @@ export function musicContextForGame(game){
  const ace=enemies.find(e=>e.bossPilot)||enemies.find(e=>e.type==='boss');
  if(ace)return {...base,state:'ACE',aceId:ace.bossPilot||null,ace,pressure:enemies.length,
   intensity:Math.min(.95,.6+enemies.length*.022+(ace.rivalPhase==='FINAL_DUEL'?.15:0))};
+ const squadron=squadronMusicForGame(game);
+ if(squadron&&!['warning','entering','active','retreating'].includes(game.intrusionBoss?.phase)&&!['entry','battle','victory'].includes(game.finalArena?.phase))return {...base,...squadron,state:'SQUADRON'};
  const director=game.battleDirector,pattern=director?.pattern;
  const active=pattern&&(game.t||0)<director.endsAt;
  const near=enemies.filter(e=>!e.surface&&!e.stationary&&Math.hypot((e.x||0)-(game.x||0),(e.y||0)-(game.y||0))<700).length;

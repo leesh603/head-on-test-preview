@@ -1,5 +1,6 @@
 import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js';
 import {intrusionActive} from './intrusion-bosses.js';
+import {encounterAllowed,admitEncounter,releaseEncounter} from './director-admission.js';
 import {activeFronts,tickRuralFronts} from './rural-fronts.js';
 import {achievementMission} from './achievements.js?v=medals2';
 import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
@@ -56,6 +57,7 @@ function dangerCount(game){
 
 function canOffer(game){
  const state=eventState(game);
+ if(!encounterAllowed(game,'mission',{minRemaining:27,variant:'event'}))return false;
  if(intrusionActive(game)||activeFronts(game).length)return false;
  if(game.mode==='campaign'||game.state!=='playing'||(game.t||0)<state.nextOfferAt||(game.t||0)<(game.battleRecoveryUntil||0)||state.current)return false;
  if(scriptedBoss(game)||liveAce(game)||game.eliteEnemies?.active)return false;
@@ -318,6 +320,7 @@ function finish(game,state,outcome,reason){
   if(message)game.event?.('wave',message);
  }
  state.result={id:event.id,type:event.type,outcome,reason:reason||null,rewardType:outcome==='completed'?event.type:null};state.history.push({type:event.type,outcome,time:game.t||0});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
+ releaseEncounter(game,'mission',reason||outcome);
  return true;
 }
 
@@ -380,6 +383,7 @@ export function installBattlefieldEvents(Game){
   try{this.battlefieldEventSpawning=true;spawnTargets(this,event)}finally{this.battlefieldEventSpawning=previous}
   if([P.HIGH_VALUE_TARGET,P.BOMBER_INTERCEPT,P.ACE_CHALLENGE,P.TRANSPORT_CONVOY].includes(type)&&!event.targets.length){state.current=null;state.nextOfferAt=(this.t||0)+BATTLEFIELD_EVENT_BALANCE.retryDelay;return null}
   if(type===P.TRANSPORT_CONVOY)state.nextConvoyAt=(this.t||0)+TRANSPORT_CONVOY_BALANCE.interval;
+  admitEncounter(this,'mission',{mission:type});
   scheduleNext(this,state);return event;
  };
  Game.prototype.acceptBattlefieldEvent=function(){
@@ -405,10 +409,15 @@ export function installBattlefieldEvents(Game){
   };
   const regionalOffer=Game.prototype.offerBattlefieldEvent;
   Game.prototype.offerBattlefieldEvent=function(preferred){
+   // The regional layer can construct its objective directly instead of calling
+   // the generic offer below. Authorize at the final shared entry as well;
+   // authored rural fronts use their separate scheduler and remain untouched.
+   if(!encounterAllowed(this,'mission',{minRemaining:27,variant:'event'}))return null;
    const previous=this.battlefieldEventSpawning;let event;
    if(!preferred&&this.canOfferBattlefieldEvent?.()&&(this.t||0)>=(this.battlefieldEvents?.nextConvoyAt??TRANSPORT_CONVOY_BALANCE.firstAt)&&availableTypes(this).includes(P.TRANSPORT_CONVOY))preferred=P.TRANSPORT_CONVOY;
    try{this.battlefieldEventSpawning=true;event=regionalOffer.call(this,preferred)}finally{this.battlefieldEventSpawning=previous}
    if(event){
+    admitEncounter(this,'mission',{mission:event.type});
     event.region=this.worldRegion?.();event.regionKey=regionKey(this);
     const remaining=this.stageCombatWindow?.remaining;
     if(Number.isFinite(remaining))event.deadline=Math.min(event.deadline,(this.t||0)+Math.max(0,remaining-BATTLEFIELD_EVENT_BALANCE.bossReserve));
@@ -427,3 +436,4 @@ export function installBattlefieldEvents(Game){
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);tickRuralFronts(this);this.tickBattlefieldEvents();return result};
 }
+

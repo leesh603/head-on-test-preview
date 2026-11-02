@@ -73,9 +73,9 @@ export const REGION_TRANSITION_TIPS=Object.freeze({
   {id:'cambrai-wheels',ko:'트레파스바겐은 차륜을 부수면 전진이 멈춥니다.',en:'Breaking the Treffas-Wagen wheels halts its advance.'}
  ]),
  9:Object.freeze([
- {id:'arras-leader',ko:'편대장은 강제 무적이 없습니다. 기회가 보이면 직접 격추할 수 있습니다.',en:'Formation leaders are never invulnerable — take the shot when the lane opens.'},
- {id:'arras-wingmen',ko:'격추한 편대기는 돌아오지 않습니다. Jasta 11의 해당 공격 방향도 함께 약화됩니다.',en:'Destroyed wingmen do not return; their Jasta 11 attack lane disappears with them.'},
- {id:'arras-rear',ko:'Black Flight는 2기조로 서로의 꼬리를 지킵니다. 한 기를 떼어내 협공을 끊으세요.',en:'Black Flight protects tails in pairs. Split a pair to break its counterattack.'}
+ {id:'arras-leader',ko:'편대장은 언제든 공격할 수 있습니다. 기회를 잡아 격추하세요.',en:'Formation leaders can be attacked at any time — take the shot when the lane opens.'},
+ {id:'arras-wingmen',ko:'격추한 편대기는 복귀하지 않습니다. 야스타 11의 해당 방향 공격도 약해집니다.',en:'Destroyed wingmen do not return; their Jasta 11 attack lane disappears with them.'},
+ {id:'arras-rear',ko:'블랙 플라이트는 2기씩 서로의 후방을 지킵니다. 한 기를 떼어내 협공을 끊으세요.',en:'Black Flight protects tails in pairs. Split a pair to break its counterattack.'}
  ])
 });
 

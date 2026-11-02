@@ -1,15 +1,17 @@
+import {outsideBossView} from './render-culling.js';
 import {bossEntryReveal} from './boss-entry-presentation.js';
 import {bossArrivalAlpha} from './boss-arrival.js';
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
 import {netContact} from './london-apron369.js?v=tame3&cityart=20261022';
-export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard,layer='all',bodyBounds=null}) {
+export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard,layer='all',bodyBounds=null,view=null}) {
   for(const fn of [drawBody,drawPart,drawHazard])if(typeof fn!=='function')throw new Error('Current pixel renderer adapters required');
   if(layer!=='hazards')for(const b of addon.stages.encounter?.bodies.values()||[]) {
     const cityWreck=b.dead&&b.kind==='flak-tower-cell',ownDefeat=addon.bodyDefeats?.find(d=>d.id===b.id),globalDefeat=b.dead&&addon.defeatSequence?.encounterId===addon.stages.encounter.id&&!b.kind.startsWith('hms-zubian-')&&!['gotha-raider','o400-raider'].includes(b.kind);
     const destroying=(b.jutlandBoss&&b.dead)||(b.sommeBoss&&b.dead)||cityWreck||!!ownDefeat||globalDefeat,destruction=ownDefeat||addon.defeatSequence;
     if(b.dead&&!destroying)continue;
     if(b.hidden&&!destroying)continue;
+    if(outsideBossView(b,view,bodyBounds?.(b),{destroying}))continue;
     const arrivalAlpha=bossArrivalAlpha(b);if(arrivalAlpha<=0)continue;const entryReveal=b.arrivalPending?bossEntryReveal(b,bodyBounds?.(b)):null;
     const railCars=b.rail129?[...b.parts.values()].filter(p=>p.kind==='rail-car').map(p=>({id:p.id,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable,destroyedAt:p.destroyedAt,detachedPose:p.detachedPose,angle:p.angle||0,gunFlash:p.gunFlash||0,shotAngle:p.shotAngle||0,launchWarmup:p.launchWarmup||0,reloadVisual:p.reloadVisual||0,launchTarget:p.launchTarget||null})):null;
     const layeredParts=['zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','livens-flame-projector','minenwerfer-battery','armored-harbor-fortress','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight','london-apron','drachen-net','fliegerzug','gotha-raider','o400-raider','london-apron-raid','hms-zubian','hms-zubian-front','hms-zubian-rear','gik','ca4','flak-tower-cell','paris-searchlight-fortress','paris-staaken-rvi'].includes(b.kind)?[...b.parts.values()].map(p=>({id:p.id,discovered:p.discovered,mortarMouth:p.mortarMouth,mortarFlash:p.mortarFlash||0,mortarSmoke:p.mortarSmoke||0,art:p.art,muzzleLength:p.muzzleLength,kind:p.kind,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable,angle:p.angle??0,aimAngle:p.aimAngle,navalShotAt:p.navalShotAt,navalWreckAngle:p.navalWreckAngle,cell:p.cell,artAngle:p.artAngle,localX:p.localX??p.x,localY:p.localY??p.y,recoil:p.recoil||0,launchWarmup:p.launchWarmup||0,radius:p.radius,hitRadiusX:p.hitRadiusX,hitRadiusY:p.hitRadiusY,drawWidth:p.drawWidth,drawHeight:p.drawHeight,hitFlash:p.hitFlash||0,destroyedAt:p.destroyedAt,lastLaunchAt:p.lastLaunchAt,gunFlash:p.gunFlash||0})):null;

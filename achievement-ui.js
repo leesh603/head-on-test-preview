@@ -1,5 +1,5 @@
 import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills,secretMedalDisclosure} from './achievements.js?v=pandemonium394r2';
-import {getLocale,subscribe} from './i18n.js?v=pandemonium394r2&afc=1&art=pilot-recovery2';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;
@@ -36,18 +36,18 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
   const earned=Object.keys(book.data.awards).length;
   renderEntry();title.textContent=text('전공 훈장','Service Medals');close.setAttribute('aria-label',text('닫기','Close'));
   summary.textContent=text(`획득 ${earned} / ${MEDALS.length} · 대표 뱃지 ${book.data.featured.length} / 3`,`Earned ${earned} / ${MEDALS.length} · Featured ${book.data.featured.length} / 3`);
-  note.textContent=text('기체 해금은 파일럿별 일반·정예 누적 50기 격추입니다. 협동에서는 각자의 격추만 기록합니다. 기존 전투 훈장은 라이카 보너스를 포함한 랭킹 정예 기록·팀 전과를 따릅니다. 도입 이후 기록을 이 브라우저에 저장합니다.','Aircraft unlock after 50 ordinary or priority kills with that pilot. Co-op unlock progress counts each pilot’s own kills. Combat medals still use ranked priority kills and team totals. Records are saved in this browser from this update onward.')+(book.saved?'':text(' 현재 영구 저장을 사용할 수 없습니다.',' Persistent storage is currently unavailable.'));
-  featuredNote.textContent=text('획득한 훈장 중 대표 뱃지를 최대 3개 선택하세요.','Choose up to 3 earned medals to feature.');
+  note.textContent=text('기체는 해당 파일럿의 일반·정예 누적 50기 격추로 해금되며, 협동에서도 본인의 전과만 계산합니다. 전투 훈장은 라이카 보너스를 포함한 랭킹 정예 기록·팀 전과를 따르며, 도입 이후 기록을 이 브라우저에 저장합니다.','Aircraft unlock after 50 ordinary or priority kills with that pilot, counting only your own kills in co-op. Combat medals use ranked priority kills, including Leica bonuses, and team totals; records are saved in this browser from the feature’s introduction onward.')+(book.saved?'':text(' 현재 영구 저장을 사용할 수 없습니다.',' Persistent storage is currently unavailable.'));
+  featuredNote.textContent=text('획득한 훈장 중 최대 3개를 대표 뱃지로 선택할 수 있습니다.','You can feature up to 3 earned medals.');
   filters.replaceChildren();for(const [id,ko,eng]of groups){const b=node('button',filter===id?'active':'',text(ko,eng));b.type='button';b.dataset.filter=id;b.setAttribute('aria-pressed',String(filter===id));filters.append(b)}
   grid.replaceChildren();for(const d of MEDALS){const p=book.progress(d);if(filter==='earned'&&!p.tier||!['all','earned'].includes(filter)&&d.group!==filter)continue;
    const card=node('article','service-medal-card'+(p.tier?' is-earned':''));card.dataset.medal=d.id;card.append(icon(d,p.tier));const copy=node('div','service-medal-copy');
-   const hidden=d.hidden&&!p.tier,disclosure=secretMedalDisclosure(d,book);copy.append(node('h3',null,disclosure.hidden?'????':hidden?text('미확인 전공','Hidden Citation'):label(d)),node('p',null,disclosure.hidden?'????':hidden?text('특별한 생환 기록을 남겨보세요.','Return from an exceptional ordeal.'):en()?d.descriptionEn:d.description));
+   const hidden=d.hidden&&!p.tier,disclosure=secretMedalDisclosure(d,book);copy.append(node('h3',null,disclosure.hidden?'????':hidden?text('미확인 전공','Hidden Citation'):label(d)),node('p',null,disclosure.hidden?'????':hidden?text('특별한 생환 기록으로 획득하는 훈장입니다.','Earned through an exceptional survival record.'):en()?d.descriptionEn:d.description));
    const status=node('div','service-medal-meta');status.append(node('span','service-tier tier-'+p.tier,tierName(d,p.tier)));
    if(!hidden){const count=node('span',null,Math.min(p.value,p.goal).toLocaleString()+' / '+p.goal.toLocaleString()+(d.id==='circuit'&&p.goal>1?text(' 전장 · 한 출격 최고',' battlefields · best sortie'):d.id==='survivor'?text('초',' s'):''));status.append(count);const meter=node('progress');meter.max=p.goal;meter.value=Math.min(p.value,p.goal);meter.setAttribute('aria-label',label(d));copy.append(meter)}
    if(p.tier){const a=book.data.awards[d.id],date=new Date(a.firstAt);if(Number.isFinite(date.getTime()))status.append(node('time',null,date.toLocaleDateString(en()?'en-GB':'ko-KR')));const pick=node('button','service-feature-toggle',book.data.featured.includes(d.id)?text('대표 해제','Unfeature'):text('대표 선택','Feature'));pick.type='button';pick.dataset.feature=d.id;pick.setAttribute('aria-pressed',String(book.data.featured.includes(d.id)));status.append(pick)}
    copy.append(status);card.append(copy);grid.append(card);
   }
-  if(!grid.childElementCount)grid.append(node('p','service-empty',text('아직 획득한 훈장이 없습니다. 첫 정예 격추부터 도전해보세요.','No medals earned yet. Start with your first priority kill.')));
+  if(!grid.childElementCount)grid.append(node('p','service-empty',text('아직 획득한 훈장이 없습니다. 정예 표적을 처음 격추하면 첫 훈장을 받습니다.','No medals earned yet. Your first priority kill earns your first medal.')));
   renderStrip();
  }
  function showNext(){
@@ -58,7 +58,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
  close.onclick=()=>dialog.close();dialog.addEventListener('close',()=>focusBefore?.focus());
  dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
  filters.onclick=e=>{const b=e.target.closest('[data-filter]');if(b){filter=b.dataset.filter;render();filters.querySelector(`[data-filter="${filter}"]`)?.focus()}};
- grid.onclick=e=>{const b=e.target.closest('[data-feature]');if(!b)return;if(!book.feature(b.dataset.feature)){featuredNote.textContent=text('대표 뱃지는 최대 3개입니다. 기존 선택을 하나 해제하세요.','You can feature 3 medals. Unfeature one first.');return}render();grid.querySelector(`[data-feature="${b.dataset.feature}"]`)?.focus()};
+ grid.onclick=e=>{const b=e.target.closest('[data-feature]');if(!b)return;if(!book.feature(b.dataset.feature)){featuredNote.textContent=text('대표 뱃지는 최대 3개입니다. 추가하려면 기존 선택을 하나 해제합니다.','You can feature up to 3 medals. Unfeature one to select another.');return}render();grid.querySelector(`[data-feature="${b.dataset.feature}"]`)?.focus()};
  const unsubscribe=book.subscribe(({newAwards})=>{if(dialog.open)render();else{renderEntry();renderStrip()}for(const id of newAwards)if(!queue.includes(id)&&queue.length<6)queue.push(id);showNext()});
  const localeOff=subscribe(()=>{render();if(dialog.open)dialog.setAttribute('lang',en()?'en':'ko')});
  const onStorage=e=>{if(e.key===MEDAL_SAVE_KEY){try{book.load(JSON.parse(e.newValue));render()}catch{}}};globalThis.addEventListener?.('storage',onStorage);

@@ -94,6 +94,8 @@ body.astra-ui #modal.build-modal151 #modalActions{display:grid!important;grid-te
 body.astra-ui #modal.build-modal151 #modalActions button:first-child,
 body.astra-ui #modal.build-modal151 #modalActions button:last-child:nth-child(odd){grid-column:1/-1!important}
 body.astra-ui #modal.build-modal151 #modalActions button:last-child:not(:first-child):nth-child(4){grid-column:1/-1!important;background:transparent!important;border-color:#d9644c55!important;box-shadow:none!important;color:#e58a74!important}
+/* With Save & Exit (5 actions) the two exits share the last row: Save & Exit | End Sortie. */
+body.astra-ui #modal.build-modal151 #modalActions button:last-child:nth-child(5){grid-column:auto!important;background:transparent!important;border-color:#d9644c55!important;box-shadow:none!important;color:#e58a74!important}
 
 /* Codex: constant sheet height across categories, wider on PC */
 body.astra-ui #modal.tactical-codex-modal .tactical-codex{height:min(560px,calc(100dvh - 250px));max-height:none}

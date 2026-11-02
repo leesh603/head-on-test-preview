@@ -16,7 +16,7 @@ export const DEFAULT_ELITE_CONFIG = Object.freeze({
   aceBeforeLockout: 16,
   aceAfterLockout: 13,
   maxActiveSquadrons: 1,
-  maxActiveMembers: 4,
+  maxActiveMembers: 5,
   despawnRadius: 1250,
   playerCollisionRadius: 11,
   tier2Stage: 10,
@@ -88,11 +88,12 @@ export function eliteScale(seconds) {
   };
 }
 
-export function squadSize(kind, progressStage) {
+export function squadSize(kind, progressStage, reinforced = false) {
   const stage = Math.max(1, Number(progressStage) || 1);
   const armored = kind === ELITE_KINDS.JUNKERS || kind === ELITE_KINDS.SALAMANDER;
   const base = stage < 7 ? 2 : stage < 10 ? 3 : 4;
-  return armored ? Math.min(3, base) : base;
+  const native=armored ? Math.min(3, base) : base;
+  return reinforced ? Math.min(armored ? 4 : 5, native + 1) : native;
 }
 
 export const ELITE_CFG_KEY = Object.freeze({
@@ -106,5 +107,5 @@ export const ELITE_WARNINGS = Object.freeze({
   [ELITE_KINDS.LE_PRIEUR]: '르 프리외르 로켓 장착 정예편대 접근',
   [ELITE_KINDS.SCHLACHTSTAFFEL]: '장갑판 보강 슐라흐트슈타펠 접근',
   [ELITE_KINDS.JUNKERS]: '융커스 J.I 기갑비행대 접근',
-  [ELITE_KINDS.SALAMANDER]: '솝위스 새러맨더 기갑비행대 접근'
+  [ELITE_KINDS.SALAMANDER]: '소프위드 샐러맨더 장갑 편대 접근'
 });

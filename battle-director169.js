@@ -1,3 +1,6 @@
+import {admissionState,ordinaryAdmissionStage} from './director-admission.js';
+import {squadronPending} from './squadron-combat-state.js';
+import {traceDirector} from './squadron-elite-balance.js';
 import {facilityPlan} from './ground-facility-missions.js';
 import {transportConvoyActive} from './transport-convoy.js';
 import {photoReconActive} from './photo-recon-encounters.js';
@@ -13,7 +16,7 @@ export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
 });
 
 export const BATTLE_DIRECTOR_BALANCE=Object.freeze({
- firstSceneAt:.5,eventResumeDelay:.35,sceneMin:14,sceneMax:18,recoveryDuration:.65,eliteRecoveryDuration:2,aceRecoveryDuration:2,recentWindow:3,
+ firstSceneAt:.5,eventResumeDelay:.35,sceneMin:14,sceneMax:18,recoveryDuration:3.5,eliteRecoveryDuration:5,aceRecoveryDuration:5,recentWindow:3,
  compactWidth:720,compactSoloCap:9,compactCoopCap:11,soloCap:12,coopCap:15,actionInterval:.48,
  formationBreakDuration:2.6,headOnIntent:7,crossIntent:7,pincerIntent:7,chaseIntent:7,escortIntent:8,bomberIntent:8,decoyIntent:7,decoyWingIntent:7
 });
@@ -103,7 +106,7 @@ function planFor(pattern,time,compact){
  if(pattern===P.LUFBERY_CIRCLE)return action('hunter','circle',Math.min(6,pressure));
  if(pattern===P.VETERAN_FORMATION)return action('hunter','veteran',pressure);
  if(pattern===P.ESCORT)return[...action('bomber','bomber',1),...action('hunter','escort',Math.max(1,pressure-1))];
- if(pattern===P.BOMBER_RUN)return[...action('bomber','bomber',Math.min(2,Math.max(1,pressure-2))),...action('hunter','escort',pressure-Math.min(2,Math.max(1,pressure-2)))];
+ if(pattern===P.BOMBER_RUN)return[...action('bomber','bomber',2),...action('hunter','escort',4)];
  return[];
 }
 
@@ -146,6 +149,7 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
  // Empty-scene confirmation and cleanup already supplied quiet time. Count
  // it toward ordinary recovery once; protected encounter rests remain whole.
  const rest=pattern===P.RECOVERY&&!reservedRest&&quietSince!=null?Math.max(.2,plannedRest-Math.max(0,now-quietSince)):plannedRest;state.recoveryDuration=null;
+ if(pattern===P.RECOVERY){state.lowPressureAt=now;state.plannedRecovery=plannedRest;state.awaitingRecovery=false;game.battleRecoveryUntil=Math.max(game.battleRecoveryUntil||0,now+rest);traceDirector(game,'recoveryStarted',{duration:rest,reason:state.recoveryReason||'scene'});}
  state.endsAt=now+(pattern===P.RECOVERY?rest:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.shape=chooseShape(game,state,pattern);
  state.nextActionAt=now+.35;state.queue=facilityPlan(game,planFor(pattern,now,compact));
@@ -156,6 +160,7 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
  if(pattern===P.RECOVERY||pattern===P.ACE_PRESSURE){
   const p=playerFor(game),duration=Math.max(1,state.endsAt-now);
   for(const e of game.enemies||[])if(directorAircraftEligible(game,e)&&!e.battlefieldEventId){
+   if(e.directorTransitUntil>now){e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil||0,state.endsAt);continue;}
    if(e.directorSquad){releaseSquadMember(e);delete e.directorSquad;e.directorBreakUntil=state.endsAt}
    e.directorLayout='recovery';e.directorIntentUntil=state.endsAt;e.directorEscort=null;
    e.combatPassState=S.DISENGAGE;e.combatPassTimer=duration;
@@ -209,7 +214,6 @@ function place(game,e,layout,index,count){
  const shape=game.battleDirector.shape,rawSlot=directorFormationSlot(shape,index,count);
  // More members must not extend an echelon/trail beyond the native cull radius
  // or leave the entire mobile wing on one side of the viewport.
- if(intrusionActive(game))return game.mode==='coop2'?4:(game.viewWidth||960)<=720?3:4;
  const compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth;
  const boundShape=!compact||count>=8;
  const scale=boundShape&&['headOn','veteran','chase'].includes(layout)?Math.min(1,(compact?240:420)/(Math.max(1,count-1)*(shape==='trail'?92:64))):1;
@@ -432,6 +436,7 @@ function updateEscortRoles(game,squad,living,now){
  const players=(game.players||[game]).filter(visibleContact);
  for(let i=0;i<fighters.length;i++){
   const e=fighters[i];if(!e.directorRole||!bombers.includes(e.directorEscort))e.directorEscort=bombers[i%bombers.length];
+  if(i>=2&&!e.directorRole){e.directorRole='block';e.directorRoleUntil=now+2.4;}
   if(tacticalRest(e,now)||e.defensivePressure)continue;
   if(e.directorRole==='intercept'&&(now>=e.directorRoleUntil||Math.hypot(e.x-e.directorEscort.x,e.y-e.directorEscort.y)>390||!visibleContact(e.directorRoleTarget))){
    e.directorRole='rejoin';e.directorRoleUntil=now+1.6;e.directorBreakUntil=now+1.1;
@@ -444,15 +449,7 @@ function updateEscortRoles(game,squad,living,now){
   const threat=players.reduce((best,p)=>!best||Math.hypot(p.x-b.x,p.y-b.y)<Math.hypot(best.x-b.x,best.y-b.y)?p:best,null);
   const range=threat?Math.hypot(threat.x-b.x,threat.y-b.y):Infinity;
   if(!tacticalRest(b,now)){
-   if(b.hp<b.maxHp*.35||!escorts.length&&range<420&&now>squad.startedAt+2){
-    const side=threat?(Math.sign(Math.sin(Math.atan2(threat.y-b.y,threat.x-b.x)-b.directorRouteHeading))||1):1;
-    b.directorMissionAborted=true;b.directorBomberMode='exit';b.directorBomberHeading=b.directorRouteHeading-side*.9;
-   }
-   else if(b.directorBomberMode==='evade'&&now>=b.directorBomberUntil){b.directorBomberMode='run';b.directorEvadeReadyAt=now+3;}
-   else if(range<260&&near.length<2&&now>=(b.directorEvadeReadyAt||0)&&b.directorBomberMode!=='evade'){
-    const side=Math.sign(Math.sin(Math.atan2(threat.y-b.y,threat.x-b.x)-b.directorRouteHeading))||1;
-    b.directorBomberMode='evade';b.directorBomberUntil=now+1.8;b.directorBomberHeading=b.directorRouteHeading-side*.48;
-   }else b.directorBomberMode??='run';
+   b.directorBomberMode='run';
   }
   if(!threat||range>420||escorts.some(e=>e.directorRole==='intercept'))continue;
   const ready=escorts.filter(e=>e.directorRole==='cover'&&!tacticalRest(e,now)&&!e.defensivePressure&&now>=e.directorReadyAt);
@@ -467,6 +464,10 @@ function escortSteering(game,e,contact,baseTurn){
  if(!contact||contact.fogHidden||contact.ballCloak>0||contact.kaiserFogTime>0)return null;
  let heading;
  if(e.directorRole==='intercept')heading=fighterAim(game,e,contact);
+ else if(e.directorRole==='block'){
+  const side=(e.directorSlot%2?1:-1),tx=b.x+Math.cos(b.a)*150-Math.sin(b.a)*side*210,ty=b.y+Math.sin(b.a)*150+Math.cos(b.a)*side*210;
+  heading=Math.atan2(ty-e.y,tx-e.x);e.combatPassState=S.REPOSITION;
+ }
  else{
   // Bomber slots are not escort rows. Keep the larger wing inside the same
   // protection radius instead of extending the last aircraft beyond it.
@@ -493,7 +494,7 @@ function finishScene(game,state,interrupted=false){
  const outcome=killed?'intercepted':'breakthrough';
  game.recordBattleSceneOutcome?.({sceneId:o.sceneId,region:o.region,outcome});
  game.event?.('wave',killed?'폭격 편대 저지 · 적 엄호망 붕괴':'폭격 편대 돌파 · 후속 작전 접근');
- if(killed){state.endsAt=Math.min(state.endsAt,(game.t||0)+2);state.recoveryDuration=Math.max(state.recoveryDuration||0,1.2);}
+ if(killed){state.endsAt=Math.min(state.endsAt,(game.t||0)+2);state.recoveryDuration=Math.max(state.recoveryDuration||0,BATTLE_DIRECTOR_BALANCE.recoveryDuration);}
 }
 
 function endCircleDefense(game,squad){
@@ -765,8 +766,39 @@ function directorCap(game){
  const compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth,coop=game.mode==='coop2';
  const cap=compact?(coop?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap):(coop?BATTLE_DIRECTOR_BALANCE.coopCap:BATTLE_DIRECTOR_BALANCE.soloCap);
  const frontCount=(game.ruralFronts?.fronts||[]).filter(f=>f.status==='active').reduce((n,f)=>n+f.enemies.filter(e=>e.hp>0&&!e.expired).length,0);
- const reserve=frontCount?Math.min(cap-3,frontCount):activeAce(game)||game.eliteEnemies?.active?4:game.battlefieldEvents?.current?.status==='active'?4:0;
- return cap-reserve;
+ const namedReservation=ordinaryAdmissionStage(game)&&game.directorAdmission?.kind==='named'&&!game.directorAdmission.used;
+ const reserve=frontCount?Math.min(cap-3,frontCount):namedReservation?5:activeAce(game)||game.eliteEnemies?.active?4:game.battlefieldEvents?.current?.status==='active'?4:0;
+ return Math.max(2,Math.min(cap-reserve,intrusionActive(game)?(coop?4:compact?3:4):cap));
+}
+
+export function directorPressure(game){
+ const now=game.t||0,players=(game.players||[game]).filter(visibleContact);
+ const dangerousShots=[...(game.bullets||[]).filter(b=>b.enemy),...(game.eliteEnemies?.projectiles||[])].filter(b=>b.life>0&&players.some(p=>{const dx=b.x-p.x,dy=b.y-p.y,vx=b.vx||0,vy=b.vy||0,v2=vx*vx+vy*vy,eta=v2?Math.max(0,Math.min(1.2,b.life,-(dx*vx+dy*vy)/v2)):0;return Math.hypot(dx+vx*eta,dy+vy*eta)<100;})).length;
+ const attackers=(game.enemies||[]).filter(e=>e.hp>0&&!e.expired&&!e.crashing&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&players.some(p=>Math.hypot(e.x-p.x,e.y-p.y)<500&&Math.abs(angleDiff(Math.atan2(p.y-e.y,p.x-e.x),e.a||0))<.55)&&((e.directorLastShotAt??-Infinity)>now-.6||e.bossDash>0)).length;
+ const hazards=[...(game.bombZones||[]),...(game.flaks||[])].filter(z=>!z.dead&&(z.delay??z.warning??0)<=2.5&&(z.life==null||z.life>0)&&players.some(p=>Math.hypot((z.x||0)-p.x,(z.y||0)-p.y)<(z.radius||z.r||60)+100)).length;
+ return{dangerousShots:dangerousShots+hazards,attackers,hazards};
+}
+
+// The existing low-pressure allowance may contain one weak transit contact.
+// A distant objective never deletes itself or grants unlimited spawn headroom.
+function maintainVisibleContact(game,state,now){
+ if(!state.pattern&&!state.awaitingRecovery)return;
+ const zoom=game.camera?.zoom||1,cx=game.camera?.x??game.x,cy=game.camera?.y??game.y,w=(game.viewWidth||960)/(2*zoom),h=(game.viewHeight||720)/(2*zoom);
+ const contact=(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.crashing&&Math.abs(e.x-cx)<=w&&Math.abs(e.y-cy)<=h);
+ if(contact){state.emptyViewportAt=null;return;}
+ state.emptyViewportAt??=now;
+ if(now-state.emptyViewportAt<2.5||now<(state.nextTransitAt||0)||scriptedBoss(game)||exclusiveEvent(game))return;
+ // Only ordinary, unowned aircraft that have actually missed their approach
+ // can release a slot. Objectives, supports and their HP/rewards stay intact.
+ for(let i=(game.enemies?.length||0)-1;i>=0;i--){const e=game.enemies[i];if(regular(e)&&!e.battlefieldEventId&&!e.bossMinion&&!e.aceCoverPilot&&!e.formationLeader?.bossPilot&&(!e.airArrival||now-e.airArrival.startedAt>=1.5)&&(Math.abs(e.x-cx)>w+(e.type==='bomber'?100:35)||Math.abs(e.y-cy)>h+(e.type==='bomber'?100:35))){e.expired=true;game.enemies.splice(i,1);}}
+ const live=(game.enemies||[]).filter(e=>regular(e)).length;
+ if(live>=directorCap(game)||(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&e.directorTransitUntil>now))return;
+ const prior=game.directorSpawning;let e;game.directorSpawning=true;try{e=game.spawnEnemy?.('scout')}finally{game.directorSpawning=prior}
+ if(!e)return;
+ const p=playerFor(game),a=(p.a||0)+Math.PI/4,dx=Math.cos(a),dy=Math.sin(a),distance=Math.min((w+35)/(Math.abs(dx)||1e-6),(h+35)/(Math.abs(dy)||1e-6));
+ delete e.arrivalPending;delete e.airArrival;e.x=cx+dx*distance;e.y=cy+dy*distance;e.a=Math.atan2(p.y-e.y,p.x-e.x);e.arrivalAuthored=true;releaseSquadMember(e);delete e.directorSquad;e.directorLayout='recovery';e.directorIntentUntil=now+.6;e.directorBreakUntil=now+.6;e.combatPassState=S.DISENGAGE;e.combatPassTimer=.6;e.combatPassHeading=e.a;
+ e.directorSceneId=state.sceneId;e.directorIntentStartedAt=now;e.directorFireHoldUntil=Math.max(state.pattern===P.RECOVERY?state.endsAt:now+.8,now+.8);e.fire=Math.max(e.fire||0,e.directorFireHoldUntil-now);
+ e.directorTransitUntil=now+2;state.transitSpawnAt=now;state.nextTransitAt=now+.5;traceDirector(game,'spawnVisible',{kind:'transit-scout',reason:'empty-viewport',emptyFor:now-state.emptyViewportAt});
 }
 
 // Read the existing scene's surviving group; no new wave types or stat scaling.
@@ -815,13 +847,16 @@ function sceneRhythm(game,state,now){
 function tickDirector(game,dt){
  if(game.state!=='playing')return;maintainFormations(game);if(game.mode==='campaign')return;
  const state=directorState(game),now=game.t||0;
+ const major=admissionState(game);
+ maintainVisibleContact(game,state,now);
  // Native culling keeps ordinary fighters up to 1100 world units away. During
  // an authored exit those invisible aircraft must not reserve the next squad's
  // slots. Remove only departed ordinary scene aircraft, without kill rewards.
  const zoom=game.camera?.zoom||1,cx=game.camera?.x??game.x,cy=game.camera?.y??game.y;
- for(let i=(game.enemies?.length||0)-1;i>=0;i--){const e=game.enemies[i];if(regular(e)&&e.directorSceneId&&(e.directorLayout==='recovery'||e.directorSceneId<state.sceneId)&&!e.battlefieldEventId&&!e.bossMinion&&!e.stageBossBody&&(Math.abs(e.x-cx)>(game.viewWidth||960)/(2*zoom)+190||Math.abs(e.y-cy)>(game.viewHeight||720)/(2*zoom)+190)){e.expired=true;game.enemies.splice(i,1);}}
- const ace=activeAce(game),elite=!!game.eliteEnemies?.active,previousAce=state.hadAce,previousElite=state.hadElite;
- state.hadAce=ace;state.hadElite=elite;
+ for(let i=(game.enemies?.length||0)-1;i>=0;i--){const e=game.enemies[i];if(regular(e)&&e.directorSceneId&&(e.directorLayout==='recovery'||e.directorSceneId<state.sceneId)&&(!e.battlefieldEventId||e.battlefieldEventId!==game.battlefieldEvents?.current?.id)&&!e.bossMinion&&!e.stageBossBody&&(Math.abs(e.x-cx)>(game.viewWidth||960)/(2*zoom)+190||Math.abs(e.y-cy)>(game.viewHeight||720)/(2*zoom)+190)){e.expired=true;game.enemies.splice(i,1);}}
+ const ace=activeAce(game),elite=!!game.eliteEnemies?.active,named=squadronPending(game),previousAce=state.hadAce,previousElite=state.hadElite,previousNamed=state.hadNamed;
+ state.hadAce=ace;state.hadElite=elite;state.hadNamed=named;
+ if(previousNamed&&!named){state.recoveryDuration=BATTLE_DIRECTOR_BALANCE.eliteRecoveryDuration;state.recoveryReason='named-ended';}
  if(!ace&&previousAce)state.recoveryDuration=BATTLE_DIRECTOR_BALANCE.aceRecoveryDuration;
  if(!elite&&previousElite)state.recoveryDuration=Math.max(state.recoveryDuration||0,BATTLE_DIRECTOR_BALANCE.eliteRecoveryDuration);
  if(previousAce&&!ace||previousElite&&!elite)game.battleRecoveryUntil=Math.max(game.battleRecoveryUntil||0,now+8);
@@ -846,31 +881,41 @@ function tickDirector(game,dt){
  }
  if(state.suspended&&state.eventSuspension){if(!state.recoveryDuration&&now-state.eventSuspendedAt>=BATTLE_DIRECTOR_BALANCE.recoveryDuration)state.combatSinceRecovery=0;state.nextSceneAt=Math.max(state.resumeReservation||0,now+BATTLE_DIRECTOR_BALANCE.eventResumeDelay);state.eventSuspension=false;state.resumeReservation=null;}
  state.suspended=false;
- if(state.recoveryDuration&&!ace&&!elite){beginPattern(game,state,P.RECOVERY);return}
+ if(state.recoveryDuration&&!ace&&!elite&&!named&&state.pattern!==P.RECOVERY){const pressure=directorPressure(game);if(!pressure.dangerousShots&&!pressure.attackers){beginPattern(game,state,P.RECOVERY);return}state.awaitingRecovery=true;}
  // Predicted approach is not a spawn lock: route travel can stall indefinitely.
  // Only the actual boss phase above owns ordinary spawn suspension.
  // Ordinary formations remain active alongside non-mission aces.
  if(ace&&state.pattern===P.ACE_PRESSURE){state.pattern=null;state.nextSceneAt=now;}
  if(state.pattern===P.ELITE_FORMATION&&elite&&now-state.startedAt>=2)beginPattern(game,state);
  finishScene(game,state);
- // Let a beaten first group overlap its replacement within the existing cap.
- // Boss fights and explicit duel missions retain their priority above.
- if(state.pattern&&![P.RECOVERY,P.ACE_PRESSURE,P.ELITE_FORMATION].includes(state.pattern)&&!state.queue.length&&now-state.startedAt>=5.5){
-  const live=(game.enemies||[]).filter(e=>regular(e)&&e.directorSceneId===state.sceneId);
-  const visible=live.filter(e=>Math.abs(e.x-cx)<(game.viewWidth||960)/(2*zoom)&&Math.abs(e.y-cy)<(game.viewHeight||720)/(2*zoom));
-  // Replace a nearly cleared squad, not one still filling the visible sky.
-  const lowContact=visible.length<=Math.max(2,Math.floor(directorCap(game)*.25));
-  if(lowContact&&directorCap(game)-(game.enemies||[]).filter(regular).length>=3){state.contactGapAt=null;beginPattern(game,state);}
+ sceneRhythm(game,state,now);
+ const threat=directorPressure(game),majorContact=(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.crashing&&(e.bossPilot||e.eliteKind||e.missionTarget||e.type==='zeppelin'||e.heavyBomber)&&Math.abs(e.x-cx)<(game.viewWidth||960)/(2*zoom)+100&&Math.abs(e.y-cy)<(game.viewHeight||720)/(2*zoom)+100);
+ const sceneDone=state.pattern&&state.pattern!==P.RECOVERY&&state.pattern!==P.ACE_PRESSURE&&state.pattern!==P.ELITE_FORMATION&&!state.queue.length&&state.spawned>0&&(state.clearSince!=null||state.contactGapAt!=null&&now-state.contactGapAt>=.6||now>=state.endsAt);
+ if(sceneDone){
+  state.awaitingRecovery=true;state.queue.length=0;
+  if(!state.dispersed){state.dispersed=true;for(const e of game.enemies||[])if(regular(e)&&e.directorSceneId===state.sceneId){e.directorBreakUntil=now+1.2;e.directorLayout='recovery';e.directorIntentUntil=now+1.2;e.combatPassState=S.DISENGAGE;e.combatPassTimer=1.2;e.combatPassHeading=regionalExitHeading(game,e,e.a);}}
  }
- const completed=state.pattern&&state.pattern!==P.RECOVERY&&state.pattern!==P.ELITE_FORMATION&&!state.queue.length&&now-state.startedAt>1.5&&!(game.enemies||[]).some(e=>e.directorSquad&&e.hp>0);
- if(completed){beginPattern(game,state);return}
- if(state.pattern&&now>=state.endsAt){state.pattern=null;state.queue.length=0;state.nextSceneAt=now;game.battleDirectorPattern=null}
+ if(state.awaitingRecovery){
+  game.spawn=Math.max(game.spawn||0,.5);
+  if(!threat.dangerousShots&&!threat.attackers&&(!majorContact||!ace&&!elite&&!named&&(!major.active||major.active==='mission'))){
+   state.clearSince=now;state.awaitingRecovery=false;
+   beginPattern(game,state,P.RECOVERY);return;
+  }
+  return;
+ }
+ if(state.pattern===P.RECOVERY){
+  if(threat.dangerousShots||threat.attackers){state.lowPressureAt=null;state.endsAt=now+state.plannedRecovery;}
+  else if(state.lowPressureAt==null){state.lowPressureAt=now;state.endsAt=now+state.plannedRecovery;}
+  game.battleRecoveryUntil=Math.max(game.battleRecoveryUntil||0,state.endsAt);
+  if(now<state.endsAt)return;
+  traceDirector(game,'actualLowPressure',{duration:Math.max(0,now-(state.lowPressureAt??now)),planned:state.plannedRecovery,reason:state.recoveryReason||'scene'});
+  state.lowPressureAt=null;state.pattern=null;state.nextSceneAt=now;game.battleDirectorPattern=null;
+ }else if(state.pattern&&now>=state.endsAt){state.pattern=null;state.queue.length=0;state.nextSceneAt=now;game.battleDirectorPattern=null;}
  if(!state.pattern&&now>=state.nextSceneAt)beginPattern(game,state);
  if(!state.pattern)return;
- sceneRhythm(game,state,now);
  game.eventTimer=Math.max(game.eventTimer||0,state.endsAt-now+.5);
  if(state.pattern===P.ELITE_FORMATION&&!state.eliteRequested){
-  if(!transportConvoyActive(game)&&!intrusionActive(game)&&!photoReconActive(game)&&game.eliteEnemies&&!game.eliteEnemies.active&&!activeAce(game)){state.eliteRequested=!!game.eliteEnemies.spawnEncounter?.();state.hadElite=!!game.eliteEnemies.active}
+  if(!transportConvoyActive(game)&&!intrusionActive(game)&&!photoReconActive(game)&&!game.eliteEnemies?.active&&!activeAce(game)){state.eliteRequested=!!(game.squadronManaged?!!game.eliteEnemies?.pendingEncounter:game.eliteEnemies?.spawnEncounter?.());state.hadElite=!!game.eliteEnemies?.active}
   if(!state.eliteRequested&&now-state.startedAt>.8){
    // Locked/cooling-down elite spawns return null. They must not consume a
    // whole empty scene or award the seven-second rest of an elite encounter.
@@ -882,7 +927,7 @@ function tickDirector(game,dt){
  const live=(game.enemies||[]).filter(regular).length;if(live>=directorCap(game)){state.nextActionAt=now+.7;return}
  // Arrive as one squad, but spread the spawn cost over a few frames:
  // at most two new aircraft per tick, the rest join on following ticks.
- const slots=Math.min(state.queue.length,Math.max(0,directorCap(game)-live),2);
+ const slots=Math.min(state.queue.length,Math.max(0,directorCap(game)-live),state.transitSpawnAt===now?1:2);
  for(let i=0;i<slots;i++){
   const due=state.queue.findIndex(item=>now>=state.startedAt+.35+(item.delay||0));if(due<0)break;const [next]=state.queue.splice(due,1);let e;
   game.directorSpawning=true;try{e=game.spawnEnemy?.(next.type)}finally{game.directorSpawning=false}
@@ -895,7 +940,7 @@ function tickDirector(game,dt){
    state.objective?.members.push(e);
    if(e.type==='bomber'){e.directorRouteHeading=e.combatPassHeading??e.a;e.directorRouteOrigin={x:e.x,y:e.y};}
   }
-  else{state.queue.unshift(next);break;}
+  else{next.blockedAt??=now;next.attempts=(next.attempts||0)+1;if(now-next.blockedAt<1.2)state.queue.push(next);else traceDirector(game,'spawnCancelled',{kind:'ordinary',type:next.type,reason:'native-cap',attempts:next.attempts});if(!state.queue.length&&!state.spawned)state.endsAt=now;}
  }
  state.nextActionAt=state.queue.length?now+.05:now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
@@ -921,10 +966,21 @@ export function installBattleDirector(Game,deps={}){
   const heading=tacticalRest(e,this.t||0)?e.combatPassHeading:['evade','exit'].includes(e.directorBomberMode)?e.directorBomberHeading:e.directorRouteHeading;
   return regionalSteering(this,e,contact,Math.min(baseTurn,.16),{delta:angleDiff(heading??e.a,e.a),turn:baseTurn>0?.16:0});
  };
+ const ambientFlak=Game.prototype.spawnFlak;
+ if(ambientFlak)Game.prototype.spawnFlak=function(...args){if(!scriptedBoss(this)&&(this.battleDirector?.pattern===P.RECOVERY||this.battleDirector?.awaitingRecovery)){this.flakTimer=Math.max(this.flakTimer||0,.5);return null;}return ambientFlak.apply(this,args);};
  const fire=Game.prototype.fireEnemy;
- Game.prototype.fireEnemy=function(e,...args){if(regionalAircraftEligible(e)&&!regionalShotReady(this,e,this.enemyCombatTarget(e))){e.fire=Math.max(e.fire||0,.12);return}if(e.directorSquad&&!this.directorShotReady(e))return;if(e?.formationCollapseUntil>(this.t||0)){e.fire=Math.max(e.fire||0,e.formationCollapseUntil-(this.t||0)+.2);return}return fire.call(this,e,...args)};
+ Game.prototype.fireEnemy=function(e,...args){if(regionalAircraftEligible(e)&&!regionalShotReady(this,e,this.enemyCombatTarget(e))){e.fire=Math.max(e.fire||0,.12);return}if(e.directorSquad&&!this.directorShotReady(e))return;if(e?.formationCollapseUntil>(this.t||0)){e.fire=Math.max(e.fire||0,e.formationCollapseUntil-(this.t||0)+.2);return}const before=this.bullets?.length||0,result=fire.call(this,e,...args);if((this.bullets?.length||0)>before)e.directorLastShotAt=this.t||0;return result};
  const target=Game.prototype.enemyCombatTarget;
  Game.prototype.enemyCombatTarget=function(e){const base=target.call(this,e),contact=regionalCombatTarget(this,e,base);return directorCombatTarget(this,e,contact)};
+ Game.prototype.directorAttackAllowed=function(e){
+  if(this.mode==='campaign'||!e||e.stageBossBody||e.bossMinion||e.surface||e.stationary)return true;
+  const now=this.t||0,state=directorState(this),compact=(this.viewWidth||960)<=720,cap=compact?(this.mode==='coop2'?4:3):(this.mode==='coop2'?5:4);
+  const slots=state.attackSlots||Object.defineProperty(state,'attackSlots',{value:new Map(),configurable:true}).attackSlots;
+  for(const [unit,until] of slots)if(until<=now||unit.hp<=0||unit.expired||!(this.enemies||[]).includes(unit)&&!(this.eliteEnemies?.members||[]).includes(unit))slots.delete(unit);
+  if(slots.has(e)){slots.set(e,now+.35);return true;}
+  if(slots.size>=cap){e.fire=Math.max(e.fire||0,.16);e.directorAttackDeniedReason='attack-budget';traceDirector(this,'shotDenied',{reason:'attack-budget',activeAttackers:slots.size,cap});return false;}
+  slots.set(e,now+.35);return true;
+ };
  Game.prototype.directorShotReady=function(e){
   if(e.directorFireHoldUntil>(this.t||0)){e.fire=Math.max(e.fire||0,e.directorFireHoldUntil-(this.t||0));return false;}
   if(ordinaryFighter(e)&&e.directorLayout==='cross'&&e.directorReadyAt){e.dangerAimUntil=0;return true;}
@@ -938,12 +994,13 @@ export function installBattleDirector(Game,deps={}){
  Game.prototype.beginBattleDirectorPattern=function(pattern){if(!Object.values(P).includes(pattern))return null;return beginPattern(this,directorState(this),pattern)};
 
  const regularLimit=Game.prototype.regularEnemyLimit;
- Game.prototype.regularEnemyLimit=function(){const base=regularLimit.call(this);if(this.mode==='campaign'||scriptedBoss(this))return base;return directorCap(this)};
+ Game.prototype.regularEnemyLimit=function(){const base=regularLimit.call(this);if(this.mode==='campaign'||scriptedBoss(this))return base;const reserved=(this.ruralFronts?.fronts||[]).filter(f=>f.status==='active').reduce((n,f)=>n+f.enemies.filter(e=>e.hp>0&&!e.expired).length,0);if(reserved||ordinaryAdmissionStage(this)&&this.directorAdmission?.kind==='named'&&!this.directorAdmission.used){const compact=(this.viewWidth||960)<=720,coop=this.mode==='coop2';return compact?(coop?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap):(coop?BATTLE_DIRECTOR_BALANCE.coopCap:BATTLE_DIRECTOR_BALANCE.soloCap);}return directorCap(this)};
  const interval=Game.prototype.regularSpawnInterval;
  Game.prototype.regularSpawnInterval=function(){const base=interval.call(this),pattern=this.battleDirectorPattern;if(pattern===P.RECOVERY)return base*1.65;if(pattern===P.ACE_PRESSURE||pattern===P.ELITE_FORMATION)return base*1.7;return pattern?base*2.2:this.mode!=='campaign'&&this.t<120?base*.82:base};
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){if(this.state==='playing')maintainFormations(this);const result=update.call(this,dt,input);if(this.state==='playing')maintainFormations(this);this.tickBattleDirector(Math.min(.04,Math.max(0,dt||0)));return result};
 }
+
 
 
 

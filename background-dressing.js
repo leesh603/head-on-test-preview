@@ -89,14 +89,16 @@ export function drawDesertDressing(c,cx,cy,w,h){
  }
 }
 export const PARIS_DRESSING=Object.freeze([
- ['ambulance',-1060,330,46,.04,'hospital-road'],['lorry',1020,230,38,0,'street'],
- ['supplies',470,338,36,0,'rail-platform'],['train',740,302,132,Math.PI/2,'rail-yard']
+ ['ambulance',-780,360,46,.04,'hospital-road'],['lorry',510,170,38,.2,'street'],
+ ['supplies',680,230,36,.2,'rail-platform'],['train',920,240,187,1.82,'rail-yard']
 ]);
 export function drawParisDressing(c,g,cx,cy,w,h){
  const origin=g?.parisBattle?.origin;if(!origin)return;
  const left=cx-w/2-origin.x,top=cy-h/2-origin.y;
  for(const [kind,px,py,size,a] of PARIS_DRESSING){
-  const x=px-left,y=py-top;if(x<-size||y<-size||x>w+size||y>h+size)continue;
-  drawDressingSprite(c,kind,x,y,size,a,.7);
+  const x=px-left,y=py-top;
+  if(x<-size||y<-size||x>w+size||y>h+size)continue;
+  drawDressingSprite(c,kind,x,y,size,a,.57);
  }
 }
+

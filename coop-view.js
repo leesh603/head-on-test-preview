@@ -1,4 +1,6 @@
 import {drawDoverConvoy} from './dover-breakthrough-view.js';
+import {renderLegacySquadrons} from './legacy-squadron-adapter.js';
+import {drawExpansionObjectives} from './expansion-objective-view.js';
 import {drawRevisionDecoys} from './voss-decoy-fx.js';
 import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js';
 import {drawGroundFacilities} from './ground-facility-view.js';
@@ -32,7 +34,7 @@ const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,drawFriendlyBomber,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
+import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
 import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
 import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
@@ -46,8 +48,11 @@ import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer,deferHostile=false}){
+ // Start guest decode on the replicated offscreen arrival, before visibility culling.
+ if(g.squadronArrival?.unitId)warmSquadronAircraft(g.squadronArrival.unitId);
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();if(finalArenaVisible(g))drawFinalArenaBoss(c,g,W,H);else drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
  drawDoverConvoy(c,g,{drawFieldArt,fieldArtImg,fx,en:getLocale()==='en'});
+ renderLegacySquadrons(c,g,(x,y)=>[x,y]);
  groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
  for(const p of g.players)drawNavarreFrommherz(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
  const cl=(x,y,m)=>x<g.x-W/(2*z)-m||x>g.x+W/(2*z)+m||y<g.y-H/(2*z)-m||y>g.y+H/(2*z)+m;
@@ -88,6 +93,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const a of g.allies){if(a.carrierHidden)continue;const owner=g.player(a.ownerId);if(owner&&!a.aceWingman&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,collishawWingArt(owner,a,a.aceWingman?aircraftKey(a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane),(a.aceWingman?1:.78)*(a.carrierScale??1));if(owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
  const blackFlightLabels=[];for(const p of g.players)drawCollishawWingNames(c,p,g.allies,undefined,getLocale(),z,{left:g.x-W/(2*z)+6/z,top:g.y-H/(2*z)+18/z,right:g.x+W/(2*z)-6/z,bottom:g.y+H/(2*z)-6/z},blackFlightLabels);
  for(const patrol of g.patrols){const scale=patrol.renderScale||.9;if(patrol.crashing){drawAircraftCrash(c,patrol,patrol.x,patrol.y,t,fx);sprite(patrol,patrol.plane,scale*enemyCrashScale(patrol));continue;}if(patrol.hp<=0)continue;sprite(patrol,patrol.plane,scale);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34*scale/.9,32*patrol.hp/patrol.maxHp,3)}
+ drawExpansionObjectives(c,g,W,H,{locale:getLocale(),worldToScreen:(x,y)=>[x,y],visible:(x,y,r)=>!cl(x,y,r)});
  for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])drawMannockWing(c,p,wing,wing.x,wing.y,planeSprite,fx);
    if(p.pilot==='rickenbacker'&&(p.rickActive||p.skillTime)>0){const ph=t*3.1,ea=.32;c.save();c.globalAlpha=.8;c.strokeStyle='rgba(255,226,140,.85)';c.lineWidth=2;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.globalAlpha=.22;c.lineWidth=1;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.restore()}
    if(p.fxOverheat>0&&p.pilot!=='udet'){c.save();c.globalAlpha=.55*p.fxOverheat;const nx=p.x+Math.cos(p.a)*14,ny=p.y+Math.sin(p.a)*14;c.fillStyle='#ff8a3c';c.beginPath();c.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(nx,ny,3.4,0,Math.PI*2);c.fill();c.restore()}

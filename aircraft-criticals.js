@@ -105,12 +105,12 @@ export function resolveAircraftCritical(world,e,b,damage,{player=false,impactX=b
  // A critical never converts an otherwise surviving player hit into a death.
  if(player&&damage<e.hp)dealt=Math.min(dealt,Math.max(damage,e.hp-1));
  const ignite=region.part==='fuel'&&!player&&random()<profile.ignite;
- return{damage:dealt,critical:{part:region.part,pilotKill,ignite,player,x:impactX,y:impactY,a:Math.atan2(b.vy,b.vx),side:Math.sign(region.side)||1,multiplier:dealt/damage,baseDamage:damage}};
+ return{damage:dealt,critical:{part:region.part,pilotKill,ignite,player,x:impactX,y:impactY,anchorX:sampleX,anchorY:sampleY,a:Math.atan2(b.vy,b.vx),side:Math.sign(region.side)||1,multiplier:dealt/damage,baseDamage:damage}};
 }
 export function applyAircraftCritical(world,e,b,result){
  const c=result?.critical;if(!c||world?.online&&!world.host)return false;
  if(result.applied)return false;result.applied=true;
- const time=world.t||0;
+ const time=world.t||0,anchorX=Number.isFinite(c.anchorX)?c.anchorX:c.x,anchorY=Number.isFinite(c.anchorY)?c.anchorY:c.y;
  if(c.part==='wing'&&e.hp>0){
   e.criticalWingReadyAt=time+AIRCRAFT_CRITICAL_BALANCE.wingCooldown;
   e.criticalSway={age:0,duration:c.player?.4:AIRCRAFT_CRITICAL_BALANCE.wingRecovery,a:c.a,amplitude:c.player?2.5:17,player:c.player};
@@ -122,7 +122,7 @@ export function applyAircraftCritical(world,e,b,result){
   e.burnTime=Math.max(e.burnTime||0,2);
   if(dps>=(e.burnDps||0)){e.burnDps=dps;e.burnOwnerId=b.ownerId??world.id;e.burnSupport=!!(b.ally||b.formation||b.ghost);}
   // Local origin for the renderer; do not repurpose boss burnAnchorSpace.
-  const ca=Math.cos(e.a||0),sa=Math.sin(e.a||0),dx=c.x-e.x,dy=c.y-e.y;
+  const ca=Math.cos(e.a||0),sa=Math.sin(e.a||0),dx=anchorX-e.x,dy=anchorY-e.y;
   e.criticalFuelOrigin={forward:dx*ca+dy*sa,side:-dx*sa+dy*ca};
  }
  const list=world.combatFX??=[],limit=world.viewWidth<=720?8:14;
@@ -130,9 +130,9 @@ export function applyAircraftCritical(world,e,b,result){
  if(count>=limit){const i=list.findIndex(f=>f.fxProfile==='aircraftCritical'&&!f.pilotKill);if(i>=0)list.splice(i,1);else return true;}
  if(list.length>=35){const i=list.findIndex(f=>f.fxProfile==='aircraftCritical'&&!f.pilotKill);if(i>=0)list.splice(i,1);else return true;}
  const life=c.pilotKill?.65:c.player?.42:c.part==='fuel'?.9:.72;
- const ca=Math.cos(e.a||0),sa=Math.sin(e.a||0),dx=c.x-e.x,dy=c.y-e.y;
+ const ca=Math.cos(e.a||0),sa=Math.sin(e.a||0),dx=anchorX-e.x,dy=anchorY-e.y;
  e.criticalTargetKey??=(world.criticalTargetSerial=(world.criticalTargetSerial||0)+1);
- list.push({...c,targetKey:e.criticalTargetKey,anchorForward:dx*ca+dy*sa,anchorSide:-dx*sa+dy*ca,fxProfile:'aircraftCritical',life,maxLife:life,ownerId:b.ownerId??world.id,feedbackId:'critical:'+(world.criticalFxSerial=(world.criticalFxSerial||0)+1)});
+ list.push({...c,x:anchorX,y:anchorY,airframeA:e.a||0,targetKey:e.criticalTargetKey,anchorForward:dx*ca+dy*sa,anchorSide:-dx*sa+dy*ca,fxProfile:'aircraftCritical',life,maxLife:life,ownerId:b.ownerId??world.id,feedbackId:'critical:'+(world.criticalFxSerial=(world.criticalFxSerial||0)+1)});
  return true;
 }
 export function tickAircraftCritical(e,dt){
@@ -147,5 +147,4 @@ export function tickAircraftCritical(e,dt){
  e.x+=Math.cos(s.a)*shift;e.y+=Math.sin(s.a)*shift;s.age=next;
  if(next>=s.duration-1e-9)delete e.criticalSway;
 }
-
 

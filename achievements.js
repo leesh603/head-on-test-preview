@@ -2,39 +2,40 @@ import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} fr
 // Service record also retains per-pilot aircraft unlock progress.
 import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pandemonium394r2&art=pilot-recovery2';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
-const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네미르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'넝제세르',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
-export const PILOT_AIRCRAFT_MEDALS=Object.freeze(Object.entries(PILOT_AIRCRAFT).filter(([,r])=>r.unlockAircraft).map(([id])=>medal('aircraft_'+id,'aircraft',0,pilotLabels[id]+' · 기체 전환 허가',id[0].toUpperCase()+id.slice(1)+' · Aircraft Clearance',`${pilotLabels[id]}로 누적 ${PILOT_AIRCRAFT_KILLS}기 격추 · 추가 기체 해금`,`Record ${PILOT_AIRCRAFT_KILLS} kills with ${id} to unlock the additional aircraft.`,pilotKillMetric(id),[PILOT_AIRCRAFT_KILLS])));
+const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네메르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'눙게서',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
+const pilotLabelsEn={baron:'Manfred von Richthofen',voss:'Werner Voss',boelcke:'Oswald Boelcke',udet:'Ernst Udet',goering:'Hermann Göring',berthold:'Rudolf Berthold',wolff:'Kurt Wolff',loewenhardt:'Erich Loewenhardt',jacobs:'Josef Jacobs',brumowski:'Godwin Brumowski',lothar:'Lothar von Richthofen',sachsenberg:'Gotthard Sachsenberg',fonck:'René Fonck',collishaw:'Raymond Collishaw',baracca:'Francesco Baracca',guynemer:'Georges Guynemer',bishop:'Billy Bishop',mannock:'Mick Mannock',hawker:'Lanoe Hawker',mccudden:'James McCudden',nungesser:'Charles Nungesser',rickenbacker:'Eddie Rickenbacker',ball:'Albert Ball',barker:'Billy Barker'};
+export const PILOT_AIRCRAFT_MEDALS=Object.freeze(Object.entries(PILOT_AIRCRAFT).filter(([,r])=>r.unlockAircraft).map(([id])=>medal('aircraft_'+id,'aircraft',0,pilotLabels[id]+' · 기체 전환 허가',pilotLabelsEn[id]+' · Aircraft Clearance',`해당 파일럿으로 누적 ${PILOT_AIRCRAFT_KILLS}기를 격추하면 추가 기체가 해금됩니다.`,`Accumulate ${PILOT_AIRCRAFT_KILLS} kills with ${pilotLabelsEn[id]} to unlock the additional aircraft.`,pilotKillMetric(id),[PILOT_AIRCRAFT_KILLS])));
 export const MEDALS=Object.freeze([
- medal('first','entry',0,'첫 전과','First Victory','정예 표적 최초 격추','Record your first priority kill.','priority'),
- medal('ace','entry',0,'에이스의 탄생','An Ace Is Born','한 출격 정예 표적 5기 격추','Record 5 priority kills in one sortie.','sortiePriority',[5]),
- medal('breakthrough','entry',0,'전선 돌파','Breakthrough','지역 보스 최초 격파','Defeat a regional boss.','bosses'),
- medal('survivor','entry',0,'살아서 돌아오다','Still Flying','한 출격에서 10분 생존','Survive 10 minutes in one sortie.','seconds',[600]),
- medal('resolute','entry',0,'불굴의 비행사','Resolute Aviator','한 출격 지역 보스 3회 격파','Defeat 3 regional bosses in one sortie.','sortieBosses',[3]),
- medal('far_sky','entry',0,'먼 하늘까지','Distant Skies','한 출격 지역 보스 5회 격파','Defeat 5 regional bosses in one sortie.','sortieBosses',[5]),
- medal('circuit','entry',4,'전선 일주','Full Circuit','한 출격에서 한 순환의 모든 전장 보스 격파','Clear every battlefield boss in one full route, in a single sortie.','circuits'),
- medal('veteran','combat',1,'전선의 베테랑','Frontline Veteran','정예 표적 누적 100 / 500 / 1,500기 격추','Record 100 / 500 / 1,500 priority kills.','priority',[100,500,1500]),
- medal('interceptor','combat',1,'폭격 저지선','Bomber Interceptor','정예 격추로 인정된 폭격기 누적 10 / 50 / 150기','Record 10 / 50 / 150 credited bomber kills.','bombers',[10,50,150]),
- medal('airship','combat',1,'거함 사냥꾼','Airship Hunter','정예 격추로 인정된 일반 비행선 누적 3 / 15 / 50척','Record 3 / 15 / 50 credited ordinary airship kills.','airships',[3,15,50]),
- medal('ace_hunter','combat',1,'에이스 사냥꾼','Ace Hunter','적 에이스 누적 3 / 15 / 50명 격추','Record 3 / 15 / 50 credited ace kills.','aces',[3,15,50]),
- medal('pursuit','combat',1,'꼬리를 물어라','On Your Tail','같은 정예 표적을 3초 연속 후방 고정한 뒤 직접 격추','Hold a priority target in tail lock for 3 continuous seconds, then score its kill.','pursuit'),
- medal('formation','combat',1,'편대 붕괴','Formation Breaker','편대장을 먼저 격추하고 10초 안에 나머지 편대 전멸','Destroy a formation leader first, then its remaining members within 10 seconds.','formations'),
- medal('escort','mission',2,'길잡이의 수호자','Guardian of the Scout','정찰기 호위 임무 성공','Complete a reconnaissance escort.','escort'),
- medal('rescue','mission',2,'전우를 위하여','For Your Comrades','아군 구출 임무 성공','Complete an allied rescue.','rescue'),
- medal('recon','mission',2,'전장의 눈','Eyes of the Battlefield','사진 정찰 임무 성공','Complete photo reconnaissance.','recon'),
- medal('supply','mission',2,'보급선 확보','Supply Secured','긴급 보급 회수 임무 성공','Complete emergency supply recovery.','supply'),
- medal('intel','mission',2,'정보는 무기다','Knowledge Is a Weapon','사진 정찰로 드러난 부위를 파괴하고 해당 보스 격파','Destroy the photo-recon weak point, then defeat that boss.','intel'),
- medal('problem_solver','mission',2,'전선의 해결사','Frontline Problem Solver','한 출격 서로 다른 임무 3종 성공','Complete 3 different mission types in one sortie.','missionTypes',[3]),
- medal('silence','boss',3,'침묵한 포대','Guns Fall Silent','보스 포대를 파괴하고 해당 보스 격파','Destroy a boss gun, then defeat that boss.','silence'),
- medal('heart','boss',3,'심장을 노려라','Strike the Heart','보스 기관부를 파괴하고 해당 보스 격파','Destroy a boss engine, then defeat that boss.','heart'),
- medal('defences','boss',3,'무너진 방어선','Defences Shattered','보스 한 전투에서 서로 다른 부위 3개 파괴 후 격파','Destroy 3 distinct parts in one boss encounter, then clear it.','defences'),
- medal('high_altitude','boss',3,'고공의 지배자','Master of High Altitude','체펠린 L70과 HMA23 각각 격파','Defeat both Zeppelin L70 and HMA23.','airshipBosses',[2]),
- medal('iron','boss',3,'철의 돌파자','Iron Breaker','A7V·마크 V·트레파스 바겐 각각 격파','Defeat A7V, Mark V and Treffas-Wagen.','ironBosses',[3]),
- medal('chronicler','boss',3,'전선의 기록자','Frontline Chronicler','서로 다른 지역 보스 10종 격파','Defeat 10 distinct regional boss types.','bossKinds',[10]),
- medal('perfect','special',4,'완벽한 공략','Flawless Assault','보스 교전 시작부터 격파까지 피격·부활 없이 승리','Clear a boss encounter without being hit or reviving.','perfect'),
- medal('legend','special',4,'전설이 된 출격','Legendary Sortie','한 출격 특수장비 4개 동시 보유','Hold 4 special equipment items at once.','equipment',[4]),
+ medal('first','entry',0,'첫 전과','First Victory','정예 표적을 처음 격추합니다.','Record your first priority kill.','priority'),
+ medal('ace','entry',0,'에이스의 탄생','An Ace Is Born','한 출격에서 정예 표적 5기를 격추합니다.','Record 5 priority kills in one sortie.','sortiePriority',[5]),
+ medal('breakthrough','entry',0,'전선 돌파','Breakthrough','지역 보스를 처음 격파합니다.','Defeat a regional boss for the first time.','bosses'),
+ medal('survivor','entry',0,'살아서 돌아오다','Still Flying','한 출격에서 10분간 생존합니다.','Survive 10 minutes in one sortie.','seconds',[600]),
+ medal('resolute','entry',0,'불굴의 비행사','Resolute Aviator','한 출격에서 지역 보스를 3회 격파합니다.','Defeat 3 regional bosses in one sortie.','sortieBosses',[3]),
+ medal('far_sky','entry',0,'먼 하늘까지','Distant Skies','한 출격에서 지역 보스를 5회 격파합니다.','Defeat 5 regional bosses in one sortie.','sortieBosses',[5]),
+ medal('circuit','entry',4,'전선 일주','Full Circuit','한 출격에서 한 순환의 모든 전장 보스를 격파합니다.','Clear every battlefield boss in one full route, in a single sortie.','circuits'),
+ medal('veteran','combat',1,'전선의 베테랑','Frontline Veteran','정예 표적을 누적 100 / 500 / 1,500기 격추합니다.','Record 100 / 500 / 1,500 priority kills.','priority',[100,500,1500]),
+ medal('interceptor','combat',1,'폭격 저지선','Bomber Interceptor','정예 격추로 인정된 폭격기를 누적 10 / 50 / 150기 격추합니다.','Record 10 / 50 / 150 credited bomber kills.','bombers',[10,50,150]),
+ medal('airship','combat',1,'거함 사냥꾼','Airship Hunter','정예 격추로 인정된 일반 비행선을 누적 3 / 15 / 50척 격추합니다.','Record 3 / 15 / 50 credited ordinary airship kills.','airships',[3,15,50]),
+ medal('ace_hunter','combat',1,'에이스 사냥꾼','Ace Hunter','적 에이스를 누적 3 / 15 / 50명 격추합니다.','Record 3 / 15 / 50 credited ace kills.','aces',[3,15,50]),
+ medal('pursuit','combat',1,'꼬리를 물어라','On Your Tail','같은 정예 표적의 후방을 3초 연속 고정한 뒤 직접 격추합니다.','Hold a priority target in tail lock for 3 continuous seconds, then score its kill.','pursuit'),
+ medal('formation','combat',1,'편대 붕괴','Formation Breaker','편대장을 먼저 격추한 뒤 10초 안에 나머지 편대를 전멸시킵니다.','Destroy a formation leader first, then its remaining members within 10 seconds.','formations'),
+ medal('escort','mission',2,'길잡이의 수호자','Guardian of the Scout','정찰기 호위 임무를 성공합니다.','Complete a reconnaissance escort.','escort'),
+ medal('rescue','mission',2,'전우를 위하여','For Your Comrades','아군 구출 임무를 성공합니다.','Complete an allied rescue.','rescue'),
+ medal('recon','mission',2,'전장의 눈','Eyes of the Battlefield','사진 정찰 임무를 성공합니다.','Complete photo reconnaissance.','recon'),
+ medal('supply','mission',2,'보급선 확보','Supply Secured','긴급 보급 회수 임무를 성공합니다.','Complete emergency supply recovery.','supply'),
+ medal('intel','mission',2,'정보는 무기다','Knowledge Is a Weapon','사진 정찰로 드러난 부위를 파괴한 뒤 해당 보스를 격파합니다.','Destroy the photo-recon weak point, then defeat that boss.','intel'),
+ medal('problem_solver','mission',2,'전선의 해결사','Frontline Problem Solver','한 출격에서 서로 다른 임무 3종을 성공합니다.','Complete 3 different mission types in one sortie.','missionTypes',[3]),
+ medal('silence','boss',3,'침묵한 포대','Guns Fall Silent','보스 포대를 파괴한 뒤 해당 보스를 격파합니다.','Destroy a boss gun, then defeat that boss.','silence'),
+ medal('heart','boss',3,'심장을 노려라','Strike the Heart','보스 기관부를 파괴한 뒤 해당 보스를 격파합니다.','Destroy a boss engine, then defeat that boss.','heart'),
+ medal('defences','boss',3,'무너진 방어선','Defences Shattered','보스 한 전투에서 서로 다른 부위 3개를 파괴한 뒤 해당 보스를 격파합니다.','Destroy 3 distinct parts in one boss encounter, then clear it.','defences'),
+ medal('high_altitude','boss',3,'고공의 지배자','Master of High Altitude','체펠린 L70과 HMA23을 각각 격파합니다.','Defeat both Zeppelin L70 and HMA23.','airshipBosses',[2]),
+ medal('iron','boss',3,'철의 돌파자','Iron Breaker','A7V·마크 V·트레파스 바겐을 각각 격파합니다.','Defeat A7V, Mark V and Treffas-Wagen.','ironBosses',[3]),
+ medal('chronicler','boss',3,'전선의 기록자','Frontline Chronicler','서로 다른 지역 보스 10종을 격파합니다.','Defeat 10 distinct regional boss types.','bossKinds',[10]),
+ medal('perfect','special',4,'완벽한 공략','Flawless Assault','보스 교전 시작부터 격파까지 피격과 부활 없이 승리합니다.','Clear a boss encounter without being hit or reviving.','perfect'),
+ medal('legend','special',4,'전설이 된 출격','Legendary Sortie','한 출격에서 특수장비 4개를 동시에 보유합니다.','Hold 4 special equipment items at once.','equipment',[4]),
  medal('pandemonium','special',4,'판데모니움','Pandemonium','숨겨진 최종 병기를 격파했습니다.','Defeat the hidden final war machine.','pandemoniumVictories',[1],true),
- medal('miracle','special',4,'기적의 생환','Miraculous Return','내구도 10% 이하 → 긴급 보급으로 완전 수리 → 부활 없이 다음 보스 격파','Recover from 10% hull with emergency supplies, then defeat the next boss without reviving.','miracle',[1],true),
- medal('two_wings','coop',5,'두 개의 날개','Two Wings','로컬 협동에서 두 플레이어가 생존한 채 지역 보스 격파','Clear a regional boss with both local co-op pilots alive.','twoWings'),
+ medal('miracle','special',4,'기적의 생환','Miraculous Return','내구도 10% 이하에서 긴급 보급으로 완전히 수리한 뒤, 부활 없이 다음 보스를 격파합니다.','At 10% durability or less, fully repair with emergency supplies, then defeat the next boss without reviving.','miracle',[1],true),
+ medal('two_wings','coop',5,'두 개의 날개','Two Wings','로컬 협동에서 두 플레이어가 생존한 채 지역 보스를 격파합니다.','Clear a regional boss with both local co-op pilots alive.','twoWings'),
  ...PILOT_AIRCRAFT_MEDALS
 ]);
 export const MEDAL_SAVE_KEY='headon-service-medals-1';
@@ -79,6 +80,8 @@ export function syncPilotKills(g){
  }
  if(Object.keys(add).length){const earned=book.record({add});const r=runs.get(g);if(r)for(const id of earned)r.sessionAwards.add(id)}
 }
+// A resumed run has already credited its entry-time kills to the service record.
+export function primePilotKills(g){pilotKillRuns.set(g,new Map((g.players||[g]).map(p=>[p.id||'p1',finite(p.kills)])));}
 // Persistent service-record collection is merged by the existing cloud profile UNION policy.
 // No migration from generic circuits, London/Gotha, or boss totals: these are not capital-final proof.
 export function hasBothFactionFinalClears(){const done=new Set(book?.data.collections.factionFinalClears||[]);return book?.saved===true&&done.has('central')&&done.has('entente');}

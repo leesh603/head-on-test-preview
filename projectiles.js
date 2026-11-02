@@ -1,3 +1,4 @@
+import {canvasCullView,outsideCanvas} from './render-culling.js';
 import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
 import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
 import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
@@ -123,6 +124,7 @@ export function drawFlightRocket(c,b,x,y,{length=52,hostile=!!b.enemy,scale=1}={
 }
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  if(!b.enemy||b.life<=0)return;
+ if(b.cigognesCannon){fxTint(c,'cannonMotor','#f7a18b',x,y,23,6,Math.atan2(b.vy,b.vx));return;}
  if(b.ordnanceFamily==='dart'&&bossOrdnanceLoaded())return drawBossOrdnance(c,'dart',x,y,b.raidHeavy?42:32,Math.atan2(b.vy,b.vx));
  if(b.hostileRocket||b.ordnanceFamily==='rocket'||b.visualType==='rocket'){if(drawFlightRocket(c,b,x,y,{length:b.raidHeavy?48:40,hostile:true,scale:Math.max(1,1/Math.max(.65,screenScale))}))return;}
  if(drawGunSignature(c,b,x,y,screenScale))return;
@@ -187,15 +189,16 @@ export function drawCannonProjectile(c,b,x,y){
 // Deterministic, bounded pixel embers; no per-frame sprite allocation or gradients.
 const _ptShare=[0,0];
 export function drawBattlefieldFire(c,g,point=(x,y)=>{_ptShare[0]=x;_ptShare[1]=y;return _ptShare}){
+ const cullView=canvasCullView(c);
  if(FX3&&fxReady('fireWing'))for(const e of g.enemies||[]){
   if(!(e.hp>0&&e.hp<e.maxHp*.35)||e.surface||e.fieldUnit||e.stageBossBody||e.crashing)continue;
   const a=e.a||0,[x,y]=point(e.x-Math.sin(a)*15,e.y+Math.cos(a)*15);
-  fx(c,'fireWing',x,y,26,22,a+Math.PI/2,.42);
+  if(!outsideCanvas(cullView,x,y,160))fx(c,'fireWing',x,y,26,22,a+Math.PI/2,.42);
  }
- for(const e of g.enemies||[])if(e.sunBlindUntil>g.t){const[x,y]=point(e.x,e.y);c.save();c.translate(x,y);c.rotate(e.a);
+ for(const e of g.enemies||[])if(e.sunBlindUntil>g.t){const[x,y]=point(e.x,e.y);if(outsideCanvas(cullView,x,y,800))continue;c.save();c.translate(x,y);c.rotate(e.a);
   if(fxReady('sunshaft')){fx(c,'sunshaft',250,0,520,260,0,.5)}else{c.globalAlpha=.12;c.fillStyle='#e5ca7c';c.beginPath();c.moveTo(0,0);c.arc(0,0,470,-.7,.7);c.closePath();c.fill();c.globalAlpha=.35;c.fillStyle='#f1dca4';for(let i=-2;i<=2;i++){c.save();c.rotate(i*.22);c.fillRect(20,-1,160+Math.abs(i)*25,2);c.restore();}}c.restore();}
- for(const f of g.cannonImpacts||[]){if(FX3&&fxReady('cowImpact0'))continue;const[x,y]=point(f.x,f.y);fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
- for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y),fade=Math.min(1,f.life/1.5);
+ for(const f of g.cannonImpacts||[]){if(FX3&&fxReady('cowImpact0'))continue;const[x,y]=point(f.x,f.y);if(outsideCanvas(cullView,x,y,120))continue;fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
+ for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y);if(outsideCanvas(cullView,x,y,Math.max(100,Math.abs(f.radius||0)*3+100)))continue;const fade=Math.min(1,f.life/1.5);
   if(FX3&&fxReady('fireGround')){
    const d=f.radius*2,seed=f.seed||0,phase=(g.t||0)*6.5+seed*.17,pulse=.94+Math.sin(phase)*.06;
    const angle=f.angle||0,ca=Math.cos(angle),sa=Math.sin(angle),lowDetail=(c.canvas?.width||999)<900;

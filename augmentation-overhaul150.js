@@ -1,9 +1,11 @@
+import {medalDisplayName,equipmentNameKo} from './equipment-names.js';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
 import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
 import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
 import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
 import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
 import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
 import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261025';
 import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
@@ -41,7 +43,7 @@ const BUILD_IDENTITY_BY_ID=Object.freeze({
  ...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT,...RARE_SPECIALIZATIONS].map(u=>[u.id,u.family])),
  damage:'GUN',rate:'GUN',spread:'GUN',turn:'SPEED',mercedesEngine:'SPEED',rockets:'EXPLOSIVE',mines:'EXPLOSIVE',explosives:'EXPLOSIVE',combinedProjectiles:'EXPLOSIVE',
  command:'FORMATION',wingman:'FORMATION',aceWingman:'FORMATION',bomber:'FORMATION',fighterSupply:'FORMATION',armor:'SURVIVAL',regen:'SURVIVAL',cooldown:'SURVIVAL',
- amatolCharge:'EXPLOSIVE',lufberyCircle:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',ironCross:'SURVIVAL',telescope:'GUN',flightGloves:'GUN',sparkPlug:'SURVIVAL',goeringBaton:'FORMATION',
+ amatolCharge:'EXPLOSIVE',lufberyCircle:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',ironCross:'SURVIVAL',passiveMedal:'SURVIVAL',telescope:'GUN',flightGloves:'GUN',sparkPlug:'SURVIVAL',goeringBaton:'FORMATION',
  immelmannManual:'SPEED',motorCannon:'EXPLOSIVE',loEmblem:'GUN',sacredCowling:'SPEED',steelPlate:'SURVIVAL',mauserAceKiller:'GUN',rearGunner:'GUN',quadLewis:'GUN',cow37:'GUN',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',grunkreuz:'SURVIVAL',fogCompass:'SURVIVAL',maximBelt:'GUN'
 });
 export const buildIdentityFor=id=>BUILD_IDENTITY_BY_ID[id]||WEAPON_MOD_BY_ID[id]?.family||null;
@@ -59,33 +61,34 @@ const SPECIAL=[
  ['mercedesEngine','고출력 메르세데스 엔진','기본 이동 속도 +20%. 직선 비행 1.2초로 최대 +55%까지 상승하며, 급선회 시 0.75초에 걸쳐 출력이 감소합니다.'],
  ['combinedProjectiles','시차 투사장치','로켓·수류탄 총수를 유지하고 0.24초 간격으로 나누어 발사합니다. 2차 공격 피해 +25%, 폭발 반경 +10%. 1발이면 단발 피해 +15%.'],
  ['amatolCharge','아마톨 고폭 장약','폭발 피해·실제 피해 반경 +40%. 폭발 격추 시 원 폭발 피해의 30%로 2차 파편폭발 발생. 2차 폭발은 연쇄하지 않습니다.'],
- ['lufberyCircle','루프베리 서클','260px 내 본인 상시 편대기 1/2/3/4대 이상일 때 받는 피해 −20/25/30/35%. 300px 밖으로 이탈하면 엄호 해제. 상호 엄호 대형으로 전환합니다.'],
+ ['lufberyCircle','루프베리 서클','가까이서 엄호하는 본인 상시 편대기 1/2/3/4기 이상에 따라 받는 피해 −20/25/30/35%. 편대와 멀어지면 엄호가 해제됩니다.'],
  ['redScarf','붉은남작의 머플러','이동 속도 +20%, 적 후방 추적 잠금 중 총 +35%. 추적 판정 거리 +25% · 고정 시간 −35%.'],
  ['prancingHorse','바라카의 검은 말 문장','이동 속도 +20%, 전방에서 받는 피해 −25%. 문장은 방어 발동 순간에만 나타납니다.'],
- ['ironCross','푸르 르 메리트','파일럿 액티브가 강화되고 재사용 대기시간이 20% 감소합니다.'],
+ ['passiveMedal','철십자 훈장 1급','파일럿 고유 패시브 강화'],
+ ['ironCross','푸르 르 메리트','액티브 쿨타임이 20% 줄고 강화됩니다.'],
  ['telescope','르네 퐁크의 망원경','전방 약 21° 안의 적을 초점 포착하여 초기 0.8초 동안 최대 17° 조준 보정. 보정 궤적과 표적 표시가 나타납니다.'],
- ['flightGloves','빌리비숍의 비행장갑','직접 주무장 사거리 −20%. 순항 70% 이상으로 1초 내 45° 선회 후 전방 45°·260px 내 적 포착 시 1.5초간 주무장 발사 간격 −30%. 재발동 3초, 무적 중 제외.'],
+ ['flightGloves','빌리비숍의 비행장갑','직접 주무장 사거리 −20%. 순항 속도의 70% 이상으로 비행하며 1초 안에 45° 이상 선회한 뒤, 전방 45° 안의 가까운 적을 포착하면 1.5초간 발사 간격 −30%. 재사용 대기시간 3초. 무적 중에는 발동하지 않습니다.'],
  ['sparkPlug','맥커든의 비상수선키트','10초마다 최대 내구도의 8% 회복. 수리 보급 회수 시 12% 추가 회복 (추가 회복 재사용 10초).'],
  ['goeringBaton','전투비행대 총동원령','상시 윙맨 +3, 윙맨 피해 +25%.'],
  ['immelmannManual','임멜만의 기동전술 교본','선회기동 재사용 대기시간 −50%, 기동 무적 1.05초.'],
  ['motorCannon','기네메르의 37mm 모퇴르 카농','3초마다 전방으로 피해 240의 37mm 포탄. 명중 시 주변에 50% 화염 폭발 피해. 관통하지 않습니다. 화약 개량 적용.'],
  ['loEmblem','LO! 페인팅 엠블럼','최대 내구도 −50%, 기관총·폭발물·편대 피해 +50%, 편대 연사 +30%, 이동 속도·선회력 +25%.'],
- ['sacredCowling','황제의 얼굴 카울링','260px 내 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.'],
+ ['sacredCowling','황제의 얼굴 카울링','가까운 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.'],
  ['steelPlate','J형 장갑 캡슐','기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%.'],
- ['mauserAceKiller',"마우저 C96 ‘에이스 킬러’",'0.65초마다 320 범위 내 에이스→정예→일반 우선 조준. 피해 18/36/72. 최근 1.5초 내 직접 주무장으로 맞힌 정예·에이스는 54/120. 조종석 파일럿 킬 8% / 에이스 2% (등장 12초 후). 기관총·폭발물 강화 효과를 각각 75%씩 합산 적용받습니다 (추가 피해 상한 +150%).'],
+ ['mauserAceKiller',"마우저 C96 ‘에이스 킬러’",'0.65초마다 가까운 적을 에이스→정예→일반 순으로 조준합니다. 일반/정예/에이스 피해 18/36/72. 최근 1.5초 안에 직접 주무장으로 맞힌 정예/에이스에게는 54/120 피해. 조종석 파일럿 격추 확률 8%, 에이스는 등장 12초 후부터 2%. 기관총·폭발물 피해 강화의 75%씩 합산 적용(추가 피해 최대 +150%).'],
  ['boelckeDicta','뵐케의 금언집','경험치 획득량 +30%. 협동에서는 보유자에게만 적용됩니다.'],
- ['rearGunner','스카프링 총좌','복좌기 관측수용 회전 총좌의 각색. 기본 기관총 사격 방향이 초당 약 66°로 회전합니다. 완전 후방 조준 약 2.7초. 총기 수·탄약 소모는 유지됩니다.'],
+ ['rearGunner','스카프링 총좌','기관총 사격 방향이 초당 약 66°로 회전해 약 2.7초 후 완전 후방을 조준합니다. 총기 수와 탄약 소모는 변하지 않습니다.'],
  ['quadLewis','쿼드 루이스 기관총','일반 발사체 상한을 넘어 총구별 기관총 탄환 +4.'],
- ['cow37','COW 37MM 기관포','대전기 실험·전간기 시험 기관포의 각색. 기존 기관총을 교체합니다. 기초 발사 간격 1초, 기본 피해 280, 탄창 24발, 재장전 4.6초. 명중 시 주변에 50% 화염 폭발 피해. 관통하지 않습니다. 기관총·폭발물 피해 강화는 합산 적용됩니다. 장갑의 조건부 주무장 보정은 적용됩니다.'],
- ['rankinShell','랭킨 대공 파편탄','3.2초마다 후방 220°·500 범위의 일반 탄환을 제거하고 파편 피해 32를 줍니다. 중탄·보스 경고 공격은 제거하지 않습니다.'],
- ['grunkreuz','녹십자 (Grünkreuz)','독가스 면역. 4.5초간 후방으로 0.35초마다 독가스 분출 (반경 160px, 지속 3초). 가스 속 적은 0.6초마다 내 최대 내구도의 9% 피해. 충전 7초. 분출·충전 모두 액티브 재사용 감소 적용 (최대 −50%).'],
+ ['cow37','COW 37MM 기관포','기존 기관총을 COW 37mm 기관포로 교체합니다. 기초 발사 간격 1초, 기본 피해 280, 탄창 24발, 재장전 4.6초. 명중 시 주변에 50% 화염 폭발 피해. 관통하지 않습니다. 기관총·폭발물 피해 강화는 합산 적용됩니다. 비행장갑의 발동 조건에 따른 주무장 보정은 적용됩니다.'],
+ ['rankinShell','랭킨 대공 파편탄','3.2초마다 후방 220°의 넓은 범위에서 일반 탄환을 제거하고 파편 피해 32를 줍니다. 중탄·보스 경고 공격은 제거하지 않습니다.'],
+ ['grunkreuz','녹십자 (Grünkreuz)','독가스 면역. 4.5초간 후방으로 0.35초마다 독가스를 분출합니다. 가스는 3초간 남으며 안의 적에게 0.6초마다 최대 내구도의 9% 피해를 줍니다. 충전 7초. 분출·충전 모두 액티브 재사용 대기시간 감소 적용(최대 −50%).'],
  ['kaiserFog','브록식 연막장치','12초마다 3초간 연막에 숨어 적 추적에서 제외되고 어그로가 초기화됩니다.'],
- ['fogCompass','C-O 5/17 에어로 컴퍼스','경험치 획득 반경 480px, 수리 보급 흡입 반경 696px. 솔로·협동 동일 적용.'],
+ ['fogCompass','C-O 5/17 에어로 컴퍼스','멀리 떨어진 경험치와 수리 보급을 끌어당깁니다. 수리 보급은 경험치보다 더 먼 거리에서 회수합니다.'],
  ['maximBelt','프리도 연속 급탄 링크','기관총 피해 +25%p, 탄띠 용량 +75%, 재장전 시간 −35%.'],
  ['urLeica','Ur-Leica 소형 카메라','전과를 사진으로 기록합니다. 게임 종료 시 최종 격추 기록 +10% (소수점 버림). 한 출격 1회.'],
  ['badinGauge','바댕 속도계','출격 순항속도 대비 지속 속도 증가분의 75%만큼 기관총·폭발물 피해 증가 (상한 +30%). 직선 1.2초로 충전, 급선회 0.75초로 감소. 메르세데스 출력 포함, 회피·돌진·순간 가속 제외.'],
  ['heineckeRettungsfallschirm','하이네케 구명낙하산','치명 피해 시 탈출해 예비기로 재출격. 출격당 2회, 재사용 180초.'],
- ['aceWingman','에이스 윙맨','무작위 아군 에이스 1명이 윙맨으로 합류합니다. 플레이어 주력 무장의 반대 계열(기관총·로켓)로 엄호하며 기체 성장에 따라 강화됩니다. 화력은 특수장비 1개 수준으로 제한됩니다.'],
+ ['aceWingman','에이스 윙맨','무작위 아군 에이스 1명이 합류합니다. 주력 무장과 반대 계열의 기관총 또는 로켓으로 엄호하며 기체 성장에 따라 강화됩니다.'],
  ...[...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(({id,name,desc})=>[id,name,desc]),
 ];
 
@@ -102,11 +105,12 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  for(const [id,name] of [...STANDARD,...RARE_ONLY]){
   const item=byId.get(id)||{id,apply:()=>{}};Object.assign(item,{name,legendary:false,uniqueOnly:false,rareOnly:rareIds.has(id)});byId.set(id,item);
  }
- LEGENDARIES.splice(0,LEGENDARIES.length,...SPECIAL.map(([id,name,desc])=>({id,name,desc})));
+ LEGENDARIES.splice(0,LEGENDARIES.length,...SPECIAL.map(([id,name,desc])=>({id,name:equipmentNameKo(id,name),desc})));
  for(const item of LEGENDARIES)byId.set(item.id,{...item,legendary:true,uniqueOnly:false,apply:()=>{}});
  UPGRADES.splice(0,UPGRADES.length,...[...STANDARD,...RARE_ONLY].map(([id])=>byId.get(id)),...LEGENDARIES.map(item=>byId.get(item.id)),...SPECIAL_DOCTRINES.map(d=>({id:d.id,name:d.name,desc:d.description,specialDoctrine:true,legendary:false,uniqueOnly:false,apply:()=>{}})));
 
  const description=function(id,rarity='normal',g){
+  if(id==='passiveMedal')return '파일럿 고유 패시브를 강화합니다.';
   if(rareSpecializationFor(id))return rareSpecializationFor(id).desc;
   if(WEAPON_MOD_BY_ID[id])return WEAPON_MOD_BY_ID[id].description;
   if(specialDescription.has(id))return specialDescription.get(id);const t=tierIndex(rarity),extra=[0,8,16][t];
@@ -131,7 +135,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
 
  Game.prototype.legendaryCount=function(){return LEGENDARIES.reduce((n,u)=>n+(this.upgrades[u.id]?1:0),0)};
  Game.prototype.legendaryChance=function(){return Math.min(.5,Math.max(.05,(this.level||1)*.05))};
- const namedSpecial=(g,u)=>({...u,name:u.id==='ironCross'?(PLANES[g.plane]?.faction==='entente'?'빅토리아 십자훈장 · Victoria Cross':'푸르 르 메리트 · Pour le Mérite'):u.name,legendary:true,rarity:'legendary'});
+ const namedSpecial=(g,u)=>({...u,name:u.id==='passiveMedal'?passiveMedalName(PILOTS[g.pilot]?.faction||PLANES[g.plane]?.faction):u.id==='ironCross'?medalDisplayName(PLANES[g.plane]?.faction):u.name,legendary:true,rarity:'legendary'});
  const hasExplosiveMeans=g=>g.rockets>0||g.mineCount>0||(g.bomberLevel||0)>0||g.motorCannon||g.cow37||g.bomberTransfer&&!g.bomberTransfer.kind||g.upgrades.rankinShell||g.legendaryMineTrail||g.upgrades.cooperRack||['bishop','guynemer'].includes(g.pilot);
  const specialAllowed=function(g,u){if(u.id==='fighterSupply'&&!(g.permanentWingman>0))return false;if(u.id==='combinedProjectiles'&&!(g.rockets>0||g.mineCount>0))return false;if([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].some(n=>n.id===u.id)&&!wwiEquipmentAllowed(g,u.id))return false;return !(AIRFRAME_TRANSFER_IDS.includes(u.id)&&(g.bomberTransfer||g.upgrades.strutterAirbrake||AIRFRAME_TRANSFER_IDS.some(id=>g.upgrades[id])))&&!g.upgrades[u.id]&&(u.id!=='rearGunner'||!g.weapon.bidirectional&&!g.rearGunner)&&!(u.id==='cow37'&&(g.upgrades.quadLewis||g.upgrades.maximBelt||g.upgrades.buckinghamBelt||g.upgrades.hytheCamera))&&!(u.id==='quadLewis'&&g.upgrades.cow37)&&!(u.id==='maximBelt'&&g.upgrades.cow37)&&(u.id!=='amatolCharge'||hasExplosiveMeans(g))&&(u.id!=='lufberyCircle'||(g.permanentWingman||0)>=1)};
  const SPECIAL_SYNERGY=Object.freeze({...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT,...RARE_SPECIALIZATIONS].map(u=>[u.id,u.family])),amatolCharge:'EXPLOSIVE',motorCannon:'EXPLOSIVE',lufberyCircle:'FORMATION',goeringBaton:'FORMATION',aceWingman:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',sacredCowling:'SPEED',immelmannManual:'SPEED',flightGloves:'GUN',telescope:'GUN',quadLewis:'GUN',maximBelt:'GUN',rearGunner:'GUN',sparkPlug:'SURVIVAL',steelPlate:'SURVIVAL',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL'});
@@ -241,7 +245,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'combinedProjectiles':this.projectileDistributorLevel=1;break;
    case 'redScarf':this.enemyCruiseReference??=this.baseSpeed??this.speed;this.speed*=AUGMENTATION_OVERHAUL_BALANCE.redScarfSpeed;if(this.baseSpeed)this.baseSpeed*=AUGMENTATION_OVERHAUL_BALANCE.redScarfSpeed;this.redScarf=true;break;
    case 'prancingHorse':this.speed*=1.2;if(this.baseSpeed)this.baseSpeed*=1.2;this.prancingHorse=true;break;
-   case 'ironCross':this.skillEnhanced=true;this.cooldownMult=Math.max(.5,this.cooldownMult*.8);break;
+   case 'passiveMedal':break;
+   case 'ironCross':this.skillEnhanced=true;break; // Medal cooldown is calculated from the unenhanced effective cooldown.
    case 'telescope':this.telescope=true;break;
    case 'flightGloves':break;
    case 'sparkPlug':this.mccuddenRepair=true;this.mccuddenRepairTimer=AUGMENTATION_OVERHAUL_BALANCE.repairInterval;break;
@@ -270,6 +275,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   // Eligibility never interrupts combat. The pause-menu codex owns adoption.
   recordEquipmentUpgrade(this,id,rarity);
   if(this._equipmentReplay)return true;
+  if(id==='passiveMedal')this.event?.('ally',passiveMedalName(PILOTS[this.pilot]?.faction)+' · 강화 적용됨');
+  if(!u.legendary&&this.pilot==='mccudden'&&this.lastChoices?.length===4)this.passiveMedalEvent?.('engineering',{serial:this.choiceDraftSerial??this.level});
   completeIntrusionEquipmentReward(this,id);
   this.pendingTacticalChoice=null;this.state='playing';this.checkLevel();
   return true;
@@ -456,18 +463,20 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   const side=(this.id==='p2'?-1:1)*100;
   if(wing){
    const world=this.combatWorld?.()||this,now=world.t||0,signal=wwiWingTarget(this,wing);
-   const valid=e=>!!e&&e.hp>0&&(isWWIFlyingTarget(e)||e===signal?.target)&&!e.expired&&e.alive!==false&&!e.hidden&&(Math.hypot(e.x-this.x,e.y-this.y)<650||Math.hypot(e.x-wing.x,e.y-wing.y)<350);
+   const pointFor=e=>e?.stageBossBody?wwiBossAimPoint(this,e,wing):e;
+   const valid=e=>{const point=pointFor(e);return !!e&&!!point&&e.hp>0&&(e.stageBossBody||isWWIFlyingTarget(e)||e===signal?.target)&&!e.expired&&e.alive!==false&&!e.hidden&&(Math.hypot(point.x-this.x,point.y-this.y)<650||Math.hypot(point.x-wing.x,point.y-wing.y)<350)};
    let target=wing._netAceTarget;
-   if(!valid(target)||signal&&target!==signal.target||now>=(wing.aceScanAt||0)){
+   if(wing._netBossPass&&valid(wing.engagementTarget))target=wing._netAceTarget=wing.engagementTarget;
+   else if(!valid(target)||signal&&target!==signal.target||now>=(wing.aceScanAt||0)){
     wing.aceScanAt=now+.16;target=null;let best=Infinity;
     for(const e of signal?[signal.target]:equipmentTargets(world))if(valid(e)){
-     const distance=Math.hypot(e.x-wing.x,e.y-wing.y),bearing=Math.atan2(e.y-wing.y,e.x-wing.x);
-     const score=distance+Math.abs(angleDiff(bearing,wing.a))*65+Math.hypot(e.x-this.x,e.y-this.y)*.3;
+     const point=pointFor(e),distance=Math.hypot(point.x-wing.x,point.y-wing.y),bearing=Math.atan2(point.y-wing.y,point.x-wing.x);
+     const score=distance+Math.abs(angleDiff(bearing,wing.a))*65+Math.hypot(point.x-this.x,point.y-this.y)*.3;
      if(distance<700&&score<best){best=score;target=e}
     }
     wing._netAceTarget=target;
    }
-   wing._netAceAim=signal&&target===signal.target?{x:signal.x,y:signal.y,a:target.a,speed:target.speed,flightSpeed:target.flightSpeed}:null;
+   wing._netAceAim=signal&&target===signal.target?{x:signal.x,y:signal.y,a:target.a,speed:target.speed,flightSpeed:target.flightSpeed}:target?.stageBossBody?pointFor(target):null;
    // The same nose-led flight controls both pursuit and shooting. Returning to
    // the formation must not undo a firing turn on the following simulation step.
    if(target&&Math.hypot(wing.x-this.x,wing.y-this.y)<650){
@@ -496,11 +505,16 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  Game.prototype.fireAceWingman=function(wing,dt){
   if(wing.fire>0)return;
+  if(wing._netBossPass&&!['INTERCEPT','PASS'].includes(wing.engagementState))return;
   const world=this.combatWorld?.()||this;
   this.aceWingmanTarget(wing);const target=wing._netAceTarget;
-  if(!target||Math.hypot(target.x-wing.x,target.y-wing.y)>650){wing.fire=.08;return}
+  const point=wing._netAceAim||target;
+  if(!target||Math.hypot(point.x-wing.x,point.y-wing.y)>650){wing.fire=.08;return}
   const rocket=this.aceWingmanMode()==='rocket',speed=rocket?510:490,aim=fighterAim(world,wing,wing._netAceAim||target,speed,.9);
   if(Math.abs(angleDiff(aim,wing.a))>.16){wing.fire=.04;return}
+  const muzzle={x:wing.x+Math.cos(wing.a)*23,y:wing.y+Math.sin(wing.a)*23};
+  // Hold a shot born inside an armored boss section until the nose clears it.
+  if(target.stageBossBody?.locateHit?.({...muzzle,previousX:muzzle.x,previousY:muzzle.y,radius:rocket?10:0})?.partId==='absorb'){wing.fire=.04;return}
   const power=this.aceWingmanPower(),damage=rocket?Math.min(58,32*power):Math.min(15,8*power);
   wing.fire=rocket?1.1:.2;wing.muzzleFlash=.1;wing.muzzleAngle=wing.a;
   const heading=wing.a;
@@ -508,5 +522,6 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  for(const [id,p] of Object.entries(PILOTS))if(p?.name&&id==='mccudden')p.augmentationAffinity='sparkPlug';
 }
+
 
 

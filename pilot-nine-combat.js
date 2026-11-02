@@ -25,7 +25,7 @@ function rearBurst(p,target,strong=false){
 export function recordNineDamage(p,damage){
  if(!(damage>0)||p.state!=='playing'||p.hp<=0||p.invuln>0)return;
  if(p.pilot==='berthold'){
-  const held=damage>=p.maxHp*.09?damage*.3:damage*.12;
+  const held=(damage>=p.maxHp*.09?damage*.3:damage*.12)*(p.skillEnhanced&&p.skillTime>0?1.35:1);
   p.heldDamage=Math.min(p.maxHp,(p.heldDamage||0)+held);
   if(p.skillTime>0)p.ironActiveDamage=(p.ironActiveDamage||0)+held;
   cue(p,'ironImpact',{life:.65,damage});
@@ -47,32 +47,32 @@ function advance(p,dt){
   const rear=pick(p,p.a+Math.PI,Math.PI*.49,active?650:430);
   if(rear!==p.nineRearTarget){p.nineRearTarget=rear;p.rearAcquire=0;p.rearBurstLeft=0;if(rear)cue(p,'rearAcquire',{x:rear.x,y:rear.y,a:bearing(p,rear),life:.24});}
   p.nineRearAim??=p.a+Math.PI;
-  p.nineRearAim=rear?p.nineRearAim+clamp(wrap(bearing(p,rear)-p.nineRearAim),-dt*5,dt*5):p.a+Math.PI;
+  p.nineRearAim=rear?p.nineRearAim+clamp(wrap(bearing(p,rear)-p.nineRearAim),-dt*(active&&p.skillEnhanced?7:5),dt*(active&&p.skillEnhanced?7:5)):p.a+Math.PI;
   p.rearAcquire=rear?(p.rearAcquire||0)+dt:0;
   if(p.pilot==='mckeever'&&active){
    const front=p.nineFrontTarget;
    if(!aerial(front)||front===rear||dist(p,front)>650||Math.abs(wrap(bearing(p,front)-p.a))>Math.PI*.49)p.nineFrontTarget=pick(p,p.a,Math.PI*.49,650,rear);
-   p.nineFrontAim??=p.a;p.nineFrontAim=p.nineFrontTarget?p.nineFrontAim+clamp(wrap(bearing(p,p.nineFrontTarget)-p.nineFrontAim),-dt*5,dt*5):p.a;
+   p.nineFrontAim??=p.a;p.nineFrontAim=p.nineFrontTarget?p.nineFrontAim+clamp(wrap(bearing(p,p.nineFrontTarget)-p.nineFrontAim),-dt*(p.skillEnhanced?7:5),dt*(p.skillEnhanced?7:5)):p.a;
   }else {p.nineFrontTarget=null;p.nineFrontAim=p.a;}
   if(p.pilot==='huffzky'&&active){
    const age=p.nineDuration-p.skillTime;
-   if((p.reverseBursts||0)<4&&age>=.35+(p.reverseBursts||0)*.62&&rearBurst(p,rear,true))p.reverseBursts=(p.reverseBursts||0)+1;
-  }else if(rear&&p.rearAcquire>=.24){
+   if((p.reverseBursts||0)<(p.skillEnhanced?5:4)&&age>=.35+(p.reverseBursts||0)*.62&&rearBurst(p,rear,true))p.reverseBursts=(p.reverseBursts||0)+1;
+  }else if(rear&&p.rearAcquire>=(active&&p.skillEnhanced?.14:.24)){
    p.rearFire=(p.rearFire??0)-dt;
    if(p.rearFire<=0){rearBurst(p,rear,active);p.rearBurstLeft=(p.rearBurstLeft||0)+1;p.rearFire=p.rearBurstLeft%3===0?(active?.34:.8):.13;}
   }
  }
  // Jacobs' old aim-only suppression passive is replaced by accepted-hit angles.
  if(p.pilot==='hawker'){
-  if((p.kills||0)>(p.hawkerSeenKills??0)){p.hawkerNext=pick(p,p.a,Math.PI,460);p.hawkerLinkTime=.85;if(p.hawkerNext)cue(p,'hawkerLink',{x:p.hawkerNext.x,y:p.hawkerNext.y,a:bearing(p,p.hawkerNext),life:.75});}
+  if((p.kills||0)>(p.hawkerSeenKills??0)){p.hawkerNext=pick(p,p.a,Math.PI,460);p.hawkerLinkTime=p.skillEnhanced&&p.skillTime>0?1.25:.85;if(p.hawkerNext)cue(p,'hawkerLink',{x:p.hawkerNext.x,y:p.hawkerNext.y,a:bearing(p,p.hawkerNext),life:.75});}
   p.hawkerSeenKills=p.kills;p.hawkerLinkTime=Math.max(0,(p.hawkerLinkTime||0)-dt);
   if(!aerial(p.hawkerNext)||dist(p,p.hawkerNext)>500)p.hawkerNext=null;
  }
  if(p.pilot==='berthold'&&p.skillTime>0){
   p.gustDisorient=0;p.cannonRecoil129=(p.cannonRecoil129||0)*.2;w.shake=Math.min(w.shake||0,2);
-  if(p.skillTime<=dt+.16&&!p.ironSalvoDone&&(p.ironActiveDamage||0)>=p.maxHp*.12){
+  if(p.skillTime<=dt+.16&&!p.ironSalvoDone&&(p.ironActiveDamage||0)>=p.maxHp*(p.skillEnhanced?.09:.12)){
    p.ironSalvoDone=true;p.heldDamage=0;
-   for(let i=-2;i<=2;i++){const a=p.a+i*.035;w.bullets.push({x:p.x+Math.cos(p.a)*25,y:p.y+Math.sin(p.a)*25,vx:Math.cos(a)*620,vy:Math.sin(a)*620,life:1.2,enemy:false,ownerId:p.id,damage:p.damage*1.7,pierce:true,hit:new Set(),ironSalvo:true});}
+   for(let i=-2;i<=2;i++){const a=p.a+i*.035;w.bullets.push({x:p.x+Math.cos(p.a)*25,y:p.y+Math.sin(p.a)*25,vx:Math.cos(a)*620,vy:Math.sin(a)*620,life:1.2,enemy:false,ownerId:p.id,damage:p.damage*(p.skillEnhanced?2:1.7),pierce:true,hit:new Set(),ironSalvo:true});}
    cue(p,'ironSalvo',{life:.38});p.muzzleFlash=.16;
   }
  }
@@ -90,7 +90,7 @@ export function installNinePilots(Game,PILOTS){
  const labels={
   huffzky:['후방 사수','후방 적을 포착·조준한 뒤 점사. 명중 시 적의 조준이 잠시 흐트러집니다.','Schlasta 15 · 역추격','3초간 좌우 기동으로 추격기를 유도하고 후방 사수가 네 차례 강한 점사를 가합니다.'],
   mckeever:['후방 사수 · 파월','전방은 직접 조준, 후방은 파월이 독립 표적을 견제합니다.','Hawk & Gnat · 교차 화망','5초간 전후방 사수가 서로 다른 적을 독립 추적·사격합니다.'],
-  jacobs:['야스타 7의 노련함','100px 이상 이동해 다른 사선으로 같은 적을 직접 맞히면 잠시 그 적에게 기관총 피해가 증가합니다.','Jasta 7 · 근접 폭풍','4초간 좁은 부채꼴 사격. 초근접 정면에서는 탄도가 다시 수렴합니다.'],
+  jacobs:['야스타 7의 노련함','거리를 벌려 다른 사선으로 같은 적을 직접 맞히면 잠시 그 적에게 기관총 피해가 증가합니다.','Jasta 7 · 근접 폭풍','4초간 좁은 부채꼴 사격. 초근접 정면에서는 탄도가 다시 수렴합니다.'],
   hawker:['연속 공격','격추 직후 가까운 다음 적을 짧게 강조합니다.','Attack Everything','5초간 격추 후 다음 표적 방향으로 총구가 잠시 이어집니다. 조작권은 유지됩니다.'],
   berthold:['철혈의 에이스','큰 피격 일부를 버틴 피해로 기억합니다.','Iron Knight · 불굴의 의지','5초간 피탄 흔들림을 억누르고 사격을 지속합니다. 버틴 피해가 충분하면 마지막 일제사격.'],
   goering:['백색 편대장','백색 윙맨 1기와 상시 출격합니다.','White Flight · 집중 포화','백색 신호탄 후 윙맨이 좌우로 벌어져 표적에 교차 재진입하고 편대로 복귀합니다.'],
@@ -127,20 +127,20 @@ export function installNinePilots(Game,PILOTS){
   if((this.pilot==='huffzky'||this.pilot==='mckeever')&&gun===1)return this.nineRearTarget?(this.nineRearAim??bearing(this,this.nineRearTarget)):this.a+Math.PI;
   if(this.pilot==='mckeever'&&this.skillTime>0&&gun===0&&aerial(this.nineFrontTarget))return this.nineFrontAim??bearing(this,this.nineFrontTarget);
   let a=direction.call(this,gun);
-  if(this.pilot==='hawker'&&this.skillTime>0&&this.hawkerLinkTime>0&&aerial(this.hawkerNext))a+=clamp(wrap(bearing(this,this.hawkerNext)-a),-.65,.65)*clamp(this.hawkerLinkTime/.2,0,1);
+  if(this.pilot==='hawker'&&this.skillTime>0&&this.hawkerLinkTime>0&&aerial(this.hawkerNext))a+=clamp(wrap(bearing(this,this.hawkerNext)-a),-(this.skillEnhanced?.8:.65),this.skillEnhanced?.8:.65)*clamp(this.hawkerLinkTime/(this.skillEnhanced?.3:.2),0,1);
   return a;
  };
  const round=q.applySpecialRound;q.applySpecialRound=function(b,type){
   const r=round.call(this,b,type);if(!gunRound(b))return r;
   if(['mckeever','hawker','udet'].includes(this.pilot)&&!b.pilotRear){const offset=this.weapon.sortieMuzzleSide??(this.weapon.bidirectional?0:(b.gun-(this.weapon.guns-1)/2)*8);b.x=this.x+Math.cos(this.a)*23-Math.sin(this.a)*offset;b.y=this.y+Math.sin(this.a)*23+Math.cos(this.a)*offset;}
   if(this.pilot==='jacobs'&&this.skillTime>0){
-   const near=pick(this,this.a,.25,100),fan=near?.018:.14,a=Math.atan2(b.vy,b.vx),s=Math.hypot(b.vx,b.vy);b.damage/=3;
+   const near=pick(this,this.a,.25,100),fan=near?(this.skillEnhanced?.009:.018):this.skillEnhanced&&pick(this,this.a,.3,200)?.06:.14,a=Math.atan2(b.vy,b.vx),s=Math.hypot(b.vx,b.vy);b.damage/=3;
    for(const side of [-1,1])world(this).bullets.push({...b,vx:Math.cos(a+side*fan)*s,vy:Math.sin(a+side*fan)*s,enemy:false,ownerId:this.id,hit:new Set(),jacobsSuppress:true});b.jacobsSuppress=true;
   }
   if(this.pilot==='barker'){const stage=Math.min(5,this.barkerStacks||0),a=Math.atan2(b.vy,b.vx)+Math.sin(clock(this)*29+b.gun*1.3)*.008*stage,s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;b.barkerRough=stage;}
   return r;
  };
- const impact=q.specialRoundImpact;q.specialRoundImpact=function(b,e){const r=impact.call(this,b,e);if(b.pilotRear&&b.ownerId===this.id&&this.pilot==='huffzky')suppress(this,e,.65);if(this.pilot==='jacobs'&&b.jacobsSuppress&&gunRound(b)&&dist(this,e)<300)suppress(this,e,.75);return r;};
+ const impact=q.specialRoundImpact;q.specialRoundImpact=function(b,e){const r=impact.call(this,b,e);if(b.pilotRear&&b.ownerId===this.id&&this.pilot==='huffzky')suppress(this,e,this.skillEnhanced&&b.pilotRearActive?.9:.65);if(this.pilot==='jacobs'&&b.jacobsSuppress&&gunRound(b)&&dist(this,e)<300)suppress(this,e,.75);return r;};
  const hit=q.hit;q.hit=function(n){recordNineDamage(this,n);return hit.call(this,n)};
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
  const steer=q.dogfightSteering;q.dogfightSteering=function(e,contact,dt,baseTurn){const r=steer.call(this,e,contact,dt,baseTurn);if(e.pilotSuppressedUntil>clock(this)&&r){r.turn*=.7;r.delta+=Math.sin(clock(this)*17)*.1;}return r;};

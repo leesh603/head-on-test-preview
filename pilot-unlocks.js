@@ -1,40 +1,40 @@
+import {PILOT_UNLOCK_COPY} from './pilot-unlock-copy.js';
 import {combatImpactResult} from './combat-impact-result.js';
 import {getAircraftMeta} from './aircraft-master.js?v=tame3';
 // Challenge records start at this update. Service medals and aircraft kill totals
 // are deliberately never used as retroactive pilot clearance.
 export const DEFAULT_PILOTS=Object.freeze(['immelmann','udet','brumowski','hawker','baracca','lufbery']);
 const goal=(key,label,value)=>Object.freeze({key,label,goal:value});
-const challenge=(id,title,description,goals,sortie=false)=>Object.freeze({id,title,description,history:challengeHistory[id],goals:Object.freeze(goals),sortie});
-const challengeHistory={'navarre':'베르됭의 보초라는 별명과 공식 12승에서 착안한 방어 도전입니다. 실제 전과를 그대로 재현하는 조건은 아닙니다.','frommherz':'비행 교관 경력을 직접 표적을 잡고 편대기의 마무리를 이끄는 협동 사격으로 각색했습니다.','baron': '제1차 세계대전 공식 격추수 80기를 한 출격의 독일군 랭킹 기록으로 재현합니다.', 'voss': '다수의 적과 맞선 최후의 결투에서 착안했습니다.', 'boelcke': '딕타 뵐케의 전술적 우선순위를 편대 공략으로 재현합니다.', 'goering': '지휘관의 자격을 같은 에이스 동료와 세 전장을 살아남는 도전으로 표현합니다.', 'huffzky': '복좌기의 조종사와 사수가 협력하는 지상 공격을 주제로 합니다.', 'berthold': '불굴의 귀환을 구명낙하산 생환 후의 에이스 사냥으로 각색했습니다.', 'wolff': '가냘픈 꽃의 별명과 신중한 생존 비행을 연결한 도전입니다.', 'loewenhardt': '노란 매의 맹습을 짧은 시간의 연속 격추로 재현합니다.', 'jacobs': '검은 삼엽기의 사냥을 후방 추격과 마무리로 표현합니다.', 'gontermann': '관측기구 사냥을 주제로 한 장기 격추 도전입니다.', 'lothar': '공격적인 정면 승부를 직접 헤드온 승리로 재현합니다.', 'sachsenberg': '해상 항공전을 서로 다른 바다 전장 공략으로 재현합니다.', 'schleich': '검은 기사의 별명을 연막과 항법 장비의 조합으로 각색했습니다.', 'fonck': '협상국 최다 공식 격추수 75기를 한 출격의 협상국 랭킹 기록으로 재현합니다.', 'collishaw': '블랙 플라이트를 적 편대 전체에 맞서는 도전으로 표현합니다.', 'guynemer': '황새의 대포를 보스 무장과 기관부 정밀 파괴로 재현합니다.', 'bishop': '단독 기습을 지원기의 전과 없이 거두는 직접 격추로 표현합니다.', 'mannock': '전우의 귀환을 구출과 정찰기 호위로 재현합니다.', 'mckeever': '조종사와 사수가 지키는 두 사람의 요새를 호위전으로 표현합니다.', 'mccudden': '정비사 출신 에이스에게 어울리는 비상수선키트를 찾아 편대에 초대합니다.', 'nungesser': '죽음의 기사를 피격 직후의 빠른 반격으로 각색했습니다.', 'rickenbacker': '레이서 출신 에이스를 속도 장비를 활용한 고속 교전으로 표현합니다.', 'ball': '구름 속의 사냥꾼을 실제 은폐와 탈출 후 기습으로 표현합니다.', 'barker': '최후의 항전을 치명적인 내구도에서의 생존전으로 재현합니다.', 'luke': '애리조나 벌룬 버스터를 관측기구 사냥으로 재현합니다.', 'proctor': '기구 소탕 작전을 관측기구와 방어 전투기의 동시 공략으로 재현합니다.'};
+const challenge=(id,title,description,goals,sortie=false)=>{const copy=PILOT_UNLOCK_COPY[id]||{};return Object.freeze({id,title,titleEn:copy.titleEn,description,descriptionEn:copy.descriptionEn,history:copy.historyKo??'',historyEn:copy.historyEn??'',goals:Object.freeze(goals.map((g,i)=>Object.freeze({...g,labelEn:copy.goalLabelsEn?.[i]}))),sortie});};
 export const PILOT_CHALLENGES=Object.freeze([
- challenge('navarre','베르됭의 보초','협상국 기체로 베르됭 지역 보스 3회 격파 및 해당 지역 랭킹 격추 12기',[goal('verdunBossClears','협상국 · 베르됭 보스 격파',3),goal('verdunRanked','협상국 · 베르됭 랭킹 격추',12)]),
- challenge('frommherz','교관의 표적 지시','동맹국 기체로 직접 기관총을 명중시킨 적을 3초 안에 내 일반 편대기가 마무리 60회 (편대기 필요)',[goal('instructorAssists','동맹국: 직접 명중 3초 내 내 일반 편대기 마무리',60)]),
- challenge('baron','붉은 남작의 자격','한 출격: 독일군 기체로 랭킹 격추수 80기',[goal('sortieGermanRanked','독일군 랭킹 격추 (한 출격 최고)',80)],true),
- challenge('voss','최후의 결투','한 출격: 적기 4기 이상에게 포위되어 45초 생존 후 해당 적기 3기 직접 격추',[goal('surrounded','포위 생존 (한 출격 최고)',45),goal('surroundedKills','해당 교전 직접 격추',3)],true),
- challenge('boelcke','딕타 뵐케','편대장 먼저 격추 후 10초 이내 편대 전멸 30회',[goal('formationTactics','편대장 선제 공략',30)]),
- challenge('goering','에이스 편대의 지휘관','한 출격: 같은 에이스 윙맨을 생존시킨 채 서로 다른 지역 보스 3종 격파',[goal('aceEscortBossKinds','한 출격: 같은 에이스 윙맨과 서로 다른 보스',3)],true),
- challenge('huffzky','슐라흐트슈타펠','적 지상 포대·열차포 60개 직접 파괴',[goal('groundKills','포대·열차포 직접 파괴',60)]),
- challenge('berthold','불굴의 생환','한 출격: 하이네케 구명낙하산으로 생환한 뒤 적 에이스 3명 직접 격추',[goal('returnAces','한 출격: 하이네케 생환 후 에이스 직접 격추',3)],true),
- challenge('wolff','가냘픈 꽃','한 출격: 10분 연속 무피격 비행 및 정예 표적 25기 직접 격추',[goal('cleanSeconds','연속 무피격 (한 출격 최고)',600),goal('sortieElite','정예 직접 격추 (한 출격 최고)',25)],true),
- challenge('loewenhardt','노란 매의 맹습','12초 안에 적기 4기 연속 직접 격추 25회',[goal('rapidFour','12초 내 4격추',25)]),
- challenge('jacobs','검은 삼엽기의 사냥','적 후방을 연속 3초 유지한 뒤 직접 격추 100회',[goal('tailKills','후방 추격 후 직접 격추',100)]),
- challenge('gontermann','기구 사냥꾼','적 관측기구 60개 직접 격추',[goal('balloons','관측기구 격추',60)]),
- challenge('lothar','정면 승부','서로 마주 보는 정면 교전에서 120회 직접 격추',[goal('headOn','헤드온 승리',120)]),
- challenge('sachsenberg','바다의 독수리','서로 다른 해상 전장 4곳의 지역 보스 격파',[goal('seaRegions','해상 전장 보스',4)]),
- challenge('schleich','안개 속의 검은 기사','한 출격: 브록식 연막장치와 C-O 5/17 에어로 컴퍼스를 동시에 보유',[goal('fogLoadout','한 출격: 연막장치 + 에어로 컴퍼스 동시 보유',1)],true),
- challenge('fonck','협상국 최고의 에이스','한 출격: 협상국 기체로 랭킹 격추수 75기',[goal('sortieEntenteRanked','협상국 랭킹 격추 (한 출격 최고)',75)],true),
- challenge('collishaw','블랙 플라이트','한 출격: 적 편대 20개 완전 전멸',[goal('sortieFormations','편대 전멸 (한 출격 최고)',20)],true),
- challenge('guynemer','황새의 대포','서로 다른 보스 8종 이상에서 무장·기관부 60개 직접 파괴',[goal('bossParts','무장·기관부 직접 파괴',60),goal('partBossKinds','부위 파괴 보스 종류',8)]),
- challenge('bishop','단독 기습','한 출격: 윙맨 전과 제외 적기 120기 직접 격추',[goal('sortieDirect','직접 격추 (한 출격 최고)',120)],true),
- challenge('mannock','전우의 귀환','아군 구출 15회 및 정찰기 호위 9회 성공',[goal('rescues','아군 구출 성공',15),goal('escorts','정찰기 호위 성공',9)]),
- challenge('mckeever','두 사람의 요새','정찰기 호위 12회 성공 및 호위 대상을 공격하는 적기 60기 직접 격추',[goal('escorts','정찰기 호위 성공',12),goal('escortAttackers','호위 공격기 직접 격추',60)]),
- challenge('mccudden','정비사의 공구함','맥커든의 비상수선키트 획득',[goal('repairKit','맥커든의 비상수선키트 획득',1)],true),
- challenge('nungesser','죽음의 기사','피격 후 15초 이내 반격 직접 격추 75회',[goal('counterKills','피격 후 반격 격추',75)]),
- challenge('rickenbacker','하늘의 레이서','한 출격: 붉은남작의 머플러 또는 바라카의 검은 말 문장 보유 중 최고속력 90% 이상으로 랭킹 격추 20기',[goal('speedEquipmentRanked','한 출격: 머플러 또는 검은 말 문장 + 고속(90%) 랭킹 격추',20)],true),
- challenge('ball','구름 속의 사냥꾼','짙은 구름 실제 은폐 1200초 및 구름 탈출 후 5초 내 기습 직접 격추 40회',[goal('cloudSeconds','구름 은폐 (초)',1200),goal('cloudKills','구름 기습 격추',40)]),
- challenge('barker','최후의 항전','한 출격: 내구도 15% 이하에서 에이스 4기 격추 후 90초 생존',[goal('lowAces','저내구도 에이스 (한 출격 최고)',4),goal('afterLowSeconds','이후 생존 (한 출격 최고)',90)],true),
- challenge('luke','애리조나 벌룬 버스터','적 관측기구 45개 직접 격추',[goal('balloons','관측기구 격추',45)]),
- challenge('proctor','기구 소탕 작전','한 출격: 적 관측기구 10개 및 적 전투기 30기 직접 격추',[goal('sortieBalloons','관측기구 (한 출격 최고)',10),goal('sortieFighters','전투기 (한 출격 최고)',30)],true)
+ challenge('navarre','베르됭의 보초','협상국 기체로 베르됭 지역 보스를 3회 격파하고, 해당 지역에서 랭킹 격추 12기를 기록합니다.',[goal('verdunBossClears','협상국 · 베르됭 보스 격파',3),goal('verdunRanked','협상국 · 베르됭 랭킹 격추',12)]),
+ challenge('frommherz','교관의 표적 지시','동맹국 기체로 직접 기관총을 맞힌 적을 3초 안에 내 일반 편대기가 마무리하는 전과를 60회 기록합니다. 편대기가 필요합니다.',[goal('instructorAssists','동맹국: 직접 명중 3초 내 내 일반 편대기 마무리',60)]),
+ challenge('baron','붉은 남작의 자격','한 출격에서 독일군 기체로 랭킹 격추 80기를 기록합니다.',[goal('sortieGermanRanked','독일군 랭킹 격추 (한 출격 최고)',80)],true),
+ challenge('voss','최후의 결투','한 출격에서 적기 4기 이상에게 포위된 채 45초 생존한 뒤, 해당 적기 3기를 직접 격추합니다.',[goal('surrounded','포위 생존 (한 출격 최고)',45),goal('surroundedKills','해당 교전 직접 격추',3)],true),
+ challenge('boelcke','딕타 뵐케','편대장을 먼저 격추한 뒤 10초 안에 나머지 편대를 전멸시키는 전과를 30회 기록합니다.',[goal('formationTactics','편대장 선제 공략',30)]),
+ challenge('goering','에이스 편대의 지휘관','한 출격에서 같은 에이스 윙맨을 생존시킨 채 서로 다른 지역 보스 3종을 격파합니다.',[goal('aceEscortBossKinds','한 출격: 같은 에이스 윙맨과 서로 다른 보스',3)],true),
+ challenge('huffzky','슐라흐트슈타펠','적 지상 포대와 열차포를 합쳐 60개 직접 파괴합니다.',[goal('groundKills','포대·열차포 직접 파괴',60)]),
+ challenge('berthold','불굴의 생환','한 출격에서 하이네케 구명낙하산으로 생환한 뒤 적 에이스 3명을 직접 격추합니다.',[goal('returnAces','한 출격: 하이네케 생환 후 에이스 직접 격추',3)],true),
+ challenge('wolff','가냘픈 꽃','한 출격에서 10분 연속 무피격 비행하고 정예 표적 25기를 직접 격추합니다.',[goal('cleanSeconds','연속 무피격 (한 출격 최고)',600),goal('sortieElite','정예 직접 격추 (한 출격 최고)',25)],true),
+ challenge('loewenhardt','노란 매의 맹습','12초 안에 적기 4기를 연속으로 직접 격추하는 전과를 25회 기록합니다.',[goal('rapidFour','12초 내 4격추',25)]),
+ challenge('jacobs','검은 삼엽기의 사냥','적 후방을 연속 3초 유지한 뒤 직접 격추하는 전과를 100회 기록합니다.',[goal('tailKills','후방 추격 후 직접 격추',100)]),
+ challenge('gontermann','기구 사냥꾼','적 관측기구 60개를 직접 격추합니다.',[goal('balloons','관측기구 격추',60)]),
+ challenge('lothar','정면 승부','서로 마주 보는 정면 교전에서 직접 격추 120회를 기록합니다.',[goal('headOn','헤드온 승리',120)]),
+ challenge('sachsenberg','바다의 독수리','서로 다른 해상 전장 4곳의 지역 보스를 격파합니다.',[goal('seaRegions','해상 전장 보스',4)]),
+ challenge('schleich','안개 속의 검은 기사','한 출격에서 브록식 연막장치와 C-O 5/17 에어로 컴퍼스를 동시에 보유합니다.',[goal('fogLoadout','한 출격: 연막장치 + 에어로 컴퍼스 동시 보유',1)],true),
+ challenge('fonck','협상국 최고의 에이스','한 출격에서 협상국 기체로 랭킹 격추 75기를 기록합니다.',[goal('sortieEntenteRanked','협상국 랭킹 격추 (한 출격 최고)',75)],true),
+ challenge('collishaw','블랙 플라이트','한 출격에서 적 편대 20개를 전멸시킵니다.',[goal('sortieFormations','편대 전멸 (한 출격 최고)',20)],true),
+ challenge('guynemer','황새의 대포','서로 다른 보스 8종 이상의 무장과 기관부를 합쳐 60개 직접 파괴합니다.',[goal('bossParts','무장·기관부 직접 파괴',60),goal('partBossKinds','부위 파괴 보스 종류',8)]),
+ challenge('bishop','단독 기습','한 출격에서 적기 120기를 직접 격추합니다. 윙맨의 전과는 제외됩니다.',[goal('sortieDirect','직접 격추 (한 출격 최고)',120)],true),
+ challenge('mannock','전우의 귀환','아군 구출 15회와 정찰기 호위 9회를 성공합니다.',[goal('rescues','아군 구출 성공',15),goal('escorts','정찰기 호위 성공',9)]),
+ challenge('mckeever','두 사람의 요새','정찰기 호위를 12회 성공하고, 호위 대상을 공격하는 적기 60기를 직접 격추합니다.',[goal('escorts','정찰기 호위 성공',12),goal('escortAttackers','호위 공격기 직접 격추',60)]),
+ challenge('mccudden','정비사의 공구함','맥커든의 비상수선키트를 획득합니다.',[goal('repairKit','맥커든의 비상수선키트 획득',1)],true),
+ challenge('nungesser','죽음의 기사','피격 후 15초 안에 반격으로 직접 격추하는 전과를 75회 기록합니다.',[goal('counterKills','피격 후 반격 격추',75)]),
+ challenge('rickenbacker','하늘의 레이서','한 출격에서 붉은남작의 머플러 또는 바라카의 검은 말 문장을 보유하고, 최고속력의 90% 이상으로 비행하며 랭킹 격추 20기를 기록합니다.',[goal('speedEquipmentRanked','한 출격: 머플러 또는 검은 말 문장 + 고속(90%) 랭킹 격추',20)],true),
+ challenge('ball','구름 속의 사냥꾼','짙은 구름 속에 누적 20분간 은폐합니다. 구름에서 나온 뒤 5초 안에 적기를 직접 기습 격추하는 전과를 40회 기록합니다.',[goal('cloudSeconds','구름 은폐 (초)',1200),goal('cloudKills','구름 기습 격추',40)]),
+ challenge('barker','최후의 항전','한 출격에서 내구도 15% 이하일 때 에이스 4기를 격추한 뒤 90초 생존합니다.',[goal('lowAces','저내구도 에이스 (한 출격 최고)',4),goal('afterLowSeconds','이후 생존 (한 출격 최고)',90)],true),
+ challenge('luke','애리조나 벌룬 버스터','적 관측기구 45개를 직접 격추합니다.',[goal('balloons','관측기구 격추',45)]),
+ challenge('proctor','기구 소탕 작전','한 출격에서 적 관측기구 10개와 적 전투기 30기를 직접 격추합니다.',[goal('sortieBalloons','관측기구 (한 출격 최고)',10),goal('sortieFighters','전투기 (한 출격 최고)',30)],true)
 ]);
 const definitions=new Map(PILOT_CHALLENGES.map(d=>[d.id,d]));
 // Retain legacy metric keys so existing records and older cloud saves remain readable.

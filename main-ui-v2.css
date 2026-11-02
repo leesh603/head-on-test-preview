@@ -842,6 +842,10 @@ body.astra-ui #skillCutin .cutin-caption strong{font-size:20px;font-weight:800;c
  body.astra-ui #skillCutin .cutin-portrait{flex-basis:80px;width:80px}
  body.astra-ui #skillCutin .cutin-caption small{font-size:11px}
  }
+/* Keep action buttons anchored at the right when steering does not use the stick. */
+body.astra-ui.playing.pointer-steering #touch #stick{display:none!important}
+body.astra-ui.playing.pointer-steering #touch .touch-actions,
+body.astra-ui.playing.gamepad-active #touch .touch-actions{margin-left:auto}
 @media(max-width:720px),(pointer:coarse){body.astra-ui.playing.gamepad-active #touch #stick{display:none!important}}
 
 /* Settings dialog: same row language as the mobile hangar settings. */

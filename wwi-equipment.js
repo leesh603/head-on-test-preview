@@ -5,18 +5,18 @@ export {equipmentTargets};
 export const WWI_EQUIPMENT=Object.freeze([
  Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총 3회 연속 명중으로 적 기체에 불을 붙입니다.',family:'GUN'}),
  Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'4초마다 전방 적을 향해 소형 폭탄 2발을 연속 투하합니다.',family:'EXPLOSIVE'}),
- Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'6초마다 근접 교차한 적기에 화염 갈고리를 걸어 3초간 불태웁니다. 직접 피해는 기관총 강화의 50%를 반영합니다 (최대 +50%).',family:'GUN'}),
- Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'4초마다 관통 화살탄 12발. 조종석 명중 시 파일럿킬 24% (에이스 4%). 기관총 강화 50% 반영 (최대 +50%), 중장갑 피해 25%.',family:'GUN'}),
+ Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'3.5초마다 근접 교차한 적기를 선행 조준해 화염 갈고리로 타격하고 3초간 불태웁니다. 직접 피해는 기관총 강화의 50%를 반영합니다 (최대 +50%).',family:'GUN'}),
+ Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'3초마다 이동 표적에 수렴하는 관통 화살탄 12발. 조종석 명중 시 파일럿킬 24% (에이스 4%). 기관총 강화 50% 반영 (최대 +50%), 중장갑 피해 40%.',family:'GUN'}),
  Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 우선 지정해 6초간 집중 공격을 유도합니다. 표적 소실 시 남은 시간 안에서 1회 재지정합니다.',family:'FORMATION'}),
- Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'공중사격 훈련용 카메라의 각색. 전방·후방 주무장 각각 3회 연속 명중으로 표적을 분석합니다. 6초간 해당 표적에 기관총·직접 기관총 액티브 피해 +30%, 공격 준비를 드러내고 망원경·퐁크 점사가 분석 표적을 우선합니다.',family:'GUN'})
+ Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'전방·후방 주무장으로 각각 3회 연속 명중하면 표적을 6초간 분석합니다. 해당 표적에 기관총·직접 기관총 액티브 피해 +30%. 적의 공격 준비를 드러내며 망원경·폰크 점사가 분석 표적을 우선합니다.',family:'GUN'})
 ]);
 
 export const WWI_BALANCE=Object.freeze({
  burn:Object.freeze({duration:3,grapnelDuration:3,dps:10,aerostatDps:18,bossDpsCap:6,aerostatBossDpsCap:10}),
  buckingham:Object.freeze({hits:3,hitGap:1.5}),
  cooper:Object.freeze({cooldown:4,stagger:.18,fuse:.55,radius:66,damage:70}),
- grapnel:Object.freeze({cooldown:6,proximity:40,maxCable:110,speed:720,life:.18,damage:42,collisionRadius:8,cableDuration:2.2}),
- flechettes:Object.freeze({cooldown:4,count:12,burst:3,stagger:.08,minDamage:14,maxDamage:18,speed:590,life:.76,spread:.06,laneWidth:24,aimCone:Math.PI/15,collisionRadius:2,heavyMultiplier:.25}),
+ grapnel:Object.freeze({cooldown:3.5,proximity:65,maxCable:150,speed:980,life:.18,damage:96,collisionRadius:8,cableDuration:2.2}),
+ flechettes:Object.freeze({cooldown:3,count:12,burst:3,stagger:.08,minDamage:22,maxDamage:26,speed:800,life:.76,spread:.028,laneWidth:18,aimCone:Math.PI/9,collisionRadius:2,heavyMultiplier:.4}),
  veryPistol:Object.freeze({cooldown:9,duration:6}),
  hytheCamera:Object.freeze({hits:3,hitGap:1.5,visibility:6,damageMultiplier:1.3})
 });
@@ -61,6 +61,31 @@ function targetId(owner,target){
  return target.tailId=`wwi-target-${world.wwiTargetSequence}`;
 }
 
+// Camera analysis belongs to a boss, even when hits land on different proxies.
+// Include the encounter/form so a new boss cannot inherit an old photograph.
+function cameraBossId(target){
+ if(target?.finalArenaTarget)return `camera-arena:${target.finalArenaBossId}:${target.finalArenaFormToken}`;
+ if(target?.stageBossBody)return `camera-boss:${target.encounterId??''}:${target.stageBossBody.id}`;
+ return null;
+}
+function matchesEquipmentTarget(target,id){
+ return id!=null&&[target.tailId,target.id,target.id!=null?`wwi-${target.id}`:null,target.stageBossBody?.id,cameraBossId(target)].includes(id);
+}
+
+export function cameraTargetPoint(owner,id,partId){
+ if(id==null)return null;
+ const candidates=equipmentTargets(combatWorld(owner)).filter(e=>matchesEquipmentTarget(e,id));
+ const target=candidates.find(e=>e.finalArenaTarget===partId)||candidates[0];
+ if(!target||unavailableTarget(owner,target))return null;
+ const body=target.stageBossBody;
+ if(body){
+  const part=liveParts(body,owner).find(p=>p.id===partId);
+  const point=part?partPoint(body,part):wwiBossAimPoint(owner,target);
+  return point?{...point,target,radius:part?.radius||24}:null;
+ }
+ return {x:target.x,y:target.y,target,radius:defaultHitRadius(target)};
+}
+
 function isBossTarget(target){
  return !!(target?.stageBossBody||target?.bossPilot||target?.campaignAce||target?.ace||target?.type==='boss'||target?.type==='zeppelin');
 }
@@ -100,19 +125,20 @@ function igniteSharedBurn(owner,target,round,accepted){
 
 // Front and independently fired rear guns each keep one bounded preparation lane.
 function noteMachineGunHit(owner,round,target,now){
- const id=targetId(owner,target),rear=round.pilotRear?'Rear':'';
+ const rear=round.pilotRear?'Rear':'';
  for(const [equipment,label,balance] of [['buckinghamBelt','Buckingham',WWI_BALANCE.buckingham],['hytheCamera','Hythe',WWI_BALANCE.hytheCamera]]){
   if(!hasEquipment(owner,equipment))continue;
-  const key=`wwi${label}${rear}`;
+  const key=`wwi${label}${rear}`,id=equipment==='hytheCamera'?(cameraBossId(target)||targetId(owner,target)):targetId(owner,target);
   // A quad volley is one trigger even if its pellets reach the target in different frames.
   if(round.wwiVolleyAt!=null&&round.wwiVolleyAt<=(owner[key+'VolleyAt']??-Infinity))continue;
   owner[key+'VolleyAt']=round.wwiVolleyAt;owner[key+'VolleyTargetId']=id;
   const continuing=owner[key+'TargetId']===id&&now-(owner[key+'LastHitAt']??-Infinity)<=balance.hitGap;
   owner[key+'Hits']=continuing?(owner[key+'Hits']||0)+1:1;owner[key+'TargetId']=id;owner[key+'LastHitAt']=now;
+  if(equipment==='hytheCamera')owner[key+'PartId']=combatImpactResult(round,target)?.partId??target.finalArenaTarget??null;
   if(owner[key+'Hits']<balance.hits)continue;
   owner[key+'Hits']=0;
   if(equipment==='buckinghamBelt')igniteSharedBurn(owner,target,round,combatImpactResult(round,target));
-  else{owner[key+'AnalyzedId']=id;owner[key+'Visible']=balance.visibility;owner.wwiHytheShutter=.38;}
+  else{owner[key+'AnalyzedId']=id;owner[key+'AnalyzedPartId']=owner[key+'PartId'];owner[key+'Visible']=balance.visibility;owner.wwiHytheShutter=.38;}
  }
 }
 
@@ -225,6 +251,19 @@ export function isWWIFlyingTarget(target){
  return !target.surface&&!target.stationary&&!target.fieldUnit&&!target.navalVessel&&!target.missionGround&&!target.missionTank&&!target.groundEscort&&!target.londonInstallation;
 }
 
+function equipmentTargetVelocity(target,dt){
+ if(dt>0&&Number.isFinite(target.wwiPreviousX)&&Number.isFinite(target.wwiPreviousY))return {vx:(target.x-target.wwiPreviousX)/dt,vy:(target.y-target.wwiPreviousY)/dt};
+ const body=target.stageBossBody,speed=finite(target.speed)*(target.airframeSpeed??1),a=finite(target.a);
+ return {vx:finite(body?.vx,finite(target.vx,Math.cos(a)*speed)),vy:finite(body?.vy,finite(target.vy,Math.sin(a)*speed))};
+}
+function equipmentIntercept(origin,point,velocity,speed,maxLead){
+ const dx=point.x-origin.x,dy=point.y-origin.y,{vx,vy}=velocity,A=vx*vx+vy*vy-speed*speed,B=2*(dx*vx+dy*vy),C=dx*dx+dy*dy;
+ let t=Math.sqrt(C)/speed;
+ if(Math.abs(A)<1e-6){if(B<0)t=-C/B;}
+ else{const disc=B*B-4*A*C;if(disc>=0){const root=Math.sqrt(disc),a=(-B-root)/(2*A),b=(-B+root)/(2*A),positive=[a,b].filter(v=>v>=0);if(positive.length)t=Math.min(...positive);}}
+ t=Math.max(0,Math.min(maxLead,t));return {x:point.x+vx*t,y:point.y+vy*t};
+}
+
 function grapnelTarget(owner,world,dt,previousPose){
  const b=WWI_BALANCE.grapnel,x0=finite(previousPose?.x,owner.x),y0=finite(previousPose?.y,owner.y);let best=null,bestDistance=Infinity;
  for(const target of equipmentTargets(world)){
@@ -235,20 +274,20 @@ function grapnelTarget(owner,world,dt,previousPose){
   for(const point of points){
    const moving=target.stageBossBody?segmentMetric(x0,y0,owner.x,owner.y,point.x,point.y):segmentMetric(x0,y0,owner.x,owner.y,tx0,ty0,tx1,ty1),limit=(point.radius||17)+b.proximity;
    const radius=point.radius||17,cx=point.x-owner.x,cy=point.y-owner.y,centerDistance=Math.hypot(cx,cy),cable=Math.max(0,centerDistance-radius);
-   if(Math.hypot((owner.x-x0)-(tx1-tx0),(owner.y-y0)-(ty1-ty0))>.25&&moving.distance<=limit&&cable<=b.maxCable&&moving.distance<bestDistance){const scale=centerDistance?cable/centerDistance:0;best={target,point:{x:owner.x+cx*scale,y:owner.y+cy*scale}};bestDistance=moving.distance;}
+   if(Math.hypot((owner.x-x0)-(tx1-tx0),(owner.y-y0)-(ty1-ty0))>.25&&moving.distance<=limit&&cable<=b.maxCable&&moving.distance<bestDistance){const scale=centerDistance?cable/centerDistance:0;best={target,point:{x:owner.x+cx*scale,y:owner.y+cy*scale},velocity:equipmentTargetVelocity(target,dt)};bestDistance=moving.distance;}
   }
  }
  return best;
 }
 
 function fireGrapnel(owner,contact,world=combatWorld(owner)){
- const b=WWI_BALANCE.grapnel,target=contact.target,dx=contact.point.x-owner.x,dy=contact.point.y-owner.y;
+ const b=WWI_BALANCE.grapnel,target=contact.target,point=equipmentIntercept(owner,contact.point,contact.velocity,b.speed,b.maxCable/b.speed),dx=point.x-owner.x,dy=point.y-owner.y;
  const a=Math.hypot(dx,dy)>.001?Math.atan2(dy,dx):Math.atan2(target.y-owner.y,target.x-owner.x);
  // Even an overlapping launch must survive a full .04 s frame before collision.
  pushBullet(owner,{x:owner.x,y:owner.y,previousX:owner.x,previousY:owner.y,vx:Math.cos(a)*b.speed,vy:Math.sin(a)*b.speed,life:Math.min(b.maxCable/b.speed,b.life),damage:b.damage*equipmentGunScale(owner),collisionRadius:b.collisionRadius,fieryGrapnel:true,sweptProjectile:true,wwiTargetId:targetId(owner,target),specialColor:'#ff8b43'},world);
 }
 
-function flechetteTargetAhead(owner,world){
+function flechetteTargetAhead(owner,world,dt){
  const b=WWI_BALANCE.flechettes,reach=b.speed*b.life,heading=finite(owner.a),c=Math.cos(heading),s=Math.sin(heading);
  let chosen=null,best=Infinity;
  for(const e of equipmentTargets(world)){
@@ -258,18 +297,19 @@ function flechetteTargetAhead(owner,world){
   for(const p of points){
    const dx=p.x-owner.x,dy=p.y-owner.y,forward=dx*c+dy*s,side=Math.abs(-dx*s+dy*c);
    if(forward<0||forward>reach+p.radius||side>b.laneWidth/2+forward*Math.tan(b.aimCone)+p.radius)continue;
-   const lead=Math.min(.3,Math.hypot(dx,dy)/b.speed),speed=finite(e.speed)*(e.airframeSpeed??1);
-   const aim=Math.atan2(dy+Math.sin(finite(e.a))*speed*lead,dx+Math.cos(finite(e.a))*speed*lead),score=Math.hypot(dx,dy)+side*.5;
-   if(score<best){best=score;chosen=heading+Math.max(-b.aimCone,Math.min(b.aimCone,angleDelta(aim,heading)));}
+   const point=equipmentIntercept(owner,p,equipmentTargetVelocity(e,dt),b.speed,b.life),aim=Math.atan2(point.y-owner.y,point.x-owner.x),score=Math.hypot(dx,dy)+side*.5;
+   if(score<best){best=score;const a=heading+Math.max(-b.aimCone,Math.min(b.aimCone,angleDelta(aim,heading))),d=Math.hypot(point.x-owner.x,point.y-owner.y);chosen={a,x:owner.x+Math.cos(a)*d,y:owner.y+Math.sin(a)*d};}
   }
  }
- return chosen==null?null:{a:chosen};
+ return chosen;
 }
 
-function fireFlechettes(owner,world=combatWorld(owner),start=0){
- const b=WWI_BALANCE.flechettes,den=Math.max(1,b.burst-1),heading=flechetteTargetAhead(owner,world)?.a??finite(owner.a);
+function fireFlechettes(owner,world=combatWorld(owner),start=0,dt){
+ const b=WWI_BALANCE.flechettes,den=Math.max(1,b.burst-1),focus=flechetteTargetAhead(owner,world,dt),heading=focus?.a??finite(owner.a);
  for(let i=start;i<Math.min(b.count,start+b.burst);i++){
-  const t=(i%b.burst)/den,a=heading+(t-.5)*b.spread,lane=(t-.5)*b.laneWidth,damage=(b.minDamage+(b.maxDamage-b.minDamage)*(i%3)/2)*equipmentGunScale(owner),x=owner.x+Math.cos(owner.a)*20-Math.sin(owner.a)*lane,y=owner.y+Math.sin(owner.a)*20+Math.cos(owner.a)*lane;
+  const t=(i%b.burst)/den,lane=(t-.5)*b.laneWidth,damage=(b.minDamage+(b.maxDamage-b.minDamage)*(i%3)/2)*equipmentGunScale(owner),x=owner.x+Math.cos(owner.a)*20-Math.sin(owner.a)*lane,y=owner.y+Math.sin(owner.a)*20+Math.cos(owner.a)*lane;
+  const toward=focus&&(focus.x-x)*Math.cos(owner.a)+(focus.y-y)*Math.sin(owner.a)>0?Math.atan2(focus.y-y,focus.x-x):heading;
+  const a=finite(owner.a)+Math.max(-b.aimCone,Math.min(b.aimCone,angleDelta(toward,finite(owner.a))))+(t-.5)*b.spread;
   pushBullet(owner,{x,y,previousX:x,previousY:y,vx:Math.cos(a)*b.speed,vy:Math.sin(a)*b.speed,life:b.life,damage,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:b.collisionRadius,specialColor:'#d9d7c8',heavyTargetMultiplier:b.heavyMultiplier},world);
  }
 }
@@ -362,9 +402,9 @@ export function tickWWIEquipment(owner,world,dt,previousPose){
   const b=WWI_BALANCE.flechettes;
   if(owner.wwiFlechetteRemaining>0){
    owner.wwiFlechetteNext=(owner.wwiFlechetteNext||0)-dt;
-   while(owner.wwiFlechetteNext<=0&&owner.wwiFlechetteRemaining>0){fireFlechettes(owner,world,b.count-owner.wwiFlechetteRemaining);owner.wwiFlechetteRemaining-=b.burst;owner.wwiFlechetteNext+=b.stagger;}
-  }else if(owner.wwiFlechetteCooldown<=0&&flechetteTargetAhead(owner,world)){
-   fireFlechettes(owner,world);owner.wwiFlechetteRemaining=b.count-b.burst;owner.wwiFlechetteNext=b.stagger;owner.wwiFlechetteCooldown=b.cooldown;
+   while(owner.wwiFlechetteNext<=0&&owner.wwiFlechetteRemaining>0){fireFlechettes(owner,world,b.count-owner.wwiFlechetteRemaining,dt);owner.wwiFlechetteRemaining-=b.burst;owner.wwiFlechetteNext+=b.stagger;}
+  }else if(owner.wwiFlechetteCooldown<=0&&flechetteTargetAhead(owner,world,dt)){
+   fireFlechettes(owner,world,0,dt);owner.wwiFlechetteRemaining=b.count-b.burst;owner.wwiFlechetteNext=b.stagger;owner.wwiFlechetteCooldown=b.cooldown;
   }
  }
  if(hasEquipment(owner,'veryPistol')){
@@ -373,7 +413,7 @@ export function tickWWIEquipment(owner,world,dt,previousPose){
  }
 }
 
-export function resolveWWITarget(owner,id){return id==null?null:equipmentTargets(combatWorld(owner)).find(target=>target.tailId===id||target.id===id||target.id!=null&&`wwi-${target.id}`===id||target.stageBossBody?.id===id)||null;}
+export function resolveWWITarget(owner,id){return id==null?null:equipmentTargets(combatWorld(owner)).find(target=>matchesEquipmentTarget(target,id))||null;}
 
 export function wwiWingTarget(owner,wing){
  if(!hasEquipment(owner,'veryPistol')||!(owner.wwiVeryTime>0)||wing&&wing.ownerId!==ownerId(owner))return null;
@@ -385,6 +425,21 @@ export function wwiWingTarget(owner,wing){
  }
  if(!target||!(target.hp>0)||unavailableTarget(owner,target)||owner.wwiVeryPartId!=null&&!part){owner.wwiVery=null;owner.wwiVeryTime=0;owner.wwiVeryTargetId=null;owner.wwiVeryPartId=null;return null;}
  return part?{...partPoint(target.stageBossBody,part),target,partId:part.id}:{x:target.x,y:target.y,target,partId:null};
+}
+
+// Supporting aces aim at an exposed boss part instead of an armored hull center.
+export function wwiBossAimPoint(owner,target,origin=owner){
+ const body=target?.stageBossBody;
+ if(!body||body.arrivalPending||unavailableTarget(owner,target))return null;
+ const points=liveParts(body,owner).map(part=>partPoint(body,part));
+ if(body.coreVulnerable!==false){
+  const offset=body.coreOffset?.()||body.regionalCore||{x:0,y:0},point={x:finite(body.x)+finite(offset.x),y:finite(body.y)+finite(offset.y)};
+  const hit=body.locateHit?.({...point,previousX:point.x,previousY:point.y,radius:0});
+  if(!body.locateHit||hit&&(hit.partId==null||hit.partId==='hull'))points.push(point);
+ }
+ let best=null,distance=Infinity;
+ for(const point of points){const d=Math.hypot(point.x-origin.x,point.y-origin.y);if(d<distance){best=point;distance=d;}}
+ return best?{...best,a:Math.atan2(finite(body.vy),finite(body.vx)),flightSpeed:Math.hypot(finite(body.vx),finite(body.vy))}:null;
 }
 
 function defaultHitRadius(target){
@@ -403,7 +458,7 @@ export function wwiProjectileDamageMultiplier(round,target,owner){
   const ids=round?.wwiCameraTargetIds||[round?.wwiCameraTargetId];
   if(owner&&(!hasEquipment(owner,'hytheCamera')||round.ownerId!=null&&round.ownerId!==ownerId(owner)))return 1;
   const valid=owner?['','Rear'].filter(lane=>owner[`wwiHythe${lane}Visible`]>0).map(lane=>owner[`wwiHythe${lane}AnalyzedId`]):ids;
-  return ids.some(id=>id!=null&&valid.includes(id)&&[target?.tailId,target?.id,`wwi-${target?.id}`].includes(id))?WWI_BALANCE.hytheCamera.damageMultiplier:1;
+  return ids.some(id=>id!=null&&valid.includes(id)&&target&&matchesEquipmentTarget(target,id))?WWI_BALANCE.hytheCamera.damageMultiplier:1;
  }
  const heavy=!!(target?.navalVessel||target?.missionTank||target?.armored||target?.heavyArmor||target?.stageBossBody&&target.combatLayer!=='air'&&!/trench|balloon|drachen/.test(target.stageBossBody.kind||''));
  return heavy?WWI_BALANCE.flechettes.heavyMultiplier:1;
@@ -422,10 +477,10 @@ function cameraHazardCue(world,now,body){
 // Shared target selection only: the active never advances the analysis hit lanes.
 export function analyzedEquipmentTarget(owner,{x=owner.x,y=owner.y,heading=owner.a,range=620,cone=.36}={}){
  if(!hasEquipment(owner,'hytheCamera'))return null;
- const ids=['','Rear'].filter(lane=>owner[`wwiHythe${lane}Visible`]>0).map(lane=>owner[`wwiHythe${lane}AnalyzedId`]);
+ const lanes=['','Rear'].filter(lane=>owner[`wwiHythe${lane}Visible`]>0);
  let best=null,distance=range;
- for(const id of ids){
-  const e=resolveWWITarget(owner,id);if(!e||unavailableTarget(owner,e)||e.invuln>0||e.invulnerable)continue;
+ for(const lane of lanes){
+  const e=cameraTargetPoint(owner,owner[`wwiHythe${lane}AnalyzedId`],owner[`wwiHythe${lane}AnalyzedPartId`])?.target;if(!e||e.invuln>0||e.invulnerable)continue;
   const d=Math.hypot(e.x-x,e.y-y),a=Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-y,e.x-x)-heading),Math.cos(Math.atan2(e.y-y,e.x-x)-heading)));
   if(d<=distance&&a<=cone){best=e;distance=d;}
  }
@@ -452,4 +507,5 @@ export function currentCameraCue(owner,world=combatWorld(owner)){
  candidates.sort((a,b)=>(a.until??Infinity)-(b.until??Infinity)||Math.hypot(finite(a.x)-owner.x,finite(a.y)-owner.y)-Math.hypot(finite(b.x)-owner.x,finite(b.y)-owner.y));
  return candidates[0];
 }
+
 

@@ -1,3 +1,4 @@
+import {encounterAllowed,admitEncounter} from './director-admission.js';
 import {isMaritimeIntrusion,maritimeAttackable} from './maritime-intrusion.js';
 import {photoReconActive} from './photo-recon-encounters.js';
 /** Narrow adapter: optional encounters never enter BossStages or its reward hooks. */
@@ -11,8 +12,9 @@ export function tickIntrusionHost(g,dt,window){
  const stages=g.stageBoss?.stages;if(!stages||!window)return;
  const busy=photoReconActive(g)||(g.bossPresentationAfter||0)>(g.t||0)||(g.battleRecoveryUntil||0)>(g.t||0)||(g.enemies||[]).some(e=>!e.intrusionBody&&!e.stageBossBody&&e.hp>0&&!e.expired&&!e.rivalEscaped&&(e.bossPilot||e.type==='boss'))||!!g.eliteEnemies?.active||g.battlefieldEvents?.current?.status==='active'||(g.ruralFronts?.fronts||[]).some(f=>f.status==='active')||!!g.londonBattle||!!g.parisBattle||!!g.verdunBattle;
  const artReady=id=>typeof Image==='undefined'||intrusionArtReady(id);
- stepIntrusion(g,dt,{...window,phase:stages.phase,orderPosition:stages.orderPosition,faction:stages.teamFaction||g.teamFaction,width:(g.viewWidth||960)/(g.camera?.zoom||1),height:(g.viewHeight||700)/(g.camera?.zoom||1),blocked:busy,artReady,regularBossHp:g.stageBoss.hooks?.getTuning?.({bossId:'gik'})?.maxHp});
+ stepIntrusion(g,dt,{...window,phase:stages.phase,orderPosition:stages.orderPosition,faction:stages.teamFaction||g.teamFaction,width:(g.viewWidth||960)/(g.camera?.zoom||1),height:(g.viewHeight||700)/(g.camera?.zoom||1),blocked:busy||(!intrusionActive(g)&&!encounterAllowed(g,'heavy',{minRemaining:30})),artReady,regularBossHp:g.stageBoss.hooks?.getTuning?.({bossId:'gik'})?.maxHp});
  const e=g.intrusionBoss;
+ if(e&&intrusionActive(g)&&g.directorAdmission?.active!=='heavy')admitEncounter(g,'heavy',{target:'intrusion'});
  if(e&&intrusionActive(g)&&typeof Image!=='undefined'&&visualLoads.get(g)!==e.encounterId){visualLoads.set(g,e.encounterId);prepareIntrusionArt(e.profileId).catch(error=>{e.assetError=String(error.message);disposeIntrusion(g,'art-unavailable');});}
  syncIntrusionTarget(g);
 }
@@ -49,3 +51,4 @@ export function hitIntrusionEnvironmentalDamage(g,target,damage){
  if(g.online&&!g.host||!target.intrusionBody||target.encounterId!==g.intrusionBoss?.encounterId)return{damage:0,broken:[]};
  return hitIntrusionAt(g,{partId:'core',damage});
 }
+

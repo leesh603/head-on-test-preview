@@ -1,4 +1,5 @@
 import {HARBOR_PARTS} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
+import {legacyProjectileTarget} from './projectile-contacts.js';
 import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=pandemonium394r2';
 import {beginFinalArena,tickFinalArena,isFinalArena,hitFinalArena} from './final-arena-host.js';
 import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js';
@@ -112,7 +113,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   isCapitalFinalEncounter(encounter){const s=g.stageBoss?.stages;return encounter===s?.encounter&&s.capitalRound===1&&s.capitalEncounter&&encounter.bossId===s.capitalBossId&&BOSS_CATALOG[encounter.bossId]?.capitalFinal===true&&encounter.bodies instanceof Map&&encounter.bodies.size>0&&[...encounter.bodies.values()].every(b=>b.isCapitalBoss===true)||g.capitalFinalArenaAdapter?.isFinalEncounter?.(encounter)===true;},
   waitForFinalArenaEligibility(){return !!g.online&&hasBothFactionFinalClears()&&!g.finalArenaPeersQualified?.();},
   onFactionFinalCleared(receipt){if(g.testMode)return true;const saved=recordFactionFinalClear(g,receipt);if(g.online)g.publishFactionFinalClear?.(receipt);return saved;},
-  onFinalArenaPending(){beginFinalArena(g);},
+  onFinalArenaPending(){beginFinalArena(g);g.onStageCheckpoint?.();},
   getTuning({bossId}){
    // Reuse the current ace HP/time growth and current heavy coop multiplier once.
    const loop=g.stageBoss?.stages.loopIndex||0,stage=g.stageBoss?.stages.stageIndex||0;
@@ -299,7 +300,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(previousRegion===9&&g.rivalAce?.phase==='ESCAPED'&&g.rivalAce.returnAt===Infinity)g.rivalAce.returnAt=g.t+5;
    g.stageCombatWindow=null;g.syncAceSortie?.();
    g.bullets=g.bullets.filter(b=>!b.enemy);
-   if(previousRegion!==undefined&&previousRegion!==stageIndex)g.events.push({type:'regionTransition',region:stageIndex,previousRegion,text:STAGE_NAMES[stageIndex]});g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
+   if(previousRegion!==undefined&&previousRegion!==stageIndex)g.events.push({type:'regionTransition',region:stageIndex,previousRegion,text:STAGE_NAMES[stageIndex]});g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');g.onStageCheckpoint?.();},
    clearEncounterOwned(id){g.enemies=g.enemies.filter(e=>e.encounterId!==id&&e.capitalEscortToken!==id);g.bullets=g.bullets.filter(b=>b.encounterId!==id);g.hostileMinefields=(g.hostileMinefields||[]).filter(f=>f.encounterId!==id);g.aaEffects=[];for(const p of players(g))for(const [key,s] of p.bossStatuses||[])if(s.encounterId===id)p.bossStatuses.delete(key);g.bossCues=[];}
  };
  g.stageBoss=new StageBossAddon({runId:g.runId||globalThis.crypto?.randomUUID?.()||'solo-'+Date.now(),teamFaction,hooks,rng:g.rng,showFloors:true,finalArenaEnabled:true});
@@ -330,6 +331,7 @@ function pilotVelocity(p,dt){
 }
 export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
 export function damageStageBoss(g,e,b,damage){
+ if(legacyProjectileTarget(g,e)){(b.eliteHits??=new Set()).add(e.id);const before=e.hp;g.eliteEnemies.damageMember(e,damage,{projectile:b,ownerId:b.ownerId??g.id??'p1'});const dealt=Math.max(0,before-e.hp);recordCombatImpact(b,e,{damage:dealt,blocked:!(dealt>0)});if(dealt>0)for(const p of g.players||[g])p.identityImpact?.(b,e,e,e);return;}
  damage*=momentumDamage(g,b);
  if(e.finalArenaTarget)return hitFinalArena(g,e,b,damage);
  if(e.groundFacility)return damageFacility(g,e,b,damage);
@@ -622,3 +624,4 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
+

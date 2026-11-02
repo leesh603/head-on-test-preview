@@ -45,7 +45,7 @@ export function syncFieldRecord(data){
  const previousPilots=new Map(data.pilots.map(p=>[p.key,p]));
  data.pilots=Object.keys(PILOTS).map(key=>{
   const prior=previousPilots.get(key)||{},roster=PILOT_AIRCRAFT[key];
-  if(key==='loewenhardt')return prior;
+  if(key==='loewenhardt')return {...prior,history:en?(prior.historyEn||'Available in the current pilot roster.'):(prior.historyKo||(prior.history==='Available in the current pilot roster.'?'':prior.history)||'현재 출격 가능한 에이스입니다.')};
   const plane=roster?.defaultAircraft||PILOT_PLANES[key],loadout=pilotLoadout(key,plane),copy=pilotIdentityCopy(key,getLocale());
   const options=[plane,roster?.unlockAircraft].filter(Boolean).map(id=>({id,...currentRecordPlane(id,key,byPlane.get(id)||{})}));
   return {...prior,key,name:pilotName(key,loadout.name),alias:loadout.alias,faction:loadout.faction,
@@ -53,7 +53,7 @@ export function syncFieldRecord(data){
    aircraftOptions:options.map(p=>({id:p.id,name:p.name,image:p.image})),portrait:portraitSources[key]||prior.portrait,
    skill:copy?.skill||loadout.skill,passive:copy?.passive||loadout.passive,
    desc:copy?.activeShort||loadout.desc,passiveDesc:copy?.passiveShort||loadout.passiveDesc,
-   history:prior.history|| (en?'Available in the current pilot roster.':'현재 출격 가능한 에이스입니다.'),ranking:prior.ranking||'—'};
+   history:en?(prior.historyEn||'Available in the current pilot roster.'):(prior.historyKo||(prior.history==='Available in the current pilot roster.'?'':prior.history)||'현재 출격 가능한 에이스입니다.'),ranking:prior.ranking||'—'};
  });
  const oldRows=[['normal',NORMAL_IDS],['unique',UNIQUE_IDS],['legendary',SPECIAL_IDS]];
  const oldById=new Map();

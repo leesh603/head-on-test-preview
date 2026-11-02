@@ -39,6 +39,11 @@ export function drawFormationSignals(ctx,e,point,now,paint=paintSignal){
 // Threat cues are tied to an actual attack or formation role, using authored FX.
 export function drawEnemyDanger(ctx,e,x,y,time,fx,now,point){
  if(e.hp<=0||e.bossPilot||e.type==='boss'||e.surface||e.stationary)return;
+ if(e.legendWingPreparing&&(e.legendWingUnit!=='jasta2'||e.legendWingSlot===0)){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.legendWingUnit==='jasta2'?'편대장 조준 · 격추 시 해체':e.legendWingSlot===0?'56 선도기 사격 준비':'엄호기 차단 준비',x,y-37);ctx.restore();}
+ if(e.expansionPreparing){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.expansionWingUnit==='jasta5'?'추격 조준 · 크게 선회':'전령기 사격 준비',x,y-37);ctx.restore();}
+ if(e.famousWingPreparing){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.famousWingUnit==='lafayette'?'엄호 준비 · 피격 시 중단':'교차 사격 준비',x,y-37);ctx.restore();}
+ if(e.hatRingGroup!=null&&['warning','salvo'].includes(e.hatRingPhase)){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle=e.hatRingOpen?'#e7dfbe':'#efb69b';ctx.fillText(e.hatRingOpen?'94 · 사격 중지':e.hatRingPhase==='salvo'?'94 · 사격':'94 · 사격 준비',x,y-37);ctx.restore();}
+ if(e.cigognesRole==='cannon'){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle=e.cigognesPhase==='locked'?'#ffc0aa':'#e3dcc9';if(['aim','locked','reload'].includes(e.cigognesPhase))ctx.fillText(e.cigognesPhase==='reload'?'37 mm · 재장전':e.cigognesPhase==='locked'?'37 mm · 조준 고정':'37 mm · 조준',x,y-38);if(e.cigognesFlash>0){const a=e.gunAim??e.a,mx=x+Math.cos(a)*30,my=y+Math.sin(a)*30;fx(ctx,'gunSmoke',mx,my,34,23,a,Math.min(.7,e.cigognesFlash*2));if(e.cigognesFlash>.22)fx(ctx,'muzzleHeavy',mx,my,28,18,a,.95);}ctx.restore();}
  if(point)drawFormationSignals(ctx,e,point,now);
  const commander=e.isFormationCommander&&e.directorSquad&&!e.directorSquad.broken;
  ctx.save();ctx.translate(x,y);

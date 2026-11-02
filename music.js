@@ -1,4 +1,5 @@
-import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js?v=capital-defense-20261101b';
+import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js';
+import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js';
 import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
 import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
 import {RecordedBattleMusic} from './music-recordings.js?v=lowhp1';
@@ -87,6 +88,7 @@ export class BattleMusic {
     this.layer=this.ctx.createGain();this.layer.gain.setValueAtTime(0,now);this.layer.gain.linearRampToValueAtTime(1,now+fade);this.layer.connect(this.bus);
   }
   reset(){
+    this.squadronTokens=new Set();this.squadronEntry=false;this.squadronToken=null;
     this.situationPolicy.reset();this.situationAces.clear();this.situationBoss=null;this.clearedMusicBoss=null;
     this.recorded.reset();
     this.stopVoices();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
@@ -97,11 +99,16 @@ export class BattleMusic {
     if(scene?.run&&this.run&&scene.run!==this.run)this.reset();
     if(scene?.run)this.run=scene.run;
     const previous=this.scene;
+    if(scene?.state==='SQUADRON'){
+      this.squadronTokens??=new Set();
+      const fresh=scene.squadronToken!==this.squadronToken;
+      if(fresh){this.squadronEntry=!!(scene.squadronIntro&&!this.squadronTokens.has(scene.squadronToken));this.squadronToken=scene.squadronToken;this.squadronTokens.add(scene.squadronToken);while(this.squadronTokens.size>32)this.squadronTokens.delete(this.squadronTokens.values().next().value);}
+    }
     if(previous?.state==='BOSS_FINAL'&&scene?.encounterId&&scene.encounterId===previous.encounterId)scene={...scene,state:'BOSS_FINAL'};
     if(previous?.ace!==scene?.ace||scene?.state!=='ACE')this.intro=null;
     const frame=scene?.situation;let stingers=[];
     if(frame){
-      const choice=this.situationPolicy.update(frame);stingers=[...choice.stingers];
+      const choice=this.situationPolicy.update(scene.state==='SQUADRON'?{...frame,encounter:'squadron'}:frame);stingers=[...choice.stingers];
       if(frame.playing&&frame.alive){
         const boss=frame.boss?.completed?frame.boss:this.situationBoss;
         if(boss?.completed&&boss.id!==this.clearedMusicBoss){stingers.push('boss-down');this.clearedMusicBoss=boss.id;}
@@ -114,8 +121,8 @@ export class BattleMusic {
     if(scene?.pulse&&scene.pulse!==this.lastPulse){this.pendingPulse=true;this.lastPulse=scene.pulse;}
     if(!scene?.pulse)this.pendingPulse=false;
     const inactive=!scene||scene.state==='IDLE'||scene.situation?.alive===false;
-    if(inactive||muted)this.intro=null;
-    const mode=inactive?'idle':scene.state==='ACE'?'boss':scene.state==='BOSS'||scene.state==='BOSS_FINAL'?'boss:'+scene.bossId:scene.theme;
+    if(inactive||muted){this.intro=null;this.squadronEntry=false;}
+    const mode=inactive?'idle':scene.state==='SQUADRON'?'squadron:'+scene.squadronId:scene.state==='ACE'?'boss':scene.state==='BOSS'||scene.state==='BOSS_FINAL'?'boss:'+scene.bossId:scene.theme;
     this.setState(mode,muted);
     this.recorded.sync(this.ctx,this.bus,this.scene,muted||inactive);
     if(!muted&&!inactive)for(const id of stingers)this.recorded.playStinger(this.ctx,this.bus,id);
@@ -129,23 +136,24 @@ export class BattleMusic {
   status(){let rms=0,peak=0;if(this.meter){this.meter.getFloatTimeDomainData(this.meterData);for(const v of this.meterData){rms+=v*v;peak=Math.max(peak,Math.abs(v));}rms=Math.sqrt(rms/this.meterData.length);}
     return {theme:this.scene?.theme,state:this.mode==='idle'?'IDLE':this.scene?.state,mode:this.mode,muted:this.muted,volume:this.volume,rms,peak,
     ready:!!this.ctx,engine:this.recorded.playing?'original-recording':'original-synth',recording:this.recorded.status(),context:this.ctx?.state||'locked',errors:this.errors,
-    voices:this.voices.size,step:this.step,bpm:this.tempo,intensity:this.intensity,signatureCount:this.signatureCount,pulseCount:this.pulseCount,bossId:this.scene?.bossId,aceId:this.scene?.aceId};}
+    voices:this.voices.size,step:this.step,bpm:this.tempo,intensity:this.intensity,signatureCount:this.signatureCount,pulseCount:this.pulseCount,bossId:this.scene?.bossId,aceId:this.scene?.aceId,squadronId:this.scene?.squadronId};}
   bossTrack(){return this.mode==='boss'?'duel':this.mode.startsWith('boss:')?familyFor(this.mode.slice(5)):null}
   setState(mode,muted){
     if(mode==='flight'||mode==='ace')mode='rural';
     const isBoss=mode==='boss'||mode.startsWith('boss:');
-    if(mode!=='idle'&&!isBoss&&!THEMES[originalKey(mode)]&&!REGIONAL_VARIATIONS[mode])mode='rural';
+    const squadron=SQUADRON_SCORES[mode.startsWith('squadron:')?mode.slice(9):''];
+    if(mode!=='idle'&&!isBoss&&!squadron&&!THEMES[originalKey(mode)]&&!REGIONAL_VARIATIONS[mode])mode='rural';
     const now=this.ctx?.currentTime||0;
     if(mode!==this.mode){
       if(this.mode!=='idle')this.positions[this.mode]=this.step;
       if(mode!=='idle'){
         const resume=this.mode==='idle'&&this.track===mode;
-        this.step=resume?this.positions[mode]||0:isBoss?0:this.positions[mode]||0;
+        this.step=resume?this.positions[mode]||0:isBoss||squadron?0:this.positions[mode]||0;
         if(isBoss){if(!resume)this.bossSince=now;else if(this.pausedAt!=null)this.bossSince+=now-this.pausedAt;}
         // A fresh gain bus fades the previous arrangement without a hard cut.
         this.changeLayer(now,1.1);
         this.track=mode;this.next=now+.02;
-        if(!isBoss)this.tempo=(THEMES[originalKey(mode)]||REGIONAL_VARIATIONS[mode]).bpm;
+        if(!isBoss)this.tempo=(squadron||THEMES[originalKey(mode)]||REGIONAL_VARIATIONS[mode]).bpm;
       }else this.pausedAt=now;
     }
     this.mode=mode;this.muted=muted;
@@ -351,8 +359,9 @@ export class BattleMusic {
     while(this.next<now+.15){
       const elapsed=Math.max(0,now-(this.bossSince||0));
       const bossT=this.bossTrack(),T=bossT?BOSS_SCORES[bossT]||BOSS_SCORES.duel:null;
+      const unit=this.mode.startsWith('squadron:')?this.mode.slice(9):null,squadron=SQUADRON_SCORES[unit];
       const map=THEMES[originalKey(this.mode)]||REGIONAL_VARIATIONS[this.mode]||THEMES.rural;
-      const targetTempo=(T?BOSS_TEMPO[bossT]+Math.min(18,elapsed*.55)+(this.scene?.urgency||0)*8+(this.scene?.state==='BOSS_FINAL'?8:0):map.bpm)*(this.scene?.musicTempoScale||1);
+      const targetTempo=(squadron?.bpm??(T?BOSS_TEMPO[bossT]+Math.min(18,elapsed*.55)+(this.scene?.urgency||0)*8+(this.scene?.state==='BOSS_FINAL'?8:0):map.bpm))*(this.scene?.musicTempoScale||1);
       // Every boss and ace uses the same restrained acceleration and dark mix.
       this.tempo=this.scene?(this.tempo??targetTempo)+(targetTempo-(this.tempo??targetTempo))*.12:targetTempo;
       const b=60/this.tempo/2;
@@ -364,11 +373,12 @@ export class BattleMusic {
       this.noteGain=T&&this.scene?.state!=='ACE'?.72+.28*loss:1;
       if(T&&this.bossTrack()==='bomber')this.noteGain*=.7+.3*engines;
       if(this.scene?.aceId==='ball'&&this.intro)this.noteGain*=.6;
-      if(T)this.bossStep(i,t,b,elapsed);
+      if(squadron)squadronScoreStep(this,unit,i,t,b);
+      else if(T)this.bossStep(i,t,b,elapsed);
       else if(REGIONAL_VARIATIONS[this.mode])this.regionalStep(this.mode,i,t,b);
       else this.mapStep(originalKey(this.mode),i,t,b);
       this.noteGain=1;
-      if(!T&&this.scene)this.combatStep(this.mode,i,t,b);
+      if(!T&&!squadron&&this.scene)this.combatStep(this.mode,i,t,b);
       if(this.pendingPulse&&i%2===0){
         this.pendingPulse=false;this.pulseCount++;
         this.tone((this.scoreRoot||this.mapRoot(this.scene?.theme,Math.floor(i/8)))+(T?1:19),t,b*.7,.045,'triangle',T?600:900,.04);
@@ -377,4 +387,3 @@ export class BattleMusic {
     }
   }
 }
-

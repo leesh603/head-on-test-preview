@@ -1,69 +1,60 @@
-// Paris scenery only. All positions are relative to the existing battle origin.
-// Architecture is drawn below its native atlas resolution; no mirrored city tiles.
-export const PARIS_GROUND=Object.freeze({cell:448,block:400,plaza:{x:-672,y:-908,w:1344,h:896},river:{north:500,south:800},hospital:{x:-780,y:330,w:488,h:352},rail:{x:680,y:230,w:552,h:328}});
-let materialSource=null,tiles=null,patterns=new WeakMap();
-export function releaseParisTerrain(){materialSource=null;tiles=null;patterns=new WeakMap();}
+// One authored Paris district. Scenery never owns combat coordinates or RNG.
+// The surrounding city and Seine continue outside it; landmarks appear once.
+export const PARIS_GROUND=Object.freeze({width:3200,left:-1600,top:-1700,bottom:1824,plaza:{x:-672,y:-908,w:1344,h:896},river:{north:500,south:800},hospital:{x:-780,y:330,w:488,h:352},rail:{x:680,y:230,w:552,h:328}});
+const bands=Object.freeze([[0,.22,-1700,-908],[.22,.39,-908,-12],[.39,.59,-12,500],[.59,.75,500,800],[.75,1,800,1824]]);
+let source=null,citySource=null,district=null,river=null,cityPatterns=new WeakMap();
+export function releaseParisTerrain(){source=null;citySource=null;district=null;river=null;cityPatterns=new WeakMap();}
 const ready=im=>im?.complete&&im.naturalWidth>0;
-function makeCanvas(size){
- if(typeof OffscreenCanvas!=='undefined')return new OffscreenCanvas(size,size);
- const canvas=globalThis.document?.createElement?.('canvas');if(!canvas)return null;
- canvas.width=canvas.height=size;return canvas;
+function canvas(w,h){
+ const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):globalThis.document?.createElement?.('canvas');
+ if(cv){cv.width=w;cv.height=h;}return cv;
 }
-function getPatterns(c,im){
- if(typeof c.createPattern!=='function')return null;
- if(materialSource!==im){
-  const next=[];
-  for(let i=0;i<4;i++){
-   const size=[48,192,48,96][i],cv=makeCanvas(size);if(!cv)return null;
-   const q=cv.getContext('2d');q.imageSmoothingEnabled=true;q.imageSmoothingQuality='high';
-   q.drawImage(im,(i%2)*im.naturalWidth/2,Math.floor(i/2)*im.naturalHeight/2,im.naturalWidth/2,im.naturalHeight/2,0,0,size,size);next.push(cv);
-  }
-  tiles=next;materialSource=im;patterns=new WeakMap();
+function feather(c,w,h,horizontal,vertical){
+ c.globalCompositeOperation='destination-in';
+ for(const [x0,y0,x1,y1,inset] of [[0,0,w,0,horizontal],[0,0,0,h,vertical]]){
+  if(!inset)continue;
+  const gradient=c.createLinearGradient(x0,y0,x1,y1);
+  gradient.addColorStop(0,'#0000');gradient.addColorStop(inset,'#000');
+  gradient.addColorStop(1-inset,'#000');gradient.addColorStop(1,'#0000');
+  c.fillStyle=gradient;c.fillRect(0,0,w,h);
  }
- if(!patterns.has(c))patterns.set(c,tiles.map(tile=>c.createPattern(tile,'repeat')));
- return patterns.get(c);
+ c.globalCompositeOperation='source-over';
 }
-const overlaps=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
-const centered=r=>({x:r.x-r.w/2,y:r.y-r.h/2,w:r.w,h:r.h});
+function artwork(im){
+ if(source===im)return true;
+ const d=canvas(im.naturalWidth,im.naturalHeight),r=canvas(Math.round(im.naturalWidth*.13),Math.round(im.naturalHeight*.16));
+ if(!d||!r)return false;
+ const q=d.getContext('2d');q.drawImage(im,0,0);feather(q,d.width,d.height,.035,.035);
+ // A quiet bank segment contains no bridge, plaza, hospital or station.
+ const rc=r.getContext('2d');rc.drawImage(im,im.naturalWidth*.855,im.naturalHeight*.59,im.naturalWidth*.13,im.naturalHeight*.16,0,0,r.width,r.height);
+ feather(rc,r.width,r.height,0,.09);
+ source=im;district=d;river=r;return true;
+}
 export function paintParisTerrain(c,g,cx,cy,w,h,images){
  const origin=g?.parisBattle?.origin;
- if(!origin||![images.materials,images.blocks,images.landmarks].every(ready))return false;
- const p=getPatterns(c,images.materials);if(!p)return false;
- const left=cx-w/2-origin.x,top=cy-h/2-origin.y,right=left+w,bottom=top+h;
- const view={x:left,y:top,w,h},layout=PARIS_GROUND,plaza=layout.plaza;
- const hospital=centered(layout.hospital),rail=centered(layout.rail),river={x:left-600,y:424,w:w+1200,h:452};
- const visible=r=>overlaps(view,r);
- const surface=(r,pattern)=>{if(!visible(r))return;c.fillStyle=pattern;c.fillRect(r.x,r.y,r.w,r.h);};
- const sprite=(im,frame,x,y,width,height=width,angle=0)=>{
-  if(!visible({x:x-width/2,y:y-height/2,w:width,h:height}))return;
-  const sw=im.naturalWidth/2,sh=im.naturalHeight/2;
-  c.save();c.translate(x,y);if(angle)c.rotate(angle);
-  const inset=im===images.blocks?14:0;
-  c.drawImage(im,(frame%2)*sw+inset,Math.floor(frame/2)*sh+inset,sw-inset*2,sh-inset*2,-width/2,-height/2,width,height);c.restore();
- };
+ if(!origin||![images.map,images.surround].every(ready)||typeof c.createPattern!=='function'||!artwork(images.map))return false;
+ if(citySource!==images.surround){citySource=images.surround;cityPatterns=new WeakMap();}
+ if(!cityPatterns.has(c)){const p=c.createPattern(citySource,'repeat');p.setTransform({a:3200/1254,b:0,c:0,d:3200/1254,e:0,f:0});cityPatterns.set(c,p);}
+ const left=cx-w/2-origin.x,top=cy-h/2-origin.y,ground=PARIS_GROUND;
  c.save();c.beginPath();c.rect(0,0,w,h);c.clip();c.translate(-left,-top);
  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
- // The small material tiles repeat; streets and landmarks have one world layout.
- surface(view,p[0]);
- for(let row=Math.floor((top+684)/layout.cell)-1;row<=Math.ceil((bottom+684)/layout.cell)+1;row++){
-  for(let col=Math.floor(left/layout.cell)-1;col<=Math.ceil(right/layout.cell)+1;col++){
-   const x=col*layout.cell,y=row*layout.cell-684,foot={x:x-204,y:y-204,w:408,h:408};
-   if(!visible(foot)||[plaza,hospital,rail,river].some(r=>overlaps(foot,r)))continue;
-   const seed=((Math.imul(col,73856093)^Math.imul(row,19349663))>>>0);
-   sprite(images.blocks,seed%4,x,y,layout.block,layout.block,((seed>>>4)%4)*Math.PI/2);
+ // World-anchored texture, at native scale like the other HEAD-ON cities.
+ c.fillStyle=cityPatterns.get(c);c.fillRect(left,top,w,h);
+ // Exactly one river latitude, also outside the authored district.
+ if(top<ground.river.south&&top+h>ground.river.north){
+  const step=480,overlap=48;
+  for(let x=Math.floor(left/step)*step-step;x<left+w+step;x+=step){
+   c.save();c.beginPath();c.rect(x,ground.river.north,step,ground.river.south-ground.river.north);c.clip();
+   c.drawImage(river,0,0,river.width,river.height,x-overlap,ground.river.north,step+overlap*2,ground.river.south-ground.river.north);c.restore();
   }
  }
- surface({x:plaza.x-28,y:plaza.y-28,w:plaza.w+56,h:plaza.h+56},p[2]);
- surface(plaza,p[2]);
- sprite(images.landmarks,0,layout.hospital.x,layout.hospital.y,layout.hospital.w,layout.hospital.h);
- sprite(images.landmarks,1,layout.rail.x,layout.rail.y,layout.rail.w,layout.rail.h);
- // A single straight Seine: no duplicated river, folded banks or tile borders.
- surface({x:left,y:424,w,h:76},p[2]);
- surface({x:left,y:500,w,h:300},p[1]);
- surface({x:left,y:800,w,h:76},p[2]);
- for(const y of [450,850])for(let x=Math.floor(left/256)*256;x<=right+64;x+=256)sprite(images.landmarks,3,x,y,68,68,y===850?Math.PI:0);
- for(let col=Math.floor((left-128)/1536);col<=Math.ceil((right+128)/1536);col++)sprite(images.landmarks,2,col*1536,650,256,500);
- for(const y of [plaza.y-12,plaza.y+plaza.h+12])for(let x=plaza.x+64;x<plaza.x+plaza.w;x+=224)sprite(images.landmarks,3,x,y,64);
- for(const x of [plaza.x+32,plaza.x+plaza.w-32])for(let y=plaza.y+96;y<plaza.y+plaza.h;y+=224)sprite(images.landmarks,3,x,y,64);
+ // The parade ground fits the existing fortress; scenery never moves a boss.
+ if(left<ground.left+ground.width&&left+w>ground.left){
+  for(const [a,b,y0,y1] of bands){
+   if(y0>=top+h||y1<=top)continue;
+   c.drawImage(district,0,a*district.height,district.width,(b-a)*district.height,ground.left,y0,ground.width,y1-y0);
+  }
+ }
  c.restore();return true;
 }
+

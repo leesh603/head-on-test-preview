@@ -17,7 +17,7 @@ function steer(b,dt,p,phase,radius,active,beat){
  for(const q of b.encounter?.bodies.values()||[]){if(q===b||q.dead||q.kind!=='gotha-raider')continue;const dx=b.x-q.x,dy=b.y-q.y,d=Math.hypot(dx,dy);if(d>1&&d<230){const n=(230-d)*2.5;vx+=dx/d*n;vy+=dy/d*n;}}
  const desired=Math.atan2(vy,vx),engines=b.engines(),limit=GOTHA_TURN_RATE*(engines===2?1:.8);
  if(!b.gothaVolley)b.a+=clamp(wrap(desired-b.a),-limit*dt,limit*dt);
- const goal=clamp(Math.hypot(vx,vy),engines===2?80:65,engines===2?480:400);
+ const goal=clamp(Math.hypot(vx,vy),engines===2?80:65,engines===2?400:330);
  b.gothaSpeed??=goal;b.gothaSpeed+=clamp(goal-b.gothaSpeed,-70*dt,90*dt);
  b.x+=Math.cos(b.a)*b.gothaSpeed*dt;b.y+=Math.sin(b.a)*b.gothaSpeed*dt;
  b.rotateMounts();
@@ -72,12 +72,14 @@ function cityPlan(b,targets,bounds,time,active){
  const beat=time%8,key=Math.floor(time/8),release=b.engines()===2?5.3:5.55;
  if(b.runTarget){
   b.runRemaining=Math.max(0,release-beat);
-  if(!active||beat>=5.8||b.parts.get('bomb-bay')?.destroyed||!b.engines()||!gothaOnScreen(b.runTarget,bounds,0)){
+  if(!active||beat>=5.8||b.parts.get('bomb-bay')?.destroyed||!b.engines()||b.runTarget.hp<=0){
    b.command('city-bomb-abort',{runId:b.runId});b.runTarget=null;b.runRemaining=0;
   }
  }
  if(!active||beat<3.8||beat>=5.3||b.gothaCityPlan===key||b.parts.get('bomb-bay')?.destroyed||!b.engines())return;
- const available=targets.filter(q=>q.hp>0&&gothaOnScreen(q,bounds,0)),t=available[b.slot%3%available.length];if(!t)return;
+ // City districts are fixed world objectives; moving the camera must not
+ // protect them or cancel a warned bombing run.
+ const available=targets.filter(q=>q.hp>0),t=available[b.slot%3%available.length];if(!t)return;
  b.gothaCityPlan=key;b.runTarget=t;b.runId=b.id+':city:'+key;b.runRemaining=release-beat;
  b.command('city-bomb-warning',{runId:b.runId,targetId:t.id,x:t.x,y:t.y,seconds:b.runRemaining});
 }

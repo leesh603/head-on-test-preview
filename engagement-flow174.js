@@ -1,4 +1,4 @@
-import {wwiWingTarget} from './wwi-equipment.js';
+import {wwiWingTarget,wwiBossAimPoint} from './wwi-equipment.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 import {tacticalAimPoint} from './tactical-combat.js';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
@@ -89,9 +89,10 @@ function modWingHome(wing,owner,home,dt){
 
 // Boss proxies are stationary collision adapters, not flight formation leaders.
 // Reuse the existing pass states; leave the hull on a fixed course after firing.
-export function wingmanBossPass(world,owner,wing,target,home,dt,{active=false,boelcke=false}={}){
+export function wingmanBossPass(world,owner,wing,target,home,dt,{active=false,boelcke=false,aimPoint=null,passAlignment=.35}={}){
  const now=world.t??owner.t??0,side=(wing.slot||0)%2?-1:1;
- const valid=e=>e?.stageBossBody&&eligibleModTarget(owner,e,700)&&targetInWorld(world,e);
+ const aimFor=e=>aimPoint?aimPoint(e):tacticalAimPoint(owner,e,wing,470);
+ const valid=e=>{if(!e?.stageBossBody||!targetInWorld(world,e))return false;if(!aimPoint)return eligibleModTarget(owner,e,700);const point=aimFor(e);return !!point&&e.hp>0&&!e.expired&&e.alive!==false&&!e.stageBossBody.dead&&distance(point,owner)<=700;};
  const locked=wing.engagementTarget;
  if(wing._netBossPass&&valid(locked))target=locked;
  if(!valid(target)&&!wing._netBossPass)return false;
@@ -99,18 +100,18 @@ export function wingmanBossPass(world,owner,wing,target,home,dt,{active=false,bo
  if(!wing._netBossPass){wing._netBossPass=true;state='HOME';wing.engagementUntil=0;}
  if(state==='HOME'&&valid(target)&&now>=(wing.engagementUntil||0)){
   state='INTERCEPT';wing.engagementTarget=target;wing.engagementUntil=now+4;
-  const aim=tacticalAimPoint(owner,target,wing,470),heading=target.a||0;
+  const aim=aimFor(target),heading=target.a||0;
   wing.engagementWaypoint=boelcke?{x:aim.x-Math.cos(heading)*(active?120:180)-Math.sin(heading)*side*(active?165:65),y:aim.y-Math.sin(heading)*(active?120:180)+Math.cos(heading)*side*(active?165:65)}:null;
  }
  target=wing.engagementTarget;
- const aim=valid(target)?tacticalAimPoint(owner,target,wing,470):null;
+ const aim=valid(target)?aimFor(target):null;
  if((state==='INTERCEPT'||state==='PASS')&&(!aim||distance(wing,owner)>700)){
   state='BREAK';wing.engagementUntil=now+.8;wing.engagementHeading=wing.a+side*.7;wing.engagementTarget=null;
  }
  if(state==='INTERCEPT'&&aim){
   if(wing.engagementWaypoint&&distance(wing,wing.engagementWaypoint)<110)wing.engagementWaypoint=null;
   const bearing=Math.atan2(aim.y-wing.y,aim.x-wing.x),gap=distance(wing,aim);
-  if(!wing.engagementWaypoint&&(gap<340&&Math.abs(angleDiff(bearing,wing.a))<.35||gap<90)){
+  if(!wing.engagementWaypoint&&(gap<340&&Math.abs(angleDiff(bearing,wing.a))<passAlignment||gap<90)){
    state='PASS';wing.engagementHeading=wing.a;wing.engagementUntil=now+clamp(gap/Math.max(100,wing.flightSpeed||170)+.55,.9,2.4);
   }else if(now>=wing.engagementUntil){state='BREAK';wing.engagementUntil=now+.8;wing.engagementHeading=wing.a+side*.7;wing.engagementTarget=null;}
  }
@@ -124,6 +125,12 @@ export function wingmanBossPass(world,owner,wing,target,home,dt,{active=false,bo
  const breakthrough=wing.tacticalBreakthrough&&(state==='INTERCEPT'||state==='PASS');
  advanceWingFlight(wing,owner,station,dt,{cruiseSpeed:breakthrough?clamp((owner.speed||170)*1.25*(wing.personality?.acceleration||1),145,260):undefined,maxSpeed:breakthrough?260:active?330:250,turnRate:active?2.8:2.2});
  wing.engagementState=state;return true;
+}
+
+// Special aces share the boss pass, retaining exposed-part aim and their own weapons.
+export function aceWingmanBossStep(world,owner,wing,dt){
+ if(!wing._netAceTarget?.stageBossBody&&!wing._netBossPass)return false;
+ return wingmanBossPass(world,owner,wing,wing._netAceTarget,owner.aceWingmanTarget(),dt,{aimPoint:e=>wwiBossAimPoint(owner,e,wing),passAlignment:.04});
 }
 
 export function wingmanEngagementStep(world,owner,wing,home,dt){

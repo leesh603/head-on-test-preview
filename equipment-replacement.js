@@ -34,6 +34,7 @@ export function removeEquipment(p,id,Game,PLANES){
  }
  const world=p.combatWorld?.()||p,ownerId=p.id||'p1',owned=a=>(a.ownerId||'p1')===ownerId;
  if(id==='fighterSupply'){const fallback=after.permanentWingPlane();for(const wing of world.allies||[])if(owned(wing)&&wing.permanent&&!wing.aceWingman){wing.plane=wing.equipmentOriginalPlane||fallback;delete wing.equipmentOriginalPlane;attachAircraftPersonality(PLANES,wing,wing.plane);}}
+ if(id==='passiveMedal'){p.resetPassiveMedal?.();delete p.passiveMedalCommand;for(const [target,burn]of p.pilotIdentity?.burns||[])if(burn.passiveMedal)p.pilotIdentity.burns.delete(target);}
  if(id==='flightGloves')resetBishopGloves(p);
  if(id==='lufberyCircle')delete p.equipmentCoverWings;
  if(id==='badinGauge'){delete p.equipmentCruiseSpeed;p.equipmentStraight=0;}

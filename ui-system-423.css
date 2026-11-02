@@ -226,10 +226,10 @@ html.ui423 body.lobby423pc .lobby-modes button.locked{color:var(--ui-faint)}
 html.ui423 body.lobby423pc .lobby-modes svg{width:11px;height:13px}
 html.ui423 body.lobby423pc .lobby-note:not([hidden]){margin:0;color:var(--ui-muted);font:500 12px var(--ui-font);text-align:center}
 html.ui423 body.lobby420 .lobby-modes .pc-only{display:none!important}
-/* Aces screen as an overlay on PC */
-html.ui423 body.lobby423pc.lobby-aces .lobby-aces-panel{display:flex!important}
+/* PC Aces uses a wide dossier: pilot and aircraft side by side, roster below. */
+html.ui423 body.lobby423pc.lobby-aces .lobby-aces-panel{display:grid!important}
 
-/* Aces screen on PC: the mobile Aces layout (lobby-420.css), scoped to lobby423pc and framed as a centred sheet. */
+/* Shared controls retain their existing selection handlers; this layout is desktop only. */
  html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) .lobby-aces-panel{
   position:fixed;left:0;right:0;top:0;bottom:calc(var(--lobby-tabs-h) + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;gap:16px;
   padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 0;overflow-y:auto;overscroll-behavior:contain;color:#f4f1ea;word-break:keep-all;overflow-wrap:anywhere;
@@ -313,45 +313,51 @@ html.ui423 body.lobby423pc.lobby-aces .lobby-aces-panel{display:flex!important}
  html.ui423 body.lobby423pc .lap-foot{position:sticky;bottom:0;margin:auto -16px 0;padding:14px 16px 12px;background:linear-gradient(180deg,#0e0e0d00,#0e0e0d 34%)}
  html.ui423 body.lobby423pc .lap-go{display:grid;place-items:center;width:100%;height:52px;border:0;border-radius:2px;border-top:1px solid #ffb59f66;background:linear-gradient(180deg,#cf4f36,#9c3320);color:#fff8f0;font:900 15px/1 var(--astra-type);letter-spacing:.12em;cursor:pointer}
 
- /* Keep skill copy readable when a longer aircraft name needs extra rows. */
- html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) .lobby-aces-panel{gap:10px;overflow-y:auto;padding-bottom:10px}
- html.ui423 body.lobby423pc .lap-head{flex:none}
- html.ui423 body.lobby423pc .lap-hero{flex:1 0 auto;min-height:220px;max-height:none}
- html.ui423 body.lobby423pc .lap-info{gap:7px;padding:4px 0 0;overflow:visible}
- html.ui423 body.lobby423pc .lap-info h3{font-size:18px}
- html.ui423 body.lobby423pc .lap-sk em{display:block;overflow:visible}
- /* aircraft: picture with triangles on the left, data on the right */
- html.ui423 body.lobby423pc .lap-air{display:grid;grid-template-columns:minmax(0,52%) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:12px;row-gap:3px;align-items:start}
- html.ui423 body.lobby423pc .lap-air .lap-label{grid-column:1/-1;margin-bottom:4px}
- html.ui423 body.lobby423pc .lap-stage{grid-column:1;grid-row:2/5;grid-template-columns:28px minmax(0,1fr) 28px;min-height:0;align-self:center}
- html.ui423 body.lobby423pc .lap-arrow{width:28px;height:52px}
- html.ui423 body.lobby423pc .lap-arrow svg{width:13px;height:18px}
- html.ui423 body.lobby423pc .lap-fig,html.ui423 body.lobby423pc .lap-fig img{height:104px}
- html.ui423 body.lobby423pc .lap-air h4{grid-column:2;grid-row:2;margin:0;font-size:16px;text-align:left}
- html.ui423 body.lobby423pc .lap-meta{grid-column:2;grid-row:3;text-align:left;font-size:10.5px}
- html.ui423 body.lobby423pc .lap-bars{grid-column:2;grid-row:4;grid-template-columns:auto 1fr auto;gap:4px 7px;margin-top:4px;font-size:10.5px}
- html.ui423 body.lobby423pc .lap-bars s{height:3px}
- html.ui423 body.lobby423pc .lap-bars u.hp{height:3px}
- html.ui423 body.lobby423pc .lap-bars em{font-size:10.5px}
- /* pilots: two rows of eight */
- html.ui423 body.lobby423pc .lap-pilots{gap:8px}
- html.ui423 body.lobby423pc .lap-grid{grid-template-columns:repeat(8,minmax(0,1fr));gap:8px 4px}
- html.ui423 body.lobby423pc .lap-grid button{gap:4px}
- html.ui423 body.lobby423pc .lap-grid img{width:min(40px,100%)}
- html.ui423 body.lobby423pc .lap-grid button.on img{box-shadow:0 0 0 1.5px #0e0e0d,0 0 0 3px #e8dfc8}
- html.ui423 body.lobby423pc .lap-grid span{max-width:100%;overflow:visible;font-size:8.5px;letter-spacing:-.06em;white-space:pre-line;overflow-wrap:anywhere}
- html.ui423 body.lobby423pc .lap-foot{position:static;margin:auto 0 0;padding:0;background:none;flex:none}
- html.ui423 body.lobby423pc .lap-go{height:48px}
+/* Fixed desktop regions keep selection and locale changes from shifting the roster. */
 html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) .lobby-aces-panel{
  left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;z-index:40!important;transform:translate(-50%,-50%);
- width:min(460px,calc(100vw - 48px))!important;height:min(860px,calc(100dvh - 48px))!important;box-sizing:border-box;padding:16px 18px 18px!important;
+ width:min(1120px,calc(100vw - 48px))!important;height:min(760px,calc(100dvh - 48px))!important;box-sizing:border-box;padding:20px!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:40px minmax(240px,1fr) 186px 44px;gap:12px 24px;
  border-radius:var(--ui-r-lg);box-shadow:inset 0 0 0 1px var(--ui-edge),0 30px 80px #000d;
 }
+html.ui423 body.lobby423pc .lap-head{grid-column:1/-1}
+html.ui423 body.lobby423pc .lap-head h2{font-size:26px}
+html.ui423 body.lobby423pc .lap-hero{
+ grid-column:1;grid-row:2;grid-template-columns:44% minmax(0,1fr);height:100%;min-height:0;margin:0;padding:0;gap:12px;
+}
+html.ui423 body.lobby423pc .lap-info{min-height:0;padding:8px 0;gap:12px;overflow-y:auto}
+html.ui423 body.lobby423pc .lap-info h3{flex:none;min-height:56px;font-size:24px;line-height:1.15}
+html.ui423 body.lobby423pc .lap-sk{grid-template-columns:30px minmax(0,1fr);gap:10px}
+html.ui423 body.lobby423pc .lap-sk>i{width:30px;height:30px}
+html.ui423 body.lobby423pc .lap-sk b{font-size:15px}
+html.ui423 body.lobby423pc .lap-sk em{font-size:13px;line-height:1.5}
+html.ui423 body.lobby423pc .lap-air{
+ grid-column:2;grid-row:2;min-width:0;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:24px minmax(80px,1fr) 32px 28px 64px;gap:6px;
+}
+html.ui423 body.lobby423pc .lap-air .lap-label{align-self:stretch}
+html.ui423 body.lobby423pc .lap-stage{min-height:0;height:100%;grid-template-columns:44px minmax(0,1fr) 44px}
+html.ui423 body.lobby423pc .lap-fig,html.ui423 body.lobby423pc .lap-fig img{height:100%;min-height:0}
+html.ui423 body.lobby423pc .lap-air h4{
+ --aircraft-title-max:24;margin:0;height:32px;line-height:32px;white-space:nowrap;overflow:hidden;text-align:center;
+}
+html.ui423 body.lobby423pc .lap-meta{height:28px;overflow:auto;font-size:12px}
+html.ui423 body.lobby423pc .lap-bars{grid-template-columns:auto 1fr auto auto 1fr auto;gap:6px 9px;margin:0;font-size:12px}
+html.ui423 body.lobby423pc .lap-pilots{grid-column:1/-1;gap:12px;min-width:0}
+html.ui423 body.lobby423pc .lap-grid{grid-template-columns:repeat(9,minmax(0,1fr));gap:10px 8px}
+html.ui423 body.lobby423pc .lap-grid button{gap:5px}
+html.ui423 body.lobby423pc .lap-grid img{width:44px;max-width:100%}
+html.ui423 body.lobby423pc .lap-grid span{height:24px;font-size:11px;line-height:12px;white-space:pre-line;overflow-wrap:anywhere}
+html.ui423 body.lobby423pc .lap-foot{grid-column:1/-1;position:static;margin:0;padding:0;background:none}
+html.ui423 body.lobby423pc .lap-go{height:44px;max-width:360px;margin-left:auto}
 html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) #hangar .astra-home:before{filter:brightness(.4) blur(2px)}
+/* The Aces sheet is the only active screen; hide the duplicate lobby underneath. */
+html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing)>header,
+html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) #hangar .astra-home>:not(.lobby-aces-panel){display:none!important}
+html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) #hangar .astra-home:after{
+ position:fixed;inset:0;z-index:30;grid-area:auto;pointer-events:auto;
+ background:#080a0ed9!important;box-shadow:none!important;
+}
 html.ui423 body.lobby423pc.lobby-aces .lobby-aces-panel>*{flex-shrink:0}
 @media(max-height:820px){
- html.ui423 body.lobby423pc .lap-hero{flex:none!important;min-height:180px!important;height:180px}
- html.ui423 body.lobby423pc .lap-fig{height:120px}
- html.ui423 body.lobby423pc.lobby-aces.astra-ui:not(.playing) .lobby-aces-panel{gap:10px!important}
  html.ui423 body.lobby423pc:not(.playing) #hangar .astra-aircraft-figure{height:110px!important;max-height:110px!important}
 }

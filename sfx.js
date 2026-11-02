@@ -4,8 +4,8 @@ const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproac
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={weaponImpact:1,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:2,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
-const INTERVAL={weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
+const INTERVAL={detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
@@ -16,7 +16,9 @@ export function sfxStats(){return{active:sources.size,limit:sourceLimit(),muted,
 function reserve(){
  const limit=sourceLimit(),budget=priority<2?limit-8:limit;
  if(sources.size<budget)return true;
- if(priority<2)return false;
+ // Ordinary combat may replace a lower-priority voice, never consume the
+ // eight reserved warning slots or steal a player-damage/critical cue.
+ if(priority<1)return false;
  for(const [source,entry]of sources)if(entry.priority<priority){try{source.stop()}catch{}entry.release();return true}
  return false;
 }
@@ -126,13 +128,16 @@ const bankTurn=new Map();
 export function machineGunAudioProfile(input={}){
  const guns=Math.max(1,Math.min(4,Number(input?.guns)||1));
  const rpm=Math.max(300,Math.min(1200,Number(input?.rpm)||600)),heavy=!!input?.heavy;
- return Object.freeze({rate:(heavy?.88:1)*(1+(rpm-600)/7500),level:(heavy?.235:.21)*(1+(guns-1)*.045),cut:heavy?7200:10400,duration:Math.min(heavy?.11:.085,60/rpm*1.15)});
+ return Object.freeze({rate:(heavy?.88:1)*(1+(rpm-600)/7500),level:(heavy?.235:.21)*(1+(guns-1)*.045),cut:heavy?7200:10400,duration:Math.min(heavy?.13:.10,60/rpm*1.15)});
 }
 const weaponProfiles=Object.freeze({
+ mine:Object.freeze({sample:'flak',level:.31,rate:.82,cut:4800,duration:.33,transient:'hitmetal',transientLevel:.06}),
+ shell:Object.freeze({sample:'flak',level:.30,rate:.94,cut:5600,duration:.30}),
+ flak:Object.freeze({sample:'flak',level:.28,rate:1.06,cut:6200,duration:.27}),
  bomb:Object.freeze({sample:'flak',level:.26,rate:.95,cut:4700,duration:.26}),
- grenade:Object.freeze({sample:'flak',level:.25,rate:1.10,cut:6500,duration:.20}),
- cooper:Object.freeze({sample:'flak',level:.27,rate:.88,cut:4300,duration:.29}),
- puw:Object.freeze({sample:'kill',level:.29,rate:.79,cut:3100,duration:.43}),
+ grenade:Object.freeze({sample:'flak',level:.28,rate:1.10,cut:6500,duration:.24}),
+ cooper:Object.freeze({sample:'flak',level:.30,rate:.88,cut:4300,duration:.32}),
+ puw:Object.freeze({sample:'kill',level:.34,rate:.79,cut:3700,duration:.43,transient:'flak',transientLevel:.10}),
  rocket:Object.freeze({sample:'flak',level:.24,rate:1.22,cut:7600,duration:.23,transient:'hitmetal',transientLevel:.065}),
  cannon:Object.freeze({sample:'hitmetal',level:.24,rate:.82,cut:7200,duration:.16,transient:'flak',transientLevel:.085}),
  incendiary:Object.freeze({sample:'flak',level:.19,rate:.75,cut:1900,duration:.28})
@@ -143,21 +148,24 @@ export function weaponImpactAudioProfile(input={}){
 }
 function weaponImpactSample(input){
  const p=weaponImpactAudioProfile(input);
- bankSample(p.sample,p.level,()=>bankSample('hit',p.level*.7,null,p.rate,{cut:p.cut,duration:Math.min(.18,p.duration)}),p.rate*(.98+Math.random()*.04),p);
+ bankSample(p.sample,p.level,()=>bankSample('hit',p.level*.7,()=>VOICES.flakSynth(),p.rate,{cut:p.cut,duration:Math.min(.18,p.duration)}),p.rate*(.98+Math.random()*.04),p);
  if(p.transient)bankSample(p.transient,p.transientLevel,null,p.transient==='flak'?1.15:1.1,{cut:p.cut,duration:.09});
 }
 
 // Short material recordings keep critical cues physical, without UI bells or new synth layers.
 export const CRITICAL_AUDIO_PROFILES=Object.freeze({
- wing:Object.freeze({sample:'hit',level:.24,rate:1.2,cut:5200,duration:.11}),
+ cockpit:Object.freeze({sample:'hitmetal',level:.27,rate:1.25,cut:8800,duration:.095}),
+ wing:Object.freeze({sample:'hit',level:.29,rate:1.2,cut:5200,duration:.11}),
  body:Object.freeze({sample:'hit',level:.26,rate:.84,cut:3800,duration:.17}),
- engine:Object.freeze({sample:'hitmetal',level:.26,rate:.78,cut:7300,duration:.21}),
+ engine:Object.freeze({sample:'hitmetal',level:.32,rate:.78,cut:7300,duration:.21}),
  fuel:Object.freeze({sample:'flak',level:.23,rate:1.13,cut:3600,duration:.22}),
  pilot:Object.freeze({sample:'hit',level:.27,rate:.92,cut:6100,duration:.12})
 });
-function criticalSample(part){
+function criticalSample(part,hit){
  const p=CRITICAL_AUDIO_PROFILES[part];
- bankSample(p.sample,p.level,()=>bankSample('hit',p.level*.8,null,1,p),p.rate*(.98+Math.random()*.04),p);
+ bankSample(p.sample,p.level,()=>bankSample('hit',p.level*.8,()=>VOICES.materialImpactSynth({material:part==='engine'||part==='cockpit'?'metal':part==='wing'?'fabric':'wood'}),1,p),p.rate*(.98+Math.random()*.04),p);
+ if(part==='fuel'&&hit?.ignite)bankSample('kill',.12,null,.92,{cut:2800,duration:.24});
+ if(part==='wing'||part==='body')bankSample('hitmetal',part==='wing'?.045:.065,null,part==='wing'?1.35:.78,{cut:part==='wing'?3600:2200,duration:.07});
  if(part==='engine'||part==='pilot')bankSample('hitmetal',part==='engine'?.10:.09,null,part==='engine'?1.16:1.25,{cut:part==='engine'?6200:3600,duration:.075});
 }
 
@@ -250,7 +258,7 @@ const VOICES={
   railShellImpact(){fileSample('rail-impact-bruno',.7,()=>VOICES.earthImpact())},
   railShellImpact520(){fileSample('rail-impact-520',.8,()=>VOICES.earthImpact())},
   materialImpact(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
-    bankSample(material==='metal'?'hitmetal':'hit',material==='metal'?.18:.19,()=>VOICES.materialImpactSynth(hit),jit(material==='fabric'?1.12:material==='metal'?.96:1)*(1+Math.min(3,streak-1)*.012),{cut:material==='fabric'?4200:material==='metal'?9000:6400,duration:.14});},
+    bankSample(material==='metal'?'hitmetal':'hit',material==='metal'?.23:.24,()=>VOICES.materialImpactSynth(hit),jit(material==='fabric'?1.12:material==='metal'?.96:1)*(1+Math.min(3,streak-1)*.012),{cut:material==='fabric'?4200:material==='metal'?9000:6400,duration:.10});},
   materialImpactSynth(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
     // A tighter body on repeated hits, not a critical-hit bell or volume ramp.
     if(streak>=3)tone(jit(150+streak*9),65,.055,.024,'triangle',650);
@@ -260,8 +268,10 @@ const VOICES={
   criticalWing(){criticalSample('wing')},
   criticalBody(){criticalSample('body')},
   criticalEngine(){criticalSample('engine')},
-  criticalFuel(){criticalSample('fuel')},
+  criticalFuel(hit){criticalSample('fuel',hit)},
   criticalPilot(){criticalSample('pilot')},
+  criticalCockpit(){criticalSample('cockpit')},
+  detonation(input){const heavy=input?.profile==='heavyShell'||input?.profile==='ammoCookoff';bankSample(heavy?'kill':'flak',heavy?.34:.28,()=>VOICES.flakSynth(),heavy?.82:1,{cut:heavy?4000:6200,duration:heavy?.43:.3});if(heavy)bankSample('flak',.10,null,1.12,{cut:6800,duration:.12})},
   whizz(){hiss(jit(3300),720,.14,.037,'bandpass',3,0,.018);tone(jit(850),310,.08,.007,'sine',1400)},
    closePass(pass){const p=closePassAudioProfile(pass?.speed);tone(jit(p.pitch),47,p.duration,p.level,'sawtooth',680,0,.035);hiss(p.air,250,p.duration*.9,p.level,'bandpass',.65,0,.025)},
   airframeBreak(){tone(jit(180),53,.18,.062,'triangle',700);hiss(jit(1800),420,.26,.057,'bandpass',.65);hiss(3200,1200,.05,.026,'highpass',.7,.035)},
@@ -309,10 +319,10 @@ const VOICES={
   impact(){const t=(bankTurn.get('impactCount')||0)+1;bankTurn.set('impactCount',t);t%4===0?bankSample('hitmetal',.15,()=>VOICES.impactSynth(),jit(1)):bankSample('hit',.17,()=>VOICES.impactSynth(),jit(1))},
   impactSynth(){tone(jit(215),60,.07,.1,'triangle',1100);hiss(jit(2400),600,.05,.055,'bandpass',1);tone(92,50,.05,.06,'sine',400);hiss(3600,900,.03,.03,'bandpass',2,.02)},
   // Player takes damage: metal clang, splinter tear, warning blip.
-  hit(){bankSample('damage',.36,()=>VOICES.hitSynth())},
+  hit(){bankSample('damage',.40,()=>VOICES.hitSynth(),.94,{cut:8200,duration:.24})},
   hitSynth(){tone(jit(240),80,.12,.14,'sawtooth',1600);hiss(jit(1200),300,.1,.09,'bandpass',.7);tone(620,600,.09,.03,'square',2000,.05);hiss(2600,700,.05,.04,'bandpass',1.6,.012);tone(140,60,.08,.07,'sine',300,.015)},
   // Kill: sub boom, rolling noise, airframe tear, hot debris sparkle.
-  kill(){bankSample('kill',.2,()=>VOICES.killSynth())},
+  kill(){bankSample('kill',.24,()=>VOICES.killSynth(),1,{cut:6500,duration:.32})},
   killSynth(){tone(100,32,.32,.12,'sine',300);tone(46,24,.4,.09,'sine',170,.01);hiss(2000,150,.3,.1,'lowpass',.4);hiss(4500,2000,.08,.035,'highpass',.8);hiss(jit(1400),300,.2,.055,'bandpass',.9,.05)},
   // Big detonations (grenades, flak walls, hull breaks): deep sub whoomph,
   // concussion thud, long dirt-and-debris roll. No sharp crackle — reads as
@@ -393,14 +403,14 @@ export function sfx(name,arg){
   if(ctx.state==='closed')return;
   if(ctx.state!=='running'&&!resuming){try{resuming=Promise.resolve(ctx.resume()).catch(()=>{}).finally(()=>{resuming=null})}catch{}}
   const now=ctx.currentTime;
-  const voiceKey=arg?.tactical?'tactical:'+name:name;
+  const voiceKey=arg?.tactical?'tactical:'+name:arg?.player&&name.startsWith('critical')?'player:'+name:name;
   if(now-(lastVoices.get(voiceKey)??-Infinity)<Math.max(INTERVAL[name]||0,arg?.tactical?1.2:0))return;
-  const critical=name.startsWith('critical');
-  if(critical&&now-(lastVoices.get('critical-family')??-Infinity)<.12)return;
-  if(critical)lastVoices.set('critical-family',now);
+  const critical=name.startsWith('critical'),criticalRank=arg?.player?4:name==='criticalPilot'?3:arg?.ignite?2:1;
+  if(critical&&now-(lastVoices.get('critical-family')??-Infinity)<.12&&criticalRank<=(lastVoices.get('critical-rank')||0))return;
+  if(critical){lastVoices.set('critical-family',now);lastVoices.set('critical-rank',criticalRank);}
   // The arrival call already carries its own chuff rhythm; rolling beats wait until it ends.
   if(name==='trainRoll'&&now-(lastVoices.get('trainApproach')??-Infinity)<RAIL_APPROACH_SECONDS-.3)return;
-  lastVoices.set(voiceKey,now);priority=arg?.tactical?0:name==='bomberArrival'?3:PRIORITY[name]??2;
+  lastVoices.set(voiceKey,now);priority=arg?.tactical?0:critical&&arg?.player||name==='bomberArrival'?3:PRIORITY[name]??2;
   const depth=name==='hit'?.68:name==='explosion'?.84:name==='criticalPilot'?.86:.74;
   if(['hit','bossSiren','bossKlaxon','approachWarning','railGunFire','railGunFire520','explosion','criticalPilot'].includes(name)&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
    lastDuck=now;lastDuckDepth=depth;

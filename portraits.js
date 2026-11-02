@@ -17,25 +17,23 @@ for(const [id,src] of Object.entries(portraitSources)){const [file,q]=src.replac
 // Thumbnail only: the hangar gate waits on these for the roster; the selected pilot's
 // full portrait is requested separately.
 export const portraitThumbLoaded=new Map();
-export function ensurePortraitThumb(id){
- const src=portraitThumbnailSources[id];if(!src)return Promise.resolve(false);
- if(!portraitThumbLoaded.has(id))portraitThumbLoaded.set(id,new Promise(resolve=>{if(typeof Image==='undefined'){resolve(true);return;}const img=new Image();img.decoding='async';img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=src;if(img.complete&&img.naturalWidth)resolve(true);}));
- return portraitThumbLoaded.get(id);
-}
-export const portraitThumbnailSource=id=>portraitThumbnailSources[id]||portraitSources[id];
-// The lobby requests its selected/visible pilots. Reusing the promise avoids
-// duplicate downloads when several surfaces request the same portrait.
-export function ensurePortrait(id){
- if(!portraitSources[id])return Promise.resolve(false);
- // Full (960px) portrait only; roster thumbnails load through ensurePortraitThumb.
- if(!portraitLoaded.has(id))portraitLoaded.set(id,Promise.all([portraitSources[id]].map(source=>new Promise(resolve=>{
+function loadPortrait(cache,id,src){
+ if(!src)return Promise.resolve(false);
+ if(cache.has(id))return cache.get(id);
+ const pending=new Promise(resolve=>{
   if(typeof Image==='undefined'){resolve(true);return;}
-  const img=new Image();img.decoding='async';
-  img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=source;
-  if(img.complete&&img.naturalWidth)resolve(true);
- }))).then(results=>results.every(Boolean)));
- return portraitLoaded.get(id);
+  const img=new Image();img.decoding='async';let settled=false;
+  const finish=ok=>{if(settled)return;settled=true;clearTimeout(timer);img.onload=img.onerror=null;resolve(ok)};
+  const timer=setTimeout(()=>finish(false),30000);
+  img.onload=()=>finish(true);img.onerror=()=>finish(false);img.src=src;
+  if(img.complete&&img.naturalWidth)finish(true);
+ }).then(ok=>{if(!ok&&cache.get(id)===pending)cache.delete(id);return ok});
+ cache.set(id,pending);return pending;
 }
+export function ensurePortraitThumb(id){return loadPortrait(portraitThumbLoaded,id,portraitThumbnailSources[id]);}
+export const portraitThumbnailSource=id=>portraitThumbnailSources[id]||portraitSources[id];
+// Share in-flight/successful requests; a failed request must be retryable.
+export function ensurePortrait(id){return loadPortrait(portraitLoaded,id,portraitSources[id]);}
 function clearNavyMatte(data,w,h){
  const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;
  const matte=i=>{const r=data[i],g=data[i+1],b=data[i+2];return b<82&&g<66&&r<50&&b>=g*.92&&g>=r*.92};

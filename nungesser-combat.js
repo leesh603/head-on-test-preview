@@ -28,8 +28,8 @@ function syncMark(p,e){const n=nungesserState(p),body=canonical(p,e),entries=(wo
 export function nungesserCombatStatus(p){const n=p?.pilotSignatureState?.nungesser,t=p?.pilotSignatureState?.clock||0;return {ready:live(p)&&n?.boostUntil>t,readyFraction:live(p)&&n?.boostUntil>t?Math.min(1,(n.boostUntil-t)/B.boostSeconds):0,active:live(p)&&p.skillTime>0&&!!n?.markKey,entry:false};}
 export function installNungesserCombat(Game){
  const q=Game.prototype;if(Object.hasOwn(q,INSTALLED))return;Object.defineProperty(q,INSTALLED,{value:true});
- const duration=q.skillDuration;q.skillDuration=function(){return this.pilot==='nungesser'?B.activeSeconds:duration.call(this);};
- const skill=q.skill;q.skill=function(){if(this.pilot!=='nungesser')return skill.call(this);if(!live(this)||this.cooldown>0||this.mission?.unarmed||this.heineckeEscape>0)return false;const e=nungesserAimedTarget(this);if(!e)return false;this.ensureRevisionPilot?.();this.skillTime=B.activeSeconds;this.cooldown=this.skillCooldown();setMark(this,e);activatePilotSignature(this);this.event?.('skill','죽음의 표식');return true;};
+ const duration=q.skillDuration;q.skillDuration=function(){return this.pilot==='nungesser'?(this.skillEnhanced?6:B.activeSeconds):duration.call(this);};
+ const skill=q.skill;q.skill=function(){if(this.pilot!=='nungesser')return skill.call(this);if(!live(this)||this.cooldown>0||this.mission?.unarmed||this.heineckeEscape>0)return false;const e=nungesserAimedTarget(this);if(!e)return false;this.ensureRevisionPilot?.();this.skillTime=this.skillDuration();this.cooldown=this.skillCooldown();setMark(this,e);activatePilotSignature(this);this.event?.('skill','죽음의 표식');return true;};
  const begin=q.beginRevisionFrame;q.beginRevisionFrame=function(dt,input={}){const prior=begin.call(this,dt,input);if(this.pilot!=='nungesser')return prior;if(!live(this)){reset(this);return prior;}const {n,r,clock}=state(this);
   for(const [key,v]of r.contacts)if(clock-v.last>B.memorySeconds)r.contacts.delete(key);
   if(!(this.skillTime>0)){clearMark(n);r.marked=null;r.awaiting=false;}else{
@@ -42,7 +42,7 @@ export function installNungesserCombat(Game){
   this.passiveStrength=nungesserCombatStatus(this).readyFraction;return prior;
  };
  const apply=q.applySpecialRound;q.applySpecialRound=function(b,...args){const result=apply.call(this,b,...args),shot=result??b;if(!live(this)||!personal(this,shot))return result;const {n,clock}=state(this);shot.ownerId=owner(this);
-  if(this.skillTime>0&&n.markKey){shot.pierce=true;shot.nungesserBreakthrough=true;shot.nungesserMarkKey=n.markKey;shot.nungesserMarkBonus=B.markDamage;}
+  if(this.skillTime>0&&n.markKey){shot.pierce=true;shot.nungesserBreakthrough=true;shot.nungesserMarkKey=n.markKey;shot.nungesserMarkBonus=this.skillEnhanced?.6:B.markDamage;}
   if(n.boostUntil>clock){shot.nungesserReattackKey=n.boostKey;shot.nungesserReattackBonus=B.passiveDamage;}
   return result;
  };

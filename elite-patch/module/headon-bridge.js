@@ -1,3 +1,4 @@
+import {traceDirector,squadronShotCreated} from '../../squadron-elite-balance.js';
 import {arrivalViewport} from '../../enemy-arrivals.js';
 import {intrusionActive} from '../../intrusion-bosses.js';
 import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=pilot-unlocks-shared1';
@@ -36,7 +37,11 @@ export function createHeadOnHost(game, bindings = {}) {
   };
   return {
     random: bindings.random || game.rng || Math.random,
+    isManaged:()=>game.squadronManaged===true,
+    requestEncounter:id=>game._requestLegacyEncounter?.(id)||null,
     getTime: () => bindings.getTime?.(game) ?? game.t ?? 0,
+    canAttack: (member,meta={}) => {if((game.bullets?.length||0)+(meta.projectiles||0)>=180){member.directorAttackDeniedReason='projectile-cap';return false;}return game.directorAttackAllowed?.(member)!==false;},
+    recordAttack: (type,member,detail={}) => {if(type==='shotCreated')squadronShotCreated(game,member,member.eliteKind);else traceDirector(game,type,{unit:member.eliteKind,entity:member.id,...detail});},
     getViewport: () => arrivalViewport(game),
     getPlayer: () => bindings.getPlayer?.(game) || game,
     steerAircraft: (member,contact,turn,result) => {const steering=regionalSteering(game,member,contact,turn,result,true);if(momentumCount(contact)>=15&&!(contact.ballCloak>0)&&!(contact.cloudConceal>0)&&Math.hypot(member.x-contact.x,member.y-contact.y)<680)return {...steering,turn:steering.turn*1.12};return steering;},
@@ -47,7 +52,7 @@ export function createHeadOnHost(game, bindings = {}) {
     isAceActive: () => intrusionActive(game)||(bindings.isAceActive?.(game) ?? enemies().some(e => e.bossPilot || e.type === 'boss' || e.ace)),
     secondsUntilAce: () => bindings.secondsUntilAce?.(game) ?? (Number.isFinite(game.nextBossAt) ? game.nextBossAt - (game.t || 0) : Infinity),
     getProgressStage: () => bindings.getProgressStage?.(game) ?? Math.floor(Math.max(0, game.distance || 0) / 12000) + 1,
-    damagePlayer: (amount, meta) => bindings.damagePlayer?.(game, amount, meta) ?? game.hit?.(amount),
+    damagePlayer: (amount, meta) => typeof bindings.damagePlayer==='function'?bindings.damagePlayer(game,amount,meta):game.hit?.(amount),
     emitWarning: (text, meta) => bindings.emitWarning?.(game, text, meta) ?? game.event?.('elite', text),
     emitEvent: (type, detail) => bindings.emitEvent?.(game, type, detail) ?? game.event?.(type, ''),
     playSound: cue => bindings.playSound?.(game, cue),
@@ -56,6 +61,7 @@ export function createHeadOnHost(game, bindings = {}) {
       const owner=id?game.players?.find(p=>p.id===id)||game:game;
       return !(member.supportInvulnUntil>(game.t||0))&&(!owner.canHitTarget||owner.canHitTarget(member,source.projectile||source));
     },
+    onProjectileImpact: (member,projectile) => bindings.onEliteImpact?.(game,member,projectile),
     emitBurnFx: member => {
       game.smoke?.(member.x,member.y,false,true);
       game.burst?.(member.x,member.y,'#ff9a3c',3,'profileOnly');
@@ -114,7 +120,7 @@ export function routeFriendlyProjectileHits(game, system, bindings = {}, project
     contacts.sort((a,b)=>a.t-b.t);
     for(const {member} of contacts){
       projectile.eliteHits.add(member.id);
-      const damage=(projectile.damage??1)*(owner.roundDamageMultiplier?.(projectile,member)??1)*wwiProjectileDamageMultiplier(projectile,member,owner);
+      const damage=(projectile.damage??1)*(projectile.patrol?1:(owner.globalDamageMult||1)*(owner.legendaryDamageMultiplier?.()??1)*(owner.roundDamageMultiplier?.(projectile,member)??1))*wwiProjectileDamageMultiplier(projectile,member,owner);
       const hpBefore=member.hp;
       system.damageMember(member,damage,{projectile,ownerId:projectile.ownerId??owner.id??'p1'});
       const appliedDamage=Math.max(0,hpBefore-member.hp);
@@ -136,13 +142,15 @@ export function attachEliteSystem(game, bindings = {}, options = {}) {
 
 export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) {
   if (!GameClass?.prototype) throw new TypeError('installHeadOnElitePatch requires the real HEAD-ON Game class');
-  if (GameClass.prototype[INSTALL_KEY]) return GameClass.prototype[INSTALL_KEY];
+  if (Object.hasOwn(GameClass.prototype,INSTALL_KEY)) return GameClass.prototype[INSTALL_KEY];
+  GameClass.prototype.__eliteBindings=bindings;
   const originalUpdate = GameClass.prototype.update;
   if (typeof originalUpdate !== 'function') throw new TypeError('HEAD-ON Game.update was not found');
   GameClass.prototype.update = function elitePatchedUpdate(dt, input) {
+    if(this.online&&!this.host)return originalUpdate.call(this,dt,input);
     for(const b of bindings.getFriendlyProjectiles?.(this)||this.bullets||[]){b.previousX=b.x;b.previousY=b.y;}
     const result = originalUpdate.call(this, dt, input);
-    if ((bindings.isPlaying?.(this) ?? this.state === 'playing')) {
+    if (!this.squadronManaged && (bindings.isPlaying?.(this) ?? this.state === 'playing')) {
       const system = attachEliteSystem(this, bindings, options);
       system.update(dt);
       routeFriendlyProjectileHits(this, system, bindings);
@@ -157,6 +165,7 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   GameClass.prototype[INSTALL_KEY] = {uninstall, enemyType: ELITE_ENEMY_TYPE};
   return GameClass.prototype[INSTALL_KEY];
 }
+
 
 
 

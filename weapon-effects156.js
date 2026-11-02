@@ -1,5 +1,6 @@
 import {drawBishopBombImpact} from './bishop-sortie-fx.js';
 import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {drawDetonationPresence} from './detonation-presence.js';
 import {weaponImpactKind} from './weapon-impact-profile.js';
 import {drawAircraftCritical} from './aircraft-critical-view.js';
 import {roleDraw} from './fx-role3.js?v=tame3&perf=1029&decode=1';
@@ -172,16 +173,18 @@ function drawAmatolBlastBase(c,f,x,y){
 }
 
 // Short contact choreography over the existing dedicated explosion artwork.
-// At most three sprite draws, no simulation objects, procedural rings, RNG,
+// At most seven painted layers, no simulation objects, procedural rings, RNG,
 // retained trails or extension of an effect's existing lifetime.
 export function drawWeaponImpactTexture(c,f,x,y,paint=fx,ready=fxReady){
  const weapon=weaponImpactKind(f);
  if(!weapon||!(f.life>0)||!(f.maxLife>0))return false;
  const age=combatFxAge(f),fade=Math.max(0,Math.min(1,(f.maxLife-age)/.12));
- if(age>.36)return false;
+ if(age>=f.maxLife)return false;
  if(drawBishopBombImpact(c,f,x,y,age,paint,ready))return true;
+ drawDetonationPresence(c,f,x,y,age,weapon,paint,ready);
+ if(age>.36)return true;
  const r=Math.min(82,Math.max(24,f.radius||40)),directed=Number.isFinite(f.direction),a=directed?f.direction:0;
- const draw=(key,px,py,w,h,angle,alpha)=>{if(alpha>0&&ready(key))paint(c,key,px,py,w,h,angle,alpha*fade);};
+ const draw=(key,px,py,w,h,angle,alpha)=>{if(alpha>0&&ready(key==='profileFlash'?'fireFlash':key))paint(c,key,px,py,w,h,angle,alpha*fade);};
  if(weapon==='cannon'){
   // A narrow metal strike precedes the slower smoke in the cannon's own art.
   if(age<.09)draw('armorSpark',x,y,46,25,a,(1-age/.09)*.88);

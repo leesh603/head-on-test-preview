@@ -37,16 +37,16 @@ export function installPilotIdentities(Game,PILOTS){
   this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0||this.status==='downed')return false;
   const s=this.identityState();this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();s.activeAge=0;
   if(this.pilot==='collishaw')beginCollishawJetstream(this);
-  if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];for(let i=0;i<6;i++){const a=this.a+i*Math.PI/3;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:1.2,hp:1,decoy:true,identityDecoy:true,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
+  if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];const count=this.skillEnhanced?8:6;for(let i=0;i<count;i++){const a=this.a+i*Math.PI*2/count;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:this.skillEnhanced?1.6:1.2,hp:1,decoy:true,identityDecoy:true,medalDecoy:!!this.skillEnhanced,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
   if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.evadeDirection=-(this.evadeDirection||1);this.immelmannTurn={heading:this.a,direction:this.evadeDirection,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
  if(this.pilot==='boelcke'){const w=this.combatWorld();w.allies??=[];const formationSize=this.skillEnhanced?5:4;for(let i=0;i<formationSize;i++)w.allies.push({ownerId:own(this),slot:(this.permanentWingman||0)+i,plane:this.plane,x:this.x,y:this.y,a:this.a,life:this.skillTime,fire:.85+Math.floor(i/2)*.12,temporary:true,boelckePincer:true})}
   if(this.pilot==='udet'){this.udetBoost=0;this.evadeTime=this.skillTime;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,this.skillTime);this.fire=Math.min(this.fire,0);s.udetActiveBonus=(s.grazes||0)*.1;s.grazes=0}
   if(this.pilot==='goering')s.commandTarget=this.identityTarget();
   if(this.pilot==='mannock'){
    const w=this.viewWidth||960,h=this.viewHeight||900;
-   s.mannockPass=1;s.mannockPassTimer=Math.min(2.35,this.skillTime*.33);
-   this.divingSquadron=Array.from({length:7},(_,i)=>{
-    const slot=i-3;
+   s.mannockPass=1;s.mannockPassTimer=this.skillEnhanced?2.65:Math.min(2.35,this.skillTime*.33);
+   const count=this.skillEnhanced?8:7;this.divingSquadron=Array.from({length:count},(_,i)=>{
+    const slot=i-(count-1)/2;
     return {ownerId:own(this),x:this.x+slot*w*.12,y:this.y-h*.65-Math.abs(slot)*h*.12,a:Math.PI/2,age:0,speed:h*.58,fire:Math.abs(slot)*.04,muzzleFlash:0,pass:'vertical',hit:new Set()};
    });
   }
@@ -117,8 +117,8 @@ export function installPilotIdentities(Game,PILOTS){
    if(s.mannockPass===1&&s.mannockPassTimer<=0){
     s.mannockPass=2;
     const w=this.viewWidth||960,h=this.viewHeight||900;
-    for(let i=0;i<7;i++){
-     const slot=i-3;
+    const count=this.skillEnhanced?8:7;for(let i=0;i<count;i++){
+     const slot=i-(count-1)/2;
      squadron.push({ownerId:own(this),x:this.x+w*.68+Math.abs(slot)*w*.08,y:this.y+slot*h*.11,a:Math.PI,age:0,speed:w*.58,fire:Math.abs(slot)*.04,muzzleFlash:0,pass:'horizontal',hit:new Set()});
     }
    }
@@ -161,10 +161,11 @@ export function installPilotIdentities(Game,PILOTS){
   }
   const s=this.identityState(),active=this.skillTime>0,targets=this.enemies.filter(alive),slot=a.slot||0,signal=wwiWingTarget(this,a);let e=null;
   if(this.pilot==='goering'){if(!alive(s.commandTarget))s.commandTarget=this.identityTarget();e=active?s.commandTarget:null}
+  if(this.pilot==='boelcke'&&this.upgrades?.passiveMedal&&this.passiveMedalCommand?.until>this.combatWorld().t&&alive(this.passiveMedalCommand.target))e=this.passiveMedalCommand.target;
   if(!e&&targets.length){targets.sort((a,b)=>distance(a,this)-distance(b,this));const distributed=this.pilot==='boelcke'||this.pilot==='collishaw';if(distributed){targets.splice(Math.max(1,(this.combatWorld().allies||[]).filter(a=>a.life>0&&a.ownerId===own(this)).length));const side=e=>-(e.x-this.x)*Math.sin(this.a)+(e.y-this.y)*Math.cos(this.a);targets.sort((a,b)=>side(b)-side(a))}e=targets[distributed?slot%targets.length:0]}
   const carrier=this.bomberTransfer?.kind==='airship'&&a.permanent&&!a.boelckePincer&&!a.orbit;if(carrier)e=this.airshipFocusTarget()||e;
   let target=this.wingFormationTarget(a,this.permanentWingCount());const home=target;
-  if(this.pilot==='boelcke'&&e&&(!carrier||active)){const side=slot%2?-1:1,entry=active?Math.max(0,1-(s.activeAge||0)/1.1):0,off=65+entry*100;target={x:e.x-Math.cos(e.a||0)*(active?120:180)-Math.sin(e.a||0)*side*off,y:e.y-Math.sin(e.a||0)*(active?120:180)+Math.cos(e.a||0)*side*off}}
+  if(this.pilot==='boelcke'&&e&&(!carrier||active)){const side=slot%2?-1:1,entry=active?Math.max(0,1-(s.activeAge||0)/1.1):0,row=active&&this.skillEnhanced?Math.floor(slot/2):0,off=65+entry*100+row*22,back=active?120+row*20:180;target={x:e.x-Math.cos(e.a||0)*back-Math.sin(e.a||0)*side*off,y:e.y-Math.sin(e.a||0)*back+Math.cos(e.a||0)*side*off,...(active&&this.skillEnhanced?{a:Math.atan2(e.y-a.y,e.x-a.x)}:{})}}
   if(this.pilot==='collishaw'&&(!carrier||active)){const side=slot%2?-1:1,row=Math.floor(slot/2),entry=slot<2&&active&&!collishawJetstream(this)?.returning?Math.min(1,(s.activeAge||0)/.8):0,off=110+row*38+entry*110,forward=50-row*90+Math.sin(entry*Math.PI)*65;target={x:this.x-Math.sin(this.a)*side*off+Math.cos(this.a)*forward,y:this.y+Math.cos(this.a)*side*off+Math.sin(this.a)*forward}}
   if(this.pilot==='brumowski'&&active){const phase=s.clock*1.5+slot*Math.PI;target={x:this.x+Math.cos(phase)*100,y:this.y+Math.sin(phase)*100};e=targets.find(e=>distance(e,this)<340)||null;}
   if(signal)e={x:signal.x,y:signal.y,a:signal.target.a||0};

@@ -111,7 +111,7 @@ function finish(g,state,f,outcome,reason){
   if(f.type==='commander'||f.type==='elite')for(const e of f.enemies)if(alive(e)){g.breakEnemyFormation?.(e,3);e.directorFireHoldUntil=g.t+3;}
   if(survivor){survivor.life=Math.max(survivor.life,15);survivor.waypoint={x:g.x,y:g.y};}
   (g.drops??=[]).push({x:f.x,y:f.y,value:18,heal:false,battlefieldEvent:true});
-  if(state.dark==='counterattack'&&activeFronts(g).length){state.counterAt=g.t+7;g.event?.('wave','적 예비대 역습 접근 · 반대 전선 7초 뒤 증원');}
+  if(state.dark==='counterattack'&&activeFronts(g).length){state.counterAt=g.t+7;g.event?.('wave','반대 전선에 7초 뒤 적 예비대가 도착합니다.');}
  }else if(f.type!=='intercept'){
   // A failed rescue/elite operation changes the next formation, not just its toast.
   g.recordBattleSceneOutcome?.({sceneId:f.id,region:0,outcome:'breakthrough'});
@@ -143,7 +143,7 @@ export function tickRuralFronts(g){
   }
   f.inContact=near;
   const bait=f.id===state.baitId;
-  if(['falseRescue','aceAmbush'].includes(state.dark)&&bait&&near&&!state.revealedAt){state.revealedAt=g.t;g.event?.('wave','매복 징후 · 3초 뒤 협공, 이탈 가능');}
+  if(['falseRescue','aceAmbush'].includes(state.dark)&&bait&&near&&!state.revealedAt){state.revealedAt=g.t;g.event?.('wave','3초 뒤 적이 협공합니다. 지금 이탈할 수 있습니다.');}
   if(state.revealedAt&&g.t>=state.revealedAt+3&&!state.ambushTriggered&&bait&&['falseRescue','aceAmbush'].includes(state.dark)){
    state.ambushTriggered=true;
    if(state.dark==='aceAmbush'&&!ace(g)&&(g.stageCombatWindow?.remaining??0)>30&&(g.battleRecoveryUntil||0)<=g.t&&g.t-Math.max(g.aceSortie?.endedAt??-Infinity,g._aceCombatEndedAt??-Infinity)>=ACE_SORTIE_BALANCE.recovery&&g.availableAcePilots?.().length){

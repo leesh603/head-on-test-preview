@@ -63,10 +63,9 @@ export function drawBossEntryWorld(c,encounter,paint){
  }
  c.restore();
 }
-export function drawBossEntryTitle(c,encounter,W,H,{locale='ko',name=''}={}){
+// The shared boss cut-in owns the name and description. Keep only the cinematic bars here.
+export function drawBossEntryTitle(c,encounter,W,H){
  const active=activeBossEntry(encounter);if(!active||active.scene.waitForDiscovery)return;
- const s=active.scene,t=s.age,bar=clamp(t/.22)*clamp((2.65-t)/.4),alpha=clamp((t-.12)/.25)*clamp((1.42-t)/.35);if(bar<=0)return;
- const mobile=W<600,cap=mobile?18:26;c.save();c.fillStyle=`rgba(5,10,12,${.82*bar})`;c.fillRect(0,0,W,cap*bar);c.fillRect(0,H-cap*bar,W,cap*bar);
- if(alpha>0){const y=Math.min(H-130,H*.76),label=BOSS_ENTRY_PROFILES[s.family].label[locale==='en'?1:0];c.globalAlpha=alpha;c.textAlign='center';c.textBaseline='middle';c.shadowColor='#000';c.shadowBlur=6;c.fillStyle='#c7b78b';c.font=`600 ${mobile?11:13}px sans-serif`;c.fillText(label,W/2,y-30,W-40);c.fillStyle='#f0e6cb';c.font=`bold ${mobile?22:34}px Georgia,serif`;c.fillText(name||s.bossId,W/2,y,W-44);}
- c.restore();
+ const t=active.scene.age,bar=clamp(t/.22)*clamp((2.65-t)/.4);if(bar<=0)return;
+ const cap=W<600?18:26;c.save();c.fillStyle=`rgba(5,10,12,${.82*bar})`;c.fillRect(0,0,W,cap*bar);c.fillRect(0,H-cap*bar,W,cap*bar);c.restore();
 }

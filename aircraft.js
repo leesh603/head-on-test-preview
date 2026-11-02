@@ -1,4 +1,13 @@
 import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
+import {configureLegendArt} from './legend-squadron-combat.js';
+const SQUADRON_FLIGHT_ART=Object.freeze({jasta5_patrol:'squadron-aircraft/jasta5-albatros.webp',cigognes_cannon_paint:'squadron-aircraft/cigognes-spad12.webp',cigognes_escort_paint:'squadron-aircraft/cigognes-spad.webp',hat_ring_paint:'squadron-aircraft/hat-ring-spad.webp',jasta18_paint:'squadron-aircraft/jasta18-fokker.webp',lafayette_paint:'squadron-aircraft/lafayette-nieuport.webp',spa65_paint:'squadron-aircraft/spa65-spad.webp',sqn56_paint:'squadron-aircraft/sqn56-se5a.webp',jasta2_paint:'squadron-aircraft/jasta2-albatros.webp'});
+const SQUADRON_PAINT_ALIASES={spad12:'cigognes_cannon_paint',stork_spad:'cigognes_escort_paint',hatring_spad:'hat_ring_paint',jasta18_fokkerd7:'jasta18_paint',lafayette_nieuport17:'lafayette_paint',spad:'spa65_paint',se5a:'sqn56_paint',albatros_d5a:'jasta2_paint'};
+const squadronPaintReady=key=>hasPaintedAircraft(SQUADRON_PAINT_ALIASES[key]||key),loadSquadronPaint=key=>paintedReady(SQUADRON_PAINT_ALIASES[key]||key);
+import {configureExpansionArt} from './famous-squadron-expansion.js';
+import {configureCigognesArt} from './cigognes-cannon-patrol.js';
+import {configureHatRingArt} from './hat-ring-blockade.js';
+import {configureFamousWingArt} from './famous-wing-combat.js';
+import {fxReady as cigognesFxReady} from './fx-art.js?v=tame3';
 import {configureTransportArt} from './transport-convoy.js';
 import {configurePhotoReconArt} from './photo-recon-encounters.js';
 import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js';
@@ -112,6 +121,8 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  const deadline=setTimeout(()=>finish(false),45000);
  const commitPainted=out=>{if(!rimRepairs.has(key)||CREW_BAKE_MODE){setPainted(key,out);finish(true);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(repaired=>{if(settled)return;if(!repaired){finish(false);return}setPainted(key,repaired);finish(true)})};
  const afterCrew=(result,done)=>{if(!result?.then){done();return}result.then(()=>{if(settled)return;try{done()}catch{finish(false)}},()=>{if(settled)return;try{done()}catch{finish(false)}})};
+ if(SQUADRON_FLIGHT_ART[key]){img.onload=()=>{if(settled)return;(img.decode?img.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);setPainted(key,out);finish(true)}catch{finish(false)}})};img.onerror=()=>finish(false);img.src=new URL('./'+SQUADRON_FLIGHT_ART[key],import.meta.url).href;return;}
+ if(key==='support_staaken'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;const c=out.getContext('2d');c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';const w=146,h=w*img.naturalHeight/img.naturalWidth;c.drawImage(img,144-w/2,152-h/2,w,h);setPainted(key,out);finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./support-staaken-20261101.webp',import.meta.url).href;return;}
  if(key==='zero_sector_junkers_d1'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0,288,320);setPainted(key,outlineZeroSectorAircraft(out));finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./asset-bank/zero-district/junkers-d1.webp',import.meta.url).href;return;}
  // Pre-composited crewed sprite: the stored image is the final painted 288x320 canvas.
  const crewFile=!skipCrew&&!CREW_BAKE_MODE&&CREW_BAKED[key]&&new URLSearchParams(location.search).get('mech')!=='0'?CREW_BAKED[key]:null;
@@ -190,12 +201,21 @@ export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 const paintedSource=key=>campaignSpriteAliases[key]||(key==='fokker_red'?'fokker':key==='fokker_voss'?'fokker_f1':key==='fokker'?'fokker_standard':key);
 // Exact same baked source as decodePainted; boot prioritization must not warm raw/foreign art.
 export function aircraftFlightSource(key){
- const source=paintedSource(key),mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
+ const source=paintedSource(key);if(SQUADRON_FLIGHT_ART[source])return new URL('./'+SQUADRON_FLIGHT_ART[source],import.meta.url).href;const mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
  if(!CREW_BAKE_MODE&&mech&&CREW_BAKED[source])return new URL(`./crew-baked/${CREW_BAKED[source]}`,import.meta.url).href;
  const path=PHOTO_RECON_ART[source]?.path||(SORTIE_FITS[source]?`sortie-aircraft/flight/${source}.webp`:AIRCRAFT_OUTLINE_ART[mech+source]);
  return path?new URL(`./${path}?v=${AIRCRAFT_ART_REVISION}`,import.meta.url).href:'';
 }
 export const paintedReady=key=>{const source=paintedSource(key);return painted.has(source)?Promise.resolve(true):loadPainted(source)};
+const squadronWarmAttempts=new Map();
+export function warmSquadronAircraft(id){
+ const keys={cigognes:['cigognes_cannon_paint','cigognes_escort_paint'],'hat-ring':['hat_ring_paint'],jasta18:['jasta18_paint'],lafayette:['lafayette_paint'],jasta5:['jasta5_patrol'],spa65:['spa65_paint','dfw_cv'],sqn56:['sqn56_paint'],jasta2:['jasta2_paint']}[id];
+ if(!keys||typeof Image==='undefined')return Promise.resolve(false);
+ if(keys.every(hasPaintedAircraft))return Promise.resolve(true);
+ const last=squadronWarmAttempts.get(id);if(last&&Date.now()-last.at<30000)return last.promise;
+ const promise=Promise.all(keys.map(paintedReady)).then(result=>result.every(Boolean)).catch(()=>false);squadronWarmAttempts.set(id,{at:Date.now(),promise});return promise;
+}
+
 const individualAircraftReady=[hangarArtReady,hangarArtReady.then(()=>Promise.all(PAINTED_KEYS.filter(k=>!HANGAR_KEYS.includes(k)).map(loadPainted)))];
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
 // loaded through individualAircraftReady; keeping the list empty skips the atlas
@@ -335,7 +355,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
 // Handley Page) while preserving the shared solo/co-op renderer and baked crew.
 export const FRIENDLY_BOMBER_SCALE=Object.freeze({staaken:2.4,'handley-page':1.9});
 export function drawFriendlyBomber(c,b,x=b.x,y=b.y){
- const key=b.airframe,scale=FRIENDLY_BOMBER_SCALE[key]||1.9;
+ const scale=FRIENDLY_BOMBER_SCALE[b.airframe]||1.9,key=b.airframe==='staaken'?'support_staaken':b.airframe;
  planeSprite(c,x+14,y+22,b.a,key,scale,false,true);
  planeSprite(c,x,y,b.a,key,scale,false,false,b.hitFlash||0);
 }
@@ -363,3 +383,11 @@ export const campaignArtReady=new Promise(resolve=>{
 configurePhotoReconArt({ready:hasPaintedAircraft,load:paintedReady});
 
 configureTransportArt({ready:hasPaintedAircraft,load:paintedReady});
+
+configureCigognesArt({ready:squadronPaintReady,load:loadSquadronPaint,fxReady:()=>cigognesFxReady('cannonMotor')&&cigognesFxReady('muzzleHeavy')&&cigognesFxReady('gunSmoke')});
+configureHatRingArt({ready:squadronPaintReady,load:loadSquadronPaint});
+configureFamousWingArt({ready:squadronPaintReady,load:loadSquadronPaint});
+
+configureExpansionArt({ready:squadronPaintReady,load:loadSquadronPaint});
+
+configureLegendArt({ready:squadronPaintReady,load:loadSquadronPaint});

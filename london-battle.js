@@ -1,4 +1,4 @@
-import {capitalLondonRiverCover} from './capital-terrain.js?v=capital-defense-20261101b';
+import {capitalLondonRiverCover} from './capital-terrain.js';
 import {aaMuzzle,configureAA} from './air-threat-profiles.js';
 const heroes=g=>g.players||[g],live=g=>heroes(g).filter(p=>p.hp>0&&!p.down);
 const inLondon=g=>(g.worldRegion?.()??g.stageBoss?.stages.stageIndex)===11;
@@ -43,4 +43,3 @@ export function installLondonBattle(Game){const P=Game.prototype,spawn=P.spawnEn
  P.spawnComposition=function(){if(!inLondon(this))return comp.call(this);const r=this.rng(),attack=(this.teamFaction||this.stageBoss?.stages.teamFaction)==='central';return attack?(r<.58?'scout':'hunter'):(r<.45?'bomber':r<.65?'scout':'hunter');};
  P.spawnEnemy=function(type){if(!inLondon(this))return spawn.call(this,type);if(inLondon(this)&&type==='boss'&&!this.bossMechanicSpawn&&!this._escortSummon)return null;const n=this.enemies.length,result=spawn.call(this,type),e=result||(this.enemies.length>n?this.enemies.at(-1):null);if(e&&inLondon(this)&&!this.bossMechanicSpawn&&!this._escortSummon&&type==='bomber')e.escortPlane=(this.teamFaction||this.stageBoss?.stages.teamFaction)==='central'?'be2c':'gotha_night';return result||e;};
  P.spawnFlak=function(){if(inLondon(this))return;return flak.call(this);};P.fireEnemy=function(e){if(e.londonInstallation){e.fire=Infinity;return;}return fire.call(this,e);};}
-

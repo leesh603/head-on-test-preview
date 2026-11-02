@@ -1,7 +1,16 @@
 import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
+import {maritimeLayouts} from './maritime-intrusion-layouts.js';
+import {maritimeRaiderLayouts} from './maritime-raider-layouts.js';
 export function fleetHull(e){return{x:e.x,y:e.y,w:(e.hullWidth||40)*2,h:(e.hullLength||150)*2,yaw:(e.a||0)+Math.PI/2};}
 export function surfaceTraffic(g){return [...(g.enemies||[]),...(g.friendlyShips||[])].filter(e=>e.movingShip&&e.hp>0&&!e.expired);}
-export function surfaceBosses(g){return [...(g.stageBoss?.stages?.encounter?.bodies.values()||[])].filter(b=>!b.dead).map(bossHullRect).filter(Boolean);}
+export function surfaceBosses(g){
+ const hulls=[...(g.stageBoss?.stages?.encounter?.bodies.values()||[])].filter(b=>!b.dead).map(bossHullRect).filter(Boolean);
+ const e=g.intrusionBoss,layout=maritimeLayouts[e?.profileId]||maritimeRaiderLayouts[e?.profileId];
+ // Optional sea encounters live outside BossStages. Use their painted hull,
+ // including entry/withdrawal and the submarine's reserved resurfacing space.
+ if(layout&&['entering','active','retreating'].includes(e.phase))hulls.push({x:e.x,y:e.y,w:layout.width*e.scale,h:layout.height*e.scale,yaw:e.a+Math.PI/2});
+ return hulls;
+}
 function liveShipCount(g){let n=0;for(const e of g.enemies||[])if(e.movingShip&&e.hp>0&&!e.expired)n++;for(const e of g.friendlyShips||[])if(e.movingShip&&e.hp>0&&!e.expired)n++;return n;}
 export function shipObstacles(g){const list=[];for(const e of g.enemies||[])if(e.movingShip&&e.hp>0&&!e.expired)list.push({e,h:fleetHull(e)});for(const e of g.friendlyShips||[])if(e.movingShip&&e.hp>0&&!e.expired)list.push({e,h:fleetHull(e)});for(const b of surfaceBosses(g))list.push({e:null,h:b});return list;}
 export function vacantShipPose(g,e){const other=surfaceTraffic(g).filter(s=>s!==e).map(fleetHull),bosses=surfaceBosses(g),ox=e.x,oy=e.y,a=e.a||0;

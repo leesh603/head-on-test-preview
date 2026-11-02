@@ -50,7 +50,7 @@ export class SituationPolicy {
     let loop=null,state=this.lastStand?'LAST_STAND':this.critical?'CRITICAL':'NORMAL';
     // Once a boss exists, its own score leads from entry through combat.
     // Shared approach/barrage loops must not mask every boss with the same music.
-    if(frame.encounter!=='boss'){
+    if(frame.encounter!=='boss'&&frame.encounter!=='squadron'){
       if(frame.approach==='boss'||frame.approach==='ace'){loop=frame.approach+'-approach';state='APPROACH';}
       else if(this.barrage){loop='barrage';state='BARRAGE';}
     }
