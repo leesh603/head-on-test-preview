@@ -1,3 +1,5 @@
+import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js';
+import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js';
 import {maritimeReveal} from './maritime-intrusion.js';
 import { intrusionLayout } from './intrusion-boss-layouts.js';
 export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js';
@@ -10,6 +12,7 @@ export function prepareIntrusionArt(id,options={}){
  if(banks.has(layout.id))return banks.get(layout.id).promise;
  const epoch=generation,entry={images:new Map(),ready:false,promise:null};banks.set(layout.id,entry);
  const paths=new Set(layout.parts.flatMap(p=>Object.values(p.states).filter(Boolean).map(s=>s.src)));
+ for(const src of layout.extraAssets||[])paths.add(src);
  if(layout.profileArt)paths.add(layout.profileArt);
  if(layout.cutin)paths.add(layout.cutin);
  entry.promise=Promise.all([...paths].map(async src=>{const im=await(options.loadImage||browserLoader)((options.baseUrl||'')+src);if(epoch===generation)entry.images.set(src,im);})).then(()=>{if(epoch===generation)entry.ready=true;return entry;}).catch(error=>{if(banks.get(layout.id)===entry)banks.delete(layout.id);throw error;});return entry.promise;
@@ -31,6 +34,8 @@ export function drawIntrusionBoss(ctx,encounter,point,scale){
  const radius=Math.hypot(layout.width,layout.height)*scale*.5;
  const cw=ctx.canvas?.width,ch=ctx.canvas?.height;
  if(cw&&ch&&(point.x+radius<0||point.y+radius<0||point.x-radius>cw||point.y-radius>ch))return false;
+ if(layout.id==='linke-hofmann-r-ii')return drawRIIIntrusion(ctx,encounter,point,scale,bank.images);
+ if(layout.id==='handley-page-v1500')return drawV1500Boss(ctx,encounter,point,scale,bank.images);
  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  ctx.translate(point.x,point.y);ctx.rotate((encounter.a??-Math.PI/2)+Math.PI/2);ctx.scale(scale,scale);
  const t=encounter.visualTime??encounter.elapsed??encounter.age??0;
@@ -62,3 +67,5 @@ export function intrusionMuzzle(layoutId,group,delta=0,barrelIndex=0){
  return {x:p.x+x*c-y*s,y:p.y+x*s+y*c,angle:m.angle+delta,arc:p.arc};
 }
 
+
+export function drawIntrusionOrdnance(c,e,point,z){const bank=banks.get(e.profileId);if(e.profileId==='linke-hofmann-r-ii'&&bank?.ready)drawRIIIntrusionBombs(c,e,point,z,bank.images);if(e.profileId==='handley-page-v1500'&&bank?.ready)drawV1500Bombs(c,e,point,z,bank.images);}

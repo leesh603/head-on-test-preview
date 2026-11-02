@@ -1,0 +1,28 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON 지역 메모리 검증</title>
+<style>body{margin:16px;background:#152126;color:#eee;font:15px system-ui}button,select{font:inherit;padding:10px;margin-right:8px}iframe{display:block;border:1px solid #718077;margin-top:12px;background:#000}pre{white-space:pre-wrap;font:13px monospace}</style>
+<h1>지역 배경 메모리 검증</h1><p>같은 페이지에서 전원·해상·참호·도심을 준비합니다. 실제 렌더 경로의 배경 캔버스 보유량을 검사하며, 실기기 FPS나 자연 진행 4스테이지 클리어를 뜻하지 않습니다.</p>
+<label>화면 <select id="size"><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label><button id="run">4개 지역 연속 검사</button><output id="status">게임 준비 중</output><pre id="results"></pre>
+<iframe id="screen" title="지역 연속 검증 게임" width="390" height="844" src="../index.html?headonTest=1&autostart=0"></iframe>
+<script type="module">
+const frame=document.getElementById('screen'),button=document.getElementById('run'),status=document.getElementById('status'),out=document.getElementById('results'),size=document.getElementById('size');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+size.onchange=()=>{const[w,h]=size.value.split('x').map(Number);frame.width=w;frame.height=h;};
+let api;for(let i=0;i<600&&!api;i++){api=frame.contentWindow?.__HEADON_TEST__;if(!api)await sleep(100);}status.textContent=api?'준비 완료':'게임 준비 실패';
+button.onclick=async()=>{
+ button.disabled=true;out.textContent='';const results=[],canvases=[],sizes=new Set(),errors=[],w=frame.contentWindow,d=w.document,original=d.createElement;
+ const onError=e=>errors.push(e.message);w.addEventListener('error',onError);
+ d.createElement=function(name,...args){const el=original.call(this,name,...args);if(name.toLowerCase()==='canvas')canvases.push(new WeakRef(el));return el;};
+ try{
+  for(const [region,name] of [[0,'전원'],[1,'해상'],[2,'참호'],[4,'도심']]){
+   status.textContent=name+' 실제 렌더 중';api.start({region,pilot:'immelmann',seed:1918,invincible:true});const g=api.debug();g.need=Infinity;
+   const begin=performance.now();let moved=false;
+   while(performance.now()-begin<2600){await new Promise(r=>w.requestAnimationFrame(r));if(g.viewWidth&&g.viewHeight)sizes.add((g.viewWidth+384)+'x'+(g.viewHeight+384));if(!moved&&performance.now()-begin>1400){g.x+=180;moved=true;}}
+   const live=canvases.map(r=>r.deref()).filter(Boolean),buffers=live.filter(c=>sizes.has(c.width+'x'+c.height)),bytes=buffers.reduce((n,c)=>n+c.width*c.height*4,0);
+   results.push({region:name,world:[g.viewWidth,g.viewHeight],backgroundCanvases:buffers.length,backgroundMiB:+(bytes/1048576).toFixed(3),releasedCanvases:live.filter(c=>c.width===0||c.height===0).length});
+   out.textContent=JSON.stringify({viewport:size.value,regions:results,errors},null,2);
+  }
+  api.freeze(true);status.textContent='4개 지역 검사 완료';
+ }catch(e){status.textContent='검사 실패';errors.push(String(e.stack||e));out.textContent=JSON.stringify({viewport:size.value,regions:results,errors},null,2);}
+ finally{d.createElement=original;w.removeEventListener('error',onError);button.disabled=false;}
+};
+</script></html>

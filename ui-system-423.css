@@ -396,3 +396,8 @@ html.ui423 body.astra-ui.playing #modal.overlay.build-modal151{background:linear
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:not(:first-child){border-top:1px solid #e8e2d41f!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{height:auto!important;min-height:0!important;align-self:center!important}
 @media(min-width:721px){html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{margin-left:clamp(24px,6vw,96px)!important}}
+/* Skill detail: a popover over the loadout, never a flex item that squeezes the ability names. */
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151{position:relative!important;flex-wrap:nowrap!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151 .astra-ability-copy b{white-space:nowrap!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151>.ho-skill-pop{position:absolute!important;z-index:20!important;top:calc(100% + 8px)!important;left:0!important;width:min(340px,100%)!important;margin:0!important;box-shadow:0 18px 44px #000c,inset 0 0 0 1px #e8e2d42e!important;background:linear-gradient(180deg,#24231f,#181715)!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151>.ho-skill-pop.astra-active{box-shadow:inset 3px 0 0 var(--ho-oxblood,#9c3320),0 18px 44px #000c,inset 0 0 0 1px #e8e2d42e!important}

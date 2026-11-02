@@ -1,4 +1,5 @@
-import {drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
+import {giantArrivalShadowPose} from './giant-intrusion-arrival.js';
+import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
 
 import {isMaritimeIntrusion,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js';
 import {drawShipWater} from './naval-water.js?v=tame3&perf=1029';
@@ -7,6 +8,8 @@ import {getLocale} from './i18n.js';
 
 export {intrusionArtReady};
 export const INTRUSION_COPY=Object.freeze({
+ 'linke-hofmann-r-ii':{ko:'링케호프만 R.II',en:'Linke-Hofmann R.II',tactic:'후방 기총을 피하고 구동부를 끊어라',tacticEn:'Evade the rear guns, break the shared drive'},
+ 'handley-page-v1500':{ko:'핸들리 페이지 V/1500',en:'Handley Page V/1500',tactic:'폭격 항로를 벗어나 앞뒤 엔진을 끊어라',tacticEn:'Leave the bomb lane, disable the tandem engines'},
  dreadnought:{ko:'드레드노트',en:'Dreadnought',tactic:'대공포를 끊고 포격 사이로 진입하라',tacticEn:'Silence the AA, evade the heavy guns'},
  qship:{ko:'Q-ship',en:'Q-ship',tactic:'위장 덮개가 열리면 함포를 노려라',tacticEn:'Wait for the covers to open, silence the guns'},
  seeadler:{ko:'제아들러',en:'SMS Seeadler',tactic:'전방 양현 함포를 끊어라',tacticEn:'Silence the forward broadside'},
@@ -104,22 +107,25 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
   if(e.phase==='warning'&&maritime){
    // A sea contact approaches at the waterline; never use the aircraft flyover shadow.
    // Cut-in/HUD warns first; the world contact is placed once at entry, not teleported visibly.
+  }else if(e.phase==='warning'&&['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId)){
+   const shadow=giantArrivalShadowPose(e);if(shadow){c.globalAlpha=shadow.alpha;c.filter='brightness(0)';drawIntrusionBoss(c,{...e,a:shadow.a,flash:{},v1500Shadow:true,riiShadow:true},point(shadow.x,shadow.y),e.scale*z);}
   }else if(e.phase==='warning'){
    // The authored silhouette crosses the field before the real body arrives.
    c.globalAlpha=.2;c.filter='brightness(0)';
    drawIntrusionBoss(c,{...e,a:Math.PI/2},{x:W*.5,y:-H*.15+Math.min(1,e.phaseAge/4)*H*.9},e.scale*z);
   }else{
    if(maritime){c.globalAlpha=maritimeOpacity(e);if(e.phase==='entering')c.globalAlpha*=Math.min(1,e.phaseAge/1.2);if(e.phase==='retreating')c.globalAlpha*=Math.max(0,1-e.phaseAge/3);}
-   if(e.phase==='destroyed')c.globalAlpha*=Math.max(0,1-e.phaseAge/(maritime?1:3));
+   if(e.phase==='destroyed')c.globalAlpha*=['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId)?Math.max(0,Math.min(1,((e.profileId==='linke-hofmann-r-ii'?2.65:2.9)-e.phaseAge)/.35)):Math.max(0,1-e.phaseAge/(maritime?1:3));
    const position=point(e.x,e.y);
    if(!maritime){
     // Use the same subtle ground-shadow cue as ordinary aircraft, with the exact
     // damaged-module silhouette; no replacement art or separate collision pose.
     c.save();c.globalAlpha*=.16;c.filter='brightness(0)';
-    drawIntrusionBoss(c,{...e,flash:{}},{x:position.x+10*z,y:position.y+16*z},e.scale*z);
+    drawIntrusionBoss(c,{...e,flash:{},v1500Shadow:true,riiShadow:true},{x:position.x+10*z,y:position.y+(16+(e.profileId==='handley-page-v1500'?e.crashDrop||0:0))*z},e.scale*z);
     c.restore();
    }
    drawIntrusionBoss(c,e,position,e.scale*z);
+   if(['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId))drawIntrusionOrdnance(c,e,point,z);
    if(maritime)drawMaritimeDamage(c,e,point,z);
   }
   c.restore();

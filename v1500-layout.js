@@ -1,0 +1,10 @@
+import {V1500_POINTS,V1500_PROP_POINTS} from './handley-page-v1500.js';
+export const V1500_ART=Object.freeze({hull:'v1500-boss/hull.webp',damaged:'v1500-boss/damaged.webp',front:'v1500-boss/propeller-front.webp',rear:'v1500-boss/propeller-rear.webp',gun:'v1500-boss/gun.webp',bomb:'bomb-cooper-readable-q92.webp',cutin:'v1500-boss/cutin.webp'});
+const spec=(src,x=0,y=0)=>({src,x,y,pivot:[0,0]});
+const parts=[{id:'hull',group:'core',kind:'base',dependencies:[],states:{intact:spec(V1500_ART.hull),damaged:spec(V1500_ART.damaged),destroyed:spec(V1500_ART.damaged)}}];
+for(const [id,p]of Object.entries(V1500_PROP_POINTS))parts.push({id:'prop_'+id,group:id,kind:'propeller',dependencies:[],states:{intact:spec(id.endsWith('front')?V1500_ART.front:V1500_ART.rear,p.x,p.y)}});
+for(const id of ['gun_nose','gun_dorsal','gun_tail'])parts.push({id,group:id,kind:'gun',dependencies:[],states:{intact:spec(V1500_ART.gun)},muzzle:{...V1500_POINTS[id],y:V1500_POINTS[id].y-42,angle:-Math.PI/2,arc:Math.PI,pivotX:0,pivotY:V1500_POINTS[id].y},x:0,y:V1500_POINTS[id].y,arc:Math.PI});
+const targets=Object.entries(V1500_POINTS).filter(([id])=>id!=='bay').map(([id,p])=>({id,...p,kind:id.startsWith('engine')?'engine':'turret_body',rx:id.startsWith('engine')?36:30,ry:id.startsWith('engine')?54:30,angle:0,dependencies:[],...(id.startsWith('gun')?{muzzle:parts.find(q=>q.id===id).muzzle}:{})}));
+targets.push({id:'wing_port',kind:'wing',x:-495,y:-110,rx:355,ry:142,angle:0,dependencies:[]},{id:'wing_starboard',kind:'wing',x:495,y:-110,rx:355,ry:142,angle:0,dependencies:[]});
+targets.push({id:'core',kind:'core',x:0,y:0,rx:55,ry:420,angle:0,dependencies:[]});
+export const v1500Layout={id:'handley-page-v1500',enabled:true,width:1774,height:887,parts,targets,cutin:V1500_ART.cutin,extraAssets:[V1500_ART.bomb],shotOcclusion:{gunHeights:{gun_nose:2,gun_dorsal:2,gun_tail:2},occluders:[]},historicalStatus:'Four tandem Eagle engines; front tractor 2-blade, rear pusher 4-blade. Gun sectors, bomb pattern and reused Cooper ordnance are gameplay adaptation.'};

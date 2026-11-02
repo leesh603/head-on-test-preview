@@ -5,6 +5,8 @@ const mixAngle=(a,b,k)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*k;
 const valid=e=>e&&Number.isFinite(e.x+e.y+e.a);
 export function receiveIntrusionVisual(g,previous,full=false){
  const e=g.intrusionBoss;
+ if(e?.profileId==='linke-hofmann-r-ii'){e.visualRIITime=0;e.visualRIIPropellerPhase=e.rii?.propellerPhase||0;}
+ if(e?.profileId==='handley-page-v1500'){e.visualV1500Age=0;e.visualProps=Object.fromEntries(Object.entries(e.props||{}).map(([id,p])=>[id,{...p}]));}
  if(!valid(e)){g._intrusionReplica=null;return;}
  const same=valid(previous)&&previous.encounterId===e.encounterId;
  if(full||!same||g.state!=='playing'||e.phase==='resolved'||Math.hypot(e.x-previous.x,e.y-previous.y)>200){g._intrusionReplica=null;e.visualTime=e.age||0;delete e.visualMaritimeOpacity;delete e.visualMaritimeReveal;return;}
@@ -16,6 +18,8 @@ export function receiveIntrusionVisual(g,previous,full=false){
 export function advanceIntrusionVisual(g,dt,hz=15){
  const e=g.intrusionBoss,r=g._intrusionReplica;if(!valid(e)||g.state!=='playing')return;
  e.visualTime=(e.visualTime??e.age??0)+dt;
+ if(e.profileId==='linke-hofmann-r-ii'){e.visualRIITime=(e.visualRIITime||0)+dt;e.visualRIIPropellerPhase=((e.visualRIIPropellerPhase??e.rii?.propellerPhase??0)+dt*(e.rii?.rpm||0)*42)%(Math.PI*2);}
+ if(e.profileId==='handley-page-v1500'){e.visualV1500Age=(e.visualV1500Age||0)+dt;for(const p of Object.values(e.visualProps||{}))p.phase=(p.phase+dt*p.rpm*42)%(Math.PI*2);}
  if(r&&r.encounterId===e.encounterId){
   r.elapsed+=dt;const k=Math.min(1,r.elapsed*hz);
   e.x=r.from.x+(r.to.x-r.from.x)*k;e.y=r.from.y+(r.to.y-r.from.y)*k;e.a=mixAngle(r.from.a,r.to.a,k);

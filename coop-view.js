@@ -70,7 +70,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const e of g.enemies){if(cl(e.x,e.y,360)||e.hp<=0)continue;
   if(e.groundEscort)drawGroundEnemy(c,e,e.x,e.y,96);
   else if(e.fieldUnit){if(e.rail){const r=e.rail;c.save();c.translate(r.x,r.y);c.rotate(r.angle);c.strokeStyle='#bec1ab';c.lineWidth=3;for(const off of [-8,8]){c.beginPath();c.moveTo(-r.half-25,off);c.lineTo(r.half+25,off);c.stroke()}c.restore()}e.rail?drawGroundEnemy(c,e,e.x,e.y,210):(drawAirThreat(c,e,e.x,e.y,{fx})||drawBattlefieldSprite(c,e.fieldSprite,e.x,e.y,354,0));const offset=e.rail?125:e.airThreatLength?e.airThreatLength/2+18:190;c.fillStyle='#172b23';c.fillRect(e.x-42,e.y-offset,84,5);c.fillStyle='#ed9d66';c.fillRect(e.x-42,e.y-offset,84*Math.max(0,e.hp/e.maxHp),5);c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffe3aa';c.fillText(unitNameEN(e.name||'비행선'),e.x,e.y-offset-8)}
-  else if(e.navalVessel)drawBattlefieldSprite(c,'ship',e.x,e.y,320,e.a+Math.PI/2)}
+  else if(e.navalVessel&&!e.movingShip&&!e.stageBossBody&&!e.intrusionBody)drawBattlefieldSprite(c,'ship',e.x,e.y,320,e.a+Math.PI/2)}
  for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawGroundEnemy(c,f,f.x,f.y,66,'aa',g.teamFaction==='central'?'entente':'central');
  for(const e of g.enemies){
   if(e.doverBomber||e.finalArenaTarget||e.stageBossBody||e.cityUnit||cl(e.x,e.y,300))continue;

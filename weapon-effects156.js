@@ -1,3 +1,5 @@
+import {drawRIICollapseFx} from './rii-destruction-fx.js';
+import {drawV1500CollapseFx} from './v1500-destruction-fx.js';
 import {drawBishopBombImpact} from './bishop-sortie-fx.js';
 import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {drawDetonationPresence} from './detonation-presence.js';
@@ -73,6 +75,8 @@ function blastFlame(c,x,y,d,q){
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
+ if(f.riiCascade&&drawRIICollapseFx(c,f,x,y,combatFxAge(f),fx,radius))return true;
+ if(f.v1500Cascade&&drawV1500CollapseFx(c,f,x,y,combatFxAge(f),fx,radius))return true;
  if(f.fxProfile==='cannonMuzzle'){drawArtilleryMuzzle(c,fx,x,y,f.direction,combatFxAge(f),{heavy:f.heavy,scale:f.muzzleScale,smokeOnly:true});return true;}
  const drawn=drawFxExplosionBase(c,f,x,y,radius);
  // The cannon flipbooks can return before the generic flame pass. Keep their
