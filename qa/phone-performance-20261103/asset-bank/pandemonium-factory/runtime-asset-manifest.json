@@ -1,0 +1,115 @@
+{
+  "baselineMechanics": "c5d383aeb77c68a91a75f8fd12c717e74f0383f1b1b7d18ec10878df590ea918",
+  "previewRenderer": "factory-detail-refinement-20261029/dist/pandemonium-factory-render.js",
+  "previewAssetBase": "./assets/",
+  "integrationAssetBase": "./asset-bank/pandemonium-factory/",
+  "integrationNote": "Rewrite only asset base in copied renderer, then place these exact files in the factory-scoped folder. Do not overwrite generic dist/assets/* or A/v4 assets. Shared AA files are pinned copies from approved A native-parts-contract.json; independent of later A r2 assets. All fourteen dependencies are listed, no source PNG or ZIP.",
+  "nativeAAPivotContractSource": "fortress-style-unification-20261029/A/native-parts-contract.json",
+  "nativeAAPivotContractSha256": "78b0936585683846933de29d35a9927bfc49dc7d215f62a866d42adf878f4b28",
+  "files": [
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/aaBarrel.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/aaBarrel.webp",
+      "bytes": 19144,
+      "sha256": "c5657e4baf2b071db39721c45b74750b4b6d765773ef6cb7646814d3e4b5d3d5",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/aaHead.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/aaHead.webp",
+      "bytes": 26260,
+      "sha256": "513a97b5144f563a4806e6969a31cac5da3f364ff49284e2a2b7a10a4488c1cf",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/aaWreck.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/aaWreck.webp",
+      "bytes": 31866,
+      "sha256": "a4153b142da7755096ff989a37942aea39bccaeb7926291b02db5bd32784075a",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/aircraft.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/aircraft.webp",
+      "bytes": 63594,
+      "sha256": "d29c2abdbf6373d39dfa0ac8583372fa13cde99d3f059a7ddc2ee85de9b00372",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/body-wreck.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/body-wreck.webp",
+      "bytes": 500868,
+      "sha256": "5dfe5bb989c9451c224003b17c6d0bb49222f5716cf2b394b3a827b654900bf1",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/body.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/body.webp",
+      "bytes": 470742,
+      "sha256": "31b60ac66d4f9883b1ca260a10c1ede1427d228d0f056a117b78545afbd86ee1",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/boiler-damaged.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/boiler-damaged.webp",
+      "bytes": 121182,
+      "sha256": "1368901760b162bd467b1e6c7eec6646f0c6673253e72a94bba4b86175864011",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/craneBoom.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/craneBoom.webp",
+      "bytes": 47330,
+      "sha256": "9e3b50707469269ef4738afbbccae510be741762dda649078838e1255de095b7",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/crawlerHousing.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/crawlerHousing.webp",
+      "bytes": 40092,
+      "sha256": "900f6dc5479b699b9ea12c41a9d2783146b3d7126980ceaa179f16f225eb8a6c",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/crawlerWreck.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/crawlerWreck.webp",
+      "bytes": 45324,
+      "sha256": "0cc6ce1d08c7e441ed3012d71255f4146547c9dd809699d87ec21e55f3d24f70",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/fx.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/fx.webp",
+      "bytes": 153036,
+      "sha256": "7e6eabcfa70e635e83d798f4e4bb7cff3d359093e20d42f57525d8baa6666030",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/production-damaged.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/production-damaged.webp",
+      "bytes": 301006,
+      "sha256": "716494b18433c660714407691e5dabc85dc779e75b06137c17fd573330c585af",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/supply.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/supply.webp",
+      "bytes": 44708,
+      "sha256": "42e6c53690c505d3c479871778f226aca0fa1b3355a42f617e2274f5b4a468cb",
+      "kind": "runtime-renderer-dependency"
+    },
+    {
+      "previewPath": "factory-detail-refinement-20261029/dist/assets/track.webp",
+      "runtimeSuggestedPath": "dist/asset-bank/pandemonium-factory/track.webp",
+      "bytes": 2402,
+      "sha256": "4e941b6f040729b40543d1914623cae0795b1c31578525aa4179e09e4f4614d9",
+      "kind": "runtime-renderer-dependency"
+    }
+  ],
+  "totalBytes": 1867554,
+  "bodyEncoding": "WebP quality94, exact original dimensions and alpha, originals preserved under encoded/*-lossless-before.webp and art source.",
+  "finalCodeSha256": {
+    "pandemonium-factory-render.js": "8b68be5b103452efe5b63f6c436cf5eef6c7716ca08968201cf7b15c3923f8e6",
+    "pandemonium-factory-mechanics.js": "c7187fed301494c16d5758f1dab6c233988ba063175e9ffd15053f65c81c6281"
+  }
+}

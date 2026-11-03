@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- German aircraft Balkenkreuz: white outline + solid black centre. -->
+  <path fill="#fff" d="M161 35h190l-38 126c-3 10 1 16 10 12l121-57v280l-121-57c-9-4-13 2-10 12l38 126H161l38-126c3-10-1-16-10-12L68 396V116l121 57c9 4 13-2 10-12L161 35Z"/>
+  <path fill="#101010" d="M176 53h160l-35 113c-7 23 5 37 26 27l99-46v218l-99-46c-21-10-33 4-26 27l35 113H176l35-113c7-23-5-37-26-27L86 365V147l99 46c21 10 33-4 26-27L176 53Z"/>
+</svg>

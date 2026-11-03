@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "coordinateSystem": "source canvas pixels, bow north, visual hull pivot not canvas center",
+  "gunSource": "asset-bank/intrusion-bosses/nachtwal/deck-gun-normal.webp",
+  "gunSourceSize": [
+    243,
+    342
+  ],
+  "gunSourcePivot": [
+    121.5,
+    233
+  ],
+  "gunSourceMuzzle": [
+    121.5,
+    0
+  ],
+  "gunScale": 0.25,
+  "ships": {
+    "qship": {
+      "hull": "qship-hull.webp",
+      "sourceSize": [
+        728,
+        2161
+      ],
+      "pivot": [
+        420,
+        1030
+      ],
+      "bodyBBox": [
+        217,
+        45,
+        623,
+        2025
+      ],
+      "targetEllipse": {
+        "center": [
+          420.0,
+          1035.0
+        ],
+        "radii": [
+          203.0,
+          990.0
+        ]
+      },
+      "mounts": [
+        {
+          "id": "fore_port",
+          "pivot": [
+            280,
+            594
+          ],
+          "gunScale": 0.25,
+          "defaultRotationFromNorth": -1.5707963267948966,
+          "revealOnly": true,
+          "openOffset": [
+            -64,
+            0
+          ],
+          "cover": {
+            "src": "qship-cover-fore_port.webp",
+            "sourceSize": [
+              45,
+              96
+            ],
+            "sourcePivot": [
+              22.5,
+              48.0
+            ],
+            "displaySize": [
+              66,
+              142
+            ],
+            "originalRect": [
+              177,
+              374,
+              222,
+              470
+            ]
+          }
+        },
+        {
+          "id": "fore_starboard",
+          "pivot": [
+            561,
+            594
+          ],
+          "gunScale": 0.25,
+          "defaultRotationFromNorth": 1.5707963267948966,
+          "revealOnly": true,
+          "openOffset": [
+            64,
+            0
+          ],
+          "cover": {
+            "src": "qship-cover-fore_starboard.webp",
+            "sourceSize": [
+              46,
+              96
+            ],
+            "sourcePivot": [
+              23.0,
+              48.0
+            ],
+            "displaySize": [
+              66,
+              142
+            ],
+            "originalRect": [
+              376,
+              374,
+              422,
+              470
+            ]
+          }
+        },
+        {
+          "id": "aft_port",
+          "pivot": [
+            282,
+            1280
+          ],
+          "gunScale": 0.25,
+          "defaultRotationFromNorth": -1.5707963267948966,
+          "revealOnly": true,
+          "openOffset": [
+            -64,
+            0
+          ],
+          "cover": {
+            "src": "qship-cover-aft_port.webp",
+            "sourceSize": [
+              49,
+              109
+            ],
+            "sourcePivot": [
+              24.5,
+              54.5
+            ],
+            "displaySize": [
+              66,
+              142
+            ],
+            "originalRect": [
+              175,
+              858,
+              224,
+              967
+            ]
+          }
+        },
+        {
+          "id": "aft_starboard",
+          "pivot": [
+            560,
+            1280
+          ],
+          "gunScale": 0.25,
+          "defaultRotationFromNorth": 1.5707963267948966,
+          "revealOnly": true,
+          "openOffset": [
+            64,
+            0
+          ],
+          "cover": {
+            "src": "qship-cover-aft_starboard.webp",
+            "sourceSize": [
+              50,
+              109
+            ],
+            "sourcePivot": [
+              25.0,
+              54.5
+            ],
+            "displaySize": [
+              66,
+              142
+            ],
+            "originalRect": [
+              370,
+              858,
+              420,
+              967
+            ]
+          }
+        }
+      ]
+    },
+    "seeadler": {
+      "hull": "seeadler-hull.webp",
+      "sourceSize": [
+        724,
+        2172
+      ],
+      "pivot": [
+        352,
+        1070
+      ],
+      "bodyBBox": [
+        170,
+        170,
+        535,
+        2008
+      ],
+      "targetEllipse": {
+        "center": [
+          352.5,
+          1089.0
+        ],
+        "radii": [
+          182.5,
+          919.0
+        ]
+      },
+      "mounts": [
+        {
+          "id": "fore_port",
+          "pivot": [
+            275,
+            450
+          ],
+          "gunScale": 0.25,
+          "defaultRotationFromNorth": -1.5707963267948966,
+          "revealOnly": false,
+          "openOffset": [
+            -64,
+            0
+          ]
+        },
+        {
+          "id": "fore_starboard",
+          "pivot": [
+            430,
+            450
+          ],
+          "gunScale": 0.25,
+          "defaultRotationFromNorth": 1.5707963267948966,
+          "revealOnly": false,
+          "openOffset": [
+            64,
+            0
+          ]
+        }
+      ]
+    }
+  }
+}

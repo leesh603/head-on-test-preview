@@ -1,0 +1,140 @@
+{
+  "design": "Independent new fictional WWI-inspired designs, not historical ship reconstructions or recovered previous concept art.",
+  "hulls": "New imagegen artwork with measured alpha crop; no pixel repaint.",
+  "dreadnoughtGuns": "New authored normal/damaged/destroyed whole turret assemblies.",
+  "nachtwalGuns": "Unchanged original RGBA crops from existing game/jutland-parts.webp single-gun row; not newly generated.",
+  "cutins": "Exact runtime hull and gun assemblies composited and rotated.",
+  "hullDamage": "No separately authored hull damage states. Nachtwal dive-control tower is baked into hull; its visual damage is runtime FX only.",
+  "assets": [
+    {
+      "file": "dreadnought/aa-damaged.webp",
+      "size": [
+        340,
+        430
+      ],
+      "bytes": 114884,
+      "sha256": "7ac4851f1757913e3b4c7c10e7e6b6ddd73bb791a30952089d98ee348336d7d0",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/aa-destroyed.webp",
+      "size": [
+        340,
+        430
+      ],
+      "bytes": 114542,
+      "sha256": "1a24efecc6f5a085468e47e7afd20dc178100408ed958aa3cc0c1bfacbc4ba67",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/aa-normal.webp",
+      "size": [
+        340,
+        430
+      ],
+      "bytes": 109310,
+      "sha256": "ab7036539fcf740f83e1c55f158d14748c8ffe80f66f8011943bde67173fb3b5",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/cutin.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "bytes": 568092,
+      "sha256": "3d62f7881ca5c4bb5879485025b673f57c5d86828621e16c41a93948ce807bb0",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/hull.webp",
+      "size": [
+        432,
+        1536
+      ],
+      "bytes": 729306,
+      "sha256": "763beb88b057b9d291dfd41dedcbafaa08e529270c93842e6caf1995e9858ae2",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/main-damaged.webp",
+      "size": [
+        480,
+        600
+      ],
+      "bytes": 271936,
+      "sha256": "b385d6090bb5c40238bd3267ec446cd233189f0fe75dd05218b070fddb5a5373",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/main-destroyed.webp",
+      "size": [
+        480,
+        600
+      ],
+      "bytes": 276396,
+      "sha256": "39dc3e450ff6177825587cbe49741582d5b4d91b077aff7713e8658d88ac8e2f",
+      "transparent": true
+    },
+    {
+      "file": "dreadnought/main-normal.webp",
+      "size": [
+        480,
+        600
+      ],
+      "bytes": 260158,
+      "sha256": "68d2ec7ff72d481a49f418b2fae1407015844e4e62ba85ba7941ad93be5d40e3",
+      "transparent": true
+    },
+    {
+      "file": "nachtwal/cutin.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "bytes": 583170,
+      "sha256": "c5861f4f62a6ffaec98ddc84a6c10bdc08602fdbd43447a07b9a0c36e882361b",
+      "transparent": true
+    },
+    {
+      "file": "nachtwal/deck-gun-damaged.webp",
+      "size": [
+        243,
+        342
+      ],
+      "bytes": 66196,
+      "sha256": "9c7d8aeb3869fd16b4692a0b371f0532d55e154121a70d777070ec7dbaafe2c7",
+      "transparent": true
+    },
+    {
+      "file": "nachtwal/deck-gun-destroyed.webp",
+      "size": [
+        261,
+        309
+      ],
+      "bytes": 78156,
+      "sha256": "facb85db4ea88cc2bb39f7e7f81cf4c7cd3f753abbce0c0f214300b08fc412c1",
+      "transparent": true
+    },
+    {
+      "file": "nachtwal/deck-gun-normal.webp",
+      "size": [
+        243,
+        342
+      ],
+      "bytes": 63672,
+      "sha256": "90090fc6d12330339dd1f12cc2f87bb68c11b023c0dd0647806beff7d0a526df",
+      "transparent": true
+    },
+    {
+      "file": "nachtwal/hull.webp",
+      "size": [
+        288,
+        1536
+      ],
+      "bytes": 510700,
+      "sha256": "69ac13a5f5ecb176ee7ef1cc09cb6409d1e3347876b3e9fc6799bad65a5d9cf6",
+      "transparent": true
+    }
+  ]
+}

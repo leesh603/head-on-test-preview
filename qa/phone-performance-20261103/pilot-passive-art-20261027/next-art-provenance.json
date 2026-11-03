@@ -1,0 +1,18 @@
+{
+  "generator": "built-in imagegen",
+  "generated_at": "2026-10-27",
+  "source_size": [1254, 1254],
+  "production_size": [512, 512],
+  "layout": "2x2 RGBA sprite sheet; four equal frames; real alpha 0..255",
+  "export": "Lanczos resize, WebP quality 90, alpha preserved; 256px maximum cached frame edge",
+  "jacobs": {
+    "source": "exec-ca453f3f-ed68-4c44-a30e-8f7b9143ed84.png",
+    "file": "jacobs.webp",
+    "prompt": "Production transparent 2x2 WWI top-down aerial game VFX sheet. Four stages of paired asymmetrical charcoal and warm silver pressure tears, shredded feather-shaped turbulent air sweeping downwards with an open clear center: tight first rip, separated jagged folds, strongest feathered shear with pale edges, dispersed broken tendrils. Hand-painted semi-realistic natural brush grain; no real feathers, birds, aircraft, symbols, icons, rings, geometry, text, sparks, fire, explosions, generic smoke puffs, gridlines or checkerboard. Equal cells with transparent gutters and no bleeding."
+  },
+  "gontermann": {
+    "source": "exec-39f193c7-18f9-497c-85a2-03e2eec86460.png",
+    "file": "gontermann.webp",
+    "prompt": "Production transparent 2x2 WWI top-down aerial game VFX sheet. Four progressive stages of unignited raw aviation fuel leaking from one tiny wet puncture: translucent honey-amber droplets and oily streak, more droplets with a silver-beige liquid sheet, mature glossy beaded amber fuel stream, older broken droplets and evaporating pale spray. Root near the upper quarter, trail down-right. Rich hand-painted wet specular material in muted sepia, gold and linen. No blue water, flames, fire, sparks, embers, explosions, generic smoke puffs, circles, rings, icons, aircraft, text, gridlines or background. Equal cells, transparent gutters, no bleeding."
+  }
+}

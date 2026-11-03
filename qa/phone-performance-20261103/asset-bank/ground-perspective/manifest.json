@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "scope": "Draft top-view ground-searchlight runtime; no production deployment",
+  "headDefaultBearing": "north",
+  "headAngleForCanvas": "scanA + Math.PI/2",
+  "headMaxDimensionFactor": 0.36,
+  "items": {
+    "central-base-r2": {
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "runtimeSize": [
+        256,
+        256
+      ],
+      "pivotSource": [
+        626,
+        451
+      ],
+      "pivotNormalized": [
+        0.49920255183413076,
+        0.35964912280701755
+      ],
+      "beamSource": null,
+      "beamNormalized": null,
+      "sha256": "cae6153e18ce39e767d572d4170790b57880e5bd449c986cae7d8e86b2d981c6"
+    },
+    "entente-base-r2": {
+      "sourceSize": [
+        1148,
+        1371
+      ],
+      "runtimeSize": [
+        214,
+        256
+      ],
+      "pivotSource": [
+        574,
+        464
+      ],
+      "pivotNormalized": [
+        0.5,
+        0.3384390955506929
+      ],
+      "beamSource": null,
+      "beamNormalized": null,
+      "sha256": "49d737c142d1acce93e66148e40404b6f63f3f2203b3a586e95e1d4c60b8c6f2"
+    },
+    "shared-lamp-head-r2": {
+      "sourceSize": [
+        1313,
+        1198
+      ],
+      "runtimeSize": [
+        128,
+        117
+      ],
+      "pivotSource": [
+        656,
+        958
+      ],
+      "pivotNormalized": [
+        0.49961919268849964,
+        0.7996661101836394
+      ],
+      "beamSource": [
+        656,
+        216
+      ],
+      "beamNormalized": [
+        0.49961919268849964,
+        0.18030050083472454
+      ],
+      "sha256": "12e0af86df78587a0f13304e3a2eb4f5c1900d611ec74b6652b9e17155156cd8"
+    }
+  },
+  "files": [
+    {
+      "file": "central-base-r2.webp",
+      "bytes": 82822,
+      "sha256": "a782ecb43e3a9a0de6812fc341a3cbe4c543d9bddb893803ef16720c9491d38d"
+    },
+    {
+      "file": "entente-base-r2.webp",
+      "bytes": 67138,
+      "sha256": "1247b617661205222b34dbd21354cc040e3c7e1d42dc4cdf624aa2ca38ff73d2"
+    },
+    {
+      "file": "shared-lamp-head-r2.webp",
+      "bytes": 16056,
+      "sha256": "73d1d5c68bca1cf893dae75f21594d2eba88d685c93faa6c4bb5c5f3f57fce6b"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "worldSize": 5200,
+  "terrain": "terrain-r2.webp",
+  "finite": true,
+  "objects": [
+    {
+      "id": "power-boiler",
+      "file": "zero-power-boiler.webp",
+      "x": -1710.8,
+      "y": -535.6,
+      "width": 170,
+      "height": 155.07
+    },
+    {
+      "id": "assembly-hangar",
+      "file": "zero-assembly-hangar.webp",
+      "x": -1705.6,
+      "y": 405.6,
+      "width": 140,
+      "height": 264.6
+    },
+    {
+      "id": "command-bunker",
+      "file": "zero-command-bunker.webp",
+      "x": 1762.8,
+      "y": -499.2,
+      "width": 120,
+      "height": 110.64
+    },
+    {
+      "id": "rail-munitions",
+      "file": "zero-rail-munitions.webp",
+      "x": 1731.6,
+      "y": 447.2,
+      "width": 170,
+      "height": 240.5
+    }
+  ],
+  "authoredWorldSize": 5200,
+  "integrationScale": 0.5,
+  "runtimeWorldSize": 2600
+}

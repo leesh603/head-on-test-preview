@@ -1,0 +1,369 @@
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {segmentDistance} from './alps-geometry117.js?v=tame3';
+
+// Shared measured geometry for the authored fortress layers, hits and muzzles.
+// A fortress is one existing boss body; its core is the body's final hit route.
+export const VERDUN_FORT_ENLARGEMENT=1.7;
+export const VERDUN_AA_REPAIR_SECONDS=18;
+const size=v=>v*VERDUN_FORT_ENLARGEMENT;
+const freezeParts=parts=>Object.freeze(parts.map(p=>Object.freeze({...p,...Object.fromEntries(['x','y','w','h','rx','ry','muzzle'].map(k=>[k,size(p[k])]))})));
+export const VERDUN_FORT_LAYOUT=Object.freeze({
+ 'fort-douaumont':Object.freeze({width:size(820),height:size(590),core:Object.freeze({x:0,y:size(10),rx:size(65),ry:size(58)}),parts:freezeParts([
+  {id:'heavy-left',x:-154,y:-87,w:146,h:164,rx:56,ry:58,fraction:.12,muzzle:103,art:'heavy',kind:'heavy'},
+  {id:'heavy-right',x:154,y:-87,w:146,h:164,rx:56,ry:58,fraction:.12,muzzle:103,art:'heavy',kind:'heavy'},
+  {id:'control',x:0,y:-156,w:112,h:90,rx:43,ry:33,fraction:.07,muzzle:0,art:'control',kind:'control'},
+  {id:'mg-left',x:-285,y:95,w:92,h:84,rx:33,ry:28,fraction:.06,muzzle:41,art:'mg',kind:'mg'},
+  {id:'mg-right',x:285,y:95,w:92,h:84,rx:33,ry:28,fraction:.06,muzzle:41,art:'mg',kind:'mg'},
+  {id:'aa-left',x:-276,y:-149,w:100,h:102,rx:36,ry:34,fraction:.06,muzzle:43,art:'aa',kind:'aa'},
+  {id:'aa-right',x:275,y:-149,w:100,h:102,rx:36,ry:34,fraction:.06,muzzle:43,art:'aa',kind:'aa'},
+  {id:'ammo-left',x:-154,y:110,w:132,h:100,rx:48,ry:35,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true},
+  {id:'ammo-right',x:154,y:110,w:132,h:100,rx:48,ry:35,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true}
+ ])}),
+ 'fort-souville':Object.freeze({width:size(900),height:size(540),core:Object.freeze({x:0,y:size(162),rx:size(72),ry:size(54)}),parts:freezeParts([
+  {id:'bunker-left',x:-333,y:61,w:148,h:118,rx:58,ry:42,fraction:.08,muzzle:57,art:'bunker',kind:'bunker'},
+  {id:'bunker-right',x:346,y:61,w:148,h:118,rx:58,ry:42,fraction:.08,muzzle:57,art:'bunker',kind:'bunker'},
+  {id:'pit-left',x:-182,y:-56,w:108,h:94,rx:38,ry:32,fraction:.07,muzzle:48,art:'pit',kind:'pit',hidden:true},
+  {id:'pit-center',x:15,y:-163,w:108,h:94,rx:38,ry:32,fraction:.07,muzzle:48,art:'pit',kind:'pit',hidden:true},
+  {id:'pit-right',x:216,y:-56,w:108,h:94,rx:38,ry:32,fraction:.07,muzzle:48,art:'pit',kind:'pit',hidden:true},
+  {id:'observer',x:-95,y:-226,w:92,h:76,rx:33,ry:26,fraction:.075,muzzle:0,art:'observer',kind:'observer'},
+  {id:'command',x:165,y:16,w:120,h:98,rx:44,ry:35,fraction:.08,muzzle:0,art:'command',kind:'command'},
+  {id:'reserve-left',x:-142,y:136,w:106,h:94,rx:37,ry:32,fraction:.065,muzzle:48,art:'pit',kind:'pit',hidden:true,reserve:true},
+  {id:'reserve-right',x:159,y:136,w:106,h:94,rx:37,ry:32,fraction:.065,muzzle:48,art:'pit',kind:'pit',hidden:true,reserve:true},
+  {id:'aa-left',x:-329,y:-160,w:100,h:102,rx:36,ry:34,fraction:.04,muzzle:43,art:'aa',kind:'aa'},
+  {id:'aa-right',x:339,y:-160,w:100,h:102,rx:36,ry:34,fraction:.04,muzzle:43,art:'aa',kind:'aa'},
+  {id:'ammo',x:-13,y:7,w:142,h:106,rx:53,ry:38,fraction:.12,muzzle:0,art:'ammo',kind:'ammo',locked:true}
+ ])})
+});
+
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
+const turn=(a,b,step)=>a+clamp(delta(b,a),-step,step);
+function liveTarget(players,index){let n=0;for(const p of players)if(p.alive)n++;if(!n)return null;index%=n;for(const p of players)if(p.alive&&index--===0)return p;return null;}
+// Reuse the current segment geometry in ellipse space for fast bullet sweeps.
+function intersectsEllipse(s,cx,cy,rx,ry){
+ rx+=s.radius||0;ry+=s.radius||0;
+ return segmentDistance(0,0,((s.previousX??s.x)-cx)/rx,((s.previousY??s.y)-cy)/ry,(s.x-cx)/rx,(s.y-cy)/ry)<=1;
+}
+export function verdunFortScale(t,kind){
+ const layout=VERDUN_FORT_LAYOUT[kind];
+ if(!layout)throw new Error('Unknown Verdun fortress');
+ if(Number.isFinite(t.verdunScale)&&t.verdunScale>0)return t.verdunScale;
+ // The battlefield-sized hull deliberately spans a phone viewport. Flying
+ // around its flanks reveals its other sections; do not shrink it to a card.
+ return Math.max(.8,Math.min(1,(t.regionalViewWidth||960)/960));
+}
+export function verdunFortMuzzle(b,p){
+ const reach=(p.muzzleLength||0)-(p.recoil||0)*24*b.fortScale;
+ return{x:b.x+p.x+Math.cos(p.angle)*reach,y:b.y+p.y+Math.sin(p.angle)*reach};
+}
+export function verdunFortCollapseSites(b){
+ const ids=b.kind==='fort-douaumont'?['mg-left','aa-right','heavy-left','ammo-right','control','heavy-right','ammo-left','mg-right','aa-left']:['bunker-left','pit-right','reserve-left','observer','bunker-right','command','reserve-right','pit-center','aa-left','ammo','aa-right','pit-left'];
+ const sites=ids.map((id,i)=>{const p=b.parts.get(id);return{partId:id,x:b.x+p.x,y:b.y+p.y,at:i*(3.51/Math.max(1,ids.length-1)),radius:Math.max(28,Math.min(72,p.drawWidth*.55))};});
+ const k=b.regionalCore;sites.push({partId:null,x:b.x+k.x,y:b.y+k.y,at:4.15,radius:size(110)*b.fortScale,final:true});
+ return sites;
+}
+
+class VerdunFortress extends BaseBoss{
+ constructor(o,kind){
+  const t=o.tuning;for(const key of ['maxHp','damage','bulletSpeed'])if(!Number.isFinite(t?.[key])||t[key]<=0)throw new Error('Current boss tuning required: '+key);
+  const cfg=VERDUN_FORT_LAYOUT[kind],scale=verdunFortScale(t,kind);
+  super({...o,maxHp:t.maxHp,coreRadius:Math.max(cfg.core.rx,cfg.core.ry)*scale,parts:cfg.parts.map(p=>new BossPart({id:p.id,maxHp:t.maxHp*p.fraction,x:p.x*scale,y:p.y*scale,radius:Math.max(p.rx,p.ry)*scale,hittable:!p.locked&&!p.hidden,kind:p.kind,angle:Math.PI/2}))});
+  Object.assign(this,{t,kind,faction:o.faction,fortressBoss:true,ownsMotion129:true,fortScale:scale,regionalScale:scale,coreVulnerable:false,clock:0,cursor:0,rng:o.rng||Math.random,lastStand:null,lastStandDone:false,recovery:0});
+  this.regionalCore={x:cfg.core.x*scale,y:cfg.core.y*scale,rx:cfg.core.rx*scale,ry:cfg.core.ry*scale};
+  for(const d of cfg.parts)Object.assign(this.parts.get(d.id),{localX:d.x,localY:d.y,hitRadiusX:d.rx*scale,hitRadiusY:d.ry*scale,drawWidth:d.w*scale,drawHeight:d.h*scale,muzzleLength:d.muzzle*scale,art:d.art,bodyDamageDealt:0,repairRemaining:0,repairWarned:false,recoil:0,revealed:!d.hidden&&!d.locked,reserve:!!d.reserve,active:!d.reserve,openRemaining:0,openAmount:0,damageBlend:0,repairBlend:0});
+ }
+ command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
+ hazard(kind,spec){this.command('hazard',{kind,damage:this.t.damage,warning:0,duration:kind==='projectile'?3.6:.48,...spec});}
+ suppressive(){} // Fortress mounts own every shot; no unrelated central fan.
+ tag(id){return this.id+':'+id;}
+ cancel(id){this.command('cancel-hazards',{tag:this.tag(id)});}
+ target(players){return liveTarget(players,this.cursor++);}
+ canRepairAA(p){
+  if(this.dead||this.coreVulnerable)return false;
+  const ammo=this.parts.get(this.kind==='fort-douaumont'?'ammo-'+(p.id.endsWith('left')?'left':'right'):'ammo');
+  return p.kind==='aa'&&!ammo?.destroyed;
+ }
+ queueAARepair(p){
+  if(this.canRepairAA(p)){p.repairRemaining=VERDUN_AA_REPAIR_SECONDS;p.repairWarned=false;p.hittable=false;}
+ }
+ tickParts(dt){
+  this.clock+=dt;
+  this.recovery=Math.max(0,this.recovery-dt);
+  for(const p of this.parts.values()){
+   p.recoil=Math.max(0,p.recoil-dt);p.hitFlash=Math.max(0,(p.hitFlash||0)-dt);
+   p.openAmount=clamp(p.openAmount+(p.revealed&&!p.destroyed?1:-1)*dt*2.5,0,1);
+   p.damageBlend=clamp(p.damageBlend+(p.destroyed||p.hp<p.maxHp*.55?1:-1)*dt*4,0,1);
+   p.repairBlend=p.destroyed&&p.repairRemaining>0&&p.repairRemaining<3?1-p.repairRemaining/3:0;
+   if(!p.destroyed||!p.repairRemaining)continue;
+   if(!this.canRepairAA(p)){p.repairRemaining=0;continue;}
+   p.repairRemaining=Math.max(0,p.repairRemaining-dt);
+   if(p.repairRemaining<=3&&!p.repairWarned){p.repairWarned=true;this.command('fort-aa-repairing',{partId:p.id,x:this.x+p.x,y:this.y+p.y});}
+   if(p.repairRemaining<=1e-8){
+    p.repairRemaining=0;p.hp=p.maxHp;p.hittable=true;p.revealed=true;p.salvo=null;p.recoil=0;p.damageBlend=0;p.destroyedAt=undefined;
+    this.timers.set(p.id,2.2);this.command('fort-aa-restored',{partId:p.id,x:this.x+p.x,y:this.y+p.y});
+   }
+  }
+ }
+ changePhase(phase){if(this.phase===phase)return;this.phase=phase;this.command('phase-change',{phase});}
+ locateHit(s){
+  if(this.dead)return null;
+  for(const p of this.parts.values())if(p.hittable&&!p.destroyed&&intersectsEllipse(s,this.x+p.x,this.y+p.y,p.hitRadiusX,p.hitRadiusY))return{partId:p.id};
+  const k=this.regionalCore;
+  return this.coreVulnerable&&intersectsEllipse(s,this.x+k.x,this.y+k.y,k.rx,k.ry)?{partId:null}:null;
+ }
+ hitAt(s){const route=this.locateHit(s);return route?this.hit({...route,damage:s.damage}):{damage:0,miss:true};}
+ // The announced reload after a last barrage is a real opening: 1.5x damage.
+ counterWindow(){return this.recovery>0?1.5:1;}
+ hit(a){
+  const result=super.hit(a);
+  if(result.damage&&a.partId){
+   const p=this.parts.get(a.partId),credit=Math.min(result.damage,Math.max(0,p.maxHp-p.bodyDamageDealt));
+   p.bodyDamageDealt+=credit;p.hitFlash=.12;this.hp=Math.max(1,this.hp-credit);result.bodyDamage=credit;
+  }
+  if(result.bodyDefeated){for(const p of this.parts.values()){this.cancel(p.id);p.hittable=false;p.salvo=null;}this.cancel('final-barrage');}
+  return result;
+ }
+ aim(p,target,dt,speed=1.1){const angle=Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x);p.angle=turn(p.angle,angle,speed*dt);return angle;}
+ muzzle(p){p.recoil=.24;const m=verdunFortMuzzle(this,p);this.command('muzzle',{...m,partId:p.id});return m;}
+ burst(p,target,count=3,spread=.17){
+  const m=this.muzzle(p);
+  fireFanSalvo(this,{...m,angle:p.angle,speed:this.t.bulletSpeed*.76,damage:this.t.damage*.48,visual:'verdun-mg',tag:this.tag(p.id),sourcePartId:p.id,count:13,spread:1.8,beats:3,beat:.4,warning:.85,gapIndex:p.id.endsWith('left')?2:8,step:p.id.endsWith('left')?1:-1});
+ }
+ landing(target,bounds,lead=.55,radius=43){
+  return{x:clamp(target.x+(target.vx||0)*lead,bounds.left+radius+8,bounds.right-radius-8),y:clamp(target.y+(target.vy||0)*lead,bounds.top+radius+8,bounds.bottom-radius-8)};
+ }
+ shell(p,point,{radius=43,warning=1.7,delay=0,damage=1,visual='verdun-heavy-shell'}={}){
+  const m=this.muzzle(p);this.hazard('circle',{...point,sourceX:m.x,sourceY:m.y,sourcePartId:p.id,radius,warning,delay,damage:this.t.damage*damage,once:true,visual,tag:this.tag(p.id)});
+ }
+ coreBarrage(dt,players,bounds){
+  if(!this.coreVulnerable||!this.due('final-barrage',dt,5.4))return;
+  const target=this.target(players);if(!target)return;
+  // An exposed command chamber is not a hidden gun. Only surviving authored
+  // artillery can fire; destroying every mount leaves a clean finish window.
+  const guns=[...this.parts.values()].filter(p=>!p.destroyed&&p.active&&(p.kind==='aa'||p.kind==='pit'&&p.revealed));
+  const radius=clamp(40*this.fortScale,25,40),q=this.landing(target,bounds,.25,radius);
+  for(const [i,p]of guns.slice(0,3).entries()){
+   p.angle=Math.atan2(q.y-this.y-p.y,q.x-this.x-p.x);
+   this.shell(p,q,{radius,warning:1.8,delay:i*.35,visual:'verdun-core-shell'});
+  }
+ }
+ ringBarrage(dt){
+  if(!this.due('ring-barrage',dt,6))return;
+  const guns=[...this.parts.values()].filter(p=>!p.destroyed&&(p.kind==='mg'||p.kind==='bunker'));
+  for(const p of guns){const m=this.muzzle(p);for(let i=-4;i<=4;i++){const a=p.angle+i*.22;this.hazard('projectile',{...m,vx:Math.cos(a)*this.t.bulletSpeed*.68,vy:Math.sin(a)*this.t.bulletSpeed*.68,radius:4,damage:this.t.damage*.4,visual:'verdun-mg',sourcePartId:p.id,tag:this.tag(p.id)});}}
+ }
+}
+
+export class FortDouaumont extends VerdunFortress{
+ constructor(o){
+  super(o,'fort-douaumont');this.phase='verdun-outer';this.heavyActive=false;this.batteryStep=0;this.batteryWait=.8;
+  for(const [id,wait]of [['mg-left',1.5],['mg-right',2.6],['aa-left',3.4],['aa-right',4.7],['heavy-left',1.2],['heavy-right',3.4]])this.timers.set(id,wait);
+ }
+ flankStarved(side){return this.parts.get('ammo-'+side).destroyed;}
+ outerDestroyed(){return ['mg-left','mg-right','aa-left','aa-right'].filter(id=>this.parts.get(id).destroyed).length;}
+ weaponsGone(){return ['mg-left','mg-right','aa-left','aa-right','heavy-left','heavy-right'].every(id=>this.parts.get(id).destroyed);}
+ reloadInterval(side){return 5.8*(this.flankStarved(side)?1.8:1)*(this.parts.get('control').destroyed?1.25:1);}
+ refreshArmor(){
+  for(const side of ['left','right']){
+   const ammo=this.parts.get('ammo-'+side),open=this.parts.get('heavy-'+side).destroyed||['mg-','aa-'].every(prefix=>this.parts.get(prefix+side).destroyed);
+   if(open&&!ammo.revealed){ammo.revealed=true;ammo.hittable=true;this.command('fort-section-exposed',{partId:ammo.id,x:this.x+ammo.x,y:this.y+ammo.y});}
+  }
+  this.coreVulnerable=['heavy-left','heavy-right','ammo-left','ammo-right'].every(id=>this.parts.get(id).destroyed);
+  if(this.coreVulnerable)this.changePhase('verdun-core');
+  else if(['ammo-left','ammo-right'].some(id=>this.parts.get(id).revealed))this.changePhase('verdun-ammo');
+  else if(this.heavyActive)this.changePhase('verdun-heavy');
+ }
+ onPartDestroyed(p){
+  this.cancel(p.id);p.salvo=null;this.queueAARepair(p);
+  if(this.patternPartId===p.id){this.patternPartId=null;this.batteryWait=.35;this.batteryStep++;}
+  if(p.kind==='ammo'){
+   const side=p.id.endsWith('left')?'left':'right';this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y});
+   this.parts.get('aa-'+side).repairRemaining=0;
+   for(const prefix of ['mg-','aa-']){const nearby=this.parts.get(prefix+side);if(!nearby.destroyed)this.hit({partId:nearby.id,damage:nearby.maxHp*.65});}
+   this.timers.set('heavy-'+side,this.reloadInterval(side));
+  }
+  if(p.id==='control')for(const side of ['left','right']){const gun=this.parts.get('heavy-'+side);gun.salvo=null;this.cancel(gun.id);this.timers.set(gun.id,this.reloadInterval(side));if(this.patternPartId===gun.id){this.patternPartId=null;this.batteryStep++;this.batteryWait=.35;}}
+  if(this.outerDestroyed()>=2)this.heavyActive=true;
+  this.refreshArmor();
+  if(this.weaponsGone()&&!this.dead){for(const q of this.parts.values()){this.cancel(q.id);q.salvo=null;q.repairRemaining=0;}this.lastStand=null;this.patternPartId=null;this.recovery=0;this.hp=Math.min(this.hp,this.maxHp*.18);this.coreVulnerable=true;this.changePhase('verdun-core');}
+ }
+ finalHeavy(dt,players,bounds){
+  this.raidClock=(this.raidClock||0)+(!this.lastStand&&this.recovery<=0?dt:0);if(!this.lastStand&&!this.lastStandDone&&this.heavyActive&&this.recovery<=0&&(this.hp<=this.maxHp*.45||['ammo-left','ammo-right'].some(id=>this.parts.get(id).revealed))){
+   this.lastStandDone=true;this.raidClock=0;this.lastStand={age:0,index:0};
+   this.patternPartId=null;this.batteryStep=0;this.batteryWait=.8;for(const p of this.parts.values()){p.salvo=null;this.cancel(p.id);}
+   this.command('phase-change',{phase:'douaumont-last-barrage'});
+  }
+  const run=this.lastStand;if(!run)return false;run.age+=dt;
+  if(!['heavy-left','heavy-right'].some(id=>!this.parts.get(id).destroyed)){this.lastStand=null;this.patternPartId=null;this.batteryStep=0;this.batteryWait=.8;this.recovery=3.2;this.command('phase-change',{phase:'verdun-recovery'});return true;}
+  const order=['heavy-left','heavy-right'];
+  while(run.index<order.length&&run.age>=1.2+run.index*3.2){
+   const i=run.index++,p=this.parts.get(order[i]),target=this.target(players);if(p.destroyed||!target)continue;
+   const r=Math.min(48*this.fortScale,(bounds.right-bounds.left)*.1),q=this.landing(target,bounds,.2,r);
+   q.x=clamp(q.x+(i%2?1:-1)*r*.8,bounds.left+r,bounds.right-r);
+   p.salvo={...q,remaining:.7,angle:Math.atan2(q.y-this.y-p.y,q.x-this.x-p.x),final:true,radius:r};
+   this.command('fort-gun-ready',{partId:p.id,x:this.x+p.x,y:this.y+p.y,targetX:q.x,targetY:q.y,seconds:1.4});
+  }
+  for(const side of ['left','right'])if(this.parts.get('heavy-'+side).salvo)this.heavyGun(this.parts.get('heavy-'+side),side,dt,players,bounds);
+  if(run.index===order.length&&run.age>=7.8&&(!['heavy-left','heavy-right'].some(id=>this.parts.get(id).salvo)||run.age>=11)){
+   for(const side of ['left','right'])this.parts.get('heavy-'+side).salvo=null;
+   this.lastStand=null;this.patternPartId=null;this.batteryStep=0;this.batteryWait=.8;this.recovery=3.2;this.command('phase-change',{phase:'verdun-recovery'});
+  }
+  return true;
+ }
+ heavyGun(p,side,dt,players,bounds){
+  if(p.destroyed||!this.heavyActive)return false;
+  const control=!this.parts.get('control').destroyed,target=liveTarget(players,p.targetCursor||0);if(!target)return false;
+  if(p.salvo){
+   const q=p.salvo;p.angle=turn(p.angle,q.angle,.63*dt);q.remaining-=dt;
+   if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.16){
+    const n=q.final?1:control&&!this.flankStarved(side)?2:1,radius=q.radius||clamp(48*this.fortScale,28,48);
+    if(q.final)impactPulse(this,{x:q.x,y:q.y,radius:Math.max(80,radius*1.65),warning:2.5,source:this.muzzle(p),partId:p.id,visual:'verdun-heavy-shell',tag:this.tag(p.id)});
+    else for(let i=0;i<n;i++)this.shell(p,{x:clamp(q.x+(i-(n-1)/2)*75*this.fortScale,bounds.left+radius,bounds.right-radius),y:q.y},{radius,warning:control?1.65:2.05,delay:i*.22,damage:1.35});
+    p.salvo=null;p.targetCursor=(p.targetCursor||0)+1;this.command('heavy-gun-fired',{partId:p.id});
+    return true;
+   }
+  }else this.aim(p,target,dt,.48);
+  return false;
+ }
+ outerVolley(side,players,bounds){
+  const target=this.target(players);if(!target)return;
+  const starved=this.flankStarved(side),mg=this.parts.get('mg-'+side),aa=this.parts.get('aa-'+side);
+  if(!mg.destroyed){mg.angle=Math.atan2(target.y-this.y-mg.y,target.x-this.x-mg.x);this.burst(mg,target,starved?2:4,.07);}
+  if(!aa.destroyed){aa.angle=Math.atan2(target.y-this.y-aa.y,target.x-this.x-aa.x);const r=clamp(35*this.fortScale,23,35);this.shell(aa,this.landing(target,bounds,.4,r),{radius:r,warning:1.45,damage:.8,visual:'verdun-aa-shell'});}
+ }
+ prepareHeavy(side,players,bounds){
+  const p=this.parts.get('heavy-'+side),target=this.target(players);if(p.destroyed||!target)return false;
+  const control=!this.parts.get('control').destroyed,radius=clamp(48*this.fortScale,28,48),q=this.landing(target,bounds,control?.8:.12,radius);
+  p.salvo={...q,remaining:.8,angle:Math.atan2(q.y-this.y-p.y,q.x-this.x-p.x)};this.patternPartId=p.id;
+  this.command('fort-gun-ready',{partId:p.id,x:this.x+p.x,y:this.y+p.y,targetX:q.x,targetY:q.y,seconds:.8});return true;
+ }
+ batteryPattern(dt,players,bounds){
+  this.batteryWait=Math.max(0,this.batteryWait-dt);if(this.patternPartId){const p=this.parts.get(this.patternPartId),side=p.id.endsWith('left')?'left':'right';if(this.heavyGun(p,side,dt,players,bounds)){this.patternPartId=null;this.batteryStep++;this.batteryWait=2.6;}return;}
+  if(this.batteryWait>0)return;
+  if(this.batteryStep===0){this.changePhase('douaumont-outer-left');this.outerVolley('left',players,bounds);this.batteryStep=1;this.batteryWait=5.1;return;}
+  if(this.batteryStep===1){this.changePhase('douaumont-outer-right');this.outerVolley('right',players,bounds);this.batteryStep=2;this.batteryWait=5.1;return;}
+  if(this.batteryStep===2){this.changePhase('douaumont-heavy-left');if(this.prepareHeavy('left',players,bounds))return;this.batteryStep=3;this.batteryWait=.65;return;}
+  if(this.batteryStep===3){this.changePhase('douaumont-heavy-right');if(this.prepareHeavy('right',players,bounds))return;this.batteryStep=4;this.batteryWait=.25;return;}
+  this.batteryStep=0;this.batteryWait=.8;this.recovery=2.8;this.changePhase('verdun-recovery');
+ }
+ update(dt,{players,bounds,paused}){
+  if(this.dead||paused||dt<=0)return;this.tickParts(dt);
+  if(this.coreVulnerable&&this.weaponsGone())return;
+  if(!this.heavyActive&&(this.clock>=9||this.outerDestroyed()>=2)){this.heavyActive=true;this.batteryStep=0;this.batteryWait=.8;this.raidClock=0;this.refreshArmor();}
+  // The outer line covers the opposite approach while a heavy barrel is
+  // committed. Its own destruction still opens that physical flank.
+  if(this.heavyActive&&this.recovery<=0&&(this.patternPartId||this.lastStand)&&this.due('heavy-cover',dt,4.8)){
+   const side=this.patternPartId==='heavy-left'?'right':this.patternPartId==='heavy-right'?'left':this.batteryStep%2?'left':'right';
+   this.outerVolley(side,players,bounds);
+  }
+  if(this.finalHeavy(dt,players,bounds)||this.recovery>0)return;
+  if(!this.heavyActive){this.batteryWait=Math.max(0,this.batteryWait-dt);if(!this.batteryWait){this.outerVolley(this.batteryStep++%2?'right':'left',players,bounds);this.batteryWait=5.1;}return;}
+  this.batteryPattern(dt,players,bounds);
+ }
+}
+
+export class FortSouville extends VerdunFortress{
+ constructor(o){
+  super(o,'fort-souville');this.phase='verdun-ambush';this.pitCursor=0;this.reserveCursor=0;this.observerWave=0;
+  this.supportCursor=0;this.timers.set('pit-open',1.1);this.timers.set('observer',4.3);this.timers.set('command',10.5);this.timers.set('support-fire',.2);
+ }
+ initialDamageCount(){return ['bunker-left','bunker-right','pit-left','pit-center','pit-right','observer','command'].filter(id=>this.parts.get(id).destroyed).length;}
+ refreshRuin(){
+  const ammo=this.parts.get('ammo'),breached=this.initialDamageCount()>=4||(this.parts.get('observer').destroyed&&this.parts.get('command').destroyed);
+  if(breached&&!ammo.revealed){ammo.revealed=true;ammo.hittable=true;this.command('fort-section-exposed',{partId:ammo.id,x:this.x+ammo.x,y:this.y+ammo.y});}
+  this.coreVulnerable=breached&&ammo.destroyed;
+  if(this.coreVulnerable)this.changePhase('verdun-underground');else if(ammo.revealed)this.changePhase('verdun-ruin-breach');else if(this.parts.get('observer').destroyed)this.changePhase('verdun-observer-lost');
+ }
+ onPartDestroyed(p){
+  this.cancel(p.id);p.salvo=null;p.openRemaining=0;this.queueAARepair(p);
+  if(this.activePitId===p.id)this.activePitId=null;
+  if(p.id==='observer'){this.cancel('observer');this.observerLock=null;}
+  if(p.id==='command')this.cancel('command');
+  if(p.id==='ammo'){
+   this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y});
+   for(const id of ['aa-left','aa-right'])this.parts.get(id).repairRemaining=0;
+   for(const id of ['pit-center','reserve-left','reserve-right']){const nearby=this.parts.get(id);if(nearby.active&&!nearby.destroyed){nearby.hittable=true;nearby.revealed=true;nearby.openRemaining=4.5;this.hit({partId:id,damage:nearby.maxHp*.7});}}
+  }
+  this.refreshRuin();
+ }
+ openPit(p,players,bounds,point){
+  if(p.destroyed||!p.active||this.activePitId&&this.activePitId!==p.id)return false;
+  const target=this.target(players);if(!target)return;
+  p.revealed=true;p.hittable=true;p.openRemaining=0;p.pitState='aiming';this.activePitId=p.id;
+  const radius=clamp(39*this.fortScale,25,39),q=point||this.landing(target,bounds,.45,radius);
+  p.salvo={...q,remaining:1.05,angle:Math.atan2(q.y-this.y-p.y,q.x-this.x-p.x)};
+  this.command('fort-pit-open',{partId:p.id,x:this.x+p.x,y:this.y+p.y,seconds:3.25});return true;
+ }
+ finalPits(dt,players,bounds){
+  this.raidClock=(this.raidClock||0)+(!this.lastStand&&this.recovery<=0?dt:0);if(!this.lastStand&&this.recovery<=0&&((!this.lastStandDone&&(this.parts.get('ammo').revealed||this.hp<=this.maxHp*.4))||this.raidClock>=16)){
+   this.lastStandDone=true;this.raidClock=0;this.lastStand={age:0,index:0};
+   for(const p of this.parts.values()){this.cancel(p.id);p.salvo=null;if(p.kind==='pit'){p.pitState='hidden';p.openRemaining=0;p.revealed=false;p.hittable=false;}}
+   this.activePitId=null;
+   this.cancel('observer');this.command('phase-change',{phase:'souville-last-resistance'});
+  }
+  const run=this.lastStand;if(!run)return false;run.age+=dt;
+  const commanded=!this.parts.get('command').destroyed,observed=!this.parts.get('observer').destroyed;
+  const pits=[...this.parts.values()].filter(p=>p.kind==='pit'&&p.active&&!p.destroyed&&(!p.reserve||commanded));
+  const count=pits.length*(observed?2:1),interval=commanded?1.1:1.9;
+  if(run.index<count&&!this.activePitId&&run.age>=1.1+run.index*interval){
+   const i=run.index,p=pits[i%pits.length],target=this.target(players);
+   if(target){const r=Math.min(39*this.fortScale,(bounds.right-bounds.left)*.1),q=this.landing(target,bounds,observed?.45:0,r);
+    q.x=clamp(q.x+(i%2?1:-1)*62,bounds.left+r,bounds.right-r);if(this.openPit(p,players,bounds,q))run.index++;}
+  }
+  if(run.index>=count&&!pits.some(p=>p.salvo)&&run.age>=1.1+count*interval+2.1){
+   this.lastStand=null;this.recovery=3.2;this.command('phase-change',{phase:'verdun-recovery'});
+  }
+  return true;
+ }
+ observerBarrage(players,bounds){
+  if(this.parts.get('observer').destroyed)return;
+  const target=this.target(players);if(!target)return;
+  const r=clamp(43*this.fortScale,26,43),q=this.landing(target,bounds,.65,r),w=bounds.right-bounds.left,side=this.observerWave++%2;
+  this.observerLock={...q,at:this.clock};
+  const n=this.parts.get('ammo').destroyed?2:4;
+  for(let i=0;i<n;i++)this.hazard('circle',{x:clamp(q.x+(i-(n-1)/2)*82*this.fortScale,bounds.left+r,bounds.right-r),y:clamp(q.y+(i%2)*46*this.fortScale,bounds.top+r,bounds.bottom-r),sourceX:bounds.left+(side?w+110:-110),sourceY:bounds.top-120,radius:r,warning:2.15,delay:i*.24,damage:this.t.damage*1.2,once:true,visual:'verdun-offscreen-shell',tag:this.tag('observer')});
+ }
+ update(dt,{players,bounds,paused}){
+  if(this.dead||paused||dt<=0)return;this.tickParts(dt);
+  const final=this.finalPits(dt,players,bounds);
+  const command=!this.parts.get('command').destroyed;
+  if(!final&&!this.recovery&&command&&this.due('command',dt,11.5)){
+   const reserve=['reserve-left','reserve-right'].map(id=>this.parts.get(id)).find(p=>!p.active&&!p.destroyed);
+   if(reserve){reserve.active=true;this.openPit(reserve,players,bounds);this.command('fort-reserve-active',{partId:reserve.id,x:this.x+reserve.x,y:this.y+reserve.y});}
+  }
+  if(!final&&!this.recovery&&!this.activePitId&&this.due('pit-open',dt,command?1.1:2.4)){
+   const pits=['pit-left','pit-center','pit-right','reserve-left','reserve-right'].map(id=>this.parts.get(id)).filter(p=>p.active&&!p.destroyed);
+   if(pits.length){
+    // Each surviving pit participates before the observer reuses a site.
+    // Moving pilots influence which unseen escape flank opens next; without
+    // a flight course (or observation) retain the authored battery rotation.
+    const target=players.find(p=>p.alive),observed=!this.parts.get('observer').destroyed;
+    const used=this.ambushVisited??=new Set();let available=pits.filter(p=>!used.has(p.id));
+    if(!available.length){used.clear();available=pits.slice();}
+    if(observed&&target&&Math.hypot(target.vx||0,target.vy||0)>1){const tx=target.x+(target.vx||0)*.7,ty=target.y+(target.vy||0)*.7;available.sort((a,b)=>Math.hypot(this.x+a.x-tx,this.y+a.y-ty)-Math.hypot(this.x+b.x-tx,this.y+b.y-ty));}
+    const next=observed?available[0]:pits[this.pitCursor++%pits.length];
+    if(this.openPit(next,players,bounds))used.add(next.id);
+   }
+  }
+  for(const p of this.parts.values()){
+   if(p.kind!=='pit'||p.destroyed||!p.active)continue;
+   if(p.pitState==='aiming'&&p.salvo){const q=p.salvo;p.angle=turn(p.angle,q.angle,1.3*dt);q.remaining-=dt;
+    if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.2){if(this.lastStand&&this.lastStand.index>0)impactPulse(this,{x:q.x,y:q.y,radius:75,warning:2.25,source:this.muzzle(p),partId:p.id,visual:'verdun-ambush-shell',tag:this.tag(p.id)});else this.shell(p,q,{radius:clamp(39*this.fortScale,25,39),warning:1.55,damage:1.1,visual:this.coreVulnerable?'verdun-core-shell':'verdun-ambush-shell'});p.salvo=null;p.pitState='reload';p.openRemaining=2.2;this.command('phase-change',{phase:'souville-pit-reload',partId:p.id});}}
+   else if(p.pitState==='reload'){p.openRemaining=Math.max(0,p.openRemaining-dt);if(!p.openRemaining){p.revealed=false;p.hittable=false;p.pitState='hidden';if(this.activePitId===p.id)this.activePitId=null;}}
+  }
+  // Keep the authored support-fire windows: changing pit choice must not
+  // add warnings that suppress the existing ordinary gun batteries.
+  if(final||this.recovery>0||this.activePitId)return;
+  if(!this.parts.get('observer').destroyed&&this.due('observer',dt,this.parts.get('ammo').destroyed?9.8:6.4)){this.observerBarrage(players,bounds);return;}
+  if(this.due('support-fire',dt,1)){
+   const weapons=['bunker-left','aa-right','bunker-right','aa-left'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed),target=this.target(players);if(!weapons.length||!target)return;
+   const p=weapons[this.supportCursor++%weapons.length];this.aim(p,target,dt,1.2);
+   if(p.kind==='bunker')this.burst(p,target,3,.09);else{const r=clamp(35*this.fortScale,23,35);this.shell(p,this.landing(target,bounds,.4,r),{radius:r,warning:1.55,damage:.8,visual:'verdun-aa-shell'});}
+  }
+ }
+}
+
+export function verdunFortExtents(b){const cfg=VERDUN_FORT_LAYOUT[b.kind],scale=b.fortScale||1;return{halfWidth:cfg.width*scale/2,halfHeight:cfg.height*scale/2};}
+

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="616" height="272" viewBox="0 0 154 68">
+  <title>Baracca black cavalry lance head</title>
+  <!-- Closed heel and two opaque faces: a lance head without a shaft. -->
+  <path fill="#101416" d="M12 0 154 34 12 68 0 34Z"/>
+  <path fill="#181d20" d="M12 0 154 34 35 34Z"/>
+  <path fill="#060809" d="M35 34 154 34 12 68Z"/>
+  <path fill="#353d41" d="m35 33.3 116 0.7-116 0.7-18-0.7Z"/>
+  <!-- Narrow bevels and short dark forging marks, with no glow or wind fan. -->
+  <path fill="none" stroke="#41494b" stroke-width=".65" stroke-linejoin="round" d="M12.8.8 152.8 34 12.8 67.2"/>
+  <path fill="none" stroke="#252c2f" stroke-width=".45" d="m23 9 24 5.5m-18-1 28 6.5m-23-1 14 3.3m13-3 20 4.7m-47 32 22-5.3m13 .5 17-4"/>
+</svg>

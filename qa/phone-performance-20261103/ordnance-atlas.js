@@ -1,0 +1,2 @@
+// Offline measured alpha frames and body-centered anchors.
+export const ORDNANCE_FRAMES={"moteur":{"body":[384,86,201,49],"flight":[733,86,423,52],"anchor":[326.0,26.0]},"cow":{"body":[369,240,237,100],"flight":[733,241,442,102],"anchor":[324.5,51.0]},"shell":{"body":[319,438,351,116],"flight":[771,438,463,116],"anchor":[286.0,58.0]},"bomb":{"body":[323,638,324,128],"flight":[698,635,513,135],"anchor":[352.0,67.5]},"grenade":{"body":[420,840,140,121],"flight":[809,846,311,116],"anchor":[248.5,54.0]}};
