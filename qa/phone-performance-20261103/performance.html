@@ -27,9 +27,10 @@
 </details>
 <div id="qaControls" hidden><label for="qaViewport">검수 화면 크기</label><select id="qaViewport"><option value="actual">현재 창</option><option value="mobile">390 × 844 (클라우드 검수)</option><option value="pc">1280 × 800 (클라우드 검수)</option></select><label for="qaDuration">검수 길이</label><select id="qaDuration"><option value="600">10분</option><option value="60">60초 검수</option><option value="120">2분 검수</option></select></div>
 </div>
+<button id="resumeGame" hidden>플레이 화면 돌아가기</button>
 <section id="results" hidden>
 <h2>측정 결과</h2><div class="metrics"><div><small>그리기 FPS</small><b id="fps">—</b></div><div><small>느린 1% FPS</small><b id="low">—</b></div><div><small>프레임 p95</small><b id="p95">—</b></div></div>
-<p id="summary"></p><button id="resumeGame" hidden>플레이 화면 돌아가기</button><div id="comparison"></div>
+<p id="summary"></p><div id="comparison"></div>
 <div class="row"><button id="download">결과 JSON 저장</button><button id="copy">요약 복사</button></div>
 <textarea id="copyBuffer" hidden readonly aria-label="복사할 성능 요약"></textarea>
 <p class="note">JSON 파일을 이 대화에 첨부하면 스테이지별 하락 시점과 전후 개선 폭을 분석할 수 있습니다.</p>
