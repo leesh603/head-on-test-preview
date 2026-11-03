@@ -71,10 +71,10 @@ export function tacticalChoices(p){
  const counts=p.weaponModSelections||{},mods=p.weaponMods||{};
  // Deterministic order is shared by solo, local co-op and the authoritative host.
  const family=TACTICAL_FAMILIES.find(f=>(counts[f]||0)>=5&&!mods[f]);
- if(family)return {kind:'doctrine',family,choices:TACTICAL_DOCTRINES.filter(d=>d.family===family).map(d=>d.id)};
+ if(family)return {kind:'doctrine',family,choices:TACTICAL_DOCTRINES.filter(d=>d.family===family).map(d=>d.id),canDefer:true};
  if(p.compositeTactic)return null;
  const choices=COMPOSITE_TACTICS.filter(({families:[a,b]})=>(!!mods[a]&&(counts[a]||0)>=5&&(counts[b]||0)>=3)||(!!mods[b]&&(counts[b]||0)>=5&&(counts[a]||0)>=3)).map(d=>d.id);
- return choices.length&&p.deferredCompositeGrowth!==growthSignature(p)?{kind:'composite',choices}:null;
+ return choices.length&&p.deferredCompositeGrowth!==growthSignature(p)?{kind:'composite',choices,canDefer:true}:null;
 }
 // Present each newly available group once. Deferring never adopts a doctrine,
 // and older choices remain available in the codex without interrupting every
@@ -92,7 +92,7 @@ export function nextTacticalPrompt(p){
 export function selectTactical(p,id){
  const queued=p?.world?.activeUpgrade,current=p?.pendingTacticalChoice||(queued&&queued.playerId===p?.id&&['doctrine','composite'].includes(queued.kind)?queued:null),offer=current||tacticalChoices(p);
  if(id===TACTICAL_DEFER_ID){
-  if(!offer||offer.kind!=='composite'&&!(offer.kind==='doctrine'&&offer.canDefer))return false;
+  if(!offer||offer.kind!=='composite'&&!(offer.kind==='doctrine'&&current?.canDefer===true))return false;
   const seen=new Set(String(p.tacticalPromptedIds||'').split('|').filter(Boolean));for(const choice of offer.choices||[]){const key=typeof choice==='string'?choice:choice.id;if(TACTICAL_BY_ID[key])seen.add(key);}p.tacticalPromptedIds=[...seen].join('|');
   if(offer.kind==='composite')p.deferredCompositeGrowth=growthSignature(p);return true;
  }
