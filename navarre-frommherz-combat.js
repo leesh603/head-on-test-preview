@@ -1,6 +1,7 @@
 import {pilotUnlockDirectHit} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 // Host-authoritative direct-hit mechanics. No new damage or reward pipeline.
 import {combatImpactResult} from './combat-impact-result.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 
 export const NAVARRE_FROMMHERZ_BALANCE=Object.freeze({zoneSeconds:6,zoneRadius:250,slowSeconds:2.2,slowMultiplier:.65,aceSlowMultiplier:.85,outnumberRadius:420,suppressionSeconds:5,suppressionRate:1.4,landingHpFraction:.2,instructorRadius:400,instructorTargetSeconds:2,instructorLeadSeconds:.4,instructorFocus:.65});
 const states=new WeakMap(),rounds=new WeakMap(),slows=new WeakMap();
@@ -11,7 +12,7 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const selected=p=>p.pilot==='navarre'||p.pilot==='frommherz';
 const aircraft=e=>e&&!['stageBossBody','surface','stationary','fieldUnit','navalVessel','missionGround','bugDrone','groundEscort','londonInstallation','cityUnit','expired'].some(k=>e[k])&&['scout','hunter','bomber','boss','zeppelin'].includes(e.type);
 const ordinary=e=>aircraft(e)&&!['bossPilot','bossPlane','ace','elite','heavyBomber','bossMinion','missionTarget'].some(k=>e[k])&&['scout','hunter','bomber'].includes(e.type);
-const personal=(p,b)=>b&&Number.isInteger(b.gun)&&(b.ownerId===(p.id??'p1')||(b.ownerId===undefined&&!world(p).players))&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','identityDot','identityChain','transferGun','tacticalRound','nungesserCounter'].some(k=>b[k]);
+const personal=(p,b)=>isReplacementPrimary(p,b)||b&&Number.isInteger(b.gun)&&(b.ownerId===(p.id??'p1')||(b.ownerId===undefined&&!world(p).players))&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','identityDot','identityChain','transferGun','tacticalRound','nungesserCounter','synthesisChild','synthesisSupport'].some(k=>b[k]);
 function state(p){let s=states.get(p);const t=now(p);if(!s||s.pilot!==p.pilot||t<s.time){s={pilot:p.pilot,time:t,zone:null,suppressUntil:0,target:null,targetUntil:0};states.set(p,s);}s.time=t;return s;}
 function active(p,s){return live(p)&&states.get(p)===s&&s.pilot===p.pilot;}
 export function navarreFrommherzState(p){if(!selected(p)||!live(p))return null;const s=state(p),t=now(p);return {zone:s.zone&&s.zone.until>t?{...s.zone}:null,suppressing:s.suppressUntil>t,focusedTarget:s.targetUntil>t&&s.target?.hp>0?s.target:null};}
@@ -48,6 +49,12 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
   rounds.set(round,{owner:this,state:s,extra:boost?1:0,contacts:new WeakSet(),suppression:this.pilot==='frommherz'&&s.suppressUntil>now(this)});
   if(boost)round.pierce=true;
   return result;
+ };
+ const primary=q.preparePilotPrimaryRound;q.preparePilotPrimaryRound=function(b,volley){
+  const round=primary.call(this,b,volley);if(!selected(this)||!live(this)||!isReplacementPrimary(this,round))return round;
+  // The cannon can mark, suppress and slow through real direct hits. Navarre's
+  // extra penetration remains a gun-only rule; no shell may pass through a hit.
+  const s=state(this);rounds.set(round,{owner:this,state:s,extra:0,contacts:new WeakSet(),suppression:this.pilot==='frommherz'&&s.suppressUntil>now(this)});return round;
  };
  const impact=q.identityImpact;q.identityImpact=function(b,e,...args){
   const result=impact?.call(this,b,e,...args);pilotUnlockDirectHit(this,b,e);

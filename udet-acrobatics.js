@@ -1,6 +1,7 @@
 // Udet owns his graze/roll/counter loop. Host collision remains authoritative.
 import {signatureCue,activatePilotSignature} from './pilot-signature-state.js';
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {isReplacementPrimary} from './pilot-primary.js';
 
 export const UDET_ACROBAT_BALANCE=Object.freeze({inner:14,outer:30,stacks:3,buffSeconds:6,grazeInterval:.22,damagePerStack:.08,turnPerStack:.08,rollSeconds:.42,counterSeconds:2.4,rollSpeed:.72,rollTurn:1.5,counterTurn:1.6,counterRatePerStack:.15,cooldown:18,wake:12,wakeLife:.44});
 const privateStates=new WeakMap();
@@ -17,7 +18,7 @@ export function udetFlightModifiers(p){
 }
 export function advanceUdetReplica(p,dt){if(p.pilot==='udet'&&p.udetAcrobat&&live(p)&&Number.isFinite(dt)&&dt>0)p.udetAcrobat.clock+=Math.min(.04,dt);}
 export function udetRollPose(p){const f=p.udetAcrobat;if(udetPhase(p)!=='roll')return {bank:1,roll:0,offset:0};const q=clamp((f.clock-f.active.at)/.42),a=q*Math.PI*2;return {bank:.3+.7*Math.abs(Math.cos(a)),roll:Math.sin(a)*.075*f.side,offset:Math.sin(a)*4*f.side};}
-const personal=(p,b)=>b&&Number.isInteger(b.gun)&&(b.ownerId===undefined||b.ownerId===(p.id??'p1'))&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','identityDot','identityChain'].some(k=>b[k]);
+const personal=(p,b)=>isReplacementPrimary(p,b)||b&&Number.isInteger(b.gun)&&(b.ownerId===undefined||b.ownerId===(p.id??'p1'))&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','identityDot','identityChain','synthesisChild','synthesisSupport'].some(k=>b[k]);
 const hostile=b=>b?.enemy&&b.life>0&&Number.isFinite(b.damage)&&b.damage>0&&[b.x,b.y,b.vx,b.vy].every(Number.isFinite)&&Math.hypot(b.vx,b.vy)>1&&!['heavy','flak','naval','navalShell','fieldShell','shell','bomb','rocket','hostileRocket','actualExplosion','blast','torpedo','incendiary','gas','beam'].some(k=>b[k])&&!(b.collisionRadius>4);
 
 // Called only after the real swept collision resolver has accepted/rejected hits.
@@ -80,6 +81,7 @@ export function installUdetAcrobatics(Game,PILOTS){
    if(this.reloadTime<=0&&!this.cow37&&udetPhase(this)!=='roll'){const old=f.muzzles[b.gun];if(!old||f.clock-old.at>=.045){f.muzzles[b.gun]={at:f.clock};if(n||udetPhase(this)==='counter')signatureCue(this,'udetBrass',{x:b.x-Math.cos(this.a)*10,y:b.y-Math.sin(this.a)*10,a:Math.atan2(b.vy,b.vx),side:b.gun%2?1:-1,life:.32});}}
   }return result;
  };
+ const primary=q.preparePilotPrimaryRound;q.preparePilotPrimaryRound=function(b,volley){const shot=primary.call(this,b,volley);if(this.pilot==='udet'&&live(this)&&isReplacementPrimary(this,shot))shot.udetGrazeDamage=1+udetStacks(this)*.08;return shot;};
  const damage=q.roundDamageMultiplier;q.roundDamageMultiplier=function(b,e){return damage.call(this,b,e)*(this.pilot==='udet'&&personal(this,b)?b.udetGrazeDamage||1:1);};
  const received=q.buildReceivedDamage;q.buildReceivedDamage=function(before){const result=received.call(this,before);if(this.pilot==='udet'&&this.hp<before){const f=udetState(this);f.stacks=0;f.buffUntil=0;}return result;};
  const legacy=q.identityFx;q.identityFx=function(key,x,y,a,size,life,style={}){return legacy.call(this,key,x,y,a,size,life,this.pilot==='udet'?{...style,udetLegacy:true}:style);};

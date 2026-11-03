@@ -39,7 +39,7 @@ export const EQUIPMENT_COPY={
   "Base flight speed +20%; 1.2s straight flight raises total speed to +55%. Hard turns reduce output over 0.75s."
  ],
  "combinedProjectiles": ["주무장과 쿠퍼 폭탄을 한꺼번에 쏘지 않고 시간차로 발사합니다. 각 탄환은 발사 순간의 기체 위치와 조준 방향을 따릅니다.", "Fires primary volleys and Cooper bombs in staggered bursts. Each shot uses your position and aim when it fires."],
- "amatolCharge": ["폭발 피해와 반경이 40% 증가합니다. 폭발하지 않는 주무장 탄환에도 작은 착탄 폭발을 추가합니다.", "Increases explosion damage and radius by 40%. Adds a small impact explosion to non-explosive primary rounds."],
+ "amatolCharge": ["폭발 피해와 반경이 40% 증가합니다. 일반 주무장 탄환에도 작은 착탄 폭발을 추가합니다. 화살은 한 묶음당 최대 3회, 같은 표적에는 1회만 폭발하며 연쇄 폭발을 만들지 않습니다.", "Increases explosion damage and radius by 40%. Ordinary primary rounds gain small impact blasts. Each dart bundle can explode up to 3 times, once per target, without creating chain explosions."],
  "lufberyCircle": ["가까운 상시 편대기가 본기를 엄호해 피해를 줄입니다. 특수무장 편대기는 표적을 돌며 공격하고, 멀어지면 엄호 효과가 줄어듭니다.", "Nearby permanent wingmen reduce your damage taken. Specialist wingmen circle their targets and provide less cover at a distance."],
  "redScarf": [
   "속도가 20%, 후방 추적 중에는 총 35% 증가합니다. 추적 거리는 25% 늘고 포착 시간은 35% 줄어듭니다.",
@@ -127,17 +127,17 @@ export const EQUIPMENT_COPY={
   "아군 에이스 1명이 무작위로 합류합니다. 주력 무장과 반대 계열로 엄호하며 기체 성장에 따라 강해집니다.",
   "One random allied ace joins, covering you with machine guns or rockets opposite your main weapon and growing stronger with your aircraft."
  ],
- "buckinghamBelt": ["기관총을 3회 맞히면 적에게 불을 붙입니다. 화살탄·포탄·폭탄·갈고리에도 적용되며 화상은 중첩되지 않습니다.", "Three machine-gun hits ignite the target. Darts, shells, bombs and hooks also carry fire; burns do not stack."],
+ "buckinghamBelt": ["기관총을 3회 맞히면 적에게 불을 붙입니다. 화살·포탄·폭탄·갈고리에도 적용됩니다. 화상은 해당 무장의 성장에 따라 강해지며 본인의 소이 공격 재명중 시 3초로 갱신됩니다. 화상 피해는 중첩되지 않습니다.", "Three machine-gun hits ignite the target. Darts, shells, bombs and hooks also carry fire. Burns scale with their weapon and refresh to 3s on another incendiary hit by the same owner; burn damage does not stack."],
  "cooperRack": ["4초마다 전방 표적에 폭탄 2발을 투하합니다. 보유한 소이·화살·가스·연막·파편 장비의 효과도 전달합니다.", "Drops two bombs at forward targets every 4 seconds. Carries the effects of equipped fire, dart, gas, smoke and shrapnel equipment."],
- "fieryGrapnel": ["적과 가까이 스치며 맞히면 화염 갈고리를 부착합니다. 준비된 쿠퍼 폭탄 1발이나 파편·가스도 함께 전달합니다.", "A close flyby hit attaches a burning hook. It also delivers one ready Cooper bomb or a ready shrapnel or gas charge."],
- "flechettes": ["기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. COW 포탄과 쿠퍼 폭탄에는 화살이 실립니다.", "Fires separate bursts of 12 piercing darts every 3 seconds. COW shells and Cooper bombs carry darts."],
+ "fieryGrapnel": ["근접 명중으로 화염 갈고리를 부착하고 준비된 쿠퍼 폭탄 1발이나 파편·가스를 전달합니다. 표적이 먼저 격추돼도 부착한 폭약은 마지막 위치에서 한 번 폭발합니다.", "A close flyby attaches a burning hook and delivers one ready Cooper bomb or shrapnel/gas charge. If the target is destroyed first, the attached payload detonates once at its last position."],
+ "flechettes": ["기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. COW 포탄·쿠퍼 폭탄에도 실리며 각 운반 무장의 성장을 따릅니다. 소이·아마톨 장비와도 연계됩니다.", "Keeps machine guns and fires separate bursts of 12 piercing darts every 3 seconds. COW shells and Cooper bombs also carry darts, scaling with their carrier weapon. Combines with incendiary and Amatol equipment."],
  "veryPistol": [
-  "9초마다 최근 맞힌 전방 표적을 우선 지정해 6초간 집중 공격합니다. 표적이 사라지면 남은 시간에 한 번 재지정합니다.",
-  "Every 9 s, prioritize a recently hit forward target for 6 s of focused fire. If it is lost, retarget once within the remaining duration."
+  "9초마다 최근 맞힌 전방 표적을 우선 지정해 6초간 집중 공격합니다. 표적 소실 시 한 번 재지정합니다. 본기가 재장전할 때 준비된 특수무장 편대기가 자기 탄약으로 엄호 사격합니다.",
+  "Every 9 s, prioritize a recently hit forward target for 6 s of focused fire, retargeting once if lost. When you reload, ready specialist wingmen cover the marked target using their own ammunition."
  ],
  "hytheCamera": [
-  "전방·후방 주무장 각각 3회 연속 명중으로 표적을 6초간 분석해 기관총·직접 사격 액티브 피해가 30% 증가합니다. 적의 공격 준비가 표시되고 망원경·폰크 점사가 분석 표적을 우선합니다.",
-  "Three consecutive hits with each front or rear primary gun analyze a target for 6s, increasing gun and direct-fire Active damage by 30%. Reveals attack preparation; telescope aim and Fonck bursts prioritize analyzed targets."
+  "전방·후방 주무장 각각 3회 연속 명중으로 표적을 6초간 분석해 직접 사격 피해가 30% 증가합니다. COW 주포에도 적용되며 쿼드 일제사격은 1회로 셉니다. 적의 공격 준비가 표시되고 망원경·폰크 사격이 분석 표적을 우선합니다.",
+  "Three consecutive primary hits analyze a target for 6s, increasing direct-fire damage by 30%. Includes COW; a quad volley counts once. Reveals attack preparation; telescope aim and Fonck fire prioritize analyzed targets."
  ],
  "strutterAirbrake": [
   "선회기동이 감속 후 재가속하는 급선회로 바뀝니다. 기체 전환 장비와 함께 장착할 수 없습니다.",
@@ -188,7 +188,7 @@ export function conciseEquipmentDescription(id,raw,locale='ko',translated=raw){
 // Selection summaries prioritize the decision and its main cost, not a full parameter sheet.
 export const EQUIPMENT_CHOICE_COPY={
  "cooperRack": ["4초마다 폭탄 2발을 투하하며 보유한 탄두 효과도 전달합니다.", "Drops 2 bombs every 4s, carrying equipped payloads."],
- "buckinghamBelt": ["기관총 3회 명중 시 불을 붙입니다. 화상은 중첩되지 않습니다.", "Three gun hits ignite the target. Burns do not stack."],
+ "buckinghamBelt": ["기관총 3회 명중 시 점화합니다. 화상도 무장 성장에 따라 강해집니다.", "Three gun hits ignite; burns scale with weapon growth."],
  "spread": ["추가탄이 1발 늘어납니다(최대 5발). 탄약도 소모합니다.", "Adds 1 extra round (max 5), consuming extra ammo."],
  "flightGloves": [
   "고속 급선회 후 근접 연사가 빨라집니다. 사거리는 20% 줄어듭니다.",
@@ -260,10 +260,10 @@ export const EQUIPMENT_CHOICE_COPY={
   "무작위 에이스 1명이 주력 무장과 반대 계열로 엄호합니다.",
   "A random allied ace covers the opposite weapon family."
  ],
- "fieryGrapnel": ["근접 교차 사격으로 적에게 화염 갈고리를 부착합니다.", "A close flyby hit attaches a burning hook to the enemy."],
+ "fieryGrapnel": ["근접 명중으로 화염 갈고리를 붙입니다. 부착 폭약은 격추돼도 터집니다.", "A close flyby attaches fire. Attached payloads survive target loss."],
  "veryPistol": [
-  "9초마다 6초간 집중 공격합니다. 표적 소실 시 한 번 재지정합니다.",
-  "Focus fire for 6s every 9s; retarget once if lost."
+  "9초마다 6초간 집중 공격하고 준비된 특수무장 편대가 재장전을 엄호합니다.",
+  "Focus fire for 6s every 9s; ready specialist wings cover reloads."
  ],
  "strutterAirbrake": [
   "감속 급선회 후 재가속합니다. 기체 전환과 중복되지 않습니다.",

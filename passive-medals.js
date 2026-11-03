@@ -5,7 +5,8 @@ import {pilotHeadOn} from './pilot-identities.js';
 import {isFiveAceAirship} from './pilot-five-combat.js';
 import {signatureCue} from './pilot-signature-state.js';
 import {navarreOutnumbered} from './navarre-frommherz-combat.js';
-const states=new WeakMap(),shotContacts=new WeakMap(),impactDetails=new WeakMap(),roundTargets=new WeakMap();
+import {isReplacementPrimary,replacementPrimaryVolley} from './pilot-primary.js';
+const states=new WeakMap(),shotContacts=new WeakMap(),impactDetails=new WeakMap(),roundTargets=new WeakMap(),primaryCharges=new WeakMap();
 const world=p=>p.combatWorld?.()||p.world||p,owner=p=>p.id??'p1';
 const now=p=>world(p).t||0;
 const alive=e=>e&&e.hp>0&&!e.dead&&!e.destroyed&&!e.crashed&&!e.expired&&!e.rivalEscaped;
@@ -15,7 +16,7 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const body=e=>e.stageBossBody||(e.finalArenaTarget?`arena:${e.finalArenaBossId}:${e.finalArenaFormToken}`:e);
 const boss=e=>e.stageBossBody||e.finalArenaTarget||e.bossPilot||e.heavyBomber||['boss','zeppelin'].includes(e.type);
 const ordinary=e=>alive(e)&&!boss(e)&&!e.surface&&!e.fieldUnit&&!e.stationary;
-const personal=(p,b)=>b&&Number.isInteger(b.gun)&&(b.ownerId??'p1')===owner(p)&&!['enemy','ally','patrol','formation','transferGun','rocket','motorCannon','cow37','mauserRound','actualExplosion','blast','identityDot','identityChain','tacticalRound','passiveMedalSecondary'].some(k=>b[k]);
+const personal=(p,b)=>isReplacementPrimary(p,b)||b&&Number.isInteger(b.gun)&&(b.ownerId??'p1')===owner(p)&&!['enemy','ally','patrol','formation','transferGun','rocket','motorCannon','cow37','mauserRound','actualExplosion','blast','identityDot','identityChain','tacticalRound','passiveMedalSecondary','synthesisChild','synthesisSupport'].some(k=>b[k]);
 const friendly=(p,b)=>b&&!b.enemy&&(b.ownerId??'p1')===owner(p)&&!!b.ally&&!b.patrol;
 function state(p){let s=states.get(p);if(!s||now(p)<s.at){s={at:now(p),cooldowns:{},targets:new Map(),contacts:0,counts:{},charges:0};states.set(p,s);}s.at=now(p);return s;}
 const ready=(p,s,key,seconds)=>{if(now(p)<(s.cooldowns[key]??-Infinity))return false;s.cooldowns[key]=now(p)+seconds;return true;};
@@ -35,6 +36,23 @@ function sCount(p){const s=state(p);s.activations=(s.activations||0)+1;}
 export function passiveMedalStatus(p){const s=states.get(p);return {activations:s?.activations||0,charges:enabled(p)&&s?.chargeUntil>now(p)?s.charges:0};}
 function hits(s,key,e,t,gap=1.2){let c=s.counts[key];if(!c||c.target!==body(e)||t-c.at>gap)c=s.counts[key]={target:body(e),n:0,at:t};if(t-(c.counted??-Infinity)>=.075){c.n++;c.counted=t;}c.at=t;return c.n;}
 function burn(p,e,target,pos,seconds,fraction){if(!alive(target))return;const map=p.identityState().burns;if(map.has(target))return;map.set(target,{enemy:e,target,position:{x:pos.x,y:pos.y},time:seconds,tick:0,damage:p.damage*fraction,part:!!e.stageBossBody&&target!==e.stageBossBody,body:e.stageBossBody,passiveMedal:true});}
+function prepareMedalShot(p,shot){
+ if(!enabled(p)||!personal(p,shot))return shot;
+ const s=state(p),t=now(p),volley=replacementPrimaryVolley(p,shot),prior=volley&&primaryCharges.get(volley);
+ if(!prior){
+  if(p.pilot==='fonck'&&!shot.fiveAceRound&&p.pilotIdentity?.focus>=.8&&alive(p.pilotIdentity.target)&&ready(p,s,'focus',4)){
+   charge(p,s,1,1.5,body(p.pilotIdentity.target),1.2);cue(p,p.pilotIdentity.target);
+  }
+  let enhancement=null;
+  if(s.charges>0&&s.chargeUntil>t){s.charges--;enhancement={target:s.chargeTarget,power:volley?Math.max(1.2,s.chargePower||1):s.chargePower||1,until:s.chargeUntil};}
+  if(volley)primaryCharges.set(volley,{owner:p,state:s,enhancement});
+  else if(enhancement){shot.passiveMedalShot={...enhancement,pierceWas:!!shot.pierce};shot.pierce=true;}
+ }
+ if(volley){const prepared=primaryCharges.get(volley);if(prepared?.owner===p&&prepared.state===s&&prepared.enhancement)shot.passiveMedalShot={...prepared.enhancement,pierceWas:false};shot.pierce=false;}
+ if(p.pilot==='jacobs'&&p.pilotSignatureState?.jacobsAngle?.boostUntil>p.pilotSignatureState.clock)roundTargets.set(shot,s.angleTarget);
+ if(p.pilot==='navarre'&&navarreOutnumbered(p))shot.passiveMedalOutnumbered=true;
+ return shot;
+}
 export function installPassiveMedals(Game){
  const q=Game.prototype;
  q.resetPassiveMedal=function(){states.delete(this);};
@@ -76,16 +94,8 @@ export function installPassiveMedals(Game){
   const s=state(this),near=(world(this).enemies||[]).filter(e=>alive(e)&&distance(e,this)<400).length;
   if(near>=3&&ready(this,s,'pressureEvade',6)){this.evadeCooldown=Math.max(0,this.evadeCooldown-2);s.fireUntil=now(this)+1.5;cue(this);}
  }return used;};
- const apply=q.applySpecialRound;q.applySpecialRound=function(b,...args){const result=apply.call(this,b,...args),shot=result||b;
-  if(!enabled(this)||!personal(this,shot))return result;const s=state(this),t=now(this);
-  if(this.pilot==='fonck'&&!shot.fiveAceRound&&this.pilotIdentity?.focus>=.8&&alive(this.pilotIdentity.target)&&ready(this,s,'focus',4)){
-   charge(this,s,1,1.5,body(this.pilotIdentity.target),1.2);cue(this,this.pilotIdentity.target);
-  }
-  if(s.charges>0&&s.chargeUntil>t){s.charges--;shot.passiveMedalShot={target:s.chargeTarget,power:s.chargePower||1,until:s.chargeUntil,pierceWas:!!shot.pierce};shot.pierce=true;}
-  if(this.pilot==='jacobs'&&this.pilotSignatureState?.jacobsAngle?.boostUntil>this.pilotSignatureState.clock)roundTargets.set(shot,s.angleTarget);
-  if(this.pilot==='navarre'&&navarreOutnumbered(this))shot.passiveMedalOutnumbered=true;
-  return result;
- };
+ const apply=q.applySpecialRound;q.applySpecialRound=function(b,...args){const result=apply.call(this,b,...args);prepareMedalShot(this,result||b);return result;};
+ const primary=q.preparePilotPrimaryRound;q.preparePilotPrimaryRound=function(b,volley){const shot=primary.call(this,b,volley);return prepareMedalShot(this,shot);};
  const damage=q.roundDamageMultiplier;q.roundDamageMultiplier=function(b,e){let result=damage.call(this,b,e);if(!enabled(this))return result;const s=state(this),m=b.passiveMedalShot;
   if(personal(this,b)&&m&&m.until>now(this)&&(!m.target||m.target===body(e)))result*=m.power;
   if(personal(this,b)&&roundTargets.has(b)&&roundTargets.get(b)===body(e)&&s.angleUntil>now(this))result*=1.2;

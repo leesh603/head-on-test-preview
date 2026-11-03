@@ -24,7 +24,7 @@ import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} fro
 import {combatImpactResult} from './combat-impact-result.js';
 import {emitSynthesisActiveRocket,primaryCount,tickSynthesisWing,synthesisWing,emitSynthesisGunRound} from './weapon-synthesis.js';
 import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
-import {tacticalChoices,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {nextTacticalPrompt,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
 import {bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
 import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=medals2';
@@ -138,8 +138,11 @@ export class CoopGame {
    const prior=p.upgrades[id]||0;p.upgrade(id,choice.rarity);if((p.upgrades[id]||0)===prior)return false;
   }
   if(!live(p))p.hp=0;this.pendingLevelUps.shift();this.activeUpgrade=null;
-  // Earned doctrines stay available in the pause menu; queued level-ups keep priority.
+  // A free tactical choice keeps the same owner and validation path; existing
+  // queued upgrades/rewards stay intact behind it, including the other pilot's.
   p.pendingTacticalChoice=null;
+  const tactical=nextTacticalPrompt(p);
+  if(tactical)this.pendingLevelUps.unshift({...tactical,id:++this.upgradeSequence,playerId:p.id,level:p.level,choices:[...tactical.choices,TACTICAL_DEFER_ID].map(id=>({id,rarity:'tactical'}))});
   this.openUpgrade();return true;
  }
  cameraBounds(){const z=this.camera.zoom;return {left:this.x+(-this.viewWidth/2+55)/z, right:this.x+(this.viewWidth/2-55)/z,top:this.y+(-this.viewHeight/2+160)/z,bottom:this.y+(this.viewHeight/2-65)/z}}

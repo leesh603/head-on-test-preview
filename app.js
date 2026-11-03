@@ -115,8 +115,8 @@ import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elit
 import{planeSprite,drawFriendlyBomber,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady}from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,tacticalChoices,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT,compatibleEquipmentIds}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,nextTacticalPrompt,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 import {createTacticalNoticeTracker} from './tactical-notices.js?v=unlock20261026';
 import {drawCloudCover}from'./cloud-cover1.js?v=gal1&perf=1029';
 import {drawFleetLayer}from'./fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
@@ -366,7 +366,7 @@ function choose(id,rarity='normal'){
  if(game.activeIntrusionEquipmentReward?.replacement){const result=chooseIntrusionEquipmentReward(game,id);if(result==='pending')showUpgradeModal();else if(result){show('modal',false);sound(750,.12);if(game.state==='upgrade')showUpgradeModal();}else choiceTransaction.retry(game);return;}
  if(game.pendingTacticalChoice){
   if(!selectTactical(game,id)){choiceTransaction.retry(game);return;}
-  game.pendingTacticalChoice=tacticalChoices(game);sound(750,.12);
+  game.pendingTacticalChoice=nextTacticalPrompt(game);sound(750,.12);
   if(game.pendingTacticalChoice){showTacticalModal(game.pendingTacticalChoice,game);return}
   choices=[];show('modal',false);game.state='playing';game.checkLevel();return;
  }
@@ -1554,10 +1554,11 @@ modal=(tag,title,text,buttons)=>{
  const cards=[...$('modalActions').querySelectorAll('.choice')];cards.forEach((card,i)=>{const b=buttons.filter(b=>b.upgradeId)[i],p=b.owner||game;card.classList.add('reinforcement-card151');card.classList.toggle('weapon-mod-card151',!!b.weaponMod);card.dataset.equipment=b.upgradeId;card.style.setProperty('--arrival',i*70+'ms');if(b.upgradeId==='ironCross')card.title=reinforcementName({id:'ironCross'},p,PLANES);
  const category=document.createElement('small');category.className='effect-category151';
  const family=buildIdentityFor(b.upgradeId),count=p.weaponModSelections?.[family]||0,en=getLocale()==='en';
- category.textContent=family?(b.rarity==='legendary'?tacticalFamilyName(family)+' · '+(en?'no count':'횟수 제외'):p.weaponMods?.[family]?tacticalFamilyName(family)+' · '+(en?'active':'교리 적용'):tacticalFamilyName(family)+(en?' doctrine ':' 교리 ')+Math.min(5,count+1)+'/5'):categoryName(b.upgradeId);card.prepend(category);
+ const linked=b.rarity==='legendary'?compatibleEquipmentIds(p,b.upgradeId):[];
+ category.textContent=family?(b.rarity==='legendary'?tacticalFamilyName(family)+' · '+(en?'no count':'횟수 제외'):p.weaponMods?.[family]?tacticalFamilyName(family)+' · '+(en?'active':'교리 적용'):count>=5?tacticalFamilyName(family)+' · '+(en?'ready to adopt':'교리 채택 가능'):tacticalFamilyName(family)+(en?' doctrine ':' 교리 ')+Math.min(5,count+1)+'/5'):categoryName(b.upgradeId);card.prepend(category);
  const rarity=document.createElement('small');rarity.className='rarity-label160';rarity.textContent=b.weaponMod?(getLocale()==='en'?'WEAPON MOD':'무장 개조'):rarityName(b.rarity||'normal').toUpperCase();card.append(rarity);
  card.title=b.label+'\n'+b.detailDesc;
- const total=document.createElement('span');total.className='cumulative151';total.textContent=b.rarity==='legendary'?'':cumulativeText(p,b.upgradeId,b.rarity);card.append(total);
+ const total=document.createElement('span');total.className='cumulative151';total.textContent=b.rarity==='legendary'?(linked.length?(en?'Combines with ':'연계 · ')+reinforcementName(UPGRADES.find(u=>u.id===linked[0]),p,PLANES):''):cumulativeText(p,b.upgradeId,b.rarity);if(linked.length){total.title=total.textContent;card.title+='\n'+total.textContent;}card.append(total);
  if(b.rarity==='legendary'){
   card.onclick=()=>choiceTransaction.run(card._choiceTicket,card._choiceAction,{delay:280,begin:()=>{$('modal').classList.add('equipping156');card.classList.add('equipping156');for(const el of $('modalActions').querySelectorAll('button'))el.disabled=true;},cleanup:()=>{$('modal').classList.remove('equipping156');card.classList.remove('equipping156');for(const el of $('modalActions').querySelectorAll('button'))el.disabled=false;}});
  }
@@ -1812,15 +1813,15 @@ const modalBeforeTactical=modal;
 modal=(...args)=>{document.getElementById('tacticalCodex')?.remove();delete $('modal').dataset.tacticalChoice;$('modal').classList.remove('tactical-choice-modal','tactical-codex-modal');modalBeforeTactical(...args)};
 function showTacticalModal(item,p,onSelect){
  if(!item||game?.state!=='upgrade')return;
- const en=getLocale()==='en',composite=item.kind==='composite',ids=item.choices.map(choice=>typeof choice==='string'?choice:choice.id).filter(id=>id!==TACTICAL_DEFER_ID);
- if(!onSelect){choices=[...ids,...(composite?[TACTICAL_DEFER_ID]:[])].map(id=>({id,rarity:'tactical'}));onSelect=id=>choose(id,'tactical')}
+ const en=getLocale()==='en',composite=item.kind==='composite',canDefer=composite||item.canDefer,ids=item.choices.map(choice=>typeof choice==='string'?choice:choice.id).filter(id=>id!==TACTICAL_DEFER_ID);
+ if(!onSelect){choices=[...ids,...(canDefer?[TACTICAL_DEFER_ID]:[])].map(id=>({id,rarity:'tactical'}));onSelect=id=>choose(id,'tactical')}
  const title=composite?(en?'Choose a combined tactic':'복합 전술 선택'):(en?'Choose a tactical doctrine':'전술교리 선택');
  const tag=composite?'COMBINED TACTICS':tacticalFamilyName(item.family)+' · 5 / 5';
- const hint=composite?(en?'Adopt one per sortie, or defer until another normal upgrade.':'출격당 하나를 채택하거나 다음 일반 강화까지 보류할 수 있습니다.'):(en?'A new way to fight. Choose one doctrine.':'전투 방식을 바꿀 교리를 하나 선택하세요.');
- modal(tag,title,hint,[...ids.map(id=>({label:tacticalText(tacticalEntry(id),'name'),run:()=>onSelect(id)})),...(composite?[{label:en?'Defer this choice':'이번 선택 보류',run:()=>onSelect(TACTICAL_DEFER_ID)}]:[])]);
+ const hint=composite?(en?'Adopt one per sortie for free, or decide later in Pause → Records.':'출격당 하나를 무료로 채택합니다. 보류한 전술은 일시정지 → 기록에서 선택할 수 있습니다.'):(en?'A free doctrine is ready. Choose now, or decide later in Pause → Records.':'무료 전술교리가 해금되었습니다. 지금 채택하거나 일시정지 → 기록에서 나중에 선택하세요.');
+ modal(tag,title,hint,[...ids.map(id=>({label:tacticalText(tacticalEntry(id),'name'),run:()=>onSelect(id)})),...(canDefer?[{label:en?'Decide later':'나중에 선택',run:()=>onSelect(TACTICAL_DEFER_ID)}]:[])]);
  const container=$('modal');container.dataset.tacticalChoice=ids.join('|');container.classList.add('tactical-choice-modal');container.classList.remove('special-draft156','weapon-mod-draft151');
  const buttons=[...$('modalActions').querySelectorAll('button')];
- if(composite){const defer=buttons.at(-1);if(defer){defer.className='tactical-defer';defer.dataset.tacticalId=TACTICAL_DEFER_ID;}}
+ if(canDefer){const defer=buttons.at(-1);if(defer){defer.className='tactical-defer';defer.dataset.tacticalId=TACTICAL_DEFER_ID;}}
  ids.forEach((id,index)=>{const entry=tacticalEntry(id),button=buttons[index];if(!entry||!button)return;
   button.className='tactical-choice';button.dataset.tacticalId=id;button.type='button';
   const summary=entry.specialDoctrine?choiceDescription(id,tacticalText(entry,'description'),p):tacticalText(entry,'description');
@@ -1866,7 +1867,7 @@ function showTacticalActivation(){
  }
  if(held||!tacticalActivationQueue.length||now<toastUntil||(game.mode==='coop2'&&game.t<coopToastUntil))return;
  const notice=tacticalActivationQueue.shift(),{entry,ownerId,kind,family}=notice,toast=$('toast'),icon=tacticalIcon(entry,game),en=getLocale()==='en';
- const message=kind==='unlocked'?(family?tacticalFamilyName(family)+' · ':'')+(en?'Doctrine unlocked — Pause → Tactical Codex':'교리 해금 · 일시정지 → 전술 도감에서 확인'):tacticalText(entry,'name')+' · '+(kind==='adopted'?(en?'Adopted':'채택 완료'):(en?'Activated':'발동'));
+ const message=kind==='unlocked'?(family?tacticalFamilyName(family)+' · ':'')+(en?'Doctrine unlocked · Also available in Pause → Records':'교리 해금 · 일시정지 → 기록에서도 채택 가능'):tacticalText(entry,'name')+' · '+(kind==='adopted'?(en?'Adopted':'채택 완료'):(en?'Activated':'발동'));
  const label=tacticalElement('span',(game.mode==='coop2'&&ownerId?ownerId.toUpperCase()+' · ':'')+message),seconds=kind==='unlocked'?4:2.1;
  icon.className='tactical-activation-icon';toast.classList.remove('warn');toast.replaceChildren(icon,label);show('toast');toastUntil=now+seconds*1000;if(game.mode==='coop2')coopToastUntil=game.t+seconds;
  // Adoption is a one-time confirmation; other combat toasts must not replay it.

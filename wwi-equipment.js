@@ -4,12 +4,12 @@ import {combatImpactResult} from './combat-impact-result.js';
 export {equipmentTargets};
 
 export const WWI_EQUIPMENT=Object.freeze([
- Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총 3회 연속 명중으로 적 기체에 불을 붙입니다.',family:'GUN'}),
+ Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총 3회 연속 명중으로 불을 붙입니다. 화상은 무장 성장에 따라 강해지고, 본인의 재점화로 3초간 갱신되며 중첩되지 않습니다.',family:'GUN'}),
  Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'4초마다 전방 적을 향해 소형 폭탄 2발을 연속 투하합니다.',family:'EXPLOSIVE'}),
- Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'3.5초마다 근접 교차한 적기를 선행 조준해 화염 갈고리로 타격하고 3초간 불태웁니다. 직접 피해는 기관총 강화의 50%를 반영합니다 (최대 +50%).',family:'GUN'}),
- Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. COW 포탄과 쿠퍼 폭탄에는 화살이 실립니다.',family:'GUN'}),
- Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 우선 지정해 6초간 집중 공격을 유도합니다. 표적 소실 시 남은 시간 안에서 1회 재지정합니다.',family:'FORMATION'}),
- Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'전방·후방 주무장으로 각각 3회 연속 명중하면 표적을 6초간 분석합니다. 해당 표적에 기관총·직접 기관총 액티브 피해 +30%. 적의 공격 준비를 드러내며 망원경·폰크 점사가 분석 표적을 우선합니다.',family:'GUN'})
+ Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'3.5초마다 근접 교차한 적기에 화염 갈고리를 붙입니다. 직접 피해에 기관총 성장이 적용되며, 함께 실은 쿠퍼 폭약은 표적이 먼저 격추돼도 한 번 폭발합니다.',family:'GUN'}),
+ Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. 화살은 무장 성장과 소이·고폭 효과를 전달하며 COW 포탄·쿠퍼 폭탄에도 실립니다.',family:'GUN'}),
+ Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 6초간 집중 공격합니다. 지정 중 본기가 재장전하면 준비된 특수무장 편대가 엄호 사격하며, 표적 소실 시 한 번 재지정합니다.',family:'FORMATION'}),
+ Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'전방·후방 주무장으로 각각 3회 연속 명중하면 표적을 6초간 분석합니다. 해당 표적에 주무장·직접 사격 액티브 피해 +30%. 적의 공격 준비를 드러내며 망원경·폰크 점사가 분석 표적을 우선합니다.',family:'GUN'})
 ]);
 
 export const WWI_BALANCE=Object.freeze({
@@ -114,14 +114,16 @@ function storeBurnAnchor(target,round,accepted){
 
 export function igniteSharedBurn(owner,target,round,accepted){
  if(!target||!(target.hp>0))return;
- const aerostat=target.fieldUnit==='balloon'||target.type==='zeppelin'||/zeppelin|hma23|drachen/.test(target.stageBossBody?.kind||''),dps=isBossTarget(target)?(aerostat?WWI_BALANCE.burn.aerostatBossDpsCap:WWI_BALANCE.burn.bossDpsCap):(aerostat?WWI_BALANCE.burn.aerostatDps:WWI_BALANCE.burn.dps);
- // All incendiary equipment uses the existing target burn slot. An active fire
- // keeps its remaining duration and strongest source, so repeated belts cannot
- // create stacks or hold a boss alight forever.
- const starting=!(target.burnTime>0),current=starting?0:target.burnDps||0;
- if(starting){target.burnTime=round?.fieryGrapnel?WWI_BALANCE.burn.grapnelDuration:WWI_BALANCE.burn.duration;target.fuelFxAge=0;storeBurnAnchor(target,round,accepted);}
+ const aerostat=target.fieldUnit==='balloon'||target.type==='zeppelin'||/zeppelin|hma23|drachen/.test(target.stageBossBody?.kind||''),base=isBossTarget(target)?(aerostat?WWI_BALANCE.burn.aerostatBossDpsCap:WWI_BALANCE.burn.bossDpsCap):(aerostat?WWI_BALANCE.burn.aerostatDps:WWI_BALANCE.burn.dps),id=ownerId(owner);
+ const support=!!(round?.synthesisSupport||round?.pilotSupport||round?.ally||round?.formation),payloadScale=round?.synthesisPayload?.burnScale,scale=Number.isFinite(payloadScale)?Math.max(0,payloadScale):support?(owner.supportPower?.(1)??1):round?.cow37?1+Math.max(0,finite(owner.gunUpgradeBonus))+Math.max(0,finite(owner.explosiveBonus)):round?.rocket||round?.motorCannon||round?.cooperBomb?(owner.payloadPower?.(1)??1):equipmentGunScale(owner),dps=base*scale;
+ // One owned DOT slot: real repeat hits refresh that owner's fire, without
+ // stacking DPS or taking a teammate's burning target away from their pilot.
+ const starting=!(target.burnTime>0),sameOwner=target.burnOwnerId===id,current=starting?0:target.burnDps||0;
+ if(!starting&&target.burnOwnerId!=null&&!sameOwner)return;
+ if(starting||sameOwner)target.burnTime=round?.fieryGrapnel?WWI_BALANCE.burn.grapnelDuration:WWI_BALANCE.burn.duration;
+ if(starting){target.fuelFxAge=0;storeBurnAnchor(target,round,accepted);}
  target.burnDps=Math.max(current,dps);
- if(dps>=current){target.burnOwnerId=ownerId(owner);target.burnSupport=false;target.wwiBurnOwnerId=ownerId(owner);target.wwiBurnDps=dps;}
+ if(dps>=current){target.burnOwnerId=id;target.burnSupport=support;target.wwiBurnOwnerId=id;target.wwiBurnDps=dps;}
 }
 
 // Front and independently fired rear guns each keep one bounded preparation lane.
@@ -151,7 +153,7 @@ export function equipmentBurn(owner,target,{consume=false}={}){
  return burn;
 }
 
-const equipmentGunScale=owner=>1+Math.min(.5,.5*Math.max(0,finite(owner.gunUpgradeBonus)));
+const equipmentGunScale=owner=>1+Math.max(0,finite(owner.gunUpgradeBonus));
 
 function attachGrapnel(owner,round,target,accepted){
  const body=target.stageBossBody,part=accepted?.partId!=null?(body?.parts?.get?.(accepted.partId)||valuesOf(body?.parts).find(p=>p.id===accepted.partId)):null,center=part?partPoint(body,part):body||target,point=closestImpact(round,target,center),host=body||target,a=finite(body?.hullYaw,finite(body?.angle,finite(host.a))),dx=point.x-finite(host.x),dy=point.y-finite(host.y);
@@ -313,7 +315,7 @@ function fireFlechettes(owner,world=combatWorld(owner),start=0,dt){
   const t=(i%b.burst)/den,lane=(t-.5)*b.laneWidth,damage=(b.minDamage+(b.maxDamage-b.minDamage)*(i%3)/2)*equipmentGunScale(owner),x=owner.x+Math.cos(owner.a)*20-Math.sin(owner.a)*lane,y=owner.y+Math.sin(owner.a)*20+Math.cos(owner.a)*lane;
   const toward=focus&&(focus.x-x)*Math.cos(owner.a)+(focus.y-y)*Math.sin(owner.a)>0?Math.atan2(focus.y-y,focus.x-x):heading;
   const a=finite(owner.a)+Math.max(-b.aimCone,Math.min(b.aimCone,angleDelta(toward,finite(owner.a))))+(t-.5)*b.spread;
-  pushBullet(owner,{x,y,previousX:x,previousY:y,vx:Math.cos(a)*b.speed,vy:Math.sin(a)*b.speed,life:b.life,damage,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:b.collisionRadius,specialColor:'#d9d7c8',heavyTargetMultiplier:b.heavyMultiplier},world);
+  pushBullet(owner,{x,y,previousX:x,previousY:y,vx:Math.cos(a)*b.speed,vy:Math.sin(a)*b.speed,life:b.life,damage,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:b.collisionRadius,specialColor:'#d9d7c8',heavyTargetMultiplier:b.heavyMultiplier,synthesisPayloadDart:true,synthesisGroup:owner.wwiFlechetteGroup,synthesisPayload:{incendiary:hasEquipment(owner,'buckinghamBelt'),explosive:hasEquipment(owner,'amatolCharge'),burnScale:equipmentGunScale(owner)}},world);
  }
 }
 
@@ -374,7 +376,7 @@ function beginVerySignal(owner,world=combatWorld(owner)){
 }
 
 function clearTransient(owner){
- owner.wwiFlechetteRemaining=0;owner.wwiHytheShutter=0;
+ owner.wwiFlechetteRemaining=0;owner.wwiFlechetteGroup=null;owner.wwiHytheShutter=0;
  for(const key of Object.keys(owner))if(/^wwi(?:BuckinghamRear|HytheRear|VeryLastHit)/.test(key))delete owner[key];
  owner.wwiVeryTime=0;owner.wwiVeryTargetId=null;owner.wwiVeryPartId=null;owner.wwiVery=null;owner.wwiGrapnel=null;owner.wwiGrapnelCable=null;owner.wwiHytheVisible=0;owner.wwiHytheHits=0;owner.wwiHytheTargetId=null;owner.wwiBuckinghamHits=0;owner.wwiBuckinghamTargetId=null;
  for(const key of ['wwiCooperSecondIn','wwiCooperSecondX','wwiCooperSecondY','wwiCooperSecondVx','wwiCooperSecondVy','wwiCooperSecondDamage'])delete owner[key];
@@ -405,9 +407,9 @@ export function tickWWIEquipment(owner,world,dt,previousPose){
   const b=WWI_BALANCE.flechettes;
   owner.wwiFlechetteCooldown=Math.max(0,(owner.wwiFlechetteCooldown||0)-dt);
   owner.wwiFlechetteNext=(owner.wwiFlechetteNext||0)-dt;
-  if(!(owner.wwiFlechetteRemaining>0)&&owner.wwiFlechetteCooldown<=0&&flechetteTargetAhead(owner,world,dt)){owner.wwiFlechetteRemaining=b.count;owner.wwiFlechetteNext=0;owner.wwiFlechetteCooldown=b.cooldown;}
+  if(!(owner.wwiFlechetteRemaining>0)&&owner.wwiFlechetteCooldown<=0&&flechetteTargetAhead(owner,world,dt)){owner.wwiFlechetteRemaining=b.count;owner.wwiFlechetteNext=0;owner.wwiFlechetteCooldown=b.cooldown;owner.wwiFlechetteGroup={attempts:new Set(),explosions:SYNTHESIS_BALANCE.dartExplosions,explodedTargets:new Set()};}
   if(owner.wwiFlechetteRemaining>0&&owner.wwiFlechetteNext<=0){fireFlechettes(owner,world,b.count-owner.wwiFlechetteRemaining,dt);owner.wwiFlechetteRemaining=Math.max(0,owner.wwiFlechetteRemaining-b.burst);owner.wwiFlechetteNext=b.stagger;}
- }else owner.wwiFlechetteRemaining=0;
+ }else{owner.wwiFlechetteRemaining=0;owner.wwiFlechetteGroup=null;}
  if(hasEquipment(owner,'veryPistol')){
   owner.wwiVeryCooldown=Math.max(0,(owner.wwiVeryCooldown||0)-dt);
   if(owner.wwiVeryCooldown<=0&&!beginVerySignal(owner,world))owner.wwiVeryCooldown=.25;

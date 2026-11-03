@@ -2,6 +2,7 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
 import {wwiWingTarget,analyzedEquipmentTarget,equipmentBurn,equipmentTargets,wwiBurnPoint} from './wwi-equipment.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {isReplacementPrimary} from './pilot-primary.js';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -10,7 +11,7 @@ const live=e=>e&&e.hp>0&&!e.crashed&&!e.rivalEscaped&&!e.expired&&!e.destroyed;
 const world=p=>p.combatWorld?.()||p;
 const owner=p=>p.id||'p1';
 const ordinary=e=>live(e)&&!e.surface&&!e.fieldUnit&&!e.stageBossBody&&!e.bossPilot&&!e.heavyBomber&&e.type!=='boss'&&e.type!=='zeppelin';
-const gun=b=>b&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound&&!b.actualExplosion&&!b.blast&&!b.identityDot&&b.gun!==undefined;
+const gun=(p,b)=>isReplacementPrimary(p,b)||b&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound&&!b.actualExplosion&&!b.blast&&!b.identityDot&&!b.synthesisChild&&!b.synthesisSupport&&b.gun!==undefined;
 const duration={fonck:.6,gontermann:1.05,luke:1.05,proctor:2.4,lufbery:6};
 const beats={fonck:[.18,.23,.28],gontermann:[.12,.19,.46,.53],luke:[.1,.17,.24,.6,.67,.74],proctor:[.12,.17,.22,.72,.77,.82,1.32,1.37,1.42,1.92,1.97,2.02]};
 export const FIVE_ACE_BALANCE=Object.freeze({airshipBonus:.2,chainRadius:145,chainLimit:6,chainDelay:.12,proctorDelay:.4,proctorRepeat:5,orbitRadius:155,duration:Object.freeze(duration)});
@@ -26,6 +27,7 @@ function ignite(p,e,target,pos,strong=false){if(!live(target))return;const enhan
 function lead(p,e,speed=650){const t=Math.min(.7,distance(p,e)/speed),vx=Number.isFinite(e.vx)?e.vx:Math.cos(e.a||0)*(e.speed||0),vy=Number.isFinite(e.vy)?e.vy:Math.sin(e.a||0)*(e.speed||0);return Math.atan2(e.y+vy*t-p.y,e.x+vx*t-p.x);}
 function emit(p,s,phase,heading,power,pierce=false,fan=false){
  if(p.reloadTime>0)return false;
+ if(p.cow37){const fired=p.emitPilotPrimarySalvo?.({heading,power:Math.min(1.5,power),kind:'five:'+phase})||0;if(fired)s.fired=(s.fired||0)+fired;return fired>0;}
  const w=world(p),pellets=Math.max(1,Math.min(5,p.shots||1)),guns=p.weapon.guns||1;
  let fired=0;
  for(let g=0;g<guns;g++){
@@ -134,6 +136,9 @@ function tick(p,dt){
 }
 export function installFivePilots(Game,PILOTS){
  const q=Game.prototype;
+ // Finite attack beats own the primary trigger until the sequence finishes.
+ // Replacement cannons consult this too; support wings remain independent.
+ q.pilotPrimaryAutomaticBlocked=function(){return IDS.has(this.pilot)&&this.pilot!=='lufbery'&&!!this.pilotIdentity?.five?.active;};
  for(const id of IDS){const c=PILOT_IDENTITY_COPY[id].ko;Object.assign(PILOTS[id],{passive:c.passive,skill:c.skill,passiveDesc:c.passiveDetail,desc:c.activeDetail});}
  const ensure=q.ensureRevisionPilot;q.ensureRevisionPilot=function(){ensure.call(this);if(!IDS.has(this.pilot)||this.fiveAceReady)return;this.fiveAceReady=true;if(this.pilot==='lufbery'){this.fiveLafayetteSlot=this.permanentWingman||0;this.permanentWingman=this.fiveLafayetteSlot+1;}};
  const dur=q.skillDuration;q.skillDuration=function(){return IDS.has(this.pilot)?duration[this.pilot]*(this.skillEnhanced?(this.pilot==='lufbery'?1.35:this.pilot==='proctor'?1.25:1):1):dur.call(this)};
@@ -156,7 +161,7 @@ export function installFivePilots(Game,PILOTS){
  const wing=q.updatePilotWing;q.updatePilotWing=function(a,dt){if(this.pilot==='lufbery'&&updateLafayette(this,a,dt))return true;return wing.call(this,a,dt)};
  const wingPlane=q.permanentWingPlane;q.permanentWingPlane=function(){return this.pilot==='lufbery'?this.plane:wingPlane.call(this)};
  const round=q.applySpecialRound;q.applySpecialRound=function(b,type){
-  const result=round.call(this,b,type);if(!IDS.has(this.pilot)||!gun(b))return result;
+  const result=round.call(this,b,type);if(!IDS.has(this.pilot)||!gun(this,b))return result;
   if(this.pilot==='fonck'){
    const s=this.identityState(),e=s.target;
    if(!b.fiveAceRound&&live(e)&&s.focus>=.8){const a=lead(this,e,Math.hypot(b.vx,b.vy)),speed=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
@@ -169,11 +174,18 @@ export function installFivePilots(Game,PILOTS){
   }
   return result;
  };
- const damage=q.roundDamageMultiplier;q.roundDamageMultiplier=function(b,e){const m=damage.call(this,b,e);return this.pilot==='luke'&&gun(b)&&isFiveAceAirship(e)?m*(1+FIVE_ACE_BALANCE.airshipBonus):m;};
+ const primary=q.preparePilotPrimaryRound;q.preparePilotPrimaryRound=function(b,volley){
+  const shot=primary.call(this,b,volley);if(!IDS.has(this.pilot)||!isReplacementPrimary(this,shot))return shot;
+  const phase=volley?.source==='active'&&volley.kind?.startsWith('five:')?volley.kind.slice(5):null;
+  if(phase){shot.fiveAceRound=true;shot.fiveAcePhase=phase;if(phase==='precision')shot.fonckVolley=true;if(phase==='ignite'||phase==='detonate')shot.specialColor='#d99658';}
+  if(this.pilot==='fonck'&&!phase){const s=this.identityState(),e=s.target;if(live(e)&&s.focus>=.8){const speed=Math.hypot(shot.vx,shot.vy),a=lead(this,e,speed);shot.vx=Math.cos(a)*speed;shot.vy=Math.sin(a)*speed;}}
+  shot.pierce=false;return shot;
+ };
+ const damage=q.roundDamageMultiplier;q.roundDamageMultiplier=function(b,e){const m=damage.call(this,b,e);return this.pilot==='luke'&&gun(this,b)&&isFiveAceAirship(e)?m*(1+FIVE_ACE_BALANCE.airshipBonus):m;};
  const hit=q.identityImpact;q.identityImpact=function(b,e,target=e,pos=e){
-  const pendingLukeBurn=this.pilot==='luke'&&b.fiveAcePhase==='detonate'&&gun(b)&&(b.ownerId||'p1')===owner(this)?lukeBurn(this,target,e):null;
+  const pendingLukeBurn=this.pilot==='luke'&&b.fiveAcePhase==='detonate'&&gun(this,b)&&(b.ownerId||'p1')===owner(this)?lukeBurn(this,target,e):null;
   hit.call(this,b,e,target,pos);
-  if(!IDS.has(this.pilot)||!gun(b)||(b.ownerId||'p1')!==owner(this))return;
+  if(!IDS.has(this.pilot)||!gun(this,b)||(b.ownerId||'p1')!==owner(this))return;
   if(!live(target)){
    if(pendingLukeBurn)scheduleDetonation(this,target,e,pendingLukeBurn);
    return;
@@ -182,8 +194,9 @@ export function installFivePilots(Game,PILOTS){
   if(this.pilot==='fonck'&&b.fiveAcePhase==='precision')impact(this,pos);
   if(this.pilot==='gontermann'){
    if(!b.fiveAceRound){
-    if(s.prepared!==target||now-s.lastHit>.8){s.prepared=target;s.hits=0;s.lastCounted=-Infinity;}
-    if(now-(s.lastCounted??-Infinity)>=.08){s.hits=Math.min(3,s.hits+1);s.lastCounted=now;}
+    const heavy=isReplacementPrimary(this,b);
+    if(s.prepared!==target||now-s.lastHit>(heavy?2.4:.8)){s.prepared=target;s.hits=0;s.lastCounted=-Infinity;s.lastPrimaryVolley=null;}
+    if(heavy?s.lastPrimaryVolley!==b.pilotPrimaryVolley:now-(s.lastCounted??-Infinity)>=.08){s.hits=Math.min(3,s.hits+1);s.lastCounted=now;s.lastPrimaryVolley=heavy?b.pilotPrimaryVolley:null;}
     s.lastHit=now;
     if(s.hits>=3&&now-(s.leakFxAt??-Infinity)>.25){s.leakFxAt=now;this.identityFx('gunSmoke',pos.x,pos.y,e.a||0,29,.55,{height:18,alpha:.4});}
    }else if(b.fiveAcePhase==='pierce'){s.pierced=target;impact(this,pos);}

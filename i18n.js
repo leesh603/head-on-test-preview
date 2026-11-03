@@ -94,12 +94,12 @@ Object.assign(UPGRADE_NAMES_EN,{
 Object.assign(UPGRADE_DESC_EN,{
  strutterAirbrake:'Turns fighter evasion into a brake turn, slowing briefly before reaccelerating. Cannot be equipped with an airframe conversion.',
  wimperisSight:"Aims rockets, grenades and dropped bombs at a moving target\u2019s predicted position when released. Does not add homing or extra projectiles.",
- buckinghamBelt:'Three consecutive machine-gun hits ignite the target.',
+ buckinghamBelt:'Three consecutive primary hits ignite the target. Burns scale with their weapon, refresh to 3s on your incendiary hits, and do not stack.',
  cooperRack:'Drops two light bombs at a forward target every 4s.',
- fieryGrapnel:"Every 3.5s, leads a close-flyby target with a heavy hook and fire. Direct damage inherits 50% of MG bonuses, capped at +50%.",
- flechettes:"Every 3s, fires 12 converging piercing darts at a moving target. Cockpit hits: 24% pilot kill (4% vs aces). Inherits 50% of MG bonuses, capped at +50%; heavy armor takes 40%.",
- veryPistol:"Prioritizes a recently hit forward target; preserves formations and retargets once.",
- hytheCamera:"Three consecutive hits with the front or rear primary guns analyze a target for 6s. Machine-gun and direct gun Active damage against it +30%. Reveals attack preparations; telescope aim and Fonck bursts prioritize the analyzed target."
+ fieryGrapnel:"Every 3.5s, leads a close-flyby target with a heavy hook and fire. Direct damage inherits MG growth. A paid attached payload detonates once even if its target is destroyed first.",
+ flechettes:"Keeps machine guns and fires 12 piercing darts every 3s. Cockpit hits: 24% pilot kill (4% vs aces); heavy armor takes 40%. Darts scale with their carrier weapon and carry equipped incendiary or bounded Amatol effects.",
+ veryPistol:"Prioritizes a recently hit forward target and retargets once if lost. Ready specialist wingmen cover your reload using their own ammunition.",
+ hytheCamera:"Three consecutive primary hits analyze a target for 6s: direct-fire damage +30%, including COW. A quad volley counts once. Reveals attack preparation; telescope aim and Fonck fire prioritize analyzed targets."
 });
 
 for(const mod of WEAPON_MODS){UPGRADE_NAMES_EN[mod.id]=mod.enName;UPGRADE_DESC_EN[mod.id]=mod.enDescription}
