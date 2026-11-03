@@ -7,7 +7,7 @@ import {igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareW
 const world=p=>p.combatWorld?.()||p.world||p;
 const alive=p=>p.hp>0&&p.status!=='downed';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
-export const SYNTHESIS_BALANCE=Object.freeze({gunDelay:.08,cannonDelay:.38,bombDelay:.8,darts:12,dartDamage:24,dartSpeed:800,dartLife:.76,attachmentFuse:1.1,gasRecharge:7,smokeRecharge:12,shrapnelRecharge:3.2});
+export const SYNTHESIS_BALANCE=Object.freeze({gunDelay:.08,cannonDelay:.38,bombDelay:.8,darts:12,dartDamage:24,dartSpeed:800,dartLife:.76,dartExplosions:3,dartExplosionFraction:.35,dartExplosionRadius:20,attachmentFuse:1.1,gasRecharge:7,smokeRecharge:12,shrapnelRecharge:3.2});
 export function primaryCount(p){return Math.max(1,p.shots||1)+(p.upgrades?.quadLewis?3:0);}
 export function weaponComposition(p,add){
  const u={...p.upgrades,...(add?{[add]:1}:{})},heavy=!!u.cow37;
@@ -32,22 +32,25 @@ export function prepareSynthesisRound(p,b,{support=false}={}){
  const primary=b.cow37||Number.isInteger(b.gun)&&!b.rocket&&!b.ally&&!b.patrol&&!b.formation;
  if(!primary&&!b.rocket&&!b.upgradeRocket&&!b.fieryGrapnel)return b;
  const c=weaponComposition(p);b.synthesisPrepared=true;b.synthesisSupport=support;
- b.synthesisPayload={incendiary:c.incendiary&&(c.body!=='bullet'||b.rocket||b.fieryGrapnel),explosive:c.explosive,darts:primary&&c.body==='dart-shell'};
+ const payloadScale=b.cow37?(Number.isFinite(b.damage)?Math.max(0,b.damage/280):1+Math.max(0,p.gunUpgradeBonus||0)+Math.max(0,p.explosiveBonus||0)):b.rocket?(p.payloadPower?.(1)??1):1+Math.max(0,p.gunUpgradeBonus||0);
+ b.synthesisPayload={incendiary:c.incendiary&&(c.body!=='bullet'||b.rocket||b.fieryGrapnel),explosive:c.explosive,darts:primary&&c.body==='dart-shell',dartDamage:SYNTHESIS_BALANCE.dartDamage*payloadScale,burnScale:payloadScale};
  if(b.cow37&&c.body==='dart-shell')b.synthesisFuse=.7;
  if(b.cow37){b.tacticalPayloadApplied=true;b.synthesisPrimary=true;prepareWWIPrimaryRound(p,b);}
  return b;
 }
 export function releaseDarts(p,parent){
  if(parent.synthesisOpened)return;parent.synthesisOpened=true;
- const a=Math.atan2(parent.vy||0,parent.vx||1),group={attempts:new Set()};
+ const a=Math.atan2(parent.vy||0,parent.vx||1),group={attempts:new Set(),explosions:SYNTHESIS_BALANCE.dartExplosions,explodedTargets:new Set()},payload=parent.synthesisPayload||{};
+ const damage=Number.isFinite(payload.dartDamage)?payload.dartDamage:SYNTHESIS_BALANCE.dartDamage*(1+Math.max(0,p.gunUpgradeBonus||0));
  for(let i=0;i<SYNTHESIS_BALANCE.darts;i++){
   const heading=a+(i-5.5)*.055;
-  push(p,{x:parent.x,y:parent.y,previousX:parent.x,previousY:parent.y,vx:Math.cos(heading)*800,vy:Math.sin(heading)*800,life:.76,damage:24*(1+Math.min(.5,(p.gunUpgradeBonus||0)*.5)),pierce:true,flechette:true,sweptProjectile:true,collisionRadius:2,synthesisChild:true,synthesisDart:true,synthesisSupport:!!parent.synthesisSupport,synthesisGroup:group,synthesisPayload:{incendiary:!!parent.synthesisPayload?.incendiary},specialColor:'#d9d7c8'});
+  push(p,{x:parent.x,y:parent.y,previousX:parent.x,previousY:parent.y,vx:Math.cos(heading)*800,vy:Math.sin(heading)*800,life:.76,damage,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:2,synthesisChild:true,synthesisDart:true,synthesisSupport:!!parent.synthesisSupport,synthesisGroup:group,synthesisPayload:{incendiary:!!payload.incendiary,explosive:!!payload.explosive,burnScale:payload.burnScale??damage/SYNTHESIS_BALANCE.dartDamage},specialColor:'#d9d7c8'});
  }
 }
-function cannonGroup(p,indices,total){
+function primaryVolleyToken(p,source='primary',kind='cow37'){return{id:`${source}:${p.synthesisVolleySequence=(p.synthesisVolleySequence||0)+1}`,source,kind,weapon:'cow37',at:p.t||0};}
+function cannonGroup(p,indices,total,{heading,power=1,volleyToken=primaryVolleyToken(p)}={}){
  if(!alive(p)||p.reloadTime>0||!p.cow37)return 0;
- const c=weaponComposition(p);let base=p.gunDirection?.(0)??p.a;
+ const c=weaponComposition(p);let base=Number.isFinite(heading)?heading:p.gunDirection?.(0)??p.a;
  if(p.telescope||c.doctrine==='precision'||p.weaponMods?.EXPLOSIVE==='focus'){
   const target=equipmentTargets(world(p)).filter(e=>p.canHitTarget?.(e)!==false).map(e=>e.stageBossBody?wwiBossAimPoint(p,e):e).find(e=>e&&e.hp!==0&&Math.hypot(e.x-p.x,e.y-p.y)<620&&Math.abs(angle(Math.atan2(e.y-p.y,e.x-p.x),base))<.36);
   if(target){base+=Math.max(-.12,Math.min(.12,angle(Math.atan2(target.y-p.y,target.x-p.x),base)));p.telescopeFocus156=.12;p.telescopeTarget156=target;}
@@ -57,10 +60,10 @@ function cannonGroup(p,indices,total){
  for(const i of indices){
   if(!(p.ammo[0]>0))break;
   const b=p.createCow37Round(),a=base+(i-(total-1)/2)*fan,speed=Math.hypot(b.vx,b.vy),front=p.bomberTransfer?.front??38;
-  Object.assign(b,{x:p.x+Math.cos(base)*front,y:p.y+Math.sin(base)*front,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,synthesisPrimary:true});
+  Object.assign(b,{x:p.x+Math.cos(base)*front,y:p.y+Math.sin(base)*front,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,damage:b.damage*power,synthesisPrimary:true});
   prepareSynthesisRound(p,b);p.tacticalGunRound?.(b);b.pierce=false;if(p.weaponMods?.EXPLOSIVE){b.projectileDoctrine=p.weaponMods.EXPLOSIVE;b.tacticalAreaShell=p.weaponMods.EXPLOSIVE==='area';}
   if(p.upgrades?.rankinShell&&!(p.synthesisReady_shrapnel>0)&&(!p.upgrades.fieryGrapnel||p.wwiGrapnelCooldown>0&&!(world(p).bullets||[]).some(r=>r.fieryGrapnel&&r.life>0&&r.ownerId===(p.id||'p1')))){b.synthesisPayload.shrapnel=true;p.synthesisReady_shrapnel=3.2;}
-  push(p,b);p.ammo[0]--;p.roundsFired++;fired++;
+  push(p,b);p.ammo[0]--;p.roundsFired++;fired++;p.preparePilotPrimaryRound?.(b,volleyToken);b.pierce=false;
  }
  if(fired){p.muzzleFlash=.2;p.synthesisMuzzleAngle=base;world(p).shake=Math.max(world(p).shake||0,6);p.cannonMuzzleSmoke?.('cow');p.event?.('shot','');}
  if(p.ammo[0]<=0){p.synthesisPending=[];p.synthesisBurst=0;p.reload();}
@@ -69,17 +72,17 @@ function cannonGroup(p,indices,total){
 export function tickCannon(p,dt,input={}){
  const c=weaponComposition(p),key=signature(p);
  if(p.synthesisSignature!==key){p.synthesisPending=[];p.synthesisBurst=0;p.synthesisSignature=key;}
- if(!alive(p)||p.reloadTime>0||p.bishopTime>0||p.isBomberEntering?.()||input.inputMode==='gamepad'&&!input.fireHeld){p.synthesisPending=[];p.synthesisBurst=0;return;}
+ if(!alive(p)||p.reloadTime>0||p.bishopTime>0||p.isBomberEntering?.()||p.pilotPrimaryAutomaticBlocked?.()||input.inputMode==='gamepad'&&!input.fireHeld){p.synthesisPending=[];p.synthesisBurst=0;return;}
  for(const q of p.synthesisPending||[])q.delay-=dt;
  const due=(p.synthesisPending||[]).filter(q=>q.delay<=0);p.synthesisPending=(p.synthesisPending||[]).filter(q=>q.delay>0);
- for(const q of due)cannonGroup(p,q.indices,q.total);
+ for(const q of due)cannonGroup(p,q.indices,q.total,{volleyToken:q.volleyToken});
  if(p.reloadTime>0)return;
  p.cow37Timer=(p.cow37Timer??.15)-dt;
  if(p.cow37Timer>0||(p.synthesisPending||[]).length)return;
  if(!(p.ammo[0]>0)){p.reload();return;}
- const total=primaryCount(p),indices=Array.from({length:total},(_,i)=>i),cut=c.stagger?Math.ceil(total/2):total;
- cannonGroup(p,indices.slice(0,cut),total);
- if(cut<total&&p.reloadTime<=0)p.synthesisPending=[{delay:SYNTHESIS_BALANCE.cannonDelay,indices:indices.slice(cut),total}];
+ const total=primaryCount(p),indices=Array.from({length:total},(_,i)=>i),cut=c.stagger?Math.ceil(total/2):total,volleyToken=primaryVolleyToken(p);
+ cannonGroup(p,indices.slice(0,cut),total,{volleyToken});
+ if(cut<total&&p.reloadTime<=0)p.synthesisPending=[{delay:SYNTHESIS_BALANCE.cannonDelay,indices:indices.slice(cut),total,volleyToken}];
  const rate=Math.max(.1,Math.min(1,(p.rate||.15)/(p.buildBaseline?.rate||p.equipmentLedger?.baseline?.rate||.15))),base=bishopGlovesInterval(p,rate);
  p.synthesisBurst=c.doctrine==='precision'?((p.synthesisBurst||0)+1)%3:0;
  p.cow37Timer+=c.doctrine==='precision'?(p.synthesisBurst?Math.max(c.stagger?.55:.22,base*.25):base*2.5):Math.max(c.stagger?.55:0,base);
@@ -88,7 +91,7 @@ export function tickCannon(p,dt,input={}){
 // One ready charge has one destination. Successful attachments take precedence;
 // a missed hook spends only the hook, leaving bombs and field charges available.
 export function reservePayload(p,{wing=false}={}){
- const u=p.upgrades||{},payload={incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,darts:!!u.flechettes};
+ const u=p.upgrades||{},scale=wing?(p.supportPower?.(1)??1):(p.payloadPower?.(1)??1),payload={incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,darts:!!u.flechettes,dartDamage:SYNTHESIS_BALANCE.dartDamage*scale,burnScale:scale};
  if(wing)return payload;
  for(const [id,key,cooldown] of [['grunkreuz','gas',7],['kaiserFog','smoke',12],['rankinShell','shrapnel',3.2]]){
   if(u[id]&&!(p['synthesisReady_'+key]>0)){payload[key]=true;p['synthesisReady_'+key]=cooldown;}
@@ -111,7 +114,7 @@ export function detonateSynthesisPayload(p,b){
  if(payload.darts)releaseDarts(p,{...b,vx:Math.cos(a),vy:Math.sin(a)});
  if(payload.shrapnel)shrapnel(p,b.x,b.y,a,!!b.synthesisSupport);
  if(payload.incendiary||payload.gas||payload.smoke){
-  (p.synthesisZones??=[]).push({x:b.x,y:b.y,life:3,tick:0,synthesisSupport:!!b.synthesisSupport,payload:{incendiary:payload.incendiary,gas:payload.gas,smoke:payload.smoke}});
+  (p.synthesisZones??=[]).push({x:b.x,y:b.y,life:3,tick:0,synthesisSupport:!!b.synthesisSupport,payload:{incendiary:payload.incendiary,gas:payload.gas,smoke:payload.smoke,burnScale:payload.burnScale??1}});
   if(payload.gas)(w.grunkreuzPuffs??=[]).push({x:b.x,y:b.y,r:100,life:3,maxLife:3,dmg:0,synthesisVisual:true,ownerId:p.id,seed:w.t||0});
  }
 }
@@ -122,7 +125,7 @@ function tickZones(p,dt){
    if(z.payload.smoke&&!e.stageBossBody&&!e.bossPilot&&!e.ace){e.fire=Math.max(e.fire||0,.65);e.patrolTarget=null;}
    if(!z.payload.gas&&!z.payload.incendiary)continue;
    e.synthesisZoneAt??={};const id=p.id||'p1';if((e.synthesisZoneAt[id]??-Infinity)>(w.t||0))continue;e.synthesisZoneAt[id]=(w.t||0)+.59;
-   const boss=e.stageBossBody||e.bossPilot||e.ace||e.type==='boss',damage=z.payload.gas?(boss?6:Math.min(90,(e.maxHp||e.hp)*.09)):6;
+   const boss=e.stageBossBody||e.bossPilot||e.ace||e.type==='boss',gasDamage=z.payload.gas?(boss?6:Math.min(90,(e.maxHp||e.hp)*.09)):0,burnDamage=z.payload.incendiary?6*(z.payload.burnScale??1):0,damage=Math.max(gasDamage,burnDamage);
    const hit=e.stageBossBody?.locateHit?.({...point,radius:0}),body=e.stageBossBody,part=hit?.partId?body.parts.get(hit.partId):body;
    push(p,{x:point.x,y:point.y,vx:0,vy:0,life:.12,damage,hit:new Set(),pierce:true,blast:true,gas:!!z.payload.gas,burnTick:!!z.payload.incendiary,synthesisChild:true,synthesisSupport:!!z.synthesisSupport,identityDotTarget:part||e});
   }
@@ -140,7 +143,11 @@ function attach(p,b,e){
  (p.synthesisAttachments??=[]).push({target:e,life:1.1,pendingShrapnel,shrapnelLife:4,releaseAngle:Math.atan2(b.vy,b.vx),localX:dx*Math.cos(a)+dy*Math.sin(a),localY:-dx*Math.sin(a)+dy*Math.cos(a),x:b.x,y:b.y,damage:hasBomb?(p.payloadPower?.(70)||70):0,radius:66,synthesisPayload:payload,gasLeft:payload.gas?3:0});
 }
 function tickAttachments(p,dt){
- for(const b of p.synthesisAttachments||[]){const e=b.target;if(!e||e.hp<=0||e.dead||e.crashing){b.life=0;b.gasLeft=0;b.pendingShrapnel=false;continue;}const a=e.a||0;b.x=e.x+b.localX*Math.cos(a)-b.localY*Math.sin(a);b.y=e.y+b.localX*Math.sin(a)+b.localY*Math.cos(a);b.life-=dt;
+ for(const b of p.synthesisAttachments||[]){const e=b.target,lost=!e||e.hp<=0||e.dead||e.crashing;
+  if(e&&Number.isFinite(e.x)&&Number.isFinite(e.y)){const a=e.a||0;b.x=e.x+b.localX*Math.cos(a)-b.localY*Math.sin(a);b.y=e.y+b.localX*Math.sin(a)+b.localY*Math.cos(a);}
+  // The carrier was already paid for on attachment. Losing its target settles
+  // that one payload at the last pose; it never grants another bomb opportunity.
+  b.life=lost?0:b.life-dt;if(lost){b.target=null;b.gasLeft=0;}
   if(b.pendingShrapnel){b.shrapnelLife-=dt;if(Math.hypot(p.x-b.x,p.y-b.y)>=140){shrapnel(p,b.x,b.y,Math.atan2(b.y-p.y,b.x-p.x));b.pendingShrapnel=false;}else if(b.shrapnelLife<=0)b.pendingShrapnel=false;}
   if(b.life<=0&&!b.synthesisDetonated){if(b.damage)p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb'});detonateSynthesisPayload(p,b);}
   if(b.synthesisDetonated&&b.gasLeft>0){b.gasLeft-=dt;b.gasTick=(b.gasTick||0)-dt;if(b.gasTick<=0){b.gasTick=.6;detonateSynthesisPayload(p,{x:b.x,y:b.y,synthesisPayload:{gas:true}});}}
@@ -153,7 +160,7 @@ export function tickSynthesis(p,dt){
  const key=signature(p),pending=p.synthesisGunPending||[];p.synthesisGunPending=[];
  const rockets=p.synthesisActivePending||[];p.synthesisActivePending=[];
  for(const q of rockets){if(q.key!==key)continue;q.delay-=dt;if(q.delay>0){p.synthesisActivePending.push(q);continue;}const h=p.a+q.offset,speed=Math.hypot(q.round.vx,q.round.vy);push(p,prepareSynthesisRound(p,{...q.round,x:p.x+Math.cos(p.a)*q.forward-Math.sin(p.a)*q.side,y:p.y+Math.sin(p.a)*q.forward+Math.cos(p.a)*q.side,vx:Math.cos(h)*speed,vy:Math.sin(h)*speed}));}
- for(const q of pending){if(q.key!==key||p.reloadTime>0||p.bishopTime>0||p.isBomberEntering?.())continue;q.delay-=dt;if(q.delay>0){p.synthesisGunPending.push(q);continue;}if(!(p.ammo[q.gun]>0))continue;
+ for(const q of pending){if(q.key!==key||p.reloadTime>0||p.bishopTime>0||p.isBomberEntering?.()||p.pilotPrimaryAutomaticBlocked?.())continue;q.delay-=dt;if(q.delay>0){p.synthesisGunPending.push(q);continue;}if(!(p.ammo[q.gun]>0))continue;
   const ga=p.gunDirection(q.gun),h=ga+q.offset,speed=Math.hypot(q.round.vx,q.round.vy),b={...q.round,x:p.x+Math.cos(ga)*q.forward-Math.sin(ga)*q.side,y:p.y+Math.sin(ga)*q.forward+Math.cos(ga)*q.side,vx:Math.cos(h)*speed,vy:Math.sin(h)*speed};
   push(p,p.applySpecialRound(b,null));if(!p.unlimitedAmmo)p.ammo[q.gun]--;p.roundsFired++;p.muzzleFlash=.055;p.event?.('shot','');
  }
@@ -170,48 +177,53 @@ export function tickSynthesisWing(p,a,dt){
  if(!synthesisWing(p,a))return false;
  const w=world(p),key=signature(p);if(a.synthesisSignature!==key){a.synthesisSignature=key;a.synthesisAmmo=p.cow37?24:48;a.synthesisReload=0;a.synthesisFire=.3;a.synthesisBombPending=null;}
  a.synthesisReload=Math.max(0,(a.synthesisReload||0)-dt);a.synthesisFire=(a.synthesisFire||0)-dt;
+ const handoff=p.reloadTime>0&&!a.synthesisOwnerReloading;a.synthesisOwnerReloading=p.reloadTime>0;
  if(a.synthesisReload>0||a.carrierHidden||a.regrouping||Math.hypot(a.x-p.x,a.y-p.y)>700)return true;
  if(a.synthesisAmmo<=0)a.synthesisAmmo=p.cow37?24:48;
  if(a.synthesisBombPending){a.synthesisBombPending.delay-=dt;if(a.synthesisBombPending.delay<=0){wingBomb(p,a);a.synthesisBombPending=null;}}
- if(a.synthesisFire>0)return true;
  const signaled=wwiWingTarget(p,a);
+ // A marked target lets a ready specialist cover one real owner reload. The
+ // specialist still spends its own ammunition and keeps its own reload gate.
+ if(handoff&&signaled&&a.synthesisAmmo>0)a.synthesisFire=Math.min(a.synthesisFire,.08*((a.slot||0)%3));
+ if(a.synthesisFire>0)return true;
  const target=signaled||equipmentTargets(w).filter(e=>p.canHitTarget?.(e)!==false).map(e=>e.stageBossBody?wwiBossAimPoint(p,e,a):e).filter(e=>e&&Math.hypot(e.x-a.x,e.y-a.y)<550&&Math.abs(angle(Math.atan2(e.y-a.y,e.x-a.x),a.a))<.4).sort((e,f)=>Math.hypot(e.x-a.x,e.y-a.y)-Math.hypot(f.x-a.x,f.y-a.y))[0];
  if(!target||Math.abs(angle(Math.atan2(target.y-a.y,target.x-a.x),a.a))>.4)return true;
  if(p.upgrades.cooperRack&&!p.cow37){wingBomb(p,a);a.synthesisBombPending={delay:p.upgrades.combinedProjectiles?.8:.18};a.synthesisFire=4;return true;}
- const c=weaponComposition(p),count=Math.min(c.count,a.synthesisAmmo),heading=a.a;
+ const c=weaponComposition(p),count=Math.min(c.count,a.synthesisAmmo),heading=a.a,dartGroup={attempts:new Set(),explosions:SYNTHESIS_BALANCE.dartExplosions,explodedTargets:new Set()};
  for(let i=0;i<count;i++){const h=heading+(i-(c.count-1)/2)*.095,speed=p.cow37?660:800;
-  const b={x:a.x+Math.cos(h)*23,y:a.y+Math.sin(h)*23,vx:Math.cos(h)*speed,vy:Math.sin(h)*speed,life:p.cow37?2.5:.76,damage:p.supportPower(p.cow37?140:12)*p.fighterSupplyDamage(a),ally:true,cow37:!!p.cow37,gun:p.cow37?undefined:0,pierce:!p.cow37,flechette:!p.cow37,sweptProjectile:!p.cow37,collisionRadius:p.cow37?13:2,synthesisSupport:true,synthesisPrepared:true,tacticalPayloadApplied:true,synthesisDart:!p.cow37,synthesisPayload:{incendiary:c.incendiary,explosive:c.explosive,darts:p.cow37&&c.body==='dart-shell'}};
+  const scale=p.supportPower(1)*p.fighterSupplyDamage(a),b={x:a.x+Math.cos(h)*23,y:a.y+Math.sin(h)*23,vx:Math.cos(h)*speed,vy:Math.sin(h)*speed,life:p.cow37?2.5:.76,damage:(p.cow37?140:12)*scale,ally:true,cow37:!!p.cow37,gun:p.cow37?undefined:0,pierce:!p.cow37,flechette:!p.cow37,sweptProjectile:!p.cow37,collisionRadius:p.cow37?13:2,synthesisSupport:true,synthesisPrepared:true,tacticalPayloadApplied:true,synthesisDart:!p.cow37,synthesisGroup:!p.cow37?dartGroup:undefined,synthesisPayload:{incendiary:c.incendiary,explosive:c.explosive,darts:p.cow37&&c.body==='dart-shell',dartDamage:SYNTHESIS_BALANCE.dartDamage*scale,burnScale:scale}};
   if(p.cow37&&c.body==='dart-shell')b.synthesisFuse=.7;push(p,b);
  }
  a.synthesisAmmo-=count;a.muzzleFlash=.15;a.muzzleAngle=heading;a.synthesisFire=(p.cow37?1:.3)*p.fighterSupplyInterval(a)/(1+(p.commandRateBonus||0));
  if(a.synthesisAmmo<=0)a.synthesisReload=p.cow37?4.6:2.5;
  return true;
 }
-function wingBomb(p,a){if(a.synthesisAmmo<=0||a.synthesisReload>0)return;const heading=a.a,b={x:a.x,y:a.y,sx:a.x,sy:a.y,vx:Math.cos(heading)*180,vy:Math.sin(heading)*180,age:0,life:.65,maxLife:.65,radius:66,damage:p.supportPower(70)*p.fighterSupplyDamage(a),ownerId:p.id,cooperBomb:true,sprite:'cooper',synthesisSupport:true,pilotSupport:true,synthesisPayload:reservePayload(p,{wing:true}),releaseAngle:heading};(world(p).friendlyBombs??=[]).push(b);a.synthesisAmmo--;if(!a.synthesisAmmo)a.synthesisReload=4;a.muzzleFlash=.1;}
+function wingBomb(p,a){if(a.synthesisAmmo<=0||a.synthesisReload>0)return;const heading=a.a,supply=p.fighterSupplyDamage(a),payload=reservePayload(p,{wing:true});payload.dartDamage*=supply;payload.burnScale*=supply;const b={x:a.x,y:a.y,sx:a.x,sy:a.y,vx:Math.cos(heading)*180,vy:Math.sin(heading)*180,age:0,life:.65,maxLife:.65,radius:66,damage:p.supportPower(70)*supply,ownerId:p.id,cooperBomb:true,sprite:'cooper',synthesisSupport:true,pilotSupport:true,synthesisPayload:payload,releaseAngle:heading};(world(p).friendlyBombs??=[]).push(b);a.synthesisAmmo--;if(!a.synthesisAmmo)a.synthesisReload=4;a.muzzleFlash=.1;}
 // Describe what the chosen equipment changes before any ammunition bookkeeping.
 // Shared by selection cards, held equipment, the codex and co-op HUD.
 export function synthesisDescription(p,id,locale='ko',compact=false){
  if(!p)return null;
- const c=weaponComposition(p,id),en=locale==='en';
+ const c=weaponComposition(p,id),en=locale==='en',dartEffect=c.explosive?(en?' Amatol adds up to 3 small impact explosions per 12-dart group, once per target.':' 아마톨은 화살 12발 묶음마다 최대 3회 소폭발을 일으키며, 같은 표적에는 한 번만 발동합니다.'):'';
  if(compact&&['cow37','quadLewis','flechettes','rearGunner','combinedProjectiles'].includes(id)){
-  if(id==='flechettes'&&c.body==='dart-shell')return en?'COW shells and equipped Cooper bombs release 12 piercing darts each.':'COW 포탄과 보유한 쿠퍼 폭탄이 관통 화살 12발을 퍼뜨립니다.';
+  if(id==='flechettes'&&c.body==='dart-shell')return c.explosive?(en?'COW and Cooper release 12 darts; up to 3 small impact explosions per group.':'COW·쿠퍼에서 화살 12발이 퍼지며, 한 묶음에 최대 3회 소폭발합니다.'):(en?'COW shells and equipped Cooper bombs release 12 piercing darts each.':'COW 포탄과 보유한 쿠퍼 폭탄이 관통 화살 12발을 퍼뜨립니다.');
   if(id==='cow37'&&c.body==='dart-shell')return en?'Replaces guns with an ammo-consuming cannon that releases 12 darts.':'기관총을 탄약을 소모하며 화살 12발을 퍼뜨리는 37mm 포로 바꿉니다.';
   return EQUIPMENT_CHOICE_COPY[id][en?1:0];
  }
  switch(id){
  case 'cow37':return c.body==='dart-shell'
-  ?(en?'Replaces the machine guns with a 37mm cannon. Each shell consumes ammunition and releases 12 piercing darts.':'기관총을 37mm 포로 교체합니다. 포탄마다 탄약을 소모하며 관통 화살 12발을 퍼뜨립니다.')
+  ?(en?'Replaces the machine guns with a 37mm cannon. Each shell consumes ammunition and releases 12 piercing darts.':'기관총을 37mm 포로 교체합니다. 포탄마다 탄약을 소모하며 관통 화살 12발을 퍼뜨립니다.')+dartEffect
   :(en?'Replaces the machine guns with a non-piercing 37mm cannon. Shells explode on impact and consume ammunition when fired.':'기관총을 비관통 37mm 포로 교체합니다. 포탄은 명중하면 폭발하며 발사할 때마다 탄약을 소모합니다.');
  case 'quadLewis':return en?'Adds three firing lanes to the primary weapon. Each fired round consumes ammunition.':'주무장 발사 갈래가 3개 늘어납니다. 발사한 탄환마다 탄약을 소모합니다.';
  case 'flechettes':return c.body==='dart-shell'
-  ?(en?'COW shells release 12 piercing darts each. Equipped Cooper bombs also release darts.':'COW 포탄이 관통 화살 12발을 퍼뜨립니다. 쿠퍼 폭탄을 보유하면 폭탄에도 적용됩니다.')
-  :(en?'Fires separate bursts of 12 piercing darts every 3 seconds without using gun ammunition. Equipped Cooper bombs also release 12 darts each.':'기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. 기관총 탄약을 쓰지 않으며 쿠퍼 폭탄에도 화살이 적용됩니다.');
+  ?(en?'COW shells release 12 piercing darts each, inheriting cannon growth. Equipped Cooper bombs also release darts with explosive growth.':'COW 포탄마다 포의 성장을 반영한 관통 화살 12발을 퍼뜨립니다. 쿠퍼 폭탄의 화살에는 폭발물 성장이 적용됩니다.')+dartEffect
+  :(en?'Keeps machine guns and fires 12 piercing darts every 3 seconds without gun ammunition. Independent darts inherit gun growth; Cooper-carried darts inherit explosive growth.':'기관총을 유지하며 탄약 소모 없이 3초마다 관통 화살 12발을 별도로 발사합니다. 독립 화살은 기관총, 쿠퍼 폭탄의 화살은 폭발물 성장을 반영합니다.')+dartEffect;
  case 'rearGunner':return en?'Rotates the primary turret at about 66° per second. Also applies to COW and Quad Lewis.':'주무장 총좌가 초당 약 66°씩 회전합니다. COW 포와 쿼드 루이스에도 적용됩니다.';
  case 'combinedProjectiles':return en?'Fires primary volleys and Cooper bombs in staggered bursts. Each shot uses your position and aim when it fires.':'주무장과 쿠퍼 폭탄을 한꺼번에 쏘지 않고 시간차로 발사합니다. 각 탄환은 발사 순간의 기체 위치와 조준 방향을 따릅니다.';
  default:return null;
  }
 }
 export function installWeaponSynthesis(Game){
+ Game.prototype.emitPilotPrimarySalvo=function({power=1,heading=this.a,kind='active',volleyToken}={}){if(!this.cow37||!alive(this)||this.reloadTime>0||!(this.ammo?.[0]>0))return 0;const total=primaryCount(this),token=volleyToken||primaryVolleyToken(this,'active',kind);token.source='active';token.kind=kind;return cannonGroup(this,Array.from({length:total},(_,i)=>i),total,{heading,power:Math.max(0,Math.min(1.5,Number.isFinite(power)?power:1)),volleyToken:token});};
  const flight=Game.prototype.flyAirframe;Game.prototype.flyAirframe=function(dt,input,...args){if(input?.inputMode==='gamepad'&&!input.fireHeld)this.synthesisGunPending=[];return flight.call(this,dt,input,...args);};
  const identity=Game.prototype.identityImpact;Game.prototype.identityImpact=function(b,...args){if(b?.synthesisSupport)return;return identity?.call(this,b,...args);};
  const incoming=Game.prototype.buildReceivedDamage;Game.prototype.buildReceivedDamage=function(before,...args){
@@ -236,8 +248,15 @@ export function installWeaponSynthesis(Game){
   if(b.synthesisSupport&&b.cow37&&!b.cannonDetonated){b.cannonDetonated=true;b.pierce=false;b.life=0;this.queueExplosionDamage(b.x,b.y,76,b.damage*.5,{exclude:e,fxSource:'cow',pilotSupport:true});const blast=world(this).bullets.at(-1);blast.synthesisSupport=true;blast.ally=true;}
   if(b.synthesisPayload?.darts)releaseDarts(this,b);
   if(b.synthesisPayload?.shrapnel&&!b.synthesisShrapnel){b.synthesisShrapnel=true;shrapnel(this,b.x,b.y,Math.atan2(b.vy,b.vx),!!b.synthesisSupport);}
-  if(b.synthesisPayload?.explosive&&!b.cow37&&!b.rocket&&!b.synthesisExploded){b.synthesisExploded=true;this.queueExplosionDamage(b.x,b.y,b.fieryGrapnel?45:20,b.damage*.35,{exclude:e,fxSource:'cow',pilotSupport:!!b.synthesisSupport});if(b.synthesisSupport){const blast=world(this).bullets.at(-1);blast.synthesisSupport=true;blast.ally=true;}}
-  if(b.synthesisPayload?.incendiary){igniteSharedBurn(this,e,b,combatImpactResult(b,e));if(b.synthesisSupport)e.burnSupport=true;}
+  if(b.synthesisPayload?.explosive&&!b.cow37&&!b.rocket&&!b.synthesisExploded){
+   b.synthesisExploded=true;const group=b.synthesisGroup,dart=!!(b.synthesisDart||b.synthesisPayloadDart);
+   if(!dart||group?.explosions>0&&!group.explodedTargets?.has(e)){
+    if(dart){group.explosions--;group.explodedTargets??=new Set();group.explodedTargets.add(e);}
+    this.queueExplosionDamage(b.x,b.y,b.fieryGrapnel?45:SYNTHESIS_BALANCE.dartExplosionRadius,b.damage*SYNTHESIS_BALANCE.dartExplosionFraction,{exclude:e,fxSource:'cow',pilotSupport:!!b.synthesisSupport,secondaryExplosion:dart});
+    const blast=world(this).bullets.at(-1);if(dart){blast.synthesisChild=true;blast.synthesisDartExplosion=true;}if(b.synthesisSupport){blast.synthesisSupport=true;blast.ally=true;}
+   }
+  }
+  if(b.synthesisPayload?.incendiary)igniteSharedBurn(this,e,b,combatImpactResult(b,e));
   if(b.fieryGrapnel&&!b.synthesisAttached){b.synthesisAttached=true;attach(this,b,e);}
   return result;
  };

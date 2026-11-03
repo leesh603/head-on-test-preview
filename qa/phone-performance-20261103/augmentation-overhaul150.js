@@ -11,7 +11,7 @@ import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,t
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {tacticalChoices,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -39,6 +39,24 @@ const manualAvailable=g=>{const b=formationManualBonus(g);return b.damage<FORMAT
 
 export const BUILD_IDENTITIES=Object.freeze({GUN:'GUN',SPEED:'SPEED',EXPLOSIVE:'EXPLOSIVE',FORMATION:'FORMATION',SURVIVAL:'SURVIVAL'});
 export const BUILD_IDENTITY_LIMIT=3;
+// Guaranteed offer deadlines, with a chance to find each item earlier in its
+// window. Bonus/boss rewards remain separate and never spend these four offers.
+export const EQUIPMENT_OFFER_LEVELS=Object.freeze([3,6,12,20]);
+const EQUIPMENT_OFFER_STARTS=Object.freeze([1,4,9,16]);
+// Actual shared firing/payload/flight rules, not merely matching family labels.
+// These guide one card only; the remaining cards still use the full legal pool.
+const EQUIPMENT_LINKS=Object.freeze([
+ ['cow37','quadLewis'],['cow37','flechettes'],['cow37','maximBelt'],['cow37','rearGunner'],['cow37','combinedProjectiles'],['cow37','telescope'],['cow37','buckinghamBelt'],['cow37','amatolCharge'],['cow37','rankinShell'],['cow37','hytheCamera'],
+ ['quadLewis','maximBelt'],['quadLewis','combinedProjectiles'],['quadLewis','rearGunner'],
+ ['cooperRack','flechettes'],['cooperRack','buckinghamBelt'],['cooperRack','amatolCharge'],['cooperRack','fieryGrapnel'],['cooperRack','grunkreuz'],['cooperRack','kaiserFog'],['cooperRack','rankinShell'],
+ ['flechettes','amatolCharge'],['flechettes','buckinghamBelt'],['hytheCamera','telescope'],
+ ['fieryGrapnel','rankinShell'],['fighterSupply','cow37'],['fighterSupply','cooperRack'],['fighterSupply','flechettes'],['fighterSupply','veryPistol'],['goeringBaton','lufberyCircle'],['goeringBaton','veryPistol'],
+ ['badinGauge','mercedesEngine'],['badinGauge','redScarf'],['badinGauge','prancingHorse'],['sparkPlug','fogCompass']
+].map(pair=>Object.freeze(pair)));
+export function compatibleEquipmentIds(p,id){return EQUIPMENT_LINKS.flatMap(([a,b])=>{
+ if((a==='fighterSupply'||b==='fighterSupply')&&!(p?.permanentWingman>0))return [];
+ return id===a&&p?.upgrades?.[b]?[b]:id===b&&p?.upgrades?.[a]?[a]:[];
+});}
 const BUILD_IDENTITY_BY_ID=Object.freeze({
  ...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT,...RARE_SPECIALIZATIONS].map(u=>[u.id,u.family])),
  damage:'GUN',rate:'GUN',spread:'GUN',turn:'SPEED',mercedesEngine:'SPEED',rockets:'EXPLOSIVE',mines:'EXPLOSIVE',explosives:'EXPLOSIVE',combinedProjectiles:'EXPLOSIVE',
@@ -141,8 +159,10 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  const SPECIAL_SYNERGY=Object.freeze({...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT,...RARE_SPECIALIZATIONS].map(u=>[u.id,u.family])),amatolCharge:'EXPLOSIVE',motorCannon:'EXPLOSIVE',lufberyCircle:'FORMATION',goeringBaton:'FORMATION',aceWingman:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',sacredCowling:'SPEED',immelmannManual:'SPEED',flightGloves:'GUN',telescope:'GUN',quadLewis:'GUN',maximBelt:'GUN',rearGunner:'GUN',sparkPlug:'SURVIVAL',steelPlate:'SURVIVAL',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL'});
  const specialSynergyWeight=(g,u)=>{const owned=Object.keys(g.upgrades||{}).filter(id=>g.upgrades[id]),count=identity=>owned.filter(id=>buildIdentityFor(id)===identity).length,identity=SPECIAL_SYNERGY[u.id],n=u.id==='mauserAceKiller'?Math.max(count('GUN'),count('EXPLOSIVE')):identity?count(identity)+(identity==='FORMATION'&&(g.permanentWingman||0)>0?1:0):0;return Math.min(1.6,1+.15*Math.min(3,n))};
  const pickWeightedSpecials=(g,pool)=>{
-  if(pool.every(u=>specialSynergyWeight(g,u)===1))return pickSpecialEquipment(g,pool);
+  const linked=pool.filter(u=>compatibleEquipmentIds(g,u.id).length);
+  if(!linked.length&&pool.every(u=>specialSynergyWeight(g,u)===1))return pickSpecialEquipment(g,pool);
   const source=pool.slice(),picks=[],weight=u=>transferWeight(g,u.id)*specialSynergyWeight(g,u);
+  if(linked.length){const first=linked[Math.min(linked.length-1,Math.floor(g.rng()*linked.length))];picks.push(first);source.splice(source.indexOf(first),1);}
   while(source.length&&picks.length<3){let ticket=g.rng()*source.reduce((sum,u)=>sum+weight(u),0),index=source.length-1;for(let i=0;i<source.length;i++){ticket-=weight(source[i]);if(ticket<0){index=i;break}}picks.push(source.splice(index,1)[0])}
   if(picks.every(u=>AIRFRAME_TRANSFER_IDS.includes(u.id))){const alternatives=pool.filter(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id));if(alternatives.length)picks[picks.length-1]=alternatives[Math.floor(g.rng()*alternatives.length)];else picks.pop()}
   return picks;
@@ -186,8 +206,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    const r=this.rng();let rarity=forceRarity||(r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal?'normal':r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal+AUGMENTATION_OVERHAUL_BALANCE.rarity.magic?'magic':'rare');
    let u=normalPick(this,rarity,picks,this.lastChoices||[]);if(!u)for(const fallback of ['normal','magic','rare']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,this.lastChoices||[]);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity});
   }
-  const offers=this.legendaryOffers??(this.legendaryOffered?1:0),limit=this.level>=20?4:this.level>=10?2:1,cooldown=this.specialDraftCooldownIds||[],pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id));
-  if(!forceRarity&&!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=3&&pool.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
+  const offers=this.legendaryOffers??(this.legendaryOffered?1:0),cooldown=this.specialDraftCooldownIds||[],pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id));
+  if(!forceRarity&&!this.mission?.unarmed&&offers<EQUIPMENT_OFFER_LEVELS.length&&this.level>=EQUIPMENT_OFFER_STARTS[offers]&&this.legendaryCount()<4&&pool.length>=3&&pool.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))&&(this.rng()<this.legendaryChance()||this.level>=EQUIPMENT_OFFER_LEVELS[offers])){
    picks.length=0;picks.push(...pickWeightedSpecials(this,pool).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.specialDraftSuppressedIds=[...cooldown];this.specialDraftCooldownIds=picks.map(u=>u.id);
   }
   this.lastChoices=picks.map(u=>u.id);this.choiceDraftSerial=(this.choiceDraftSerial||0)+1;this.choiceRerollUsed=false;this.choiceDraftKind=picks.every(u=>u.rarity==='legendary')?'special':'normal';return picks;
@@ -196,7 +216,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   return this.rerollChoices(current);
  };
  Game.prototype.canRerollChoices=function(current=[]){
-  if(this.pendingTacticalChoice||this.activeIntrusionEquipmentReward?.replacement||this.world?.activeUpgrade?.replacement)return false;
+  if(this.pendingTacticalChoice||this.activeIntrusionEquipmentReward?.replacement||this.world?.activeUpgrade?.replacement||['doctrine','composite'].includes(this.world?.activeUpgrade?.kind)||current.some(u=>u.rarity==='tactical'))return false;
   const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');
   const regular=this.pilot==='mccudden'&&current.length===4&&current.every(u=>(u.rarity||'normal')!=='legendary');
   return state==='upgrade'&&!this.choiceRerollUsed&&(special||regular)&&new Set(current.map(u=>u.id)).size===current.length;
@@ -272,13 +292,15 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   if(u.legendary)this.equipmentAcquire156={id,life:.5,maxLife:.5};
   if(!u.legendary){const family=buildIdentityFor(id);if(TACTICAL_FAMILIES.includes(family)){const count=(this.weaponModSelections?.[family]||0)+1;this.weaponModSelections={...this.weaponModSelections,[family]:count};if(count===3)this.event?.('ally',`${TACTICAL_FAMILY_NAMES[family]} 전술교리 · 3 / 5`);}}
   this.upgradeRarities??={};this.upgradeRarities[id]=rarity;this.upgrades[id]=(this.upgrades[id]||0)+1;
-  // Eligibility never interrupts combat. The pause-menu codex owns adoption.
+  // A newly earned doctrine is a free, deferrable choice after this upgrade.
+  // Co-op queues the same prompt through its existing authoritative item flow.
   recordEquipmentUpgrade(this,id,rarity);
   if(this._equipmentReplay)return true;
   if(id==='passiveMedal')this.event?.('ally',passiveMedalName(PILOTS[this.pilot]?.faction)+' · 강화 적용됨');
   if(!u.legendary&&this.pilot==='mccudden'&&this.lastChoices?.length===4)this.passiveMedalEvent?.('engineering',{serial:this.choiceDraftSerial??this.level});
   completeIntrusionEquipmentReward(this,id);
-  this.pendingTacticalChoice=null;this.state='playing';this.checkLevel();
+  this.pendingTacticalChoice=this.world?null:nextTacticalPrompt(this);
+  this.state=this.pendingTacticalChoice?'upgrade':'playing';if(!this.pendingTacticalChoice)this.checkLevel();
   return true;
  };
 
@@ -392,7 +414,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   if(this.mauserAceKiller){this.mauserTimer-=dt;if(this.mauserTimer<=0){const target=mauserTarget(this);if(target){const scaled=mauserScaling(this);this.mauserTimer+=scaled.interval;const a=Math.atan2(target.y-this.y,target.x-this.x);this.mauserAim156=a;this.mauserTarget156=target;this.mauserFlash160=.12;push({x:this.x+Math.cos(a)*16,y:this.y+Math.sin(a)*16,vx:Math.cos(a)*420,vy:Math.sin(a)*420,life:.72,mauserRound:true,mauserTarget:target,specialColor:'#a98cff',damage:scaled.damage})}else this.mauserTimer=.3}}
   this.mauserFlash160=Math.max(0,(this.mauserFlash160||0)-dt);
   if(this.rankinShrapnel&&!this.upgrades.cooperRack&&!this.upgrades.fieryGrapnel&&!this.cow37&&!(this.armorUpgradeHp>0||this.jArmorCapsule)){this.rankinShrapnelTimer-=dt;if(this.rankinShrapnelTimer<=0){this.rankinShrapnelTimer+=AUGMENTATION_OVERHAUL_BALANCE.rankinInterval;let removed=0;const clears=[];this.equipmentRankinFx={x:this.x,y:this.y,a:this.a,clears};const half=AUGMENTATION_OVERHAUL_BALANCE.rankinRearArcDegrees*Math.PI/360;for(const b of world.bullets){if(!b.enemy||b.life<=0||b.heavyShell||b.heavy||b.raidHeavy||b.signatureAttack)continue;const d=Math.hypot(b.x-this.x,b.y-this.y),rear=Math.abs(angleDiff(Math.atan2(b.y-this.y,b.x-this.x),this.a+Math.PI));if(d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half){b.life=0;removed++;if(clears.length<12&&Number.isFinite(b.x)&&Number.isFinite(b.y))clears.push({x:b.x,y:b.y})}}for(const e of this.enemies){const d=Math.hypot(e.x-this.x,e.y-this.y),rear=Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),this.a+Math.PI));if(e.hp>0&&d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half)push({x:e.x,y:e.y,vx:0,vy:0,life:.1,blast:true,damage:this.payloadPower(AUGMENTATION_OVERHAUL_BALANCE.rankinDamage)})}this.rankinFlash=.5;this.event('wave',`랭킨 파편탄 · 후방 탄막 ${removed}발 제거`)}}
-  if(this.brockSmoke&&!this.upgrades.cooperRack){this.brockSmokeTimer-=dt;if(this.brockSmokeTimer<=0){this.brockSmokeTimer+=AUGMENTATION_OVERHAUL_BALANCE.smokeInterval;this.kaiserFogTime=AUGMENTATION_OVERHAUL_BALANCE.smokeDuration;for(const e of this.enemies){if(!e.targetPlayerId||e.targetPlayerId===this.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}this.event('wave','브록식 연막 · 적 추적 해제')}this.kaiserFogTime=Math.max(0,(this.kaiserFogTime||0)-dt)}
+  if(this.brockSmoke){this.brockSmokeTimer-=dt;if(this.brockSmokeTimer<=0){this.brockSmokeTimer+=AUGMENTATION_OVERHAUL_BALANCE.smokeInterval;this.kaiserFogTime=AUGMENTATION_OVERHAUL_BALANCE.smokeDuration;for(const e of this.enemies){if(!e.targetPlayerId||e.targetPlayerId===this.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}this.event('wave','브록식 연막 · 적 추적 해제')}this.kaiserFogTime=Math.max(0,(this.kaiserFogTime||0)-dt)}
   this.repairFlash151=Math.max(0,(this.repairFlash151||0)-dt);
   this.rankinFlash=Math.max(0,(this.rankinFlash||0)-dt);
   if(!(this.rankinFlash>0)||!this.rankinShrapnel)delete this.equipmentRankinFx;

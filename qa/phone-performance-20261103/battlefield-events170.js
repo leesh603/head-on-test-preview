@@ -1,4 +1,5 @@
 import {majorEncounterBlocked} from './encounter-admission.js';
+import {mapCombatMissionPool,automaticMapMissionsAllowed,prioritizeMapConvoy} from './map-combat-roles.js';
 import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js';
 import {intrusionActive} from './intrusion-bosses.js';
 import {activeFronts,tickRuralFronts} from './rural-fronts.js';
@@ -74,7 +75,8 @@ function availableTypes(game){
 function chooseType(game,state,preferred){
  const eligible=availableTypes(game);
  if(TYPES.includes(preferred))return eligible.includes(preferred)?preferred:null;
- const available=eligible.filter(type=>type!==state.lastType),pool=available.length?available:eligible;
+ if(!automaticMapMissionsAllowed(game))return null;
+ const available=eligible.filter(type=>type!==state.lastType),pool=mapCombatMissionPool(game,available.length?available:eligible);
  if(!pool.length)return null;
  return pool[Math.floor((game.rng?.()??Math.random())*pool.length)%pool.length];
 }
@@ -353,7 +355,7 @@ function tick(game){
   else if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed');
   if(now>=event.deadline)return finish(game,state,'failed','timeExpired');
  }
- if(canOffer(game))game.offerBattlefieldEvent();
+ if(automaticMapMissionsAllowed(game)&&canOffer(game))game.offerBattlefieldEvent();
 }
 
 export function installBattlefieldEvents(Game){
@@ -407,7 +409,7 @@ export function installBattlefieldEvents(Game){
   const regionalOffer=Game.prototype.offerBattlefieldEvent;
   Game.prototype.offerBattlefieldEvent=function(preferred){
    const previous=this.battlefieldEventSpawning;let event;
-   if(!preferred&&this.canOfferBattlefieldEvent?.()&&(this.t||0)>=(this.battlefieldEvents?.nextConvoyAt??TRANSPORT_CONVOY_BALANCE.firstAt)&&availableTypes(this).includes(P.TRANSPORT_CONVOY))preferred=P.TRANSPORT_CONVOY;
+   if(!preferred&&this.canOfferBattlefieldEvent?.()&&prioritizeMapConvoy(this)&&(this.t||0)>=(this.battlefieldEvents?.nextConvoyAt??TRANSPORT_CONVOY_BALANCE.firstAt)&&availableTypes(this).includes(P.TRANSPORT_CONVOY))preferred=P.TRANSPORT_CONVOY;
    try{this.battlefieldEventSpawning=true;event=regionalOffer.call(this,preferred)}finally{this.battlefieldEventSpawning=previous}
    if(event){
     event.region=this.worldRegion?.();event.regionKey=regionKey(this);

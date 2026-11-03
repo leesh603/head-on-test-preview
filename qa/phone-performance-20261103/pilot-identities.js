@@ -5,6 +5,7 @@ import {wingmanBossPass} from './engagement-flow174.js?v=gal1&airbattle=20261025
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 import {headOnTarget} from './engagement-feedback.js?v=tame3';
 import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js';
+import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -27,6 +28,10 @@ export function installPilotIdentities(Game,PILOTS){
  Game.prototype.identityTarget=function(cone=.65,range=780,origin=this,heading=this.a){let picked=null,best=Infinity;for(const e of this.enemies||[]){if(!alive(e))continue;const d=distance(origin,e);if(d>range||Math.abs(delta(Math.atan2(e.y-origin.y,e.x-origin.x),heading))>cone)continue;if(d<best){best=d;picked=e}}return picked};
  Game.prototype.identityThreat=function(){const w=this.combatWorld(),friends=[...(w.players||[]).filter(p=>p!==this&&alive(p)),...(w.allies||[]).filter(a=>a.life>0),...(w.patrols||[]).filter(alive)];let target=null,best=Infinity;for(const e of this.enemies||[]){if(!alive(e)||e.surface)continue;for(const f of friends){const d=distance(e,f);if(d<400&&d<best&&Math.abs(delta(Math.atan2(f.y-e.y,f.x-e.x),e.a||0))<.65){best=d;target=e}}}return target};
  Game.prototype.identityShot=function(a,damage,extra={},origin=this){const speed=extra.speed||560,b={x:origin.x+Math.cos(a)*26,y:origin.y+Math.sin(a)*26,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1.4,damage,enemy:false,ownerId:own(this),hit:new Set(),...extra};this.bullets.push(b);this.identityFx(b.motorCannon?'muzzleHeavy':b.gun===1?'muzzleRear':'muzzle',b.x,b.y,a,b.motorCannon?62:28,.13);return b};
+ Game.prototype.preparePilotPrimaryRound=function(b,volley){
+  prepareReplacementPrimary(this,b,volley);if(!isReplacementPrimary(this,b))return b;
+  this.identityState();b.identityGun=true;b.identityOrigin={x:this.x,y:this.y,a:this.a};return b;
+ };
  const oldWingPlane=Game.prototype.permanentWingPlane;
  Game.prototype.permanentWingPlane=function(){if(!this.upgrades?.fighterSupply&&['boelcke','brumowski'].includes(this.pilot))return this.pilot==='boelcke'?'albatros_d2':'brumowski_albatros';return oldWingPlane.call(this)};
  const oldDuration=Game.prototype.skillDuration;
@@ -65,7 +70,7 @@ export function installPilotIdentities(Game,PILOTS){
   return b;
  };
  const oldDamage=Game.prototype.roundDamageMultiplier;
- Game.prototype.roundDamageMultiplier=function(b,e){if(b.identityDot||b.identityChain)return 1;let m=oldDamage.call(this,b,e);if(!b.identityGun&&!personal(b))return m;const s=this.identityState(),origin=b.identityOrigin||this;
+ Game.prototype.roundDamageMultiplier=function(b,e){if(b.identityDot||b.identityChain)return 1;let m=oldDamage.call(this,b,e);if(b.cow37?!isReplacementPrimary(this,b):!b.identityGun&&!personal(b))return m;const s=this.identityState(),origin=b.identityOrigin||this;
   if(this.pilot==='bishop')m*=1+clamp(1-distance(origin,e)/360)*(this.skillTime>0?1.1:.65);
   if(this.pilot==='baracca'&&pilotHeadOn(origin,e))m*=1.3;
 
@@ -78,7 +83,7 @@ export function installPilotIdentities(Game,PILOTS){
  Game.prototype.identityImpact=function(b,e,target=e,position=e){
   const s=this.identityState(),mine=(b.ownerId||'p1')===own(this),marked=s.burns.get(target),dead=target.destroyed||target.dead||target.hp<=0;
   if(marked&&dead)s.burns.delete(target);
-  if(!mine||b.identityDot||b.identityChain||b.patrol||b.ally||b.formation||b.actualExplosion)return;
+  if(!mine||b.identityDot||b.identityChain||b.patrol||b.ally||b.formation||b.actualExplosion||b.synthesisChild||b.synthesisSupport||b.cow37&&!isReplacementPrimary(this,b))return;
 
   if(this.pilot==='rickenbacker'&&b.identityGun&&e!==s.lastHit){const previous=s.switchSeen.get(e)??-Infinity;const fresh=s.clock-previous>=2;if(s.lastHit&&s.clock-(s.lastHitAt||0)<2&&fresh){s.switches=Math.min(3,(s.switches||0)+1);s.switchTime=3;this.identityFx('muzzle',this.x+Math.cos(this.a)*26,this.y+Math.sin(this.a)*26,this.a,38,.16)}s.lastHit=e;s.lastHitAt=s.clock;s.switchSeen.set(e,s.clock)}
   if(b.identityIgnite&&!dead&&(this.pilot!=='gontermann'||e===b.identityTarget)){s.burns.set(target,{enemy:e,target,position:{x:position.x,y:position.y},time:3,tick:0,damage:this.damage*(this.pilot==='gontermann'?.45:.2),part:!!e.stageBossBody&&target!==e.stageBossBody,body:e.stageBossBody});this.identityFx('fireEngine',position.x,position.y,0,34,.25)}

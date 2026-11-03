@@ -3,6 +3,7 @@
 const BIN_MS=.5,MAX_BIN_MS=1000,BIN_COUNT=2002;
 const METRICS=['rafGapMs','drawGapMs','frameJsMs','updateMs','drawMs'];
 const SKIPS=['limiter','hidden','inactive','transition','capture','error','other'];
+const SETTINGS=['hiFpsMode','batterySaver','userZoom','muted','sfxOff','bgmOff','worldWidth','worldHeight','targetFps','mobileDisplay'];
 const finite=value=>typeof value==='number'&&Number.isFinite(value);
 const rounded=value=>Number.isFinite(value)?Math.round(value*1000)/1000:0;
 
@@ -41,15 +42,16 @@ function snapshot(input,depth=0){
  return result;
 }
 function accumulator(){
- const a={activeMs:0,rafCallbacks:0,renderedFrames:0,processedFrames:0,updateSteps:0,maxUpdateSteps:0,simulatedSeconds:0,slow33:0,slow50:0,slow100:0,skips:{},firstContext:null,lastContext:null,contextPeaks:{}};
+ const a={activeMs:0,rafCallbacks:0,renderedFrames:0,processedFrames:0,updateSteps:0,maxUpdateSteps:0,simulatedSeconds:0,slow33:0,slow50:0,slow100:0,settingsMask:0,skips:{},firstContext:null,lastContext:null,contextPeaks:{}};
  for(const key of METRICS)a[key]=histogram();for(const key of SKIPS)a.skips[key]=0;return a;
 }
 function clearAccumulator(a){
  a.activeMs=a.rafCallbacks=a.renderedFrames=a.processedFrames=a.updateSteps=a.maxUpdateSteps=a.simulatedSeconds=a.slow33=a.slow50=a.slow100=0;
  for(const key of METRICS)clearHistogram(a[key]);for(const key of SKIPS)a.skips[key]=0;
- a.firstContext=a.lastContext=null;a.contextPeaks={};
+ a.firstContext=a.lastContext=null;a.contextPeaks={};a.settingsMask=0;
 }
-function applyContext(a,value){
+function applyContext(a,value,initial){
+ if(initial)for(let i=0;i<SETTINGS.length;i++)if(!Object.is(initial[SETTINGS[i]],value?.[SETTINGS[i]]))a.settingsMask|=1<<i;
  if(!a.firstContext)a.firstContext=value;a.lastContext=value;
  if(value)for(const key of Object.keys(value))if(finite(value[key]))a.contextPeaks[key]=Math.max(a.contextPeaks[key]??-Infinity,value[key]);
 }
@@ -59,7 +61,8 @@ function summarize(a){
   drawCadenceFps:rounded(a.drawGapMs.sum?1000*a.drawGapMs.count/a.drawGapMs.sum:0),onePercentLowFps:rounded(lowFps(a.drawGapMs)),
   slowDrawFrames:{over33_34ms:a.slow33,over50ms:a.slow50,over100ms:a.slow100},
   updateSteps:a.updateSteps,maxUpdateSteps:a.maxUpdateSteps,simulatedSeconds:rounded(a.simulatedSeconds),skips:{...a.skips},
-  firstContext:a.firstContext,lastContext:a.lastContext,contextPeaks:{...a.contextPeaks}};
+  firstContext:a.firstContext,lastContext:a.lastContext,contextPeaks:{...a.contextPeaks},
+  settingsChanged:a.settingsMask!==0,changedSettings:SETTINGS.filter((key,i)=>a.settingsMask&(1<<i))};
  for(const key of METRICS)result[key]=describe(a[key]);return result;
 }
 
@@ -91,7 +94,7 @@ export function createFlightRecorder({now=()=>performance.now(),context=()=>({})
  function closeBucket(){
   if(!(current.rafCallbacks||current.processedFrames||current.activeMs))return;
   const entry=summarize(current);entry.startActiveMs=rounded(currentStart);entry.endActiveMs=rounded(total.activeMs);buckets.push(entry);
-  currentStart=total.activeMs;clearAccumulator(current);if(lastContext)applyContext(current,lastContext);
+  currentStart=total.activeMs;clearAccumulator(current);if(lastContext)applyContext(current,lastContext,total.firstContext);
   if(buckets.length>=maxBuckets){recording=false;reason='capacity';stoppedAt=now();identity=null;resetIntervals();}
  }
  function sampleContext(timestamp){
@@ -99,9 +102,9 @@ export function createFlightRecorder({now=()=>performance.now(),context=()=>({})
   let value;try{value=snapshot(context())}catch{value={contextError:true}}
   if(!value||typeof value!=='object')value={};
   const key=String(value.stage??value.stageNumber??'')+':'+String(value.region??'');
-  if(sceneKey!==null&&key!==sceneKey){closeBucket();current.firstContext=current.lastContext=null;current.contextPeaks={};}
+  if(sceneKey!==null&&key!==sceneKey){closeBucket();current.firstContext=current.lastContext=null;current.contextPeaks={};current.settingsMask=0;}
   if(!recording)return;sceneKey=key;lastContext=value;
-  applyContext(total,value);applyContext(current,value);
+  applyContext(total,value,total.firstContext);applyContext(current,value,total.firstContext);
  }
  const api={
   get recording(){return recording},get measuring(){return measuring},get activeMs(){return total.activeMs},
@@ -165,6 +168,7 @@ export function createFlightRecorder({now=()=>performance.now(),context=()=>({})
      onePercentLowFps:'1000 / mean of slowest ceil(1% of draw intervals); histogram boundary bin is approximated by its actual mean.',
      quantiles:'0.5 ms upper-bin estimates through 1000 ms; overflow quantiles use the observed maximum. Means and maxima use exact samples.',
      cpu:'JavaScript update / canvas submission plus combat HUD / whole processed-frame CPU time. GPU and compositor execution are not measured.',
+     settings:'Fixed gameplay/display/audio settings are compared with the first context sample at 1 Hz. Any observed difference, including missing-to-present values, remains flagged after restoration. Adaptive renderScale/canvas pixel size is excluded.',
      buckets:'Up to 360 summaries. Scene changes are sampled at most once per second and may split a window. Capacity stops recording.'}};
   }
  };

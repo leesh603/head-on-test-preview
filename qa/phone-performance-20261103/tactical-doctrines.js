@@ -71,14 +71,31 @@ export function tacticalChoices(p){
  const counts=p.weaponModSelections||{},mods=p.weaponMods||{};
  // Deterministic order is shared by solo, local co-op and the authoritative host.
  const family=TACTICAL_FAMILIES.find(f=>(counts[f]||0)>=5&&!mods[f]);
- if(family)return {kind:'doctrine',family,choices:TACTICAL_DOCTRINES.filter(d=>d.family===family).map(d=>d.id)};
+ if(family)return {kind:'doctrine',family,choices:TACTICAL_DOCTRINES.filter(d=>d.family===family).map(d=>d.id),canDefer:true};
  if(p.compositeTactic)return null;
  const choices=COMPOSITE_TACTICS.filter(({families:[a,b]})=>(!!mods[a]&&(counts[a]||0)>=5&&(counts[b]||0)>=3)||(!!mods[b]&&(counts[b]||0)>=5&&(counts[a]||0)>=3)).map(d=>d.id);
- return choices.length&&p.deferredCompositeGrowth!==growthSignature(p)?{kind:'composite',choices}:null;
+ return choices.length&&p.deferredCompositeGrowth!==growthSignature(p)?{kind:'composite',choices,canDefer:true}:null;
+}
+// Present each newly available group once. Deferring never adopts a doctrine,
+// and older choices remain available in the codex without interrupting every
+// later level. A scalar record survives existing checkpoints and co-op packing.
+export function nextTacticalPrompt(p){
+ const available=availableTacticalEntries(p).filter(d=>!d.specialDoctrine);
+ const seen=new Set(String(p?.tacticalPromptedIds||'').split('|').filter(Boolean));
+ const family=TACTICAL_FAMILIES.find(f=>available.some(d=>d.family===f&&!seen.has(d.id)));
+ const entries=family?available.filter(d=>d.family===family):available.some(d=>d.families&&!seen.has(d.id))?available.filter(d=>d.families):[];
+ if(!entries.length)return null;
+ for(const entry of entries)seen.add(entry.id);
+ p.tacticalPromptedIds=[...seen].join('|');
+ return {kind:family?'doctrine':'composite',...(family?{family}:{}),choices:entries.map(d=>d.id),canDefer:true};
 }
 export function selectTactical(p,id){
- const offer=tacticalChoices(p);
- if(id===TACTICAL_DEFER_ID){if(offer?.kind!=='composite')return false;p.deferredCompositeGrowth=growthSignature(p);return true;}
+ const queued=p?.world?.activeUpgrade,current=p?.pendingTacticalChoice||(queued&&queued.playerId===p?.id&&['doctrine','composite'].includes(queued.kind)?queued:null),offer=current||tacticalChoices(p);
+ if(id===TACTICAL_DEFER_ID){
+  if(!offer||offer.kind!=='composite'&&!(offer.kind==='doctrine'&&current?.canDefer===true))return false;
+  const seen=new Set(String(p.tacticalPromptedIds||'').split('|').filter(Boolean));for(const choice of offer.choices||[]){const key=typeof choice==='string'?choice:choice.id;if(TACTICAL_BY_ID[key])seen.add(key);}p.tacticalPromptedIds=[...seen].join('|');
+  if(offer.kind==='composite')p.deferredCompositeGrowth=growthSignature(p);return true;
+ }
  if(!availableTacticalEntries(p).some(d=>d.id===id))return false;
  const item=TACTICAL_BY_ID[id];
  if(item.specialDoctrine){if(!p.acquireAirframeTransfer?.(id))return false;p.upgrades??={};p.upgrades[id]=1;p.upgradeRarities??={};p.upgradeRarities[id]='tactical';}

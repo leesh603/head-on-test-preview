@@ -1412,7 +1412,7 @@ const newAceAirframes={
  wolff_albatros:{name:'알바트로스 D.III · 여린꽃',faction:'central',speed:149,turn:3.35,hp:110,drag:.14,recovery:1.35,role:'무피격 축적 · 급강하 기습',history:'쿠르트 볼프의 알바트로스 D.III를 바탕으로 목재 동체·Jasta 11 적색 띠·초록 꼬리와 작은 흰 꽃 표식을 조합한 전용 도장입니다.',tip:'피격을 피할수록 강해집니다. 중첩을 모은 뒤 붐 앤 줌으로 직선 기습하세요.'},
  loewenhardt_fokkerd7:{name:'포커 D.VII · 노랑포커',faction:'central',speed:162,turn:3.6,hp:122,drag:.09,recovery:1.6,role:'정면 화력 · 수직 상승 사격',history:'카나리아색 상부 날개와 동체, 로젠지 하부 날개, 흰 꼬리와 대형 검은 십자를 사용한 에리히 뢰벤하르트 전용 D.VII입니다.',tip:'정면 교전 피해가 높습니다. 수직 상승 사격은 방향 전환보다 진입선 선정이 중요합니다.'},
  mccudden_se5a:{name:'S.E.5a · 맥커든 개조형',faction:'entente',speed:184,turn:2.95,hp:128,drag:.10,recovery:1.65,role:'고속 개조 · 선택지 확장',history:'제임스 맥커든의 고고도 성능 개량형 S.E.5a입니다. PC10 도장에 흰 G 표식, 붉은 스피너와 4엽 프로펠러가 특징입니다.',tip:'최고속도가 높고 매 레벨 선택지가 4개입니다. 넓게 이탈하며 필요한 개조를 빠르게 완성하세요.'},
- nungesser_nieuport24:{name:'뉴포르 24bis · 죽음의 기사',faction:'entente',speed:158,turn:4.3,hp:88,drag:.19,recovery:1.4,role:'재교전 · 표식 추격',history:'샤를 눙게서의 은색 뉴포르와 검은 심장·해골 상징을 게임용으로 정리한 전용 24bis입니다.',tip:'같은 적과 재교전해 집념을 발동하고, 죽음의 표식으로 직접 조준한 표적을 집중 공격하세요. 자동 조준과 무적은 없습니다.'}
+ nungesser_nieuport24:{name:'뉴포르 24bis · 죽음의 기사',faction:'entente',speed:158,turn:4.3,hp:88,drag:.19,recovery:1.4,role:'근접 압박 · 돌파 2연사',history:'샤를 눙게서의 은색 뉴포르와 검은 심장·해골 상징을 게임용으로 정리한 전용 24bis입니다.',tip:'가까운 적을 연속 명중해 집념을 발동하세요. 죽음의 기사는 가속과 관통 2연사로 교전선을 뚫으며 추가탄도 탄약을 사용합니다.'}
 };
 for(const [id,s]of Object.entries(newAceAirframes)){
  const handling=Object.freeze({speed:s.speed,turn:s.turn,drag:s.drag,recovery:s.recovery,role:s.role,history:s.history,tip:s.tip});

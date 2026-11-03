@@ -1,3 +1,4 @@
+import {mapCombatBriefing} from './map-combat-roles.js';
 import {synthesisDescription} from './weapon-synthesis.js';
 import {saveStageCheckpoint,readStageCheckpoint,restoreStageCheckpoint,persistStageCheckpoint,clearStageCheckpoint} from './stage-checkpoint.js';
 import {createChoiceTransaction} from './choice-transaction.js';
@@ -48,7 +49,7 @@ import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=buildfi
 import {bossCutinSource} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&opt=1';
 import {applySeaColor} from './sea-colors.js?v=tame3';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
-import {ownedMedalActivePresentation} from './medal-presentation.js';
+import {ownedMedalActivePresentation,ownedMedalPassivePresentation} from './medal-presentation.js';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
 import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
 import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
@@ -115,8 +116,8 @@ import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elit
 import{planeSprite,drawFriendlyBomber,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady}from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,tacticalChoices,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT,compatibleEquipmentIds}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,nextTacticalPrompt,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 import {createTacticalNoticeTracker} from './tactical-notices.js?v=unlock20261026';
 import {drawCloudCover}from'./cloud-cover1.js?v=gal1&perf=1029';
 import {drawFleetLayer}from'./fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
@@ -209,7 +210,7 @@ function setMobileControlMode(mode){
 }
 let capturingBind=null;const keyLabel=code=>({Space:'SPACE',Escape:'ESC',Backspace:'BACKSPACE',Tab:'TAB',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',ShiftLeft:'LSHIFT',ShiftRight:'RSHIFT',ControlLeft:'LCTRL',ControlRight:'RCTRL',AltLeft:'LALT',AltRight:'RALT'}[code]||code.replace(/^(Key|Digit|Numpad)/,''));let renderScale=1,__perfEma=0,__perfChecks=0,__perfUp=0,__perfResize=false;const __perfFrame=ms=>{if(!game||game.state!=='playing'||regionTransitionUntil>0){__perfEma=0;__perfChecks=0;__perfUp=0;return}__perfEma=__perfEma?__perfEma+(ms-__perfEma)*.1:ms;if(++__perfChecks<90)return;__perfChecks=0;if(__perfEma>14.5&&renderScale>.55){renderScale=Math.max(.55,+(renderScale*.82).toFixed(3));__perfUp=0;__perfResize=true}else if(__perfEma<9&&renderScale<1){if(++__perfUp>=3){renderScale=Math.min(1,+(renderScale*1.12).toFixed(3));__perfUp=0;__perfResize=true}}else __perfUp=0};
 function resetRegionTransition(){regionTransitionSerial++;regionTransitionUntil=0;regionTransitionAssetsReady=true;show('regionTransition',false);clearChoiceIconRefs();clearFxTintCache();stopSfx();setSfxPaused(false)}
-const regionTransition=document.createElement('div');regionTransition.id='regionTransition';regionTransition.className='region-transition hidden';regionTransition.innerHTML='<div class="region-transition-card"><small class="region-transition-kicker">FRONT LINE TRANSITION</small><strong id="regionTransitionName"></strong><span id="regionTransitionStatus" class="region-transition-status"></span><div class="region-transition-progress" aria-hidden="true"><i></i></div><div class="region-transition-tip"><b>TIP</b><span id="regionTransitionTip"></span></div></div>';$('viewport').append(regionTransition);function beginRegionTransition(label,region){const serial=++regionTransitionSerial;clearChoiceIconRefs();clearFxTintCache();stopSfx();setSfxPaused(true);keys={};resetSteeringInput();coopInput.reset();gamepadInput.reset();const locale=getLocale(),tip=transitionTipPick(region,locale,lastTransitionTipId);lastTransitionTipId=tip.id;$('regionTransitionName').textContent=transitionLabelPick(region,locale,label||'새 전장');$('regionTransitionStatus').textContent=locale==='en'?'Preparing next battlefield…':'다음 전장 준비 중…';$('regionTransitionTip').textContent=tip.text;regionTransitionUntil=performance.now()+2000;regionTransitionAssetsReady=false;show('regionTransition',true);if(game){game.particles.length=Math.min(game.particles.length,120);game.bullets=game.bullets.filter(b=>b.life>0)}transitionAssetPrep(region).catch(()=>{}).finally(()=>{if(serial===regionTransitionSerial)regionTransitionAssetsReady=true})}let best=0,nickname='';try{const rankingVersion='340';if(localStorage.getItem('headon-ranking-version')!==rankingVersion){for(const key of ['headon-priority-best-71','headon-priority-best-161','headon-ranking','headon-priority-ranking-71','headon-priority-ranking-161','headon-coop2-best-v1','headon-coop2-ranking-v1','headon-coop2-best-v2','headon-coop2-ranking-v2'])localStorage.removeItem(key);localStorage.setItem('headon-ranking-version',rankingVersion)}best=Math.max(0,Number(localStorage.getItem('headon-priority-best-161'))||0)}catch{}initLocale();$('record').textContent=t('record.best',{score:String(best).padStart(3,'0')});
+const regionTransition=document.createElement('div');regionTransition.id='regionTransition';regionTransition.className='region-transition hidden';regionTransition.innerHTML='<div class="region-transition-card"><small class="region-transition-kicker">FRONT LINE TRANSITION</small><strong id="regionTransitionName"></strong><span id="regionTransitionStatus" class="region-transition-status"></span><div class="region-transition-progress" aria-hidden="true"><i></i></div><div class="region-transition-tip"><b>TIP</b><span id="regionTransitionTip"></span></div></div>';$('viewport').append(regionTransition);function beginRegionTransition(label,region){const serial=++regionTransitionSerial;clearChoiceIconRefs();clearFxTintCache();stopSfx();setSfxPaused(true);keys={};resetSteeringInput();coopInput.reset();gamepadInput.reset();const locale=getLocale(),tip=transitionTipPick(region,locale,lastTransitionTipId),briefing=mapCombatBriefing(game,locale);lastTransitionTipId=tip.id;$('regionTransitionName').textContent=transitionLabelPick(region,locale,label||'새 전장');$('regionTransitionStatus').textContent=briefing?.label||(locale==='en'?'Preparing next battlefield…':'다음 전장 준비 중…');$('regionTransitionTip').textContent=briefing?.text||tip.text;regionTransitionUntil=performance.now()+2000;regionTransitionAssetsReady=false;show('regionTransition',true);if(game){game.particles.length=Math.min(game.particles.length,120);game.bullets=game.bullets.filter(b=>b.life>0)}transitionAssetPrep(region).catch(()=>{}).finally(()=>{if(serial===regionTransitionSerial)regionTransitionAssetsReady=true})}let best=0,nickname='';try{const rankingVersion='340';if(localStorage.getItem('headon-ranking-version')!==rankingVersion){for(const key of ['headon-priority-best-71','headon-priority-best-161','headon-ranking','headon-priority-ranking-71','headon-priority-ranking-161','headon-coop2-best-v1','headon-coop2-ranking-v1','headon-coop2-best-v2','headon-coop2-ranking-v2'])localStorage.removeItem(key);localStorage.setItem('headon-ranking-version',rankingVersion)}best=Math.max(0,Number(localStorage.getItem('headon-priority-best-161'))||0)}catch{}initLocale();$('record').textContent=t('record.best',{score:String(best).padStart(3,'0')});
 const sortieVeil=document.createElement('div');sortieVeil.id='sortieVeil';sortieVeil.className='hidden';sortieVeil.innerHTML='<div class="sv-card"><small>SORTIE</small><strong id="sortieVeilTitle">출격</strong><span id="sortieVeilStatus"></span><i class="sv-bar" aria-hidden="true"><em></em></i></div>';document.body.append(sortieVeil);
 let bossArrivalUntil=0;let bossCardFrom=0;let bossCutinUntil=0;let lastStageBossId='';
 const aceWingmanCutins=[];
@@ -366,7 +367,7 @@ function choose(id,rarity='normal'){
  if(game.activeIntrusionEquipmentReward?.replacement){const result=chooseIntrusionEquipmentReward(game,id);if(result==='pending')showUpgradeModal();else if(result){show('modal',false);sound(750,.12);if(game.state==='upgrade')showUpgradeModal();}else choiceTransaction.retry(game);return;}
  if(game.pendingTacticalChoice){
   if(!selectTactical(game,id)){choiceTransaction.retry(game);return;}
-  game.pendingTacticalChoice=tacticalChoices(game);sound(750,.12);
+  game.pendingTacticalChoice=nextTacticalPrompt(game);sound(750,.12);
   if(game.pendingTacticalChoice){showTacticalModal(game.pendingTacticalChoice,game);return}
   choices=[];show('modal',false);game.state='playing';game.checkLevel();return;
  }
@@ -483,6 +484,7 @@ const trenchPerf={cost:new Float32Array(2048),gap:new Float32Array(2048),n:0,las
 function trenchPerfReset(){trenchPerf.n=0;trenchPerf.last=0;}
 function trenchPerfRead(){const n=Math.min(trenchPerf.n,2048),q=(a,p)=>a.length?a[Math.min(a.length-1,Math.floor(a.length*p))]:0,c=Array.from(trenchPerf.cost.subarray(0,n)).sort((a,b)=>a-b),g=Array.from(trenchPerf.gap.subarray(0,n)).filter(v=>v>0).sort((a,b)=>a-b);return {samples:n,renderScale,fps:g.length?1000/(g.reduce((a,b)=>a+b,0)/g.length):0,frameP95:q(g,.95),frameMax:q(g,1),renderP95:q(c,.95),renderMax:q(c,1),heapBytes:performance.memory?.usedJSHeapSize??null,...dioramaStats};}
 const stepGameInner=(g,dt,input)=>{if(g.testMode&&g.trenchDioramaDemoRunning){const now=performance.now();if(g.state==='playing')g.t+=Math.min(1.5,Math.max(0,(now-(g.trenchDioramaTickAt??now))/1000));g.trenchDioramaTickAt=now;return}if(g.testMode&&g.combatBenchmarkRunning&&g.combatBenchmarkScript){
+ if(g.state!=='playing')return;
  g.combatBenchmarkAccumulator=(g.combatBenchmarkAccumulator||0)+dt;
  let steps=0;while(g.combatBenchmarkAccumulator>=.02&&steps++<5&&(g.combatBenchmarkSteps||0)<(g.combatBenchmarkLimit||900)){g.combatBenchmarkAccumulator-=.02;const elapsed=(g.combatBenchmarkSteps||0)*.02;const scriptedInput=g.combatBenchmarkBeforeStep?.(elapsed),a=g.combatBenchmarkMeta?.scene==='turns'?g.a+(Math.floor(elapsed/3)%2?-1.2:1.2):-Math.PI/2+Math.sin(elapsed*.42)*.65;g.update(.02,scriptedInput||{angle:a,moveX:Math.cos(a),moveY:Math.sin(a),inputMode:'gamepad',fireHeld:true});g.combatBenchmarkSteps=(g.combatBenchmarkSteps||0)+1;
  // Keep ordinary replay running through real level-ups using the same seeded choice policy.
@@ -496,7 +498,7 @@ let simulationDebt=0,frameTimeEma=1/60;
 // Loaded only for the explicit phone diagnostic page. Normal play allocates no recorder.
 let flightRecorder=null;
 if(new URLSearchParams(location.search).get('perf')==='1'){
- import('./flight-performance.js?v=phone-20261103-r2').then(({createFlightRecorder})=>{
+ import('./flight-performance.js?v=phone-20261103-r3').then(({createFlightRecorder})=>{
   flightRecorder=createFlightRecorder({context:()=>({
    stage:Number.isInteger(game?.stageBoss?.stages.orderPosition)?game.stageBoss.stages.orderPosition+1:null,
    region:game?.worldRegion?.()??null,simulationTime:game?.t??0,simulationDebt,
@@ -506,7 +508,7 @@ if(new URLSearchParams(location.search).get('perf')==='1'){
    regionBoss:game?.stageBoss?.stages.phase==='boss',intrusion:game?.intrusionBoss?.phase??null
   })});
   window.__HEADON_PERF__=Object.freeze({
-   start:metadata=>flightRecorder.start({...metadata,build:import.meta.url.includes('phone-baseline-app')?'b6278d5 + recorder':'phone-performance-20261103',
+   start:metadata=>flightRecorder.start({...metadata,build:import.meta.url.includes('phone-baseline-app')?'phone-performance-20261103-baseline-r3':'phone-performance-20261103-candidate-r3',
     userAgent:navigator.userAgent,devicePixelRatio:devicePixelRatio,viewport:[innerWidth,innerHeight],
     scope:'Native requestAnimationFrame and completed game canvas draw calls; not direct panel-present or GPU timing.'}),
    read:()=>flightRecorder.read(),stop:()=>flightRecorder.stop(),status:()=>game?.state??'hangar'
@@ -1585,10 +1587,11 @@ modal=(tag,title,text,buttons)=>{
  const cards=[...$('modalActions').querySelectorAll('.choice')];cards.forEach((card,i)=>{const b=buttons.filter(b=>b.upgradeId)[i],p=b.owner||game;card.classList.add('reinforcement-card151');card.classList.toggle('weapon-mod-card151',!!b.weaponMod);card.dataset.equipment=b.upgradeId;card.style.setProperty('--arrival',i*70+'ms');if(b.upgradeId==='ironCross')card.title=reinforcementName({id:'ironCross'},p,PLANES);
  const category=document.createElement('small');category.className='effect-category151';
  const family=buildIdentityFor(b.upgradeId),count=p.weaponModSelections?.[family]||0,en=getLocale()==='en';
- category.textContent=family?(b.rarity==='legendary'?tacticalFamilyName(family)+' · '+(en?'no count':'횟수 제외'):p.weaponMods?.[family]?tacticalFamilyName(family)+' · '+(en?'active':'교리 적용'):tacticalFamilyName(family)+(en?' doctrine ':' 교리 ')+Math.min(5,count+1)+'/5'):categoryName(b.upgradeId);card.prepend(category);
+ const linked=b.rarity==='legendary'?compatibleEquipmentIds(p,b.upgradeId):[];
+ category.textContent=family?(b.rarity==='legendary'?tacticalFamilyName(family)+' · '+(en?'no count':'횟수 제외'):p.weaponMods?.[family]?tacticalFamilyName(family)+' · '+(en?'active':'교리 적용'):count>=5?tacticalFamilyName(family)+' · '+(en?'ready to adopt':'교리 채택 가능'):tacticalFamilyName(family)+(en?' doctrine ':' 교리 ')+Math.min(5,count+1)+'/5'):categoryName(b.upgradeId);card.prepend(category);
  const rarity=document.createElement('small');rarity.className='rarity-label160';rarity.textContent=b.weaponMod?(getLocale()==='en'?'WEAPON MOD':'무장 개조'):rarityName(b.rarity||'normal').toUpperCase();card.append(rarity);
  card.title=b.label+'\n'+b.detailDesc;
- const total=document.createElement('span');total.className='cumulative151';total.textContent=b.rarity==='legendary'?'':cumulativeText(p,b.upgradeId,b.rarity);card.append(total);
+ const total=document.createElement('span');total.className='cumulative151';total.textContent=b.rarity==='legendary'?(linked.length?(en?'Combines with ':'연계 · ')+reinforcementName(UPGRADES.find(u=>u.id===linked[0]),p,PLANES):''):cumulativeText(p,b.upgradeId,b.rarity);if(linked.length){total.title=total.textContent;card.title+='\n'+total.textContent;}card.append(total);
  if(b.rarity==='legendary'){
   card.onclick=()=>choiceTransaction.run(card._choiceTicket,card._choiceAction,{delay:280,begin:()=>{$('modal').classList.add('equipping156');card.classList.add('equipping156');for(const el of $('modalActions').querySelectorAll('button'))el.disabled=true;},cleanup:()=>{$('modal').classList.remove('equipping156');card.classList.remove('equipping156');for(const el of $('modalActions').querySelectorAll('button'))el.disabled=false;}});
  }
@@ -1630,13 +1633,14 @@ function closePilotSkillDetails151(){
 function pilotSkillButtons151(p){
  const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
  const en=getLocale()==='en',lid=p.pilot==='baron'&&isBaronAlbatros(p.plane)?'baron:baron_albatros':p.pilot,ld=pilotLoadout(p.pilot,p.plane),copy=pilotIdentityCopy(lid,getLocale()),active=ownedMedalActivePresentation(p,lid,copy?.activeShort||localizedPilotDescription(lid,ld.desc),getLocale(),PLANES[p.plane]?.faction);
+ const passive=ownedMedalPassivePresentation(p,copy?.passiveShort||localizedPassiveDescription(lid,ld.passiveDesc),getLocale(),PLANES);
  const abs=el('div','','build-abilities151'),pop=el('div','','ho-skill-pop');pop.id='pilot-skill-detail151-'+(++pilotSkillCard151);pop.hidden=true;pop.setAttribute('role','note');
- for(const [kind,label,name,detail]of [['active',en?'Active':'액티브',localizedActive(lid,ld.skill),active.description],['passive',en?'Passive':'패시브',localizedPassive(lid,ld.passive),copy?.passiveShort||localizedPassiveDescription(lid,ld.passiveDesc)]]){
+ for(const [kind,label,name,{description,appliedLabel}]of [['active',en?'Active':'액티브',localizedActive(lid,ld.skill),active],['passive',en?'Passive':'패시브',localizedPassive(lid,ld.passive),passive]]){
   const item=el('button','','astra-ability astra-'+kind);item.type='button';item.setAttribute('aria-expanded','false');item.setAttribute('aria-controls',pop.id);
   const icon=el('span','','astra-ability-icon');icon.setAttribute('aria-hidden','true');const title=el('span','','astra-ability-copy');title.append(el('small',label,'astra-ability-label'),el('b',name));item.append(icon,title);
   item.onclick=e=>{e.stopPropagation();const open=item.getAttribute('aria-expanded')!=='true';closePilotSkillDetails151();if(!open)return;
    item.classList.add('ho-tip');item.setAttribute('aria-expanded','true');pop.className='ho-skill-pop astra-'+kind;pop.hidden=false;
-   pop.append(el('small',kind==='active'?'ACTIVE':'PASSIVE','ho-skill-kind'),el('strong',name),el('p',detail));if(kind==='active'&&active.appliedLabel)pop.append(el('small',active.appliedLabel,'ho-skill-kind'));
+   pop.append(el('small',kind==='active'?'ACTIVE':'PASSIVE','ho-skill-kind'),el('strong',name),el('p',description));if(appliedLabel)pop.append(el('small',appliedLabel,'ho-skill-kind'));
    if(kind==='active'&&p.skillDuration&&p.skillCooldown){const meta=el('div','','ho-skill-meta'),fmt=n=>(Math.round(n*10)/10)+(en?'s':'초');for(const [label,value]of [[en?'Duration':'지속',p.skillDuration()],[en?'Cooldown':'재사용',p.skillCooldown()]]){const row=el('span','');row.append(label+' ',el('b',fmt(value)));meta.append(row)}pop.append(meta)}
   };
   abs.append(item);
@@ -1843,15 +1847,15 @@ const modalBeforeTactical=modal;
 modal=(...args)=>{document.getElementById('tacticalCodex')?.remove();delete $('modal').dataset.tacticalChoice;$('modal').classList.remove('tactical-choice-modal','tactical-codex-modal');modalBeforeTactical(...args)};
 function showTacticalModal(item,p,onSelect){
  if(!item||game?.state!=='upgrade')return;
- const en=getLocale()==='en',composite=item.kind==='composite',ids=item.choices.map(choice=>typeof choice==='string'?choice:choice.id).filter(id=>id!==TACTICAL_DEFER_ID);
- if(!onSelect){choices=[...ids,...(composite?[TACTICAL_DEFER_ID]:[])].map(id=>({id,rarity:'tactical'}));onSelect=id=>choose(id,'tactical')}
+ const en=getLocale()==='en',composite=item.kind==='composite',canDefer=composite||item.canDefer,ids=item.choices.map(choice=>typeof choice==='string'?choice:choice.id).filter(id=>id!==TACTICAL_DEFER_ID);
+ if(!onSelect){choices=[...ids,...(canDefer?[TACTICAL_DEFER_ID]:[])].map(id=>({id,rarity:'tactical'}));onSelect=id=>choose(id,'tactical')}
  const title=composite?(en?'Choose a combined tactic':'복합 전술 선택'):(en?'Choose a tactical doctrine':'전술교리 선택');
  const tag=composite?'COMBINED TACTICS':tacticalFamilyName(item.family)+' · 5 / 5';
- const hint=composite?(en?'Adopt one per sortie, or defer until another normal upgrade.':'출격당 하나를 채택하거나 다음 일반 강화까지 보류할 수 있습니다.'):(en?'A new way to fight. Choose one doctrine.':'전투 방식을 바꿀 교리를 하나 선택하세요.');
- modal(tag,title,hint,[...ids.map(id=>({label:tacticalText(tacticalEntry(id),'name'),run:()=>onSelect(id)})),...(composite?[{label:en?'Defer this choice':'이번 선택 보류',run:()=>onSelect(TACTICAL_DEFER_ID)}]:[])]);
+ const hint=composite?(en?'Adopt one per sortie for free, or decide later in Pause → Records.':'출격당 하나를 무료로 채택합니다. 보류한 전술은 일시정지 → 기록에서 선택할 수 있습니다.'):(en?'A free doctrine is ready. Choose now, or decide later in Pause → Records.':'무료 전술교리가 해금되었습니다. 지금 채택하거나 일시정지 → 기록에서 나중에 선택하세요.');
+ modal(tag,title,hint,[...ids.map(id=>({label:tacticalText(tacticalEntry(id),'name'),run:()=>onSelect(id)})),...(canDefer?[{label:en?'Decide later':'나중에 선택',run:()=>onSelect(TACTICAL_DEFER_ID)}]:[])]);
  const container=$('modal');container.dataset.tacticalChoice=ids.join('|');container.classList.add('tactical-choice-modal');container.classList.remove('special-draft156','weapon-mod-draft151');
  const buttons=[...$('modalActions').querySelectorAll('button')];
- if(composite){const defer=buttons.at(-1);if(defer){defer.className='tactical-defer';defer.dataset.tacticalId=TACTICAL_DEFER_ID;}}
+ if(canDefer){const defer=buttons.at(-1);if(defer){defer.className='tactical-defer';defer.dataset.tacticalId=TACTICAL_DEFER_ID;}}
  ids.forEach((id,index)=>{const entry=tacticalEntry(id),button=buttons[index];if(!entry||!button)return;
   button.className='tactical-choice';button.dataset.tacticalId=id;button.type='button';
   const summary=entry.specialDoctrine?choiceDescription(id,tacticalText(entry,'description'),p):tacticalText(entry,'description');
@@ -1897,7 +1901,7 @@ function showTacticalActivation(){
  }
  if(held||!tacticalActivationQueue.length||now<toastUntil||(game.mode==='coop2'&&game.t<coopToastUntil))return;
  const notice=tacticalActivationQueue.shift(),{entry,ownerId,kind,family}=notice,toast=$('toast'),icon=tacticalIcon(entry,game),en=getLocale()==='en';
- const message=kind==='unlocked'?(family?tacticalFamilyName(family)+' · ':'')+(en?'Doctrine unlocked — Pause → Tactical Codex':'교리 해금 · 일시정지 → 전술 도감에서 확인'):tacticalText(entry,'name')+' · '+(kind==='adopted'?(en?'Adopted':'채택 완료'):(en?'Activated':'발동'));
+ const message=kind==='unlocked'?(family?tacticalFamilyName(family)+' · ':'')+(en?'Doctrine unlocked · Also available in Pause → Records':'교리 해금 · 일시정지 → 기록에서도 채택 가능'):tacticalText(entry,'name')+' · '+(kind==='adopted'?(en?'Adopted':'채택 완료'):(en?'Activated':'발동'));
  const label=tacticalElement('span',(game.mode==='coop2'&&ownerId?ownerId.toUpperCase()+' · ':'')+message),seconds=kind==='unlocked'?4:2.1;
  icon.className='tactical-activation-icon';toast.classList.remove('warn');toast.replaceChildren(icon,label);show('toast');toastUntil=now+seconds*1000;if(game.mode==='coop2')coopToastUntil=game.t+seconds;
  // Adoption is a one-time confirmation; other combat toasts must not replay it.

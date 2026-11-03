@@ -1,5 +1,6 @@
 import {activatePilotSignature,signatureCue} from './pilot-signature-state.js';
 import {tickLotharFlightFx,lotharGunFx} from './lothar-pursuit-fx.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 // Lothar's immediate transfer from a falling opponent to the next aircraft
 // inspires this arcade pursuit loop; ammunition recovery is a game abstraction.
 export const LOTHAR_BALANCE=Object.freeze({duration:6.5,enhancedDuration:6.5,switchWindow:2.5,ammoFraction:.1,turnDuration:1.5,turnMultiplier:1.4,fireRate:1.5,speedMultiplier:1.15,extension:1,extensionCap:3});
@@ -7,7 +8,7 @@ const world=p=>p.combatWorld?.()||p;
 const clock=p=>world(p).t||0;
 const playing=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed';
 const aerial=e=>e&&!e.surface&&!e.navalVessel&&!e.fieldUnit&&!e.stationary&&!e.stageBossBody&&!e.crashed&&!e.dying&&!e.expired&&!e.rivalEscaped&&e.type!=='zeppelin';
-const personalGun=(p,b,emitting=false)=>b&&Number.isInteger(b.gun)&&(b.ownerId??(emitting?(p.id||'p1'):'p1'))===(p.id||'p1')&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','fonckSeeker','identityDot','identityChain','burn'].some(k=>b[k]);
+const personalGun=(p,b,emitting=false)=>isReplacementPrimary(p,b)||b&&Number.isInteger(b.gun)&&(b.ownerId??(emitting?(p.id||'p1'):'p1'))===(p.id||'p1')&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','fonckSeeker','identityDot','identityChain','burn','synthesisChild','synthesisSupport'].some(k=>b[k]);
 const state=p=>p.lotharPursuit??={source:null,switchUntil:0,turnUntil:0,extended:0,killed:new WeakSet()};
 
 export function installLothar(Game){

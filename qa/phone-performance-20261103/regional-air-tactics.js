@@ -1,4 +1,5 @@
 import {ordinaryFighter,fighterShotReady} from './dogfight-pass165.js?v=gal1&airbattle=20261025';
+import {mapCombatPatternPool} from './map-combat-roles.js';
 // Regional doctrine for ordinary aircraft.  This module only selects among the
 // Battle Director's existing manoeuvres and bends those manoeuvres around live
 // battlefield hazards; it never changes aircraft stats, spawn counts or caps.
@@ -49,11 +50,11 @@ export function regionalAircraftEligible(e,{allowElite=false}={}){
 
 export function regionalPatternPool(game,candidates){
  const profile=regionalAirProfile(game);
- if(!profile||!regionalTacticsActive(game))return candidates;
- const available=new Set(candidates),preferred=profile.patterns.filter(pattern=>available.has(pattern));
+ if(!regionalTacticsActive(game))return candidates;
+ const pool=mapCombatPatternPool(game,candidates),available=new Set(candidates),preferred=profile?.patterns.filter(pattern=>available.has(pattern))||[];
  // Repetition is a weight only.  Candidate kinds and the Director cadence stay
  // unchanged, and a map cannot unlock a pattern before its normal time gate.
- return preferred.length?[...preferred,...candidates]:candidates;
+ return preferred.length?[...preferred,...pool]:pool;
 }
 
 const facilityKind=e=>e.navalVessel||e.movingShip?'naval':e.harborFacility?'harbor':e.cityUnit?'city':e.londonInstallation?'london':e.fieldUnit?'field':null;

@@ -61,6 +61,30 @@ function heart(c,p,insignia,x,size,alpha){
   insignia(c,'blackHeart',0,0,size,time(p));
  }finally{c.restore();}
 }
+// Historical heart/coffin artwork floats behind the aircraft, below its sprite.
+export function nungesserHeraldryPose(p){
+ if(p?.pilot!=='nungesser'||!visible(p)||!['playing','paused','upgrade'].includes(p.state))return null;
+ const s=p.pilotSignatureState,n=s?.nungesser,remaining=Math.min(p.skillTime||0,n?.burstRemaining??p.skillTime??0);
+ if(!(remaining>0))return null;
+ const t=time(p)+(n?.replicaAge||0),age=Number.isFinite(s?.activationTime)?t-s.activationTime:s?.activeAge??.2;
+ const fade=Math.min(1,Math.max(0,age)/.14,remaining/.2),rear=54+Math.sin(t*2.2)*3;
+ return {x:-Math.cos(p.a)*rear,y:-Math.sin(p.a)*rear-3*Math.sin(t*1.7),size:112,alpha:.26*fade};
+}
+export function drawNungesserWorld(c,p,tex,front=false,insignia=()=>false){
+ if(p.pilot!=='nungesser'||!visible(p)||!['playing','paused','upgrade'].includes(p.state))return;
+ const n=p.pilotSignatureState?.nungesser;if(!n)return;const t=time(p)+(n.replicaAge||0);
+ if(!front){
+  const pose=nungesserHeraldryPose(p);if(pose){c.save();try{c.globalCompositeOperation='source-over';c.globalAlpha*=pose.alpha;insignia(c,'blackHeart',pose.x,pose.y,pose.size,t);}finally{c.restore();}}
+  return;
+ }
+ for(const e of p.pilotSignatureState.effects||[]){if(e.ownerId!==owner(p)||e.life<=0||!['nungesserImpact','nungesserPressure'].includes(e.kind))continue;
+  const q=clamp(e.age/e.maxLife),x=e.x-p.x,y=e.y-p.y,fade=(1-q)**1.2;
+  if(e.kind==='nungesserPressure'){
+   tex(c,'armorSpark',x,y,34+q*12,22+q*8,e.a,.9*fade);
+   for(const side of [-1,1])tex(c,'metalShard2',x-Math.cos(e.a)*q*14-Math.sin(e.a)*side*q*13,y-Math.sin(e.a)*q*14+Math.cos(e.a)*side*q*13,9-q*3,4,e.a+side*q,fade*.8);
+  }else{tex(c,'armorSpark',x,y,19+q*10,12+q*7,e.a,.85*fade);tex(c,'gunSmoke',x+Math.cos(e.a)*q*13,y+Math.sin(e.a)*q*13,19+q*23,13+q*12,e.a,.45*fade);}
+ }
+}
 export function drawDeathDefianceLocal(c,p,tex,front=false,insignia=()=>false){
  if(!DEFIANCE_PILOTS.has(p.pilot)||!visible(p))return false;
  const scale=(p.bomberTransfer?.scale??1)*(p.aceScale129||1);
@@ -77,13 +101,18 @@ export function drawDeathDefianceLocal(c,p,tex,front=false,insignia=()=>false){
  }finally{c.restore();}}
  for(let gun=0;gun<(p.weapon?.guns||1);gun++){
   const e=latest(p,'defianceGun',gun);if(!e)continue;const a=e.a-p.a,flash=clamp(e.life/.045);
-  const mark=p.pilot==='nungesser'&&nungesserCombatStatus(p).active;
+  const status=p.pilot==='nungesser'?nungesserCombatStatus(p):null,mark=!!status?.active;
   const power=p.pilot==='barker'?clamp(Math.max(p.barkerStacks||0,p.barkerDamageStage||0)/5):0;
   tex(c,Math.cos(a)<0?'muzzleRear':'muzzleTwin',e.mountX+Math.cos(a)*3,e.mountY+Math.sin(a)*3,16+power*15+(mark?8:0),7+power*5+(mark?3:0),a,.9*flash);
   if(power){
    const age=Number.isFinite(e.age)?e.age:Math.max(0,.085-e.life),side=gun%2?1:-1;
    tex(c,'gunSmoke',e.mountX+Math.cos(a)*(10+age*35),e.mountY+Math.sin(a)*(10+age*35),24+power*13,12+power*6,a,.28*power*flash);
    tex(c,'bulletBrass',e.mountX-7-age*38,e.mountY+side*(7+age*80),6,2.5,side*(.4+age*12),.8*power*flash);
+  }
+  if(p.pilot==='nungesser'&&(mark||status.ready)){
+   const age=e.age||0,side=gun%2?1:-1;
+   tex(c,'gunSmoke',e.mountX+Math.cos(a)*(9+age*50),e.mountY+Math.sin(a)*(9+age*50),mark?35:26,mark?17:12,a,.38*flash);
+   tex(c,'bulletBrass',e.mountX-6-age*35,e.mountY+side*(6+age*65),5,2,a+side*(.5+age*8),.9*flash);
   }
  }return true;
 }
@@ -100,7 +129,5 @@ export function drawDeathDefianceCue(c,p,e,tex,front,insignia=()=>false){
 
 // A small upright authored insignia above the target, never over its airframe.
 export function drawNungesserMark(c,p,insignia){
- if(p.pilot!=='nungesser'||!visible(p)||p.status==='downed')return;
- const n=p.pilotSignatureState?.nungesser;if(!n?.markKey||!(n.markRemaining>0)||!(p.skillTime>0)||![n.markX,n.markY,n.markTop].every(Number.isFinite))return;
- c.save();try{c.globalAlpha*=Math.min(1,n.markRemaining/.18);c.filter='drop-shadow(0px 0px 0.7px #f5edcf)';insignia(c,'blackHeart',n.markX-p.x,n.markY-p.y-n.markTop,24,time(p));}finally{c.restore();}
+ // Compatibility export: the target-following insignia is retired.
 }

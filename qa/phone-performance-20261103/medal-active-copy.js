@@ -105,8 +105,8 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Instantly repair 46.7% of maximum durability."
   ],
   "nungesser": [
-    "6초간 관통 사격하며 연사와 표식 대상 피해가 각각 60% 증가합니다. 기관총 격추 시 남은 표식을 다음 적에게 넘깁니다.",
-    "Fire piercing rounds for 6s: fire rate +60%, marked-target damage +60%. A gun kill passes the remaining mark to the next target."
+    "6초간 속도 +25%·선회 +15%·연사·장전 +35%. 관통 추가탄 피해 90%, 탄약 1발 사용.",
+    "For 6s: speed +25%, turn +15%, fire/reload speed +35%. Piercing follow-up damage is 90%; each follow-up spends one round."
   ],
   "rickenbacker": [
     "5초간 속도가 2배가 됩니다. 그동안 다른 표적에 기관총을 맞히면 0.65초간 발사탄 피해가 15%, 보스에게는 10% 증가합니다.",
@@ -141,4 +141,22 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Suppress enemies ahead for 5.4s. Rear hits on suppressed targets deal +20% damage (+12% vs bosses)."
   ]
 });
-export function medalActiveDescription(id,locale='ko'){return MEDAL_ACTIVE_COPY[id]?.[locale==='en'?1:0]||'';}
+// The equipped primary changes the actual finite attack. Keep the ordinary MG
+// copy for previews, and explain the paid, non-piercing cannon at runtime.
+const COW_ACTIVE_COPY=Object.freeze({
+ fonck:['조준한 방향으로 직접 피해 +50%의 COW 일제사격을 최대 4회 발사합니다. 포탄당 실탄 1발을 소비하며 관통하지 않습니다.','Fire up to 4 aimed COW salvos at +50% direct damage. Each shell spends 1 round and does not pierce.'],
+ proctor:['3초간 직접 피해 +50%의 COW 일제사격을 최대 15회 발사하며 세 번씩 재조준합니다. 실탄과 재장전이 적용되며 관통하지 않습니다.','Fire up to 15 COW salvos over 3s at +50% direct damage, re-aiming every three. Uses real ammo and reloads; shells do not pierce.'],
+ gontermann:['실탄을 소비하는 COW 준비·소이 일제사격으로 표적에 5초 화재를 일으킵니다. 관통하지 않으며 화재 피해가 20%, 보스에게는 10% 증가합니다.','Paid COW preparation and incendiary salvos ignite a 5s fire. Shells do not pierce; burn damage +20% (+10% vs bosses).'],
+ luke:['COW 소이 일제사격 후 불붙은 표적을 기폭해 최대 7곳을 연쇄 폭발시킵니다. 포탄마다 실탄을 소비하며 같은 화재는 재기폭하지 않습니다.','Use COW incendiary salvos, then detonate up to 7 fires in a chain. Each shell spends ammo; each fire detonates once.'],
+ udet:['무적 배럴 롤 후 3.24초간 반격합니다. 회피 중첩으로 연사가 강화되고 실탄을 소비하는 COW 일제사격 1회를 추가합니다.','Make an invulnerable barrel roll, then counter for 3.24s. Graze stacks boost fire rate; add 1 COW salvo using real ammo.'],
+ loewenhardt:['낮게 진입한 뒤 3.24초간 수직 상승 사격하며 실탄을 소비하는 COW 일제사격 1회를 추가합니다.','Enter low, then climb while firing for 3.24s, adding 1 COW salvo using real ammo.'],
+ sachsenberg:['무적으로 상승한 뒤 급강하하며 연속 사격합니다. 실탄을 소비하는 COW 일제사격을 최대 2회 추가합니다.','Climb invulnerably, then dive with rapid fire and up to 2 extra COW salvos using real ammo.'],
+ barker:['8.1초간 내구도가 1 아래로 떨어지지 않습니다. 치명타를 버티면 실탄을 소비하는 COW 반격 일제사격을 한 번 발사합니다.','Durability cannot fall below 1 for 8.1s. Surviving a lethal hit triggers one COW counter salvo using real ammo.'],
+ nungesser:['6초간 이동과 선회, 장전이 빨라집니다. COW 포탄에는 관통이나 추가 사격이 적용되지 않습니다.','For 6s, movement, turning, and reloading are faster. COW shells do not pierce or fire a follow-up shot.'],
+ lothar:['6.5초간 연사가 50%, 속도가 15% 증가합니다. 주무장 격추 후 3.5초 내 다른 적 명중 시 1초씩, 최대 3초 연장됩니다.','Gain +50% fire rate and +15% speed for 6.5s. After a primary kill, hit another enemy within 3.5s: +1s, up to +3s.'],
+ rickenbacker:['5초간 속도가 2배가 됩니다. 그동안 다른 표적에 주무장을 맞히면 0.65초간 발사탄 직접 피해가 15%, 보스에게는 10% 증가합니다.','Double speed for 5s. Hit a different enemy with your primary: rounds fired for 0.65s deal +15% direct damage (+10% vs bosses).'],
+ navarre:['넓은 방어 공역 안에서 COW를 직접 맞힌 적을 2.6초간 감속시킵니다. 포탄은 관통하지 않으며 보스 감속은 제한됩니다.','Direct COW hits inside the expanded defensive zone slow enemies for 2.6s. Shells do not pierce; boss slowing is limited.'],
+ wolff:['3.78초간 상승 후 급강하해 속도와 화력을 높입니다. 급강하 첫 명중 일제사격의 직접 피해가 30%, 보스에게는 15% 증가합니다.','Climb and dive for 3.78s, gaining speed and firepower. The first accepted dive salvo deals +30% direct damage (+15% vs bosses).'],
+ ball:['1.875초간 위장합니다. 재등장 후 단독 후방 기습의 첫 명중 일제사격 직접 피해가 25%, 보스에게는 10% 증가합니다.','Cloak for 1.875s. The first accepted salvo of a solo rear ambush deals +25% direct damage (+10% vs bosses).']
+});
+export function medalActiveDescription(id,locale='ko',owner){const row=(owner?.cow37||owner?.upgrades?.cow37)&&COW_ACTIVE_COPY[id]||MEDAL_ACTIVE_COPY[id];return row?.[locale==='en'?1:0]||'';}

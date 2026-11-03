@@ -1,7 +1,7 @@
 import {LegacyProjectileStream} from './legacy-projectile-stream.js';
 import {snapshotLaonBattle} from './laon-battle.js';
 import {legacySquadronSnapshot} from './legacy-squadron-adapter.js';
-import {advanceNungesserReplica} from './nungesser-combat.js';
+import {advanceNungesserReplica,NUNGESSER_BALANCE} from './nungesser-combat.js';
 import {navarreSuppressionVisual} from './navarre-frommherz-combat.js';
 import * as finalArenaAchievementGate from './achievements.js?v=pandemonium394r2';
 import {receiveIntrusionVisual,advanceIntrusionVisual} from './intrusion-network-visual.js';
@@ -305,7 +305,7 @@ export class OnlineCoopGame extends CoopGame {
   if(this.state==='playing'){
    for(const owner of this.players){advanceUdetReplica(owner,step);advanceNungesserReplica(owner,step);}
    const p=this.player(this.localPlayerId);if(p.status==='alive'){
-    const acrobat=udetFlightModifiers(p),turn=p.turn;p.turn*=acrobat.turn;try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=momentumTier(p).speed*acrobat.speed*(p.pilot==='rickenbacker'&&p.skillTime>0&&p.hp>0?2:1)*p.baseSpeed*equipmentCruiseMultiplier(p)*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(airbrakeMovement(p,step,p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1))*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
+    const acrobat=udetFlightModifiers(p),breakthrough=p.pilot==='nungesser'&&p.skillTime>0&&p.pilotSignatureState?.nungesser?.burstRemaining>0,turn=p.turn;p.turn*=acrobat.turn*(breakthrough?NUNGESSER_BALANCE.turn:1);try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=momentumTier(p).speed*acrobat.speed*(breakthrough?NUNGESSER_BALANCE.speed:1)*(p.pilot==='rickenbacker'&&p.skillTime>0&&p.hp>0?2:1)*p.baseSpeed*equipmentCruiseMultiplier(p)*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(airbrakeMovement(p,step,p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1))*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
     const x=p.x,y=p.y;p.x+=Math.cos(p.a)*velocity*step;p.y+=Math.sin(p.a)*velocity*step;this.constrainMove(p,x,y);
     const k=1-Math.exp(-step*10),c=this._netCorrection;p.x+=c.x*k;p.y+=c.y*k;p.a+=c.a*k;c.x*=1-k;c.y*=1-k;c.a*=1-k;
    }
@@ -317,5 +317,3 @@ export class OnlineCoopGame extends CoopGame {
   this.updateCamera(step);
  }
 }
-
-
