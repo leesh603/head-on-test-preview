@@ -122,7 +122,7 @@ import {drawCloudCover}from'./cloud-cover1.js?v=gal1&perf=1029';
 import {drawFleetLayer}from'./fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
 import {drawTrenchLayer}from'./trench-war1.js?v=gal1';
 import {drawCityAirLayer}from'./city-air1.js?v=gal1';
-import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=gal1';
+import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=gal1&phoneperf=20261103';
 import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
 import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
@@ -496,7 +496,7 @@ let simulationDebt=0,frameTimeEma=1/60;
 // Loaded only for the explicit phone diagnostic page. Normal play allocates no recorder.
 let flightRecorder=null;
 if(new URLSearchParams(location.search).get('perf')==='1'){
- import('./flight-performance.js?v=phone-20261103').then(({createFlightRecorder})=>{
+ import('./flight-performance.js?v=phone-20261103-r2').then(({createFlightRecorder})=>{
   flightRecorder=createFlightRecorder({context:()=>({
    stage:Number.isInteger(game?.stageBoss?.stages.orderPosition)?game.stageBoss.stages.orderPosition+1:null,
    region:game?.worldRegion?.()??null,simulationTime:game?.t??0,simulationDebt,
@@ -2393,11 +2393,12 @@ function installHeadOnTestLab(){
   const run=game;run.need=Infinity;run.combatBenchmarkRunning=true;run.combatBenchmarkScript=true;
   run.combatBenchmarkSteps=0;run.combatBenchmarkAccumulator=0;run.combatBenchmarkLimit=stageSeconds*4*50;
   run.combatBenchmarkMeta={scene:'phone-long-run',seed,scripted:true,simulationStep:.02,stageSeconds,
-   maximumReplaySeconds:stageSeconds*4,qaProjectiles:false,invincible:true,
+   maximumReplaySeconds:stageSeconds*4,sceneClock:'active-wall-r2',qaProjectiles:false,invincible:true,
    note:'Diagnostic invulnerable fixed-step flight, native enemies/projectiles/effects, four forced fields. Not natural stage clears or balance evidence.'};
   const regions=[0,2,4,6];let stage=0;
   run.combatBenchmarkBeforeStep=elapsed=>{
-   const next=Math.min(3,Math.floor(elapsed/stageSeconds));
+   const sceneElapsed=flightRecorder?.recording?flightRecorder.activeMs/1000:elapsed;
+   const next=Math.min(3,Math.floor(sceneElapsed/stageSeconds));
    if(next!==stage){stage=next;configureRegion(run,regions[stage]);run.stageBoss.stages.orderPosition=stage;beginRegionTransition(HEADON_TEST_REGION_NAMES[regions[stage]],regions[stage]);}
    const angle=-Math.PI/2+Math.sin(elapsed*.21)*.7;
    return {angle,moveX:Math.cos(angle),moveY:Math.sin(angle),inputMode:'gamepad',fireHeld:true};

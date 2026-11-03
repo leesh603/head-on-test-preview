@@ -104,7 +104,7 @@ export function createFlightRecorder({now=()=>performance.now(),context=()=>({})
   applyContext(total,value);applyContext(current,value);
  }
  const api={
-  get recording(){return recording},get measuring(){return measuring},
+  get recording(){return recording},get measuring(){return measuring},get activeMs(){return total.activeMs},
   start(meta={}){
    clearAccumulator(total);clearAccumulator(current);buckets.length=0;metadata=snapshot(meta)||{};startedAt=now();stoppedAt=0;reason='recording';recording=true;
    identity=null;resetIntervals();frameAt=0;frameUpdateMs=frameSteps=frameSimulation=0;drawRecorded=false;nextContextAt=0;currentStart=0;sceneKey=null;lastContext=null;
