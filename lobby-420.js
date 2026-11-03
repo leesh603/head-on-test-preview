@@ -36,6 +36,8 @@ const MOBILE_PILOT_NAMES420 = {
   ko: {baron:'만프레드',voss:'포스',boelcke:'뵐케',immelmann:'임멜만',udet:'우데트',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네메르',bishop:'비숍',goering:'괴링',mannock:'매녹',mckeever:'맥키버\n& 파월',huffzky:'후프츠키\n& 에만',hawker:'호커',berthold:'베르톨트',jacobs:'야콥스',rickenbacker:'리켄바커',ball:'볼',barker:'바커',luke:'루크',brumowski:'브루모프스키',gontermann:'곤터만',wolff:'볼프',loewenhardt:'뢰벤하르트',mccudden:'맥커든',nungesser:'눙게서',lothar:'로타르',sachsenberg:'작센베르크',proctor:'프록터',schleich:'슐라이히',lufbery:'러프베리'},
   en: {baron:'Manfred',voss:'Voss',boelcke:'Boelcke',immelmann:'Immelmann',udet:'Udet',fonck:'Fonck',collishaw:'Collishaw',baracca:'Baracca',guynemer:'Guynemer',bishop:'Bishop',goering:'Göring',mannock:'Mannock',mckeever:'McKeever\n& Powell',huffzky:'Huffzky\n& Ehmann',hawker:'Hawker',berthold:'Berthold',jacobs:'Jacobs',rickenbacker:'Rickenbacker',ball:'Ball',barker:'Barker',luke:'Luke',brumowski:'Brumowski',gontermann:'Gontermann',wolff:'Wolff',loewenhardt:'Loewenhardt',mccudden:'McCudden',nungesser:'Nungesser',lothar:'Lothar',sachsenberg:'Sachsenberg',proctor:'Proctor',schleich:'Schleich',lufbery:'Lufbery'}
 };
+Object.assign(MOBILE_PILOT_NAMES420.ko,{friedrich_karl:'카를 왕자',robinson:'로빈슨'});
+Object.assign(MOBILE_PILOT_NAMES420.en,{friedrich_karl:'Prince Karl',robinson:'Robinson'});
 function mobilePilotName420(id, label, locale) {
   return MOBILE_PILOT_NAMES420[locale === 'en' ? 'en' : 'ko'][id] || label.trim();
 }

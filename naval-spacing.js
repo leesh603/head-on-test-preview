@@ -8,7 +8,7 @@ export function surfaceBosses(g){
  const e=g.intrusionBoss,layout=maritimeLayouts[e?.profileId]||maritimeRaiderLayouts[e?.profileId];
  // Optional sea encounters live outside BossStages. Use their painted hull,
  // including entry/withdrawal and the submarine's reserved resurfacing space.
- if(layout&&['entering','active','retreating'].includes(e.phase))hulls.push({x:e.x,y:e.y,w:layout.width*e.scale,h:layout.height*e.scale,yaw:e.a+Math.PI/2});
+ if(layout&&['entering','active','retreating','destroyed'].includes(e.phase))hulls.push({x:e.x,y:e.y,w:layout.width*e.scale,h:layout.height*e.scale,yaw:e.a+Math.PI/2});
  return hulls;
 }
 function liveShipCount(g){let n=0;for(const e of g.enemies||[])if(e.movingShip&&e.hp>0&&!e.expired)n++;for(const e of g.friendlyShips||[])if(e.movingShip&&e.hp>0&&!e.expired)n++;return n;}

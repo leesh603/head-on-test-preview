@@ -88,9 +88,9 @@ export function joinTerrainEdges(canvas,border=24){
  g.putImageData(im,0,0);return canvas;
 }
 export class TerrainRenderer {
- constructor({atlas=null,tileSize=768,detail=1,canvasFactory}={}){this.atlas=atlas;this.tileSize=positive(tileSize,'tileSize');this.detail=clamp(detail,.25,1);this.tiles=new Map();this.canvasFactory=canvasFactory??((w,h)=>{const c=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):document.createElement('canvas');c.width=w;c.height=h;return c;});}
- setAtlas(atlas){this.atlas=atlas;this.tiles.clear();}
- setDetail(detail){this.detail=clamp(detail,.25,1);this.tiles.clear();}
+ constructor({atlas=null,tileSize=768,detail=1,canvasFactory}={}){this.atlas=atlas;this.tileSize=positive(tileSize,'tileSize');this.detail=clamp(detail,.25,1);this.tiles=new Map();this.pendingTiles=new Map();this.canvasFactory=canvasFactory??((w,h)=>{const c=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):document.createElement('canvas');c.width=w;c.height=h;return c;});}
+ setAtlas(atlas){this.atlas=atlas;this.tiles.clear();this.pendingTiles.clear();}
+ setDetail(detail){this.detail=clamp(detail,.25,1);this.tiles.clear();this.pendingTiles.clear();}
  sizeFor(key){return TERRAIN_PROFILES[key]?.tileSize??this.tileSize;}
  _rememberTile(key,c){if(key==='sea')applySeaColor(c.getContext('2d'),'adriatic',c.width,c.height);applyTerrainAtmosphere(c.getContext('2d'),key,c.width,c.height);this.tiles.set(key,c);let pixels=0;for(const t of this.tiles.values())pixels+=t.width*t.height;while(this.tiles.size>1&&(this.tiles.size>4||pixels>4*768*768)){const oldest=this.tiles.keys().next().value,t=this.tiles.get(oldest);pixels-=t.width*t.height;this.tiles.delete(oldest);}return c;}
  tile(key){const p=TERRAIN_PROFILES[key];if(!p)throw new Error('Unknown terrain '+key);
@@ -98,11 +98,20 @@ export class TerrainRenderer {
   // the composite only once the image is actually decoded so the first frames
   // never freeze a bare base-color tile.
   if(p.src){const im=profileImage(key),ready=im?.complete&&im.naturalWidth;
-   if(!ready){const warm=this.canvasFactory(160,160),wg=warm.getContext('2d');wg.fillStyle=p.base;wg.fillRect(0,0,160,160);return warm;}
+   // A source image may have left its LRU while this finished tile survives.
+   // Keep the authored pixels during reload, and retain the source warm-up above.
+   if(this.tiles.has(key)){const cached=this.tiles.get(key);this.tiles.delete(key);this.tiles.set(key,cached);return cached;}
+   if(!ready){
+    let warm=this.pendingTiles.get(key);
+    if(warm){this.pendingTiles.delete(key);this.pendingTiles.set(key,warm);return warm;}
+    warm=this.canvasFactory(160,160);const wg=warm.getContext('2d');wg.fillStyle=p.base;wg.fillRect(0,0,160,160);
+    this.pendingTiles.set(key,warm);while(this.pendingTiles.size>2)this.pendingTiles.delete(this.pendingTiles.keys().next().value);
+    return warm;
+   }
+   this.pendingTiles.delete(key);
    // Own-texture profiles keep their painterly detail by compositing at world
    // tile size; the shared 160px cell size would smear them into plain color.
    const res=this.sizeFor(key);
-   if(this.tiles.has(key)){const cached=this.tiles.get(key);this.tiles.delete(key);this.tiles.set(key,cached);return cached;}
    const c=this.canvasFactory(res,res),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,res,res);g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,res,res);g.globalAlpha=1;if(key!=='cambrai'&&key!=='arras')joinTerrainEdges(c);return this._rememberTile(key,c);}
   if(this.tiles.has(key)){const cached=this.tiles.get(key);this.tiles.delete(key);this.tiles.set(key,cached);return cached;}
   // Pre-render once at 160 logical pixels; suppress small high-frequency texture detail.
@@ -120,7 +129,7 @@ export class TerrainRenderer {
    ctx.drawImage(tile,0,0,s+2,s+2);ctx.restore();
   }ctx.restore();
  }
- dispose(){this.tiles.clear();this.atlas=null;}
+ dispose(){this.tiles.clear();this.pendingTiles.clear();this.atlas=null;}
 }
 export class MountainField {
  constructor({seed=17,cellSize=560,safeAreas=[],damageFraction=.30,cooldown=1.25,onDamage,onImpact=()=>{}}={}){

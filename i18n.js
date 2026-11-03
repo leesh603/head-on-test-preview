@@ -1,6 +1,6 @@
 import {aircraftHistoryCopy} from './aircraft-history-copy.js';
 import {conciseEquipmentDescription} from './equipment-copy.js';
-import {MEDAL_DISPLAY_NAMES,equipmentNameKo} from './equipment-names.js';
+import {MEDAL_DISPLAY_NAMES,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
 import {liveUpgradeDescriptionEnglish} from './upgrade-copy.js';
 import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
@@ -121,8 +121,10 @@ const AIRFRAME_TIPS_EN={fokker:'Turn tightly to take the tail; do not chase fast
 // Added pilots and physical models share the existing presentation catalog;
 // livery-only fits inherit English text from their recorded model family.
 Object.assign(PILOT_NAMES_EN,{lothar:'Lothar von Richthofen',sachsenberg:'Gotthard Sachsenberg',schleich:'Eduard von Schleich',proctor:'Andrew Beauchamp-Proctor',lufbery:'Raoul Lufbery'});
-Object.assign(PILOT_NAMES_EN,{navarre:'Jean Navarre',frommherz:'Hermann Frommherz'});
+Object.assign(PILOT_NAMES_EN,{navarre:'Jean Navarre',frommherz:'Hermann Frommherz',friedrich_karl:'Prince Friedrich Karl',robinson:'William Leefe Robinson'});
 const ADDED_AIRFRAME_COPY_EN={
+ prinz_friedrich_albatros_d1:['Early twin-gun fighter','An Albatros D.I with ceremonial markings designed for Prince Friedrich Karl.','Keep fire on one target to direct your support attacks.','Spandau LMG 08/15'],
+ robinson_be2c:['Early home-defence interceptor','Robinson’s dedicated livery, based on the B.E.2c used for home defence.','Approach the priority threat and maintain accurate fire.','Lewis'],
  navarre_nieuport11:['Light turn fighter','Jean Navarre’s personal markings interpreted on the Nieuport 11.','Hold a firing line through the blockade and use light handling to reposition.','Lewis'],
  frommherz_albatros_d3:['Twin-gun fighter','Hermann Frommherz’s pale-blue Blaue Maus markings interpreted on the Albatros D.III.','Designate a target with direct fire so your wingmen can focus their aim.','Spandau LMG 08/15'],
  snipe:['Durable turn fighter','The Sopwith Snipe is the late-war fighter used by Barker.','Use close turns and sustained fire.','Vickers'],
@@ -159,6 +161,7 @@ export function t(key,params={}){const table=locale==='en'?EN:KO;return format(t
 for(const u of RARE_SPECIALIZATIONS){UPGRADE_NAMES_EN[u.id]=u.enName;UPGRADE_DESC_EN[u.id]=u.enDesc;}
 for(const d of SPECIAL_DOCTRINES){UPGRADE_NAMES_EN[d.id]=d.enName;UPGRADE_DESC_EN[d.id]=d.enDescription;}
 Object.assign(UPGRADE_DESC_EN,{fighterSupply:"Upgrades current and future permanent wingmen. Damage +35%, firing interval −20%; formation size unchanged.",mercedesEngine:"Base flight speed +20%; 1.2s straight flight raises total speed to +55%. Hard turns reduce output over 0.75s.",combinedProjectiles:'Splits rockets/grenades into packets 0.24s apart without increasing their total. Second packet: damage +25%, blast radius +10%. Single projectile: damage +15%.'});
+Object.assign(UPGRADE_NAMES_EN,{prototypeAmmo:prototypeAmmoName('central','en'),steelCore:'Steel-Core Ammunition'});
 export function upgradeName(id,fallback=''){return locale==='en'?(UPGRADE_NAMES_EN[id]||fallback):equipmentNameKo(id,fallback).replace(/퐁크/g,'폰크').replace(/리켄배커/g,'리켄바커')}
 export function upgradeDescription(id,fallback=''){const translated=locale==='en'?(liveUpgradeDescriptionEnglish(id,fallback)||UPGRADE_DESC_EN[id]||fallback):fallback;return conciseEquipmentDescription(id,fallback,locale,translated)}
 export function pilotName(id,fallback=''){return locale==='en'?(PILOT_NAMES_EN[id]||fallback):fallback}
@@ -176,5 +179,3 @@ export function subscribe(listener){listeners.add(listener);return()=>listeners.
 export function applyTranslations(root=globalThis.document){if(!root)return;const doc=root.ownerDocument||root;if(doc.documentElement)doc.documentElement.lang=locale;if(doc.title!==undefined)doc.title=t('app.title');for(const [id,key] of Object.entries(STATIC_TEXT)){const el=doc.getElementById?.(id);if(el)el.textContent=t(key)}for(const [selector,key] of STATIC_SELECTORS){const el=doc.querySelector?.(selector);if(el)el.textContent=t(key)}for(const el of doc.querySelectorAll?.('[data-i18n]')||[])el.textContent=t(el.dataset.i18n);for(const el of doc.querySelectorAll?.('[data-i18n-aria-label]')||[])el.setAttribute('aria-label',t(el.dataset.i18nAriaLabel));const select=doc.getElementById?.('localeSelect');if(select)select.value=locale;return locale}
 export function setLocale(next){const normalized=SUPPORTED.has(next)?next:'ko';locale=normalized;try{globalThis.localStorage?.setItem(STORAGE_KEY,normalized)}catch{}applyTranslations();for(const listener of listeners)listener(normalized);return normalized}
 export function initLocale(){applyTranslations();return locale}
-
-

@@ -14,6 +14,7 @@ const row=(defaultAircraft,unlockAircraft=null,holdReason='')=>Object.freeze({
  holdReason,betaAccess:false
 });
 export const PILOT_AIRCRAFT=Object.freeze({
+ friedrich_karl:row('prinz_friedrich_albatros_d1',null,'수도 결전 보상 전용 기체'),robinson:row('robinson_be2c',null,'수도 결전 보상 전용 기체'),
  baron:row('fokker','baron_albatros'),voss:row('fokker','voss_pfalz'),
  boelcke:row('boelcke_albatros','eindecker'),
  immelmann:row('eindecker',null,'LVG B.I는 비무장 정찰기여서 전투용 무장 고증 검토 필요'),
@@ -42,6 +43,9 @@ export const PILOT_AIRCRAFT=Object.freeze({
 // Existing high-quality art is referenced by its real registered sprite ID.
 // New models use authored transparent WebPs, loaded only when selected.
 export const SORTIE_FITS=Object.freeze({
+ // B.E.2c is registered later by campaign.js. Match that flight fit without
+ // importing campaign into the engine; only the home-defence Lewis fit is new.
+ robinson_be2c:{base:'be2c',fallback:'re7',weaponBase:'re7',speed:103,turn:1.8,hp:100,drag:.20,recovery:.7,guns:1,gunName:'Lewis',sprite:'robinson_be2c',crewBaked:true,name:'B.E.2c · 윌리엄 리프 로빈슨',style:'be2c',history:'런던 방공 임무의 B.E.2c를 바탕으로 한 전용 도장입니다. 루이스 기관총의 사격 방향은 탑뷰 전투에 맞췄습니다.',role:'초기형 방공 요격기'},
  navarre_nieuport11:{base:'nieuport11',fallback:'nieuport',speed:130,turn:4.05,hp:80,drag:.24,recovery:1.1,guns:1,gunName:'Lewis',sprite:'navarre_nieuport11',crewBaked:true,name:'Nieuport 11 (장 나바르)',style:'nieuport11',history:'장 나바르의 개인 도장을 바탕으로 한 니외포르 11입니다.',role:'경량 선회 전투기'},
  frommherz_albatros_d3:{base:'albatros',sprite:'frommherz_albatros_d3',crewBaked:true,name:'Albatros D.III (헤르만 프롬헤르츠)',style:'albatros',history:'헤르만 프롬헤르츠의 연청색 Blaue Maus 도장을 바탕으로 한 알바트로스 D.III입니다.',role:'쌍기관총 전투기'},
  baron_albatros_d5_redwings:{base:'baron_albatros',sprite:'baron_albatros_d5_redwings',name:'Albatros D.V · 붉은 날개 / 목재 동체',style:'baron_albatros',history:'리히트호펜의 알바트로스 D.V를 바탕으로 한 붉은 날개·목재색 동체 도장입니다.'},

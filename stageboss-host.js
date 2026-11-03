@@ -1,3 +1,4 @@
+import {ammunitionPartPadding} from './heavy-ammunition.js';
 import {HARBOR_PARTS} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
 import {legacyProjectileTarget} from './projectile-contacts.js';
 import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=pandemonium394r2';
@@ -116,7 +117,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   canEnterFinalArena(){return g.testMode===true?true:g.online?g.finalArenaPeersQualified?.()===true:hasBothFactionFinalClears();},
   isCapitalFinalEncounter(encounter){const s=g.stageBoss?.stages;return encounter===s?.encounter&&s.capitalRound===1&&s.capitalEncounter&&encounter.bossId===s.capitalBossId&&BOSS_CATALOG[encounter.bossId]?.capitalFinal===true&&encounter.bodies instanceof Map&&encounter.bodies.size>0&&[...encounter.bodies.values()].every(b=>b.isCapitalBoss===true)||g.capitalFinalArenaAdapter?.isFinalEncounter?.(encounter)===true;},
   waitForFinalArenaEligibility(){return !!g.online&&hasBothFactionFinalClears()&&!g.finalArenaPeersQualified?.();},
-  onFactionFinalCleared(receipt){if(g.testMode)return true;const saved=recordFactionFinalClear(g,receipt);if(g.online)g.publishFactionFinalClear?.(receipt);return saved;},
+  onFactionFinalCleared(receipt){if(g.testMode)return true;const saved=recordFactionFinalClear(g,receipt);if(saved)pilotUnlockRun(g)?.capitalFinalClear(receipt);if(g.online)g.publishFactionFinalClear?.(receipt);return saved;},
   onFinalArenaPending(){beginFinalArena(g);g.onStageCheckpoint?.();},
   getTuning({bossId}){
    // Reuse the current ace HP/time growth and current heavy coop multiplier once.
@@ -253,7 +254,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     // second aerial fireball on top, while preserving all original events.
     if(['minenwerfer-heavy','minenwerfer-shell'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.mortarOverlay=true}}
    else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight','flak-tower-cell','ca4'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure','ammoCookoff');g.shake=Math.max(g.shake,8);}
-   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron',ammo=event.partId==='ammo'||event.partId==='ammo-storage'||event.partId==='car-front'&&['paris-gun','lincomparable'].includes(body?.kind)||minen||part?.kind==='engine-deck';g.combatBlast(x+(part?.x||0),y+(part?.y||0),apron?22*body.apronScale:minen?34:46,'enemy','structure',part?.kind==='fuel'||event.partId==='fuel'||body?.kind==='livens-flame-projector'&&event.partId?.startsWith('tank-')?'fuelFire':ammo?'suppressed':/engine|motor/.test(part?.kind||part?.id||'')?'engineBreak':(body?.jutlandBoss&&!body?.jutlandAirship||/^(sms-stuttgart|hms-zubian)/.test(body?.kind||''))?'navalBreak':'armorBreak');g.shake=Math.max(g.shake,apron?3:minen?5:7);
+   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron',ammo=event.partId==='ammo'||event.partId==='ammo-storage'||event.partId==='car-front'&&['paris-gun','lincomparable'].includes(body?.kind)||minen||part?.kind==='engine-deck';g.combatBlast(x+(part?.x||0),y+(part?.y||0),['gotha-raider','o400-raider'].includes(body?.kind)?(/engine/.test(event.partId)?26:event.partId==='bomb-bay'?30:20):apron?22*body.apronScale:minen?34:46,'enemy','structure',part?.kind==='fuel'||event.partId==='fuel'||body?.kind==='livens-flame-projector'&&event.partId?.startsWith('tank-')?'fuelFire':ammo?'suppressed':/engine|motor/.test(part?.kind||part?.id||'')?'engineBreak':(body?.jutlandBoss&&!body?.jutlandAirship||/^(sms-stuttgart|hms-zubian)/.test(body?.kind||''))?'navalBreak':'armorBreak');g.shake=Math.max(g.shake,['gotha-raider','o400-raider'].includes(body?.kind)?2.5:apron?3:minen?5:7);
      if(['a7v-flak','mark-v-cruiser','drachen-net'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
    else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure','ammoCookoff');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10,'profileOnly');if(g.smoke){g.smoke(event.x-18,event.y+8,true,true);g.smoke(event.x+22,event.y-5,true,true)}g.shake=Math.max(g.shake,9);}
    else if(event.type==='harbor-crane-disabled'){for(const f of g.hostileMinefields||[])if(f.sourceBossId===event.bossId&&f.sourcePartId==='crane-arm')for(const m of f.mines)if(m.deploying){m.dead=true;m.chainHandled=true;}}
@@ -345,7 +346,7 @@ function pilotVelocity(p,dt){
  if(last&&dt>0){const vx=(p.x-last.x)/Math.max(dt,1/120),vy=(p.y-last.y)/Math.max(dt,1/120);if(Math.hypot(vx,vy)<900)return{vx,vy};}
  const sp=(p.speed||0)*(p.airframeSpeed??1);return{vx:Math.cos(p.a||0)*sp,vy:Math.sin(p.a||0)*sp};
 }
-export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;const hit=body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});return !!hit&&(!e.laonPlane||hit.partId===e.laonPlane);}
+export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;const hit=body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:ammunitionPartPadding(b)});return !!hit&&(!e.laonPlane||hit.partId===e.laonPlane);}
 export function damageStageBoss(g,e,b,damage){
  if(legacyProjectileTarget(g,e)){(b.eliteHits??=new Set()).add(e.id);const before=e.hp;g.eliteEnemies.damageMember(e,damage,{projectile:b,ownerId:b.ownerId??g.id??'p1'});const dealt=Math.max(0,before-e.hp);recordCombatImpact(b,e,{damage:dealt,blocked:!(dealt>0)});if(dealt>0)for(const p of g.players||[g])p.identityImpact?.(b,e,e,e);return;}
  damage*=momentumDamage(g,b);
@@ -358,7 +359,7 @@ export function damageStageBoss(g,e,b,damage){
  if(blocked(g)||b.patrol&&e.stageBossBody.kind!=='french-counter-battery')return;
  if(e.intrusionBody){damage=capBomberSalvoDamage(e,b,damage);const result=hitIntrusionTarget(g,e,b,damage);recordCombatImpact(b,e,{...result,blocked:!(result.damage>0)});if(result.damage>0){notify(e.stageBossBody.parts.get(result.partId)||e.stageBossBody,{x:b.x,y:b.y});g.event?.('impact','');}return;}
  const body=e.stageBossBody;
- const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit||e.laonPlane&&hit.partId!==e.laonPlane)return;
+ const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:ammunitionPartPadding(b)});if(!hit||e.laonPlane&&hit.partId!==e.laonPlane)return;
  const part=hit.partId?body.parts.get(hit.partId):null,target=part||body;if(b.identityDotTarget&&b.identityDotTarget!==target)return;
  damage=capBomberSalvoDamage(e,b,damage);if(!(damage>0))return;
  const beforeParts=new Set([...body.parts.values()].filter(p=>p.destroyed));const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});if(result.damage>0)for(const broken of body.parts.values())if(broken.destroyed&&!beforeParts.has(broken))pilotUnlockRun(g)?.part(body,broken,b);
@@ -642,4 +643,3 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
-

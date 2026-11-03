@@ -26,21 +26,35 @@ export function maanGroundBlocked(body,x0,y0,x1=x0,y1=y0){
  const a=maanLocal(body,x0,y0),b=maanLocal(body,x1,y1),r=maanClearance(body);
  return segmentBox(a.x,a.y,b.x,b.y,0,0,r.x,r.y);
 }
-// Resolve the complete convoy together: moving/turning the hull can push one
-// escort into another, even when each car's own path is clear.
+// Test the entire swept hull before committing a drive step. The clearance
+// includes the car's rotating silhouette, so the hull yields instead of
+// relocating a visible escort when its stern swings into the outside lane.
+export function canMoveMaanHull(body,x,y,hullYaw){
+ const cars=[...body.encounter?.bodies.values()||[]].filter(c=>c.leader&&!c.dead&&!c.hidden);
+ if(!cars.length)return true;
+ const dx=x-body.x,dy=y-body.y,turn=hullYaw-body.hullYaw;
+ const reach=Math.hypot(body.layout.width,body.layout.height)/2+MAAN_ESCORT_RADIUS;
+ const steps=Math.max(1,Math.ceil((Math.hypot(dx,dy)+Math.abs(turn)*reach)/2));
+ for(let i=1;i<=steps;i++){
+  const f=i/steps,pose={...body,x:body.x+dx*f,y:body.y+dy*f,hullYaw:body.hullYaw+turn*f};
+  if(cars.some(c=>maanGroundBlocked(pose,c.x,c.y)))return false;
+ }
+ return true;
+}
+// Residual roundoff correction only. Initial/hidden placement owns staging;
+// live traffic must yield before contact, never jump to a distant free slot.
 export function resolveMaanGround(encounter){
  const bodies=[...encounter?.bodies.values()||[]],hulls=bodies.filter(b=>b.layout&&!b.dead),cars=bodies.filter(b=>b.leader&&!b.dead&&!b.hidden),gap=MAAN_ESCORT_RADIUS*2+16;
  const free=(car,x,y)=>hulls.every(b=>!maanGroundBlocked(b,x,y))&&cars.every(c=>c===car||Math.hypot(c.x-x,c.y-y)>=gap);
  for(const car of cars){
   if(free(car,car.x,car.y))continue;
-  const b=car.leader,p=maanLocal(b,car.x,car.y),r=maanClearance(b),candidates=[];
-  for(let rank=0;rank<cars.length+3;rank++)for(const side of [-1,1]){
-   candidates.push(maanWorld(b,side*(r.x+2+rank*gap),p.y));
-   candidates.push(maanWorld(b,p.x,side*(r.y+2+rank*gap)));
-   for(const edge of [-1,1])candidates.push(maanWorld(b,side*(r.x+2),edge*(r.y+2+rank*gap)));
+  const candidates=[];
+  for(const b of hulls){const p=maanLocal(b,car.x,car.y),r=maanClearance(b);
+   for(const side of [-1,1]){candidates.push(maanWorld(b,side*(r.x+.01),p.y));candidates.push(maanWorld(b,p.x,side*(r.y+.01)));}
   }
   candidates.sort((a,z)=>Math.hypot(a.x-car.x,a.y-car.y)-Math.hypot(z.x-car.x,z.y-car.y));
-  const position=candidates.find(q=>free(car,q.x,q.y));if(position)Object.assign(car,position);
+  const position=candidates.find(q=>Math.hypot(q.x-car.x,q.y-car.y)<=.05&&free(car,q.x,q.y));
+  if(position)Object.assign(car,position);
  }
 }
 export function segmentBox(x0,y0,x1,y1,cx,cy,rx,ry,r=0){

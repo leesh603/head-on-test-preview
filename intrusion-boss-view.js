@@ -145,7 +145,7 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
   c.beginPath();c.arc(p.x,p.y,r*q,0,Math.PI*2);c.stroke();
  }
  c.strokeStyle='#ffdba4';
- for(const h of e.shotCues||[]){if(h.done)continue;const p=point(h.x,h.y),q=Math.min(1,h.age/Math.max(.01,h.warning));c.globalAlpha=.25+.5*q;c.setLineDash([4,6]);for(const offset of h.offsets||[0]){c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(h.a+offset)*110*z,p.y+Math.sin(h.a+offset)*110*z);c.stroke();}}
+ for(const h of e.shotCues||[]){if(h.done)continue;const p=point(h.x,h.y),q=Math.min(1,h.age/Math.max(.01,h.warning));c.globalAlpha=.25+.5*q;c.setLineDash([4,6]);for(const offset of h.offsets||[0]){c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(h.a+offset)*(h.telegraphLength||110)*z,p.y+Math.sin(h.a+offset)*(h.telegraphLength||110)*z);c.stroke();}}
  c.restore();
 }
 

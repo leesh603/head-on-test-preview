@@ -1,7 +1,7 @@
 // Flight-time equipment: no projectile guidance and no changes to damage budgets.
 export const FLIGHT_EQUIPMENT=Object.freeze([
  Object.freeze({id:'strutterAirbrake',name:'소프위드 스트러터 에어브레이크',family:'SPEED',desc:'선회기동 중 잠시 감속해 좁게 돌아선 뒤 재가속합니다. 기체 전환 장비와 동시 장착할 수 없습니다.'}),
- Object.freeze({id:'wimperisSight',name:'윔페리스 폭격 조준기',family:'EXPLOSIVE',desc:'로켓·수류탄·투하 폭탄을 발사할 때 이동 표적의 예상 위치를 조준합니다. 발사 후 유도나 발수 증가는 없습니다.'})
+ Object.freeze({id:'wimperisSight',name:'윔페리스 폭격 조준기',family:'EXPLOSIVE',desc:'로켓·수류탄·투하 폭탄을 발사할 때 이동 표적의 예상 위치를 조준합니다. 베리 지정 표적, 하이스 분석 표적 순으로 우선하며 발사 후 유도나 발수 증가는 없습니다.'})
 ]);
 export const FLIGHT_EQUIPMENT_BALANCE=Object.freeze({brakeTime:.22,recoveryTime:.12,brakeSpeed:.85,evadeSpeed:2.35,turn:12*Math.PI/180,rocketAngle:.12,grenadeAngle:.16,cooperAngle:.10,bomberAngle:.14});
 const B=FLIGHT_EQUIPMENT_BALANCE;
@@ -91,7 +91,10 @@ export function sampleWimperisMotion(p){
  }
 }
 export function wimperisTarget(p,{x=p.x,y=p.y,heading=p.a,range=650,cone=.3,time=0,speed=0,front=0}={}){
- let best=null,score=Infinity;
+ // The WWI equipment layer supplies read-only, owner-local aim hints. They only
+ // rank candidates that already passed the normal range, cone and part checks.
+ const priorities=enabled(p)?p.equipmentAimPriorities?.()||[]:[];
+ let best=null,score=Infinity,bestPriority=Infinity;
  for(const point of candidatePoints(p)){
   const dx=point.x-x,dy=point.y-y,d=Math.hypot(dx,dy);
   if(d>range||Math.abs(delta(Math.atan2(dy,dx),heading))>cone)continue;
@@ -99,7 +102,8 @@ export function wimperisTarget(p,{x=p.x,y=p.y,heading=p.a,range=650,cone=.3,time
   if(speed){t=Math.max(0,(d-front)/speed);for(let n=0;n<5;n++)t=Math.max(0,(Math.hypot(dx+v.vx*t,dy+v.vy*t)-front)/speed);if(t>2.4)continue;}
   const px=point.x+v.vx*t,py=point.y+v.vy*t;
   if(!Number.isFinite(px)||!Number.isFinite(py))continue;
-  if(d<score){best={x:px,y:py,currentX:point.x,currentY:point.y,time:t,entity:point.entity};score=d;}
+  const hint=priorities.find(h=>h.target===point.entity&&(!point.body||Math.hypot(h.x-point.x,h.y-point.y)<.01)),priority=hint?.priority??2;
+  if(priority<bestPriority||priority===bestPriority&&d<score){best={x:px,y:py,currentX:point.x,currentY:point.y,time:t,entity:point.entity};score=d;bestPriority=priority;}
  }
  return best;
 }

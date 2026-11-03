@@ -27,24 +27,40 @@ class AlpsBomber extends BaseBoss {
  engineLoss(){return this.layout.engines.filter(id=>this.part(id).destroyed).length;}
  setPhase(phase){if(this.dead||phase<=this.phase)return;this.phase=phase;this.command('phase-change',{phase:'alps-phase-'+phase});}
  syncParts(){for(const p of this.parts.values()){const q=alpsPoint(this,p.localX,p.localY);p.x=q.x-this.x;p.y=q.y-this.y;p.angle=this.hullYaw;}}
- cruise(dt,bounds){
+ cruise(dt,bounds,players=[]){
+  if(!(dt>0))return;
   const loss=this.engineLoss(),speedScale=Math.max(.34,1-loss/(this.layout.engines.length+1)),pace=(this.kind==='gik'?.17:.125)*speedScale;
   this.routeClock+=dt*pace;this.flightTime+=dt;
   const sign=(this.part('leftEngine').destroyed?1:0)-(this.part('rightEngine').destroyed?1:0);
-  this.imbalance+=(sign*22-this.imbalance)*Math.min(1,dt*1.1);
-  const span=this.kind==='gik'?250:290,oldX=this.x,oldY=this.y;
-  this.x=this.fixedX+Math.sin(this.routeClock)*span+this.imbalance;
-  this.y=this.fixedY+Math.sin(this.routeClock*2)*(this.kind==='gik'?68:90);
-  const _dx=this.x-oldX,_dy=this.y-oldY,_speed=Math.hypot(_dx,_dy);
-  this.driveVelocity=_speed/Math.max(.001,dt);
-  const pathYaw=_speed>.001?Math.atan2(_dy,_dx)+Math.PI/2:this.hullYaw;
-  if(this.alignIntent&&(!this.alignIntent.target?.alive||this.flightTime>this.alignIntent.until))this.alignIntent=null;
-  const align=this.alignIntent,targetAngle=align?Math.atan2(align.target.y-this.y,align.target.x-this.x)+(align.rear?-Math.PI/2:Math.PI/2):null;
-  const yaw=this.cannonLock?this.cannonLock.angle+Math.PI/2:align?targetAngle:pathYaw+sign*.05,delta=alpsAngleDelta(yaw,this.hullYaw);
-  const aiming=!!this.cannonLock||!!align,yawStep=aiming?Math.max(-dt*.85,Math.min(dt*.85,delta)):Math.max(-dt*1.6,Math.min(dt*1.6,delta));
-  this.hullYaw+=yawStep;
-  const targetBank=Math.max(-.42,Math.min(.42,yawStep/Math.max(.001,dt)*.32))+sign*.05;
-  this.bank+=(targetBank-this.bank)*Math.min(1,dt*3);this.a=this.hullYaw-Math.PI/2;
+  this.imbalance+=(sign*22-this.imbalance)*(1-Math.exp(-dt*1.1));
+  const span=this.kind==='gik'?250:290,height=this.kind==='gik'?68:90;
+  // The authored route is a destination, never a second writer of hull position.
+  // Every visible displacement follows the same heading used by the mounts/art.
+  const routeX=this.fixedX+Math.sin(this.routeClock)*span+this.imbalance,routeY=this.fixedY+Math.sin(this.routeClock*2)*height;
+  let tx=routeX,ty=routeY,desiredSpeed=(this.kind==='gik'?48:43)*speedScale,turn=1.2;
+  if(this.alignIntent){const live=players.find(p=>p.alive&&p.id===this.alignIntent.target?.id);if(live)this.alignIntent.target=live;
+   if(!this.alignIntent.target?.alive||this.flightTime>this.alignIntent.until)this.alignIntent=null;}
+  const align=this.alignIntent;
+  let yaw;
+  if(this.egress){
+   const e=this.egress;if(e.phase==='away'||e.phase==='hold'){tx=e.x+Math.cos(e.angle)*950;ty=e.y+Math.sin(e.angle)*950;}
+   desiredSpeed=85*speedScale;
+   yaw=Math.atan2(ty-this.y,tx-this.x)+Math.PI/2;
+   if(e.phase==='return')desiredSpeed=Math.min(desiredSpeed,Math.max(24*speedScale,Math.hypot(tx-this.x,ty-this.y)*.5));
+  }else if(this.cannonLock)yaw=this.cannonLock.angle+Math.PI/2;
+  else if(align){yaw=Math.atan2(align.target.y-this.y,align.target.x-this.x)+(align.rear?-Math.PI/2:Math.PI/2);turn=.85;}
+  else{
+   // Feed the route tangent into pursuit so a slow destination cannot trap the
+   // bomber at a waypoint; correction regains its original patrol after firing.
+   const vx=Math.cos(this.routeClock)*span*pace+(tx-this.x)*.65,vy=Math.cos(this.routeClock*2)*height*2*pace+(ty-this.y)*.65;
+   yaw=Math.atan2(vy,vx)+Math.PI/2;
+  }
+  const delta=alpsAngleDelta(yaw,this.hullYaw),yawStep=Math.max(-dt*turn,Math.min(dt*turn,delta));
+  this.hullYaw+=yawStep;this.a=this.hullYaw-Math.PI/2;
+  this.flightSpeed??=desiredSpeed;this.flightSpeed+=Math.max(-40*dt,Math.min(40*dt,desiredSpeed-this.flightSpeed));
+  this.x+=Math.cos(this.a)*this.flightSpeed*dt;this.y+=Math.sin(this.a)*this.flightSpeed*dt;this.driveVelocity=this.flightSpeed;
+  const targetBank=Math.max(-.42,Math.min(.42,yawStep/dt*.32))+sign*.05;
+  this.bank+=(targetBank-this.bank)*(1-Math.exp(-dt*3));
   this.syncParts();for(const p of this.parts.values()){p.hitFlash=Math.max(0,p.hitFlash-dt);p.recoil=Math.max(0,p.recoil-dt);}
  }
  locateHit(shot){return locateAlpsHit(this,shot);}
@@ -121,7 +137,7 @@ export class GIK extends AlpsBomber {
   }
  }
  update(dt,{players,bounds}){
-  this.cruise(dt,bounds);if(this.updateDisarmed(dt))return;this.updatePhase();
+  this.cruise(dt,bounds,players);if(this.updateDisarmed(dt))return;this.updatePhase();
   if(this.encounter?.breathBlocks({type:'charge-warning'})){if(this.cannonLock){this.cannonLock=null;this.cannonRemaining=0;this.timers.set('alps-cannon',.2);}return;}
   this.cannon(dt,players);
   // Keep the original rear-gun clock and alignment decisions unchanged.
@@ -175,17 +191,17 @@ export class Ca4 extends AlpsBomber {
    this.command('internal-explosion',{x:this.x,y:this.y});BaseBoss.prototype.hit.call(this,{damage:Math.min(this.hp,this.maxHp*.16)});this.setPhase(3);
   }}
  update(dt,{players,bounds}){
-  this.cruise(dt,bounds);if(this.updateDisarmed(dt))return;this.updatePhase();const bay=this.part('bombBay');
+  this.cruise(dt,bounds,players);if(this.updateDisarmed(dt))return;this.updatePhase();const bay=this.part('bombBay');
   if(this.egress){
-   if(this.egress.phase==='away'){this.egressLift=Math.min(950,this.egressLift+dt*430);if(this.egressLift>=950){this.egress.phase='hold';this.egress.left=1.5;}}
-   else if(this.egress.phase==='hold'){this.egress.left-=dt;if(this.egress.left<=0)this.egress.phase='return';}
-   else{this.egressLift=Math.max(0,this.egressLift-dt*540);if(this.egressLift<=0){this.egress=null;if(!bay.destroyed)this.startBombRun(bounds);}}
-   this.y-=this.egressLift;this.syncParts();
+   const e=this.egress;e.age=(e.age||0)+dt;
+   if(e.phase==='away'&&(Math.hypot(this.x-e.x,this.y-e.y)>=430||e.age>=12)){e.phase='hold';e.left=1.5;}
+   else if(e.phase==='hold'){e.left-=dt;if(e.left<=0)e.phase='return';}
+   else if(e.phase==='return'&&Math.hypot(this.x-this.fixedX,this.y-this.fixedY)<180){this.egress=null;if(!bay.destroyed)this.startBombRun(bounds);}
    if(!bay.destroyed&&this.due('ca4-egress-bombs',dt,.45))this.egressBombing(bounds);
    this.mountFire('frontGun',players,dt,1.6);this.mountFire('rearGun',players,dt,1.6,true);
    return;
   }
-  if(!bay.destroyed&&!this.egressDone&&this.hp<=this.maxHp*.45){this.egressDone=true;this.egress={phase:'away'};this.egressLift=0;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});this.command('phase-change',{phase:'ca4-egress'});return;}
+  if(!bay.destroyed&&!this.egressDone&&this.hp<=this.maxHp*.45){this.egressDone=true;this.egress={phase:'away',x:this.x,y:this.y,angle:this.a,age:0};this.egressLift=0;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});this.command('phase-change',{phase:'ca4-egress'});return;}
   if(this.bayExpose>0)this.bayExpose=Math.max(0,this.bayExpose-dt);
   if(this.bombRunRemaining>0){this.bombRunRemaining=Math.max(0,this.bombRunRemaining-dt);if(!this.bombRunRemaining)this.releaseBombRun();}
   else if(!bay.destroyed&&this.due('ca4-bombs',dt,(this.t.bombInterval||(this.phase===3?3.4:4.8))*(1+this.engineLoss()*.18)))this.startBombRun(bounds);

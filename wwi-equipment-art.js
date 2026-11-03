@@ -130,22 +130,23 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    if(visible(px,py))drawWimperisSight(c,sx(px),sy(py),.4-((b.maxLife||.85)-b.life),options);
   }
   if(!b.cooperBomb||!(b.life>0)||!bomb?.naturalWidth||!visible(b.x,b.y))continue;
-  bombSprite(c,'cooper',sx(b.x),sy(b.y),30*z/.7,Math.atan2(b.vy,b.vx));
+  bombSprite(c,'cooper',sx(b.x),sy(b.y),30*z*(b.ammunitionScale||1)/.7,Math.atan2(b.vy,b.vx));
  }
  for(const b of world.bullets||[]){
   if(!(b.life>0)||!visible(b.x,b.y))continue;
-  if(b.wwiIncendiary){sprite(c,'burn0',sx(b.x),sy(b.y),11*z,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
+  const projectileScale=z*(b.ammunitionScale||1);
+  if(b.wwiIncendiary){sprite(c,'burn0',sx(b.x),sy(b.y),11*projectileScale,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
-  if(b.flechette)drawFlechetteTrail(c,b,sx(b.x),sy(b.y),{...options,scale:z});
+  if(b.flechette)drawFlechetteTrail(c,b,sx(b.x),sy(b.y),{...options,scale:projectileScale});
   if(b.fieryGrapnel){
    const p=players.find(p=>(p.id??'p1')===(b.ownerId??'p1'));
    if(p&&p.hp>0&&p.status!=='downed'){
-    const a=Math.atan2(b.vy,b.vx),width=36*z;
+    const a=Math.atan2(b.vy,b.vx),width=36*projectileScale;
     drawGrapnelCable(c,sx(p.x-Math.cos(p.a)*7),sy(p.y-Math.sin(p.a)*7),sx(b.x)-Math.cos(a)*width*.86,sy(b.y)-Math.sin(a)*width*.86,z);
    }
   }
-  if(b.fieryGrapnel)grapnelSprite(c,'grapnelHead',sx(b.x),sy(b.y),36*z,Math.atan2(b.vy,b.vx));
-  else sprite(c,'flechetteDart',sx(b.x),sy(b.y),24*z,Math.atan2(b.vy,b.vx));
+  if(b.fieryGrapnel)grapnelSprite(c,'grapnelHead',sx(b.x),sy(b.y),36*projectileScale,Math.atan2(b.vy,b.vx));
+  else sprite(c,'flechetteDart',sx(b.x),sy(b.y),24*projectileScale,Math.atan2(b.vy,b.vx));
  }
  c.restore();
 }

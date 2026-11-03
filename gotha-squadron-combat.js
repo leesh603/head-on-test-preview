@@ -1,3 +1,4 @@
+import {tickBomberWings} from './bomber-wing-damage.js';
 import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js';
 // City Gotha flights: guided forward flight, never slot-position interpolation.
 const TAU=Math.PI*2;
@@ -92,7 +93,7 @@ function cityPlan(b,targets,bounds,time,active){
 }
 export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
  if(b.dead||!dt)return;const p=players.find(q=>q.alive);if(!p)return;
- b.gothaTime=(b.gothaTime||0)+dt;b.entryAge=(b.entryAge||0)+dt;
+ tickBomberWings(b,dt);b.gothaTime=(b.gothaTime||0)+dt;b.entryAge=(b.entryAge||0)+dt;
  const live=[...b.encounter?.bodies.values()||[b]].filter(q=>!q.dead&&q.kind==='gotha-raider');
  const groups=[...new Set(live.map(q=>Math.floor(q.slot/3)))].sort(),time=b.encounter?.clock??b.gothaTime;
  const active=groups[Math.floor(time/8)%groups.length],next=groups[(Math.floor(time/8)+1)%groups.length],beat=time%8;
@@ -101,7 +102,7 @@ export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
  const radius=isActive?220:preentry?340:620;
  const angle=time*.45+(b.slot%3)*TAU/3+group*TAU/9;
  if(!b.gothaStarted){b.gothaStarted=true;b.gothaRadius=radius;b.x=p.x+Math.cos(angle)*radius;b.y=p.y+Math.sin(angle)*radius;b.a=angle+Math.PI/2;b.gothaSpeed=170;b.command('gotha-approach');}
- for(const part of b.parts.values())part.gunFlash=Math.max(0,(part.gunFlash||0)-dt);
+ for(const part of b.parts.values()){part.gunFlash=Math.max(0,(part.gunFlash||0)-dt);part.hitFlash=Math.max(0,(part.hitFlash||0)-dt);}
  // No camera displacement, lateral trim, snap-to-slot or return teleport.
  steer(b,dt,p,angle,radius,isActive,beat);
  const front=b.parts.get('front-gun');if(front)front.aimAngle=b.a;
@@ -111,8 +112,10 @@ export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
  b.phase=phase;
  gun(b,p,bounds,dt,fighting,beat<4.35);
  if(b.gothaVolley)reserveArrivalFlight(b,0);
+
  if(!fighting)b.gothaVolley=null;
  cityPlan(b,londonTargets,bounds,time,isActive);
  bomb(b,p,bounds,time,isActive&&beat>=(engines===2?5.3:5.55)&&beat<5.8,londonTargets);
  b.bayOpen=Math.max(0,b.bayOpen-dt*.5);
 }
+

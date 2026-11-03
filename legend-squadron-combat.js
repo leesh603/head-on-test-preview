@@ -69,20 +69,37 @@ export function tickLegendWing(g,dt){
    else if(s.phase==='cover-fire'){if(wing&&wing.legendWingRounds<3&&s.age>=wing.legendWingRounds*.15){const n=g.bullets?.length||0;fireLegendWing(g,wing);if((g.bullets?.length||0)>n)wing.legendWingRounds++;}if(s.age>.35&&wing?.legendWingRounds>=3||s.age>1.55){s.coverPasses=(s.coverPasses||0)+1;if(wing){wing.legendWingPhase='cover';wing.legendWingHeading=lead.legendWingHeading;}phase(s,'cover-recover');}}
    else if(s.phase==='cover-recover'){if(!wing){withdrawLegendWing(g,'cover-destroyed');return;}if(s.age>=B.recovery){if(s.coverPasses>=B.coverPasses)withdrawLegendWing(g,'cover-complete');else{const covers=es.filter(e=>e.legendWingSlot!==(s.leadSlot??0)),next=covers[(covers.indexOf(wing)+1)%covers.length];s.coverSlot=next?.legendWingSlot;if(!next){withdrawLegendWing(g,'cover-destroyed');return;}next.legendWingPhase='intercept';s.breakAge=0;phase(s,'intercept');}}}
   }else{
-   if(s.phase==='entry'){const p=pilot(g),depth=e=>(p.x-e.x)*Math.cos(s.entryHeading)+(p.y-e.y)*Math.sin(s.entryHeading);for(const e of es)speed(e,visible(g,e,-40)&&depth(e)<(e.legendWingSlot===0?50:e.legendWingSlot===3?170:130)?pace(g):Math.min(380,pace(g)+110));if(es.every(e=>visible(g,e,-25)&&depth(e)<(e.legendWingSlot===0?55:e.legendWingSlot===3?175:135)))beginCommand(g,s,es);}
+   if(s.phase==='entry'){
+    const p=pilot(g),depth=e=>(p.x-e.x)*Math.cos(s.entryHeading)+(p.y-e.y)*Math.sin(s.entryHeading);
+    if(Math.abs(angle(p.a-s.entryHeading))>.45||s.age>6)s.reacquiring=true;
+    for(const e of es)speed(e,visible(g,e,-40)&&depth(e)<(e.legendWingSlot===0?50:e.legendWingSlot===3?170:130)?pace(g):Math.min(380,pace(g)+110));
+    const ready=s.reacquiring?visible(g,lead,-30)&&Math.hypot(p.x-lead.x,p.y-lead.y)<360&&Math.abs(angle(leadAim(g,lead)-lead.a))<.3&&(es.length===1||es.some(e=>e!==lead&&visible(g,e,-25))):es.every(e=>visible(g,e,-25)&&depth(e)<(e.legendWingSlot===0?55:e.legendWingSlot===3?175:135));
+    if(ready){s.entryHeading=p.a;s.reacquiring=false;beginCommand(g,s,es);}
+   }
    else if(s.phase==='command'){for(const e of es){const cue=B.commandWarning+e.legendWingSlot*B.commandSpacing;e.legendWingWarningLeft=Math.max(0,cue-s.age);e.legendWingPreparing=s.age<cue;if(s.age>=cue&&Math.abs(angle(e.legendWingHeading-e.a))<.18&&e.legendWingRounds<3&&s.age>=cue+e.legendWingRounds*.16){const n=g.bullets?.length||0;fireLegendWing(g,e);if((g.bullets?.length||0)>n)e.legendWingRounds++;}}if(s.age>B.commandWarning+(B.jasta2.count-1)*B.commandSpacing+.36&&es.every(e=>e.legendWingRounds>=3)||s.age>B.commandWarning+(B.jasta2.count-1)*B.commandSpacing+1.56){for(const e of es){e.legendWingPreparing=false;e.legendWingHeading=s.entryHeading+(e.legendWingSlot===1?-.3:e.legendWingSlot===2?.3:0);speed(e,pace(g));}phase(s,'recover');}}
-   else if(s.phase==='recover'&&s.age>=B.recovery){if(s.cycle>=B.commandCycles)withdrawLegendWing(g,'departed');else beginCommand(g,s,es);}
+   else if(s.phase==='recover'&&s.age>=B.recovery){if(s.cycle>=B.commandCycles)withdrawLegendWing(g,'departed');else if(!visible(g,lead,-30)||Math.abs(angle(pilot(g).a-s.entryHeading))>.6){s.reacquiring=true;phase(s,'entry');for(const e of es)e.legendWingPhase='entry';}else beginCommand(g,s,es);}
   }
  }
  es=members(g);for(const e of es)if(e.legendWingPhase==='exit'){speed(e,pace(g)+120);if(!visible(g,e,120))g.enemies=g.enemies.filter(x=>x!==e);}if(!members(g).length)s.phase='idle';
 }
 // Yield before converging command passes overlap; flight stays native and forward.
 function commandSeparation(g,e,heading){
- if(e.legendWingSlot===0||e.legendWingPhase==='exit'||e.legendWingUnit==='sqn56'&&e.legendWingPhase!=='cover'||e.legendWingUnit==='jasta2'&&e.legendWingSlot===3&&g.legendWing?.phase==='entry')return heading;
+ const regroup=e.legendWingUnit==='jasta2'&&g.legendWing?.commandBrokenUntil;
+ if(e.legendWingSlot===(g.legendWing?.leadSlot??0)||e.legendWingPhase==='exit'||e.legendWingUnit==='sqn56'&&e.legendWingPhase!=='cover'||e.legendWingUnit==='jasta2'&&e.legendWingSlot===3&&g.legendWing?.phase==='entry'&&!g.legendWing.commandBrokenUntil)return heading;
  const others=members(g).filter(q=>q!==e&&(e.legendWingUnit==='sqn56'||q.legendWingSlot<e.legendWingSlot)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y));
- for(const other of others){const rx=e.x-other.x,ry=e.y-other.y,vx=Math.cos(e.a)*e.speed-Math.cos(other.a)*other.speed,vy=Math.sin(e.a)*e.speed-Math.sin(other.a)*other.speed,t=Math.max(0,Math.min(1.1,-(rx*vx+ry*vy)/(vx*vx+vy*vy||1)));if(Math.hypot(rx,ry)<(e.legendWingUnit==='sqn56'?350:280)&&Math.hypot(rx+vx*t,ry+vy*t)<(e.legendWingUnit==='sqn56'?140:110)){const cross=-Math.sin(other.a)*rx+Math.cos(other.a)*ry,side=Math.abs(cross)>3?Math.sign(cross):e.legendWingSlot===1?-1:1;speed(e,Math.max(60,Math.min(e.speed,other.speed-30)));return other.a+side*.9;}}return heading;
+ for(const other of others){const rx=e.x-other.x,ry=e.y-other.y,vx=Math.cos(e.a)*e.speed-Math.cos(other.a)*other.speed,vy=Math.sin(e.a)*e.speed-Math.sin(other.a)*other.speed,t=Math.max(0,Math.min(regroup?1.5:1.1,-(rx*vx+ry*vy)/(vx*vx+vy*vy||1)));if(Math.hypot(rx,ry)<(e.legendWingUnit==='sqn56'||regroup?350:280)&&Math.hypot(rx+vx*t,ry+vy*t)<(regroup?170:e.legendWingUnit==='sqn56'?140:110)){const cross=-Math.sin(other.a)*rx+Math.cos(other.a)*ry,side=Math.abs(cross)>3?Math.sign(cross):e.legendWingSlot===1?-1:1;const slower=Math.max(60,Math.min(e.speed,other.speed-(regroup?90:30)));
+   // A close, nearly parallel pass can become a collision if the rear wing
+   // brakes. Preserve its speed when that would worsen the projected clearance.
+   const sx=Math.cos(e.a)*slower-Math.cos(other.a)*other.speed,sy=Math.sin(e.a)*slower-Math.sin(other.a)*other.speed,st=Math.max(0,Math.min(1.1,-(rx*sx+ry*sy)/(sx*sx+sy*sy||1)));
+   if(e.legendWingUnit!=='jasta2'||regroup||Math.hypot(rx+sx*st,ry+sy*st)>=Math.hypot(rx+vx*t,ry+vy*t))speed(e,slower);
+   return other.a+side*(regroup?1.2:.9);}}return heading;
 }
-export function legendSteering(g,e){if(e.legendWingGroup==null)return null;let heading=e.legendWingHeading;if(e.legendWingUnit==='sqn56'&&e.legendWingPhase==='cover'){const lead=members(g).find(q=>q.legendWingSlot===(g.legendWing?.leadSlot??0));if(lead){const a=lead.legendWingHeading,side=-190,back=e.legendWingSlot===2?300:160,x=lead.x-Math.cos(a)*back-Math.sin(a)*side,y=lead.y-Math.sin(a)*back+Math.cos(a)*side;heading=Math.atan2(y-e.y,x-e.x);speed(e,Math.abs(angle(heading-e.a))>.35?60:Math.min(320,pace(g)));}}return {delta:angle(commandSeparation(g,e,heading)-e.a),turn:1.05};}
+export function legendSteering(g,e){if(e.legendWingGroup==null)return null;let heading=e.legendWingHeading;
+ if(e.legendWingUnit==='jasta2'&&g.legendWing?.phase==='entry'&&g.legendWing.reacquiring){
+  const p=pilot(g),side=e.legendWingSlot===1?-90:e.legendWingSlot===2?90:0,back=e.legendWingSlot===3?160:70,tx=p.x-Math.cos(p.a)*back-Math.sin(p.a)*side,ty=p.y-Math.sin(p.a)*back+Math.cos(p.a)*side;
+  heading=e.legendWingSlot===(g.legendWing.leadSlot??0)?leadAim(g,e):Math.atan2(ty-e.y,tx-e.x);
+  speed(e,Math.abs(angle(heading-e.a))>.55?100:Math.min(380,pace(g)+90));
+ }if(e.legendWingUnit==='sqn56'&&e.legendWingPhase==='cover'){const lead=members(g).find(q=>q.legendWingSlot===(g.legendWing?.leadSlot??0));if(lead){const a=lead.legendWingHeading,side=-190,back=e.legendWingSlot===2?300:160,x=lead.x-Math.cos(a)*back-Math.sin(a)*side,y=lead.y-Math.sin(a)*back+Math.cos(a)*side;heading=Math.atan2(y-e.y,x-e.x);speed(e,Math.abs(angle(heading-e.a))>.35?60:Math.min(320,pace(g)));}}return {delta:angle(commandSeparation(g,e,heading)-e.a),turn:1.05};}
 export function fireLegendWing(g,e){
  if(e.legendWingGroup==null)return false;e.fire=Infinity;const s=g.legendWing;
  if(!host(g)||g.state!=='playing'||!live(e)||e.legendWingPhase==='exit'||s?.groupId!==e.legendWingGroup||!visible(g,e,-20)||(g.bullets?.length||0)>=180||g.sunStrikeContains?.(e))return true;

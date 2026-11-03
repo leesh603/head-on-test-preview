@@ -46,7 +46,7 @@ export class AchievementBook {
  constructor(storage=null,{clock=()=>new Date().toISOString()}={}){this.storage=storage;this.clock=clock;this.listeners=new Set();this.saved=true;this.data=empty();try{this.load(JSON.parse(storage?.getItem(MEDAL_SAVE_KEY)||'null'))}catch{this.saved=false}}
  load(raw){
   if(!raw||raw.version!==1)return;
-  const data=empty();for(const [k,v]of Object.entries(raw.metrics||{}))if(/^[a-zA-Z]+$/.test(k))data.metrics[k]=finite(v);
+  const data=empty();for(const [k,v]of Object.entries(raw.metrics||{}))if(/^[a-zA-Z]+$/.test(k)||k==='pilotKillsfriedrich_karl')data.metrics[k]=finite(v);
   for(const [k,v]of Object.entries(raw.collections||{}))if(/^[a-zA-Z]+$/.test(k)&&Array.isArray(v))data.collections[k]=[...new Set(v.filter(s=>typeof s==='string'&&/^[a-z0-9-]{1,80}$/.test(s)))].slice(0,100);
   for(const d of MEDALS){const a=raw.awards?.[d.id],tier=Math.min(d.goals.length,finite(a?.tier));if(tier)data.awards[d.id]={tier,firstAt:typeof a.firstAt==='string'?a.firstAt.slice(0,32):'',at:typeof a.at==='string'?a.at.slice(0,32):''}}
   data.featured=[...new Set((Array.isArray(raw.featured)?raw.featured:[]).filter(id=>ids.has(id)&&data.awards[id]))].slice(0,3);if(raw.pilotUnlocks)data.pilotUnlocks=cleanPilotUnlocks(raw.pilotUnlocks);this.data=data;

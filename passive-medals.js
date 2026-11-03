@@ -104,7 +104,7 @@ export function installPassiveMedals(Game){
  };
  const identity=q.identityImpact;q.identityImpact=function(b,e,target=e,pos=e){const prior={prepared:this.pilotIdentity?.five?.hits||0,proctor:this.pilotIdentity?.five?.proctorSeen?.get(e),lothar:this.lotharPursuit?.turnUntil||0};const result=identity.call(this,b,e,target,pos);let records=impactDetails.get(b);if(!records){records=new WeakMap();impactDetails.set(b,records);}records.set(this,{enemy:e,target,pos,prior});return result;};
  const special=q.specialRoundImpact;q.specialRoundImpact=function(b,e,...args){
-  const before={prepared:this.pilotIdentity?.five?.hits||0,proctor:this.pilotIdentity?.five?.proctorSeen?.get(e),nungesser:this.pilotSignatureState?.nungesser?.boostUntil||0,angle:this.pilotSignatureState?.jacobsAngle?.count||0,lothar:this.lotharPursuit?.turnUntil||0};
+  const before={prepared:this.pilotIdentity?.five?.hits||0,proctor:this.pilotIdentity?.five?.proctorSeen?.get(e),nungesser:this.pilotSignatureState?.nungesser?.procSerial||0,angle:this.pilotSignatureState?.jacobsAngle?.count||0,lothar:this.lotharPursuit?.turnUntil||0};
   const result=special.call(this,b,e,...args);
   const hit=combatImpactResult(b,e);if(!enabled(this)||!(hit?.damage>0)||hit.blocked||(b.ownerId??'p1')!==owner(this)||b.passiveMedalSecondary)return result;
   let seen=shotContacts.get(b);if(!seen){seen=new WeakSet();shotContacts.set(b,seen);}if(seen.has(e))return result;seen.add(e);
@@ -140,7 +140,7 @@ export function installPassiveMedals(Game){
    case 'huffzky':if(b.pilotRear&&hits(s,'rear',e,t)>=3&&ready(this,s,'rear',4)){jam(this,e,.65);if(ordinary(e))e.pilotSuppressedUntil=Math.max(e.pilotSuppressedUntil||0,t+1.2);cue(this,e);}break;
    case 'mckeever':{const lane=b.gun===1||b.pilotRear?'rear':'front',other=s[lane==='rear'?'front':'rear'];s[lane]={target:e,at:t};if(other&&other.target!==e&&t-other.at<=1&&ready(this,s,'crossfire',4)){jam(this,lane==='rear'?e:other.target,.6);ammo(this,.08,1);cue(this,e);}break;}
    case 'loewenhardt':{const d=distance(this,e),a=Math.abs(wrap(Math.atan2(e.y-this.y,e.x-this.x)-this.a));if(!e.surface&&d<=420&&a<Math.PI/3&&hits(s,'frontal',e,t)>=3&&ready(this,s,'frontal',5)){charge(this,s,2);cue(this,e);}break;}
-   case 'nungesser':{const n=this.pilotSignatureState?.nungesser;if(n?.boostUntil>before.nungesser){n.boostUntil+=1;charge(this,s,1,3);cue(this,e);}break;}
+   case 'nungesser':{const n=this.pilotSignatureState?.nungesser;if(n?.procSerial>before.nungesser){n.boostUntil+=1;charge(this,s,1,3);cue(this,e);}break;}
    case 'jacobs':if((this.pilotSignatureState?.jacobsAngle?.count||0)>before.angle){s.angleTarget=body(e);s.angleUntil=t+1.2;charge(this,s,1,1.2,body(e));cue(this,e);}break;
    case 'hawker':if(this.hawkerNext===e&&this.hawkerLinkTime>0&&ready(this,s,'link',3)){ammo(this,.08);charge(this,s,1);cue(this,e);}break;
    case 'brumowski':if(wings(this).filter(a=>distance(a,this)<180).length>=2&&ready(this,s,'skullCover',6)){s.coverUntil=t+2;cue(this,e,'cover');}break;

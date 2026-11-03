@@ -16,7 +16,7 @@ export function validatePilotProfile(raw){
  if(!plain(raw)||raw.version!==1||Object.keys(raw).some(k=>!['version','service','aircraft'].includes(k)))throw new Error('invalid_profile');
  const s=raw.service,out=empty();
  if(!plain(s)||s.version!==1||Object.keys(s).some(k=>!['version','metrics','collections','awards','featured','pilotKills','pilotUnlocks'].includes(k)))throw new Error('invalid_profile');
- for(const [k,v]of entries(s.metrics,128)){if(!safe(k)||!/^[a-zA-Z]{1,64}$/.test(k)||!number(v))throw new Error('invalid_profile');out.service.metrics[k]=v}
+ for(const [k,v]of entries(s.metrics,128)){if(!safe(k)||(!/^[a-zA-Z]{1,64}$/.test(k)&&k!=='pilotKillsfriedrich_karl')||!number(v))throw new Error('invalid_profile');out.service.metrics[k]=v}
  for(const [k,list]of entries(s.collections,16)){
   if(!safe(k)||!/^[a-zA-Z]{1,64}$/.test(k)||!Array.isArray(list)||list.length>100||list.some(id=>typeof id!=='string'||!/^[a-z0-9-]{1,80}$/.test(id)))throw new Error('invalid_profile');
   out.service.collections[k]=[...new Set(list)];

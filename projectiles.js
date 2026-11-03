@@ -18,7 +18,9 @@ const GUN_COLORS=FXS?[[0,[226,120,50]],[.3,[236,146,58]],[.6,[244,176,76]],[1,[2
 // Solo and co-op repeatedly paint the same upgrade levels. Keep a small exact
 // cache: no colour quantization, bullet mutation, or unbounded per-round keys.
 const gunColorCache=new Map();
+export function isNungesserBlackRound(b){return !!(b&&Number.isInteger(b.gun)&&typeof b.nungesserReattackKey==='string'&&b.nungesserReattackBonus>0&&!['enemy','ally','formation','patrol','transferGun','rocket','motorCannon','cow37','mauserRound','actualExplosion','blast','identityDot','identityChain','synthesisChild'].some(k=>b[k]));}
 export function friendlyTracerColor(b,gunUpgradeBonus=0){
+ if(isNungesserBlackRound(b))return '#0e0c11';
  if(b.mauserRound)return '#a98cff';
  if(b.specialColor)return b.specialColor;
  if(b.ally||b.formation)return '#d4c8a3';
@@ -58,7 +60,15 @@ export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
 // One ordinary MG view for solo and co-op. Special ammunition changes colour
 // and a little weight, never the old 6–12px luminous capsule thickness.
 export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
+ const scale=b?.ammunitionScale||1;
+ if(scale===1)return drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus);
+ c.save();c.translate(x,y);c.scale(scale,scale);
+ const result=drawFriendlyGunTracerBody(c,b,0,0,gunUpgradeBonus);
+ c.restore();return result;
+}
+function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus){
  if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ if(drawNungesserBlackRound(c,b,x,y))return true;
  if(drawWhiteFlightRound(c,b,x,y,{tint:fxTint,ready:fxReady}))return true;
  if(drawGunSignature(c,b,x,y))return true;
  drawProjectileTactic(c,b,x,y); // Keep custom pilot paint while exposing the real active tactic.
@@ -90,6 +100,14 @@ export function pilotGunTracerStyle(b){
  return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:(b.ally||b.formation||b.patrol)?null:b.nungesserCounter?PILOT_GUN_TRACERS.nungesserCounter:b.nungesserBreakthrough?PILOT_GUN_TRACERS.nungesserBreakthrough:null;
 }
 export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
+ const scale=b?.ammunitionScale||1;
+ if(scale===1)return drawPilotGunTracerBody(c,b,x,y,paint,ready);
+ c.save();c.translate(x,y);c.scale(scale,scale);
+ const result=drawPilotGunTracerBody(c,b,0,0,paint,ready);
+ c.restore();return result;
+}
+function drawPilotGunTracerBody(c,b,x,y,paint,ready){
+ if(drawNungesserBlackRound(c,b,x,y,paint,ready))return true;
  const signature=gunSignatureId(b);
  if(['mauser','incendiary','telescope'].includes(signature)||signature==='piercing'&&!b.nungesserCounter&&!b.nungesserBreakthrough)return false;
  const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
@@ -100,6 +118,15 @@ export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
  }else drawTracerBolt(c,x,y,a,s.color,s.length,s.width,.78);
  drawProjectileTactic(c,b,x,y,a);
  return true;
+}
+// Tint the existing authored MG texture. No luminous core or larger collision.
+export function drawNungesserBlackRound(c,b,x,y,paint=fxTint,ready=fxReady){
+ if(!isNungesserBlackRound(b)||!(b.life>0)||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ if(!ready('tracerCore'))return true;
+ const q=b.nungesserBreakthrough?PILOT_GUN_TRACERS.nungesserBreakthrough:friendlyGunAppearance(b),a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*q.length*.5,cy=y-Math.sin(a)*q.length*.5;
+ paint(c,'tracerCore','#81786c',cx,cy,q.length,q.width+.8,a,.38);
+ paint(c,'tracerCore','#0e0c11',cx,cy,q.length,q.width,a,.98);
+ drawProjectileTactic(c,b,x,y,a);return true;
 }
 function enemyBolt(len,wid){
  const key=len+'x'+wid;if(boltCache.has(key))return boltCache.get(key);
@@ -117,7 +144,7 @@ function enemyBolt(len,wid){
 // One painted rocket and its authored propulsion trail, shared by solo/co-op/bosses.
 // Hostile rounds get a restrained warm underlight; the metal artwork is preserved.
 export function drawFlightRocket(c,b,x,y,{length=52,hostile=!!b.enemy,scale=1}={}){
- const a=Math.atan2(b.vy,b.vx),w=length*scale;
+ const a=Math.atan2(b.vy,b.vx),w=length*scale*(b.ammunitionScale||1);
  if(!fxReady('rocket'))return false;
  if(hostile)fxTint(c,'tracerGlow','#b63c2e',x,y,w*.7,9*scale,a,.28);
  const drawn=fx(c,'rocket',x,y,w,w*.3,a);drawProjectileTactic(c,b,x,y,a);return drawn;
@@ -166,6 +193,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
 export function drawCannonProjectile(c,b,x,y){
  if(b.life<=0)return;const cow=!!b.cow37;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
+ if(b.ammunitionScale>1)c.scale(b.ammunitionScale,b.ammunitionScale);
  drawProjectileTactic(c,b,0,0,0);
  // Approved flight sprites retain a body-centered anchor; no rocket flame.
  const flightKey=cow?'cannonCow':'cannonMotor',oldKey=cow?'shellHeavy':'shellAuto';

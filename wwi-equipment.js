@@ -8,8 +8,8 @@ export const WWI_EQUIPMENT=Object.freeze([
  Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'4초마다 전방 적을 향해 소형 폭탄 2발을 연속 투하합니다.',family:'EXPLOSIVE'}),
  Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'3.5초마다 근접 교차한 적기에 화염 갈고리를 붙입니다. 직접 피해에 기관총 성장이 적용되며, 함께 실은 쿠퍼 폭약은 표적이 먼저 격추돼도 한 번 폭발합니다.',family:'GUN'}),
  Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. 화살은 무장 성장과 소이·고폭 효과를 전달하며 COW 포탄·쿠퍼 폭탄에도 실립니다.',family:'GUN'}),
- Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 6초간 집중 공격합니다. 지정 중 본기가 재장전하면 준비된 특수무장 편대가 엄호 사격하며, 표적 소실 시 한 번 재지정합니다.',family:'FORMATION'}),
- Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'전방·후방 주무장으로 각각 3회 연속 명중하면 표적을 6초간 분석합니다. 해당 표적에 주무장·직접 사격 액티브 피해 +30%. 적의 공격 준비를 드러내며 망원경·폰크 점사가 분석 표적을 우선합니다.',family:'GUN'})
+ Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 6초간 집중 공격합니다. 지정 중 본기가 재장전하면 준비된 특수무장 편대가 엄호 사격하며, 표적 소실 시 한 번 재지정합니다. 윔페리스도 지정 표적을 우선 조준합니다.',family:'FORMATION'}),
+ Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'전방·후방 주무장으로 각각 3회 연속 명중하면 표적을 6초간 분석합니다. 해당 표적에 주무장·직접 사격 액티브 피해 +30%. 적의 공격 준비를 드러내며 망원경·윔페리스·폰크 점사가 분석 표적을 우선합니다.',family:'GUN'})
 ]);
 
 export const WWI_BALANCE=Object.freeze({
@@ -25,6 +25,7 @@ export const WWI_BALANCE=Object.freeze({
 const IDS=new Set([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(e=>e.id));
 const INSTALLED=Symbol.for('headon.wwi-equipment.v1');
 const handledImpacts=new WeakMap();
+const steelBuckinghamHits=new WeakMap();
 const ownerId=owner=>owner?.id??'p1';
 const combatWorld=owner=>owner?.combatWorld?.()||owner?.world||owner;
 const finite=(n,fallback=0)=>Number.isFinite(n)?n:fallback;
@@ -131,6 +132,20 @@ function noteMachineGunHit(owner,round,target,now){
  const rear=round.pilotRear?'Rear':'';
  for(const [equipment,label,balance] of [['buckinghamBelt','Buckingham',WWI_BALANCE.buckingham],['hytheCamera','Hythe',WWI_BALANCE.hytheCamera]]){
   if(!hasEquipment(owner,equipment))continue;
+  if(equipment==='buckinghamBelt'&&round.steelCoreRemaining!=null){
+   let targets=steelBuckinghamHits.get(owner);
+   if(!targets){targets=new WeakMap();steelBuckinghamHits.set(owner,targets);}
+   const key=target.stageBossBody||target;
+   let lanes=targets.get(key);
+   if(!lanes){lanes={};targets.set(key,lanes);}
+   const lane=lanes[rear]??={volleyAt:-Infinity,lastHitAt:-Infinity,hits:0};
+   if(round.wwiVolleyAt!=null&&round.wwiVolleyAt<=lane.volleyAt)continue;
+   lane.volleyAt=round.wwiVolleyAt??-Infinity;
+   lane.hits=now-lane.lastHitAt<=balance.hitGap?lane.hits+1:1;
+   lane.lastHitAt=now;
+   if(lane.hits>=balance.hits){lane.hits=0;igniteSharedBurn(owner,target,round,combatImpactResult(round,target));}
+   continue;
+  }
   const key=`wwi${label}${rear}`,id=equipment==='hytheCamera'?(cameraBossId(target)||targetId(owner,target)):targetId(owner,target);
   // A quad volley is one trigger even if its pellets reach the target in different frames.
   if(round.wwiVolleyAt!=null&&round.wwiVolleyAt<=(owner[key+'VolleyAt']??-Infinity))continue;
@@ -165,6 +180,7 @@ export function installWWIEquipment(Game){
  const prototype=Game?.prototype;if(!prototype)throw new TypeError('installWWIEquipment requires a Game constructor');
  if(Object.hasOwn(prototype,INSTALLED))return Game;
  Object.defineProperty(prototype,INSTALLED,{value:true});
+ prototype.equipmentAimPriorities=function(){return equipmentAimPriorities(this);};
  const apply=prototype.applySpecialRound;
  prototype.applySpecialRound=function(round,type){
   const result=apply?apply.call(this,round,type):round;
@@ -417,6 +433,30 @@ export function tickWWIEquipment(owner,world,dt,previousPose){
 }
 
 export function resolveWWITarget(owner,id){return id==null?null:equipmentTargets(combatWorld(owner)).find(target=>matchesEquipmentTarget(target,id))||null;}
+
+// Sharing existing signals is not a new designation action: aiming must never
+// consume Very's one retarget, extend a photograph or grant wing commands.
+export function equipmentAimPriorities(owner){
+ const priorities=[];
+ if(!owner||!activeOwner(owner,combatWorld(owner)))return priorities;
+ if(hasEquipment(owner,'veryPistol')&&owner.wwiVeryTime>0){
+  const target=resolveWWITarget(owner,owner.wwiVeryTargetId),body=target?.stageBossBody;
+  if(target&&!unavailableTarget(owner,target)&&!(target.invuln>0||target.invulnerable)){
+   let point=target;
+   if(body){
+    if(owner.wwiVeryPartId!=null){const part=liveParts(body,owner).find(p=>p.id===owner.wwiVeryPartId);point=part?partPoint(body,part):null;}
+    else{const offset=body.coreOffset?.()||body.regionalCore||{x:0,y:0};point=body.coreVulnerable===false?null:{x:finite(body.x)+finite(offset.x),y:finite(body.y)+finite(offset.y)};}
+   }
+   if(point)priorities.push({target,x:point.x,y:point.y,priority:0});
+  }
+ }
+ if(hasEquipment(owner,'hytheCamera'))for(const lane of ['','Rear']){
+  if(!(owner[`wwiHythe${lane}Visible`]>0))continue;
+  const point=cameraTargetPoint(owner,owner[`wwiHythe${lane}AnalyzedId`],owner[`wwiHythe${lane}AnalyzedPartId`]);
+  if(point&&!(point.target.invuln>0||point.target.invulnerable))priorities.push({...point,priority:1});
+ }
+ return priorities;
+}
 
 export function wwiWingTarget(owner,wing){
  if(!hasEquipment(owner,'veryPistol')||!(owner.wwiVeryTime>0)||wing&&wing.ownerId!==ownerId(owner))return null;

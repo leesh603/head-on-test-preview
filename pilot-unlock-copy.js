@@ -1,5 +1,15 @@
 // Localized presentation only. Challenge metrics and numeric goals stay in pilot-unlocks.js.
 export const PILOT_UNLOCK_COPY=Object.freeze({
+  "friedrich_karl": {
+    "titleEn": "The Berlin Finale",
+    "descriptionEn": "Defeat the final boss of the Berlin defensive line.",
+    "goalLabelsEn": ["Berlin final boss defeated"]
+  },
+  "robinson": {
+    "titleEn": "The London Finale",
+    "descriptionEn": "Defeat the final boss of the London air raid.",
+    "goalLabelsEn": ["London final boss defeated"]
+  },
   "navarre": {
     "titleEn": "The Sentinel of Verdun",
     "descriptionEn": "In Entente aircraft, defeat the Verdun region boss 3 times and score 12 ranked kills in that region.",

@@ -5,6 +5,7 @@ import {drawRevisionDecoys} from './voss-decoy-fx.js';
 import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js';
 import {drawGroundFacilities} from './ground-facility-view.js';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js';
+import {drawCapitalPilots} from './capital-pilots-view.js';
 import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js';
 import {drawAirThreat} from './air-threat-art.js';
 import {drawProjectileTactic} from './gun-signatures.js';
@@ -32,7 +33,7 @@ import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-re
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
-const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz']);
+const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz','friedrich_karl','robinson']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
 import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
@@ -55,6 +56,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  renderLegacySquadrons(c,g,(x,y)=>[x,y]);
  groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
  for(const p of g.players)drawNavarreFrommherz(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
+ for(const p of g.players)drawCapitalPilots(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
  const cl=(x,y,m)=>x<g.x-W/(2*z)-m||x>g.x+W/(2*z)+m||y<g.y-H/(2*z)-m||y>g.y+H/(2*z)+m;
  for(const e of g.enemyAirshipPasses||[])if(!cl(e.x,e.y,320))drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
  for(const p of g.players)for(const d of p.vossAfterimages||[]){c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,p.bomberTransfer?.sprite||aircraftKey(p.plane,false,p.pilot),p.bomberTransfer?.scale??1);c.restore();}
@@ -102,8 +104,8 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
    if(p.pilot==='gontermann'){const heavy=[];for(const e of g.enemies||[]){if(!(e.hp>0&&(e.heavyBomber||e.zeppelin||e.boss||e.ace||e.big||e.stageBossBody||e.navalVessel||e.fieldUnit||e.type==='boss')&&(e.x-p.x)**2+(e.y-p.y)**2<700*700))continue;heavy.push(e);if(heavy.length>=4)break}if(heavy.length){c.save();heavy.forEach((e,i)=>{const r=(e.r||18)+13+Math.sin(t*6+i)*3;if(p.pilot==='luke'){c.globalAlpha=.85;c.strokeStyle='#ffb43c';c.lineWidth=2;c.save();c.translate(e.x,e.y);c.rotate(t*1.5);c.beginPath();c.moveTo(0,-r);c.lineTo(r,0);c.lineTo(0,r);c.lineTo(-r,0);c.closePath();c.stroke();c.restore()}else{c.globalAlpha=.8;for(let j=0;j<3;j++){const ga=t*2+j*2.1;c.fillStyle=j%2?'#ff8a3c':'#ffce6a';c.beginPath();c.arc(e.x+Math.cos(ga)*r*.7,e.y+Math.sin(ga)*r*.7,2.4,0,Math.PI*2);c.fill()}}});c.restore()}}
    for(const ship of p.airshipFleet||[])if(ship.age>=0&&ship.age<6)drawZeppelin(c,ship.x,ship.y,ship.a,ship.scale||.825,false,'central')}
  for(const b of g.friendlyBombers){if(cl(b.x,b.y,240))continue;drawFriendlyBomber(c,b)}
- for(const b of g.friendlyBombs){if(b.cooperBomb)continue;if(cl(b.x,b.y,80))continue;const f=1-b.life/b.maxLife;fxsBombFall(c,(X,Y,k,a,pitch)=>(drawProjectileTactic(c,b,X,Y,a),bombSprite(c,b.sprite||'cooper',X,Y,40*k,a,1,pitch)||fx(c,'bomb',X,Y,28*k*pitch,13*k,a)),b.sx,b.sy,b.x,b.y,f,b.releaseAngle);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
- for(const b of g.bullets){if(b.fieryGrapnel||b.flechette)continue;if(b.life<=0||cl(b.x,b.y,80))continue;if(b.enemy){continue}else if(b.rocket){if(!drawFlightRocket(c,b,b.x,b.y))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48)}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(drawPilotGunTracer(c,b,b.x,b.y)){}else{drawFriendlyGunTracer(c,b,b.x,b.y,g.gunUpgradeBonus);}}
+ for(const b of g.friendlyBombs){if(b.cooperBomb)continue;if(cl(b.x,b.y,80))continue;const scale=b.ammunitionScale||1;if(b.steelCoreFlight){if(b.grenade)drawGrenade(c,b,b.x,b.y);else bombSprite(c,b.sprite||'cooper',b.x,b.y,40*scale,b.releaseAngle);continue;}const f=1-b.life/b.maxLife;fxsBombFall(c,(X,Y,k,a,pitch)=>(drawProjectileTactic(c,b,X,Y,a),bombSprite(c,b.sprite||'cooper',X,Y,40*k*scale,a,1,pitch)||fx(c,'bomb',X,Y,28*k*pitch*scale,13*k*scale,a)),b.sx,b.sy,b.x,b.y,f,b.releaseAngle);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
+ for(const b of g.bullets){if(b.fieryGrapnel||b.flechette)continue;if(b.life<=0||cl(b.x,b.y,80))continue;if(b.enemy){continue}else if(b.rocket){if(!drawFlightRocket(c,b,b.x,b.y))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48*(b.ammunitionScale||1))}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(drawPilotGunTracer(c,b,b.x,b.y)){}else{drawFriendlyGunTracer(c,b,b.x,b.y,g.gunUpgradeBonus);}}
  for(const zone of g.bombZones){if(cl(zone.x,zone.y,zone.radius+20))continue;const progress=1-zone.delay/zone.maxDelay;impactMark(c,zone.x,zone.y,zone.radius,progress);fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,zone.sprite||'puw',X,Y,44*k,a,1,pitch)||fx(c,'bomb',X,Y,31*k*pitch,14*k,a),zone.sx,zone.sy,zone.x,zone.y,progress,zone.releaseAngle);}
  for(const fxf of g.combatFX){if(cl(fxf.x,fxf.y,(fxf.radius||60)*2.6+80))continue;if(drawTacticalCombatCue(c,fxf,fxf.x,fxf.y,fx,g))continue;const f=1-fxf.life/fxf.maxLife;if(fxf.amatol){drawAmatolBlast(c,fxf,fxf.x,fxf.y);continue}if(fxf.grenade){drawGrenadeBlast(c,fxf,fxf.x,fxf.y);continue}if(!drawFxExplosion(c,fxf,fxf.x,fxf.y))fx(c,'smokeDark',fxf.x,fxf.y,fxf.radius*(1+f)*2.2,fxf.radius*(1+f)*2.2,0,Math.min(1,fxf.life*3))}
  for(const gust of g.gusts)if(!cl(gust.x,gust.y,(gust.radius||60)*1.4+60)&&!drawGust3(c,gust,gust.x,gust.y,t))drawFieldArt('gust',gust.x,gust.y,gust.radius*2.6,gust.radius*2.6,gust.a+t*.15,Math.max(0,Math.min(.85,gust.life,6-gust.life)));
@@ -136,7 +138,3 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const p of g.players){const isMe=g.online?p.id===g.localPlayerId:p.id==='p1';if(isMe||p.hp<=0)continue;const sx=(p.x-g.x)*z+W/2,sy=(p.y-g.y)*z+H/2;if(sx>-24&&sx<W+24&&sy>-24&&sy<H+24)continue;const ax=Math.min(Math.max(sx,30),W-30),ay=Math.min(Math.max(sy,30),H-30),ang=Math.atan2(sy-ay,sx-ax);c.save();c.translate(ax,ay);c.rotate(ang);c.fillStyle='#47d160';c.strokeStyle='#0c1f10';c.lineWidth=2;c.beginPath();c.moveTo(16,0);c.lineTo(-9,-9);c.lineTo(-4,0);c.lineTo(-9,9);c.closePath();c.fill();c.stroke();c.restore();c.save();c.font='800 10px sans-serif';c.textAlign='center';c.fillStyle='#c9ffce';c.fillText(p.id.toUpperCase(),ax,ay-14);c.restore()}
  c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText(((g.worldRegion?.()??g.region)===19?(getLocale()==='en'?'Laon Artillery Position · 1918':'라온 포격진지 · 1918'):(g.worldRegion?.()??g.region)===17?'도버 해협 · 해상 야간 차단선':(['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭'][g.worldRegion?.()??g.region]||'전원 지대'))+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
-
-
-
-

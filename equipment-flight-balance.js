@@ -1,9 +1,10 @@
 import {wimperisTarget} from './flight-equipment.js';
+import {HEAVY_AMMUNITION} from './heavy-ammunition.js';
 // Shared equipment-only modifiers. Pilot bursts remain in their authored paths.
 export function equipmentCruiseMultiplier(p){
  const mercedes=p.upgrades?.mercedesEngine?1+(1.55/1.2-1)*(p.mercedesOutput160||0):1;
  const pursuit=p.upgrades?.redScarf&&p.tailLocked?1.35/1.2:1;
- return mercedes*pursuit;
+ return mercedes*pursuit*(p.upgrades?.prototypeAmmo?HEAVY_AMMUNITION.speedScale:1);
 }
 export function tickEquipmentCruise(p,dt,angleDiff){
  const previous=Number.isFinite(p.equipmentHeading)?p.equipmentHeading:p.a;

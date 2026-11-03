@@ -24,6 +24,7 @@ const rows=[
  ['fe2b',2,1915,'빠른 성장 · 복좌 방어','Fast growth / defensive two-seater',['growth','twoSeat']],
  ['re7',2,1915,'빠른 성장 · 묵직한 생환 비행','Fast growth / durable withdrawal',['growth','durability']],
  ['albatros_d2',2,1916,'안정적인 전방 사격','Twin frontal guns / steady gun line',['frontalFire','stability']],
+ ['albatros_d1',2,1916,'초기형 전방 화력 · 안정적인 진입','Early twin guns / stable approach',['frontalFire','stability']],
  ['caudron_g4',2,1915,'빠른 성장 · 쌍발 내구성','Fast growth / twin-engine endurance',['growth','durability']],
  ['voisin8',2,1916,'푸셔 화력 · 긴 작전 유지','Pusher firepower / endurance',['frontalFire','durability']],
  ['ff33',2,1915,'빠른 성장 · 수상 정찰','Fast growth / floatplane reconnaissance',['growth','twoSeat']],
@@ -79,7 +80,7 @@ const rows=[
 
 const aliases={
  dh2:'airco_dh2',bristol:'bristol_duo',halberstadt:'halberstadt_duo',fokker_campaign:'fokker',fokker_d7_campaign:'fokkerd7',
- nieuport_italian:'nieuport',baron_albatros:'albatros',wolff_albatros:'albatros',boelcke_albatros:'albatros_d2',loewenhardt_fokkerd7:'fokkerd7',mccudden_se5a:'se5a',nungesser_nieuport24:'nieuport24',fokker_jacobs:'fokker',
+ nieuport_italian:'nieuport',baron_albatros:'albatros',wolff_albatros:'albatros',boelcke_albatros:'albatros_d2',prinz_friedrich_albatros_d1:'albatros_d1',loewenhardt_fokkerd7:'fokkerd7',mccudden_se5a:'se5a',nungesser_nieuport24:'nieuport24',fokker_jacobs:'fokker',
  goering_fokkerd7:'fokkerd7',collishaw_sopwith:'sopwith',guynemer_spad:'spad12',udet_fokkerdv:'fokkerdv',baracca_nieuport:'nieuport',berthold_pfalz:'pfalz_d3a',
  rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker',
  fokker_standard:'fokker',fokker_f1:'fokker',fokker_red:'fokker',fokker_voss:'fokker',

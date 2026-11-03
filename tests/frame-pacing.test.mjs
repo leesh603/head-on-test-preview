@@ -6,7 +6,7 @@ const app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const view=readFileSync(new URL('../stageboss-view.js',import.meta.url),'utf8');
 function loop(source=app,options={}){
  const frames=[],samples=[],scheduled=[],resizes=[];
- const c=vm.createContext({document:{hidden:false},game:{state:'playing'},gamepadInput:{poll:()=>({})},pause(){},regionTransitionUntil:0,renderDirty:true,lastRenderGame:null,lastRenderState:'',staticRenderAt:-Infinity,last:0,frameErrors:0,
+ const c=vm.createContext({document:{hidden:false},game:{state:'playing'},gamepadInput:{poll:()=>({})},pause(){},regionTransitionUntil:0,renderDirty:true,lastRenderGame:null,lastRenderState:'',staticRenderAt:-Infinity,last:0,frameErrors:0,flightRecorder:null,
   cancelAnimationFrame(){},setInterval(){throw Error('default loop must not start a timer')},clearInterval(){},mobileDisplay:true,hiFpsMode:false,batterySaver:false,renderStamp:-1e9,__perfResize:false,
   performance:{now:()=>0},requestAnimationFrame:f=>scheduled.push(f),resize:()=>resizes.push(1),
   frameInner:t=>frames.push(t),__perfFrame:ms=>samples.push(ms),...options});

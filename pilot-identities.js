@@ -1,3 +1,4 @@
+import {ammunitionVisualScale} from './heavy-ammunition.js';
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
 import {installPilotFeedback} from './pilot-feedback.js';
 import {wwiWingTarget} from './wwi-equipment.js';
@@ -147,7 +148,15 @@ export function installPilotIdentities(Game,PILOTS){
    }
   }
 
-  for(const b of s.bombs){b.time-=dt;const k=Math.min(1,dt/Math.max(dt,b.time));b.x+=(b.tx-b.x)*k;b.y+=(b.ty-b.y)*k;this.identityFx('bomb',b.x,b.y,this.a,25,dt+.01);if(b.time<=0)this.queueExplosionDamage(b.tx,b.ty,65,this.payloadPower(32),{grenade:true,fxSource:'bomb'})}s.bombs=s.bombs.filter(b=>b.time>0);
+  for(const b of s.bombs){
+   b.time-=dt;const k=Math.min(1,dt/Math.max(dt,b.time));b.x+=(b.tx-b.x)*k;b.y+=(b.ty-b.y)*k;
+   this.identityFx('bomb',b.x,b.y,this.a,25*ammunitionVisualScale(this),dt+.01);
+   if(b.time>0)continue;
+   const damage=this.payloadPower(32);
+   if(this.upgrades?.steelCore)(w.friendlyBombs??=[]).push({x:b.tx,y:b.ty,ownerId:own(this),radius:65,damage,life:0,releaseAngle:this.a,grenade:true,height:0});
+   else this.queueExplosionDamage(b.tx,b.ty,65,damage,{grenade:true,fxSource:'bomb'});
+  }
+  s.bombs=s.bombs.filter(b=>b.time>0);
 
 
   if(this.pilot==='ball'){s.alone=!(w.allies||[]).some(a=>a.life>0&&distance(a,this)<320)&&!(w.players||[]).some(p=>p!==this&&alive(p)&&distance(p,this)<320);}

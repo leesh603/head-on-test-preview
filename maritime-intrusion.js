@@ -1,5 +1,7 @@
 /** Optional sea encounters. Fictional WWI-inspired designs, not historical ship replicas. */
 import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
+import {surfaceTraffic,fleetHull} from './naval-spacing.js';
 export const MARITIME_STAGES = Object.freeze([1,16]); // Adriatic sea and Jutland only.
 export const MARITIME_PROFILES = Object.freeze({
  dreadnought:{id:'dreadnought',name:'드레드노트',faction:'entente',mode:'naval-broadside',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.60,detail:'대공포를 끊고 포격 사이로 파고들어라',artStatus:'new independent fictional WWI naval design; separate rotating turret assemblies'},
@@ -53,6 +55,20 @@ function integrateVessel(e,n,dt,targetSpeed,targetHeading){
  n.wakeClock+=dt;
  if(n.wakeClock>=.18){n.wakeClock%=.18;n.wakeTrail.push({x:e.x,y:e.y,a:e.a,t:n.clock});}
  n.wakeTrail=n.wakeTrail.filter(p=>n.clock-p.t<4.5).slice(-26);
+}
+/** Reserve an unoccupied water contact before its first visible frame.
+ * Existing traffic never gets shoved aside by a newly materialised boss. */
+export function placeMaritimeContact(g,e,layout,x,y,commit=true){
+ const obstacles=surfaceTraffic(g).map(fleetHull);
+ for(const b of g.stageBoss?.stages?.encounter?.bodies?.values?.()||[])if(!b.dead){const r=bossHullRect(b);if(r)obstacles.push(r);}
+ const hull={w:layout.width*e.scale,h:layout.height*e.scale,yaw:e.a+Math.PI/2};
+ const candidates=[0,-.22,.22,-.42,.42];
+ for(const forward of [0,-.22,.22])for(const lateral of candidates){
+  const dx=lateral*e.width,dy=forward*e.height;
+  const pose={...hull,x:x+Math.cos(e.a+Math.PI/2)*dx+Math.cos(e.a)*dy,y:y+Math.sin(e.a+Math.PI/2)*dx+Math.sin(e.a)*dy};
+  if(!obstacles.some(r=>hullOverlap(pose,r,24))){if(commit){e.x=pose.x;e.y=pose.y;e.contactPlaced=true;}return true;}
+ }
+ return false;
 }
 /** Entry and withdrawal retain vessel inertia, not a freeze→instant speed change. */
 export function stepMaritimeTransit(e,dt){
@@ -108,9 +124,9 @@ export function aimMaritimeGuns(g,e,layout,dt,api){
 /** Uses real authored muzzle/pivot data. No center-of-hull bullets or invisible underwater fire. */
 export function queueMaritimeAttack(g,e,layout,api){
  if(!isMaritimeIntrusion(e))return false;
- if(!maritimeAttackable(e)||!maritimeWeaponsReady(e))return true;
- const players=api.alive(g);if(!players.length)return true;
- const p=players[e.volley%players.length],target=api.local(e,p.x,p.y);
+ if(!maritimeAttackable(e)||!maritimeWeaponsReady(e))return false;
+ const players=api.alive(g);if(!players.length)return false;
+ const p=players[e.volley%players.length],target=api.local(e,p.x,p.y),before=e.hazards.length+e.shotCues.length;
  const guns=layout.targets.filter(t=>t.muzzle&&api.canFire(e,t.id));
  const ordered=[...guns.slice(e.volley%Math.max(1,guns.length)),...guns.slice(0,e.volley%Math.max(1,guns.length))];let heavyQueued=false;
  for(const gun of ordered){
@@ -136,7 +152,8 @@ export function queueMaritimeAttack(g,e,layout,api){
   if(!offsets.length)continue;
   e.shotCues.push({...world,localMuzzle:muzzle,localAngle:a,a:a+e.a+Math.PI/2,partId:gun.id,age:0,warning:aa?.8:1.2,damage:aa?10:19,speed:aa?285:235,offsets,done:false});
  }
- e.volley++;return true;
+ // Keep alternating targets/batteries, but reserve the full cooldown for real ordnance.
+ e.volley++;return e.hazards.length+e.shotCues.length>before;
 }
 export function maritimeAttackInterval(e){return e.profileId==='dreadnought'?2.15:e.profileId==='seeadler'?2.7:2.4;}
 export function maritimeTactic(e,locale='ko'){

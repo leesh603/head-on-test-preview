@@ -1,5 +1,13 @@
 // Shared player-facing equipment copy. Runtime values are read from existing descriptions.
 export const EQUIPMENT_COPY={
+ "prototypeAmmo": [
+  "발사체 크기 +50%, 호환 탄환 명중 반경과 폭발 반경 +30%, 독가스 반경 +40%. 최대속도 −6%.",
+  "Projectile size +50%, compatible rounds' hit radius and blast radius +30%, gas radius +40%. Top speed −6%."
+ ],
+ "steelCore": [
+  "기관총탄은 최대 2회 관통하며 매번 남은 피해의 70%를 전달합니다. 호환 폭탄은 한 차례 관통하고 두 지점에서 각각 기존 피해의 70%로 폭발합니다.",
+  "Machine gun rounds pierce twice, retaining 70% of their remaining damage each time. Compatible bombs pierce once and explode at two locations, each for 70% of their original damage."
+ ],
  "wingman": [
   "상시 편대기 1기가 합류합니다. 출격당 2회, 전체 편대는 최대 7기까지 가능합니다.",
   "Permanent wingmen +1. At most 2 selections per sortie; 7 permanent wingmen total."
@@ -99,8 +107,8 @@ export const EQUIPMENT_COPY={
  "cow37": ["기관총을 비관통 37mm 포로 교체합니다. 포탄은 명중하면 폭발하며 발사할 때마다 탄약을 소모합니다.", "Replaces the machine guns with a non-piercing 37mm cannon. Shells explode on impact and consume ammunition when fired."],
  "rankinShell": ["후방이나 COW·쿠퍼·갈고리에서 파편을 퍼뜨려 공격하고 적탄을 제거합니다. 중탄과 보스 경고 공격은 제거하지 못합니다.","Releases shrapnel behind you or through COW, Cooper or hooks to damage enemies and clear bullets. Heavy and warned boss attacks cannot be cleared."],
  "grunkreuz": [
-  "독가스에 면역이 되고 4.5초간 0.35초마다 후방으로 가스를 분출하며, 가스는 3초간 남아 0.6초마다 최대 내구도의 9% 피해를 줍니다. 충전은 7초이며 분출·충전시간에 액티브 쿨타임 감소가 최대 50% 적용됩니다.",
-  "Become gas-immune and vent gas every 0.35s for 4.5s; clouds last 3s and deal 9% of your maximum durability every 0.6s. Recharge: 7s; Active cooldown reductions shorten venting and recharge by up to 50%."
+  "독가스 면역과 후방 가스 분출. 쿠퍼·갈고리에 가스를 싣고, 지원폭격·폭격 액티브·전술 후속탄도 착탄 지점에 3초간 가스를 남깁니다. 본인의 폭격 가스끼리는 피해가 중첩되지 않습니다. 후방 분출은 4.5초, 충전은 7초이며 액티브 쿨타임 감소가 적용됩니다.",
+  "Gas immunity and rear venting. Cooper and hooks carry gas; support bombing, bombing actives and tactical follow-ups also leave 3-second gas fields on impact. Overlapping payload gas fields from the same owner do not stack damage. Rear venting lasts 4.5s with a 7s recharge, reduced by Active cooldown bonuses."
  ],
  "kaiserFog": [
   "12초마다 3초간 연막에 숨어 적의 추적을 끊습니다.",
@@ -127,25 +135,25 @@ export const EQUIPMENT_COPY={
   "아군 에이스 1명이 무작위로 합류합니다. 주력 무장과 반대 계열로 엄호하며 기체 성장에 따라 강해집니다.",
   "One random allied ace joins, covering you with machine guns or rockets opposite your main weapon and growing stronger with your aircraft."
  ],
- "buckinghamBelt": ["기관총을 3회 맞히면 적에게 불을 붙입니다. 화살·포탄·폭탄·갈고리에도 적용됩니다. 화상은 해당 무장의 성장에 따라 강해지며 본인의 소이 공격 재명중 시 3초로 갱신됩니다. 화상 피해는 중첩되지 않습니다.", "Three machine-gun hits ignite the target. Darts, shells, bombs and hooks also carry fire. Burns scale with their weapon and refresh to 3s on another incendiary hit by the same owner; burn damage does not stack."],
+ "buckinghamBelt": ["기관총 3회 명중으로 점화합니다. 화살·포탄·갈고리와 지원폭격·폭격 액티브·전술 후속탄의 폭발도 불을 붙여 화염 연계 스킬에 활용됩니다. 화상은 무장 성장을 따르고 본인의 소이 공격 재명중 시 3초로 갱신되며 중첩되지 않습니다.", "Three gun hits ignite. Darts, shells, hooks and blasts from support bombing, bombing actives and tactical follow-ups also ignite targets for burn-based skills. Burns scale with their weapon, refresh to 3s on another owned incendiary hit, and do not stack."],
  "cooperRack": ["4초마다 전방 표적에 폭탄 2발을 투하합니다. 보유한 소이·화살·가스·연막·파편 장비의 효과도 전달합니다.", "Drops two bombs at forward targets every 4 seconds. Carries the effects of equipped fire, dart, gas, smoke and shrapnel equipment."],
  "fieryGrapnel": ["근접 명중으로 화염 갈고리를 부착하고 준비된 쿠퍼 폭탄 1발이나 파편·가스를 전달합니다. 표적이 먼저 격추돼도 부착한 폭약은 마지막 위치에서 한 번 폭발합니다.", "A close flyby attaches a burning hook and delivers one ready Cooper bomb or shrapnel/gas charge. If the target is destroyed first, the attached payload detonates once at its last position."],
  "flechettes": ["기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다. COW 포탄·쿠퍼 폭탄에도 실리며 각 운반 무장의 성장을 따릅니다. 소이·아마톨 장비와도 연계됩니다.", "Keeps machine guns and fires separate bursts of 12 piercing darts every 3 seconds. COW shells and Cooper bombs also carry darts, scaling with their carrier weapon. Combines with incendiary and Amatol equipment."],
  "veryPistol": [
-  "9초마다 최근 맞힌 전방 표적을 우선 지정해 6초간 집중 공격합니다. 표적 소실 시 한 번 재지정합니다. 본기가 재장전할 때 준비된 특수무장 편대기가 자기 탄약으로 엄호 사격합니다.",
-  "Every 9 s, prioritize a recently hit forward target for 6 s of focused fire, retargeting once if lost. When you reload, ready specialist wingmen cover the marked target using their own ammunition."
+  "9초마다 전방 표적을 지정해 6초간 편대가 집중 공격하고, 표적 소실 시 한 번 재지정합니다. 윔페리스도 지정 표적을 우선합니다. 본기 재장전 중 준비된 특수무장 편대기가 자기 탄약으로 엄호합니다.",
+  "Every 9s, mark a forward target for 6s of wing focus, retargeting once if lost. Wimperis also prioritizes the designation. Ready specialist wingmen cover your reload using their own ammunition."
  ],
  "hytheCamera": [
-  "전방·후방 주무장 각각 3회 연속 명중으로 표적을 6초간 분석해 직접 사격 피해가 30% 증가합니다. COW 주포에도 적용되며 쿼드 일제사격은 1회로 셉니다. 적의 공격 준비가 표시되고 망원경·폰크 사격이 분석 표적을 우선합니다.",
-  "Three consecutive primary hits analyze a target for 6s, increasing direct-fire damage by 30%. Includes COW; a quad volley counts once. Reveals attack preparation; telescope aim and Fonck fire prioritize analyzed targets."
+  "전방·후방 주무장 각각 3회 연속 명중으로 표적을 6초간 분석해 직접 사격 피해가 30% 증가합니다. COW에도 적용되며 쿼드 일제사격은 1회로 셉니다. 공격 준비를 드러내고 망원경·퐁크 사격·윔페리스가 분석 표적을 우선합니다.",
+  "Three consecutive primary hits analyze a target for 6s, adding 30% direct-fire damage. Includes COW; a quad volley counts once. Reveals attack preparation; telescope aim, Fonck's fire and Wimperis prioritize the analyzed target."
  ],
  "strutterAirbrake": [
   "선회기동이 감속 후 재가속하는 급선회로 바뀝니다. 기체 전환 장비와 함께 장착할 수 없습니다.",
   "Turns fighter evasion into a brake turn, slowing briefly before reaccelerating. Cannot be equipped with an airframe conversion."
  ],
  "wimperisSight": [
-  "로켓·수류탄·폭탄을 발사할 때 이동 표적의 예상 위치를 조준합니다. 발수나 발사 후 유도는 추가되지 않습니다.",
-  "Aims rockets, grenades and dropped bombs at a moving target’s predicted position when released. Does not add homing or extra projectiles."
+  "로켓·수류탄·폭탄을 발사할 때 이동 표적의 예상 위치를 조준합니다. 조준 범위 안에서 베리 지정, 하이스 분석 표적 순으로 우선합니다. 발수나 발사 후 유도는 추가되지 않습니다.",
+  "Aims rockets, grenades and dropped bombs at a moving target’s predicted position when released. Within aiming limits, prioritizes Very designations, then Hythe analysis. Does not add homing or extra projectiles."
  ],
  "bomberTransfer": [
   "중폭격기로 바뀌어 4.5~4.8초마다 융단·집중폭격을 하고 후방 사수가 합류하며, 선회기동은 방어탄막으로 바뀝니다. 내구도 3.2~3.5배(최대 480~520)·속도 20~24%감소·선회 34~38%감소·피탄면적 증가가 적용되고 폭발물 강화는 유지되며 다른 기체 전환과 함께 장착할 수 없습니다.",
@@ -200,8 +208,8 @@ export const EQUIPMENT_CHOICE_COPY={
  ],
  "cow37": ["기관총을 탄약을 소모하는 비관통 37mm 포로 바꿉니다.", "Replaces guns with an ammo-consuming, non-piercing 37mm cannon."],
  "grunkreuz": [
-  "독가스에 면역이 되고 후방에 가스를 분출합니다.",
-  "Gas immunity and rear gas bursts, then recharge."
+  "독가스 면역. 폭격·전술 후속탄에도 잔류 가스를 싣습니다.",
+  "Gas immunity; bombing and tactical follow-ups leave gas."
  ],
  "badinGauge": [
   "직진 시 지속 속도 증가분만 피해로 바꿉니다(최대 30%).",
@@ -209,8 +217,8 @@ export const EQUIPMENT_CHOICE_COPY={
  ],
  "flechettes": ["기관총을 유지하며 3초마다 관통 화살 12발을 별도로 발사합니다.", "Keeps machine guns and fires separate bursts of 12 piercing darts every 3 seconds."],
  "hytheCamera": [
-  "3연속 명중한 적에게 6초간 사격 피해가 30% 증가합니다.",
-  "3 gun hits in a row: +30% gun damage for 6s."
+  "3연속 명중 시 사격 피해 +30%. 윔페리스와 분석 표적을 공유합니다.",
+  "3 hits: +30% direct fire; shares analysis with Wimperis."
  ],
  "bomberTransfer": ["느린 중폭격기로 바뀌어 폭격·후방 사격을 합니다(다른 기체 전환 불가).", "Becomes a slow bomber with bombs and rear fire. No other conversions."],
  "mgTransfer": ["느린 중무장기로 바뀌어 추적 기관총 2정을 씁니다(다른 기체 전환 불가).", "Becomes a slow gunship with two tracking guns. No other conversions."],
@@ -270,8 +278,8 @@ export const EQUIPMENT_CHOICE_COPY={
   "Brake, turn, reaccelerate. No airframe conversions."
  ],
  "wimperisSight": [
-  "폭발물을 발사할 때 선행 조준합니다. 유도·추가탄은 없습니다.",
-  "Predictive ordnance aim; no homing or extra rounds."
+  "폭발물 선행 조준. 베리 지정·하이스 분석 표적을 우선합니다.",
+  "Predictive ordnance aim; prioritizes Very and Hythe targets."
  ]
 };
 export function conciseEquipmentChoice(id,description,locale='ko'){

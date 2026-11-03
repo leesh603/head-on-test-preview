@@ -1,6 +1,8 @@
 // One equipment ID, two faction presentations; pilot mechanics live in passive-medals.js.
 export const PASSIVE_MEDAL_ID='passiveMedal';
 export const PASSIVE_MEDAL_EFFECTS=Object.freeze({
+ friedrich_karl:['집중 표적·지원 화력','표적 지정 9초. 그 적에게 주무장 피해 +12%·자신의 폭발물·편대 피해 +22%(보스 +6%·+12%).','Designate a target for 9s. Primary damage +12%; owned explosives and wingmen +22% (+6% and +12% vs bosses).'],
+ robinson:['주요 위협 요격·추격','접근 속도 +18%·선회 +22%. 직접 명중한 표적에 8초간 주무장 피해 +18%(보스 +9%). 직접 격추 후 재배치 가속 3.5초.','Approach speed +18%, turn +22%. The directly hit target takes +18% primary damage for 8s (+9% vs bosses). Personal kills grant 3.5s of repositioning speed.'],
  baron:['강적 추적 단계·격추 가속','사냥 3단계 명중 후 사냥감 격추 시 가속 2초 연장. 알바트로스는 선회 후 재진입 명중 시 2초간 장전 가속.'],
  fonck:['집중 조준·선행 사격','집중 조준 완료 후 첫 기관총 사격이 관통하며 같은 표적에 20% 추가 피해. 대기 4초.'],
  voss:['근거리 적 수에 따른 기동·화력','400 안에 적 3기 이상일 때 회피 성공 시 기동 대기 2초 회복·1.5초간 연사 +25%. 대기 6초.'],
@@ -18,7 +20,7 @@ export const PASSIVE_MEDAL_EFFECTS=Object.freeze({
  wolff:['무피격 6단계 축적','6단계를 모은 뒤 실제 피격 시 잃은 중첩 1개 복구·1.5초간 이탈 선회 +35%. 대기 12초.'],
  loewenhardt:['전방 420 사격 강화','전방 같은 적에 3회 명중하면 다음 사격 2발이 관통. 대기 5초.'],
  mccudden:['일반 강화 4장 선택','4장 중 일반 강화를 선택하면 내구도 5% 수리·진행 중 장전 시간 30% 단축. 선택당 1회.'],
- nungesser:['같은 적과 재교전','집념 재교전 성공 시 같은 적 강화 1초 연장·다음 사격 1발 관통. 기존 재발동 제한 유지.'],
+ nungesser:['근거리 연속 명중','근거리 3회 명중으로 집념 발동 시 같은 적 피해 강화가 3초→4초로 연장·다음 사격 1발 관통. 표적별 대기 4초.'],
  jacobs:['새 사선에서 같은 적 명중','사선 전환 성공 후 같은 표적에 기관총 20% 추가 피해·다음 사격 1발 관통. 지속 1.2초.'],
  hawker:['격추 후 다음 적 강조','강조된 다음 적을 맞히면 탄약 8% 회복·다음 사격 1발 관통. 대기 3초.'],
  berthold:['버틴 피격 기억','실제로 최대 내구도의 9% 이상 피격 시 다음 기관총 2발이 50% 강화·관통. 대기 6초.'],
@@ -37,6 +39,6 @@ export const PASSIVE_MEDAL_EFFECTS=Object.freeze({
  frommherz:['실명중 표적에 편대 선행 조준','지정 표적을 본인 편대가 맞히면 다음 개인 사격 2발이 그 표적에 35% 강화·편대 점사 준비. 대기 4초.']
 });
 export function passiveMedalName(faction,locale='ko'){return locale==='en'?(faction==='entente'?'Distinguished Flying Cross':'Iron Cross 1st Class'):(faction==='entente'?'수훈비행십자훈장':'철십자 훈장 1급');}
-export function passiveMedalDescription(p,locale='ko'){const row=PASSIVE_MEDAL_EFFECTS[typeof p==='string'?p:p?.pilot];return row?(locale==='en'?'Pilot-specific Passive evolution. ':'파일럿 고유 패시브 강화 · ')+row[1]:(locale==='en'?'Enhances the pilot’s unique Passive.':'파일럿 고유 패시브 강화');}
-const CENTRAL_PILOTS=new Set(['baron','voss','boelcke','udet','goering','immelmann','huffzky','wolff','loewenhardt','jacobs','berthold','brumowski','gontermann','sachsenberg','lothar','schleich','frommherz']);
+export function passiveMedalDescription(p,locale='ko'){const row=PASSIVE_MEDAL_EFFECTS[typeof p==='string'?p:p?.pilot];return row?(locale==='en'?'Pilot-specific Passive evolution. ':'파일럿 고유 패시브 강화 · ')+(locale==='en'&&row[2]?row[2]:row[1]):(locale==='en'?'Enhances the pilot’s unique Passive.':'파일럿 고유 패시브 강화');}
+const CENTRAL_PILOTS=new Set(['baron','voss','boelcke','udet','goering','immelmann','huffzky','wolff','loewenhardt','jacobs','berthold','brumowski','gontermann','sachsenberg','lothar','schleich','frommherz','friedrich_karl']);
 export function passiveMedalFaction(p,planes={}){return p?.pilot?(CENTRAL_PILOTS.has(p.pilot)?'central':'entente'):(planes[p?.plane]?.faction||'central');}

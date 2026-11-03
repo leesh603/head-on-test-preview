@@ -4,6 +4,8 @@ import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS,pilotAircraftChoices} from '
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.
 
 const ownerLabels = {
+  "friedrich_karl": ["프리드리히 카를", "Prince Friedrich Karl"],
+  "robinson": ["로빈슨", "William Leefe Robinson"],
   "navarre": ["나바르", "Jean Navarre"],
   "frommherz": ["프롬헤르츠", "Hermann Frommherz"],
   "boelcke": ["뵐케", "Oswald Boelcke"],
@@ -43,6 +45,7 @@ const ownerLabels = {
 // [identity, exact in-game model, faction, owner, base fit, simulation fit, usage tags]
 // Base fit describes the existing game family, not a new historical claim.
 const identityRows = [
+  ["robinson_be2c","B.E.2c","entente","robinson","be2c","robinson_be2c",["sortie","livery","two-seater"]],
   ["navarre_nieuport11","Nieuport 11","entente","navarre","nieuport11","navarre_nieuport11",["sortie","livery"]],
   ["frommherz_albatros_d3","Albatros D.III","central","frommherz","albatros","frommherz_albatros_d3",["sortie","livery"]],
   ["fokker","Fokker Dr.I","central",null,"fokker","fokker",[]],
@@ -62,6 +65,8 @@ const identityRows = [
   ["baron_albatros_d5_redwings","Albatros D.V","central","baron","baron_albatros","baron_albatros_d5_redwings",[]],
   ["baron_albatros_d5_red","Albatros D.V","central","baron","baron_albatros","baron_albatros_d5_red",[]],
   ["albatros_d2","Albatros D.II","central",null,"albatros_d2","albatros_d2",[]],
+  ["albatros_d1","Albatros D.I","central",null,"albatros_d1","albatros_d1",[]],
+  ["prinz_friedrich_albatros_d1","Albatros D.I","central","friedrich_karl","albatros_d1","prinz_friedrich_albatros_d1",["sortie","livery"]],
   ["boelcke_albatros","Albatros D.II","central","boelcke","albatros_d2","boelcke_albatros",[]],
   ["halberstadt_duo","Halberstadt CL.II","central",null,"halberstadt_duo","halberstadt_duo",["two-seater","duo"]],
   ["nieuport_italian","Nieuport 17 (Italian)","entente",null,"nieuport_italian","nieuport_italian",[]],

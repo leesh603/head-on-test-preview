@@ -42,6 +42,7 @@ export class FrenchCounterBatteryAirGroup extends BaseBoss {
   p.x=x-this.x;p.y=y-this.y;p.hittable=true;p.mode=p.role==='bomber'?'approach':'inbound';
   p.speed=(p.role==='observer'?115:p.role==='bomber'?138:168)*s;
   if(p.role==='bomber'){p.finalRun=this.finalAttack;this.planRun(p);}else p.destination={x:gun.x+p.side*250*s,y:gun.y-170*s};
+  p.angle=Math.atan2(p.destination.y-y,p.destination.x-x);
   this.command('laon-air-arrival',{partId:p.id,role:p.role,aircraft:p.aircraft,...this.point(p),targetX:p.destination.x,targetY:p.destination.y});
  }
  chooseTarget(p){
@@ -54,15 +55,32 @@ export class FrenchCounterBatteryAirGroup extends BaseBoss {
   this.command('laon-air-route',{partId:p.id,...this.point(p),targetX:p.destination.x,targetY:p.destination.y,final:p.finalRun});
  }
  move(p,target,dt,speed=p.speed){
-  const q=this.point(p),dx=target.x-q.x,dy=target.y-q.y,d=Math.hypot(dx,dy),step=Math.min(d,speed*dt);
-  if(d>1e-6){p.angle=Math.atan2(dy,dx);p.x+=dx/d*step;p.y+=dy/d*step;}
-  return d-step;
+  const q=this.point(p),dx=target.x-q.x,dy=target.y-q.y,d=Math.hypot(dx,dy);
+  if(!(dt>0)||d<1e-6)return d;
+  const turn=p.role==='bomber'?.9:p.role==='escort'?1.8:1.2,want=Math.atan2(dy,dx),delta=Math.atan2(Math.sin(want-p.angle),Math.cos(want-p.angle));
+  const native=clamp(delta/dt,-turn,turn),pace=Math.min(speed,Math.max(18*this.scale,d*turn*.48));
+  const peers=this.planes.filter(other=>other!==p&&!other.destroyed&&other.mode!=='pending'&&Math.hypot(other.x-p.x,other.y-p.y)<(speed+(other.speed||0))*3+120*this.scale);
+  const pose=(plane,rate,v,t)=>Math.abs(rate)<.001?{x:plane.x+Math.cos(plane.angle)*v*t,y:plane.y+Math.sin(plane.angle)*v*t}:{x:plane.x+(Math.sin(plane.angle+rate*t)-Math.sin(plane.angle))*v/rate,y:plane.y+(Math.cos(plane.angle)-Math.cos(plane.angle+rate*t))*v/rate};
+  const times=[.15,.35,.6,.9,1.25,1.6,2,2.5,3];
+  const forecasts=peers.map(other=>({other,points:times.map(t=>pose(other,other.flightTurn||0,other.flightSpeed??other.speed??0,t))}));
+  let rate=native,velocity=pace,best=Infinity,safeChoice=false;
+  // Both destinations and the approach arcs need separation. Predict the same
+  // finite-turn forward flight used below; reserve the chosen rate for peers.
+  for(const v of [pace,pace*.65,Math.min(pace,18*this.scale)])for(const r of [native,-turn,-turn*.5,0,turn*.5,turn]){
+   let minimum=Infinity,penalty=0;
+   for(let i=0;i<times.length;i++){const at=pose(p,r,v,times[i]);for(const f of forecasts){const gap=Math.hypot(at.x-f.points[i].x,at.y-f.points[i].y)-p.radius-f.other.radius-16*this.scale;minimum=Math.min(minimum,gap);if(gap<0)penalty+=100000+gap*gap*200;}}
+   const safe=minimum>=0,score=penalty+(r-native)**2*80+(r-(p.flightTurn||0))**2*8+(v-pace)**2*.04;
+   if(safe&&!safeChoice||safe===safeChoice&&score<best){best=score;safeChoice=safe;rate=r;velocity=v;}
+  }
+  p.flightTurn=rate;p.flightSpeed=velocity;p.angle+=rate*dt;
+  const step=Math.min(d,velocity*dt);p.x+=Math.cos(p.angle)*step;p.y+=Math.sin(p.angle)*step;
+  return Math.hypot(target.x-this.x-p.x,target.y-this.y-p.y);
  }
  releaseBomb(p){
   const start=this.point(p),target={...p.destination},gun=this.targetGun(),damage=(gun.maxHp||1000)*(p.finalRun?.135:.105),s=gun.scale||1;
   const bomb={id:this.id+':bomb:'+(++this.serial),sourcePartId:p.id,x:start.x,y:start.y,startX:start.x,startY:start.y,targetX:target.x,targetY:target.y,
    targetPartId:target.partId,age:0,duration:1.35,radius:38*s,damage,final:!!p.finalRun};
-  this.bombs.push(bomb);p.released=true;p.runs++;p.mode='egress';p.destination={x:gun.x+p.side*(520+p.runs*35)*s,y:gun.y+700*s};
+  this.bombs.push(bomb);p.released=true;p.runs++;p.mode='egress';const slot=p.id==='bomber-left'?-1:p.id==='bomber-right'?1:0;p.destination={x:gun.x+(p.side*(520+p.runs*35)+slot*110)*s,y:gun.y+(700+slot*90)*s};
   this.command('laon-bomb-release',{...bomb,aircraft:p.aircraft});
  }
  scheduleCounterBattery(){
@@ -98,7 +116,10 @@ export class FrenchCounterBatteryAirGroup extends BaseBoss {
   candidates.sort((a,b)=>Number(!!b.threat)-Number(!!a.threat)||Math.hypot(a.point.x-q.x,a.point.y-q.y)-Math.hypot(b.point.x-q.x,b.point.y-q.y));
   const cover=candidates[0];if(!cover){p.protectedId=null;p.coverTarget=null;return false;}
   p.protectedId=cover.b.id;p.coverTarget=cover.threat?{x:cover.threat.x,y:cover.threat.y,alive:true}:null;
-  const target=cover.threat?{x:cover.point.x+(cover.threat.x-cover.point.x)*.65,y:cover.point.y+(cover.threat.y-cover.point.y)*.65}:{x:cover.point.x+p.side*95*s,y:cover.point.y-65*s};
+  const dx=cover.threat?cover.threat.x-cover.point.x:0,dy=cover.threat?cover.threat.y-cover.point.y:-1,length=Math.hypot(dx,dy)||1;
+  // Retain the two flank slots during interception too. Sharing the same
+  // threatened midpoint made both living escorts merge into one sprite.
+  const target=cover.threat?{x:cover.point.x+dx*.65-dy/length*p.side*110*s,y:cover.point.y+dy*.65+dx/length*p.side*110*s}:{x:cover.point.x+p.side*95*s,y:cover.point.y-65*s};
   this.move(p,target,dt,p.speed);this.fireEscort(p,dt,ctx);return true;
  }
  fireEscort(p,dt,ctx){
@@ -125,7 +146,7 @@ export class FrenchCounterBatteryAirGroup extends BaseBoss {
    if(!alive(p))continue;p.flash=Math.max(0,(p.flash||0)-dt);
    if(p.role==='bomber'){
     if(p.mode==='approach'){const distance=this.move(p,p.destination,dt);if(distance<65*s&&!p.released)this.releaseBomb(p);}
-    else if(p.mode==='egress'){if(this.move(p,p.destination,dt)<5*s){p.mode='regroup';p.regroupAge=0;p.destination={x:gun.x-p.side*520*s,y:gun.y-650*s};}}
+    else if(p.mode==='egress'){if(this.move(p,p.destination,dt)<5*s){p.mode='regroup';p.regroupAge=0;const slot=p.id==='bomber-left'?-1:p.id==='bomber-right'?1:0;p.destination={x:gun.x+(-p.side*520+slot*120)*s,y:gun.y-(650+slot*85)*s};}}
     else if(p.mode==='regroup'){
      p.regroupAge+=dt;const distance=this.move(p,p.destination,dt);
      if(distance<8*s&&p.regroupAge>4&&(p.runs<3||p.finalRun&&!p.finalRunCompleted)){if(p.finalRun)p.finalRunCompleted=true;p.side*=-1;this.planRun(p);}

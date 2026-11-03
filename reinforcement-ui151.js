@@ -1,6 +1,6 @@
 import {synthesisDescription} from './weapon-synthesis.js';
 import {conciseEquipmentChoice} from './equipment-copy.js';
-import {medalDisplayName} from './equipment-names.js';
+import {medalDisplayName,prototypeAmmoName} from './equipment-names.js';
 import {passiveMedalFaction,passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
 import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 // Categories: current 강화 and 특수장비(개편) sheets. Blank merged cells inherit the category above.
@@ -17,10 +17,12 @@ for(const e of [...WWI_EQUIPMENT,...RARE_SPECIALIZATIONS])CATEGORIES[e.id]={GUN:
 for(const mod of WEAPON_MODS)CATEGORIES[mod.id]={GUN:'기관총',EXPLOSIVE:'로켓 · 수류탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[mod.family];
 const EN_CATEGORY={기관총:'Machine Gun',로켓:'Rockets',수류탄:'Grenades','폭발 피해':'Explosive Damage',편대:'Formation',이동:'Flight',내구도:'Durability',액티브:'Active',패시브:'Passive',공통:'General',이동속도:'Flight Speed','로켓 · 수류탄':'Rockets · Grenades','이동 · 방어력':'Flight · Defense','발사 · 투척 주기':'Fire · Deployment Cycle','주무장 · 기동':'Primary · Maneuver','편대 · 방어':'Formation · Defense',특수기:'Special Weapon',무기교체:'Weapon Replacement',탄약:'Ammunition',폭탄:'Bombs',회복:'Repair'};
 const EN_LABEL={피해:'Damage',연사:'Fire Rate','발사 간격':'Firing Interval',탄띠:'Belt',재장전:'Reload',속도:'Speed',선회:'Turn',개조:'Modification','최대 체력':'Max Durability','초당 최대 체력':'Max Durability / sec','재사용 대기시간':'Cooldown','동시 발사':'Salvo Size','주기당 발사':'Rockets per Cycle','투척 개수':'Grenades per Deployment','투척 주기':'Deployment Cycle','시차 발사':'Release Delay'};
+CATEGORIES.prototypeAmmo=CATEGORIES.steelCore='기관총 · 폭발물';
+EN_CATEGORY['기관총 · 폭발물']='Machine Guns · Explosives';
 const label=value=>getLocale()==='en'?(EN_LABEL[value]||EN_CATEGORY[value]||value):value;
 export function categoryName(id){return label(CATEGORIES[id]||'공통')}
-export function reinforcementName(u,p,planes){if(u.id==='passiveMedal')return passiveMedalName(passiveMedalFaction(p,planes),getLocale());if(u.id==='ironCross')return medalDisplayName(planes[p?.plane]?.faction,getLocale());return i18nUpgradeName(u.id,u.name)}
-export function reinforcementIconId(id){return WEAPON_MOD_BY_ID[id]?.icon||id}
+export function reinforcementName(u,p,planes){if(u.id==='passiveMedal')return passiveMedalName(passiveMedalFaction(p,planes),getLocale());if(u.id==='ironCross')return medalDisplayName(planes[p?.plane]?.faction,getLocale());if(u.id==='prototypeAmmo')return prototypeAmmoName(planes[p?.plane]?.faction,getLocale());return i18nUpgradeName(u.id,u.name)}
+export function reinforcementIconId(id,faction){return id==='prototypeAmmo'?'prototypeAmmo-'+(faction==='entente'?'entente':'central'):WEAPON_MOD_BY_ID[id]?.icon||id}
 export function choiceDescription(id,description,owner){
  const composed=synthesisDescription(owner,id,getLocale(),true);if(composed)return composed;
  if(id==='passiveMedal')return getLocale()==='en'?"Enhances the pilot’s unique Passive.":'파일럿 고유 패시브를 강화합니다.';

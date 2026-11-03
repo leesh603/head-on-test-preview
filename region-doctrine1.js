@@ -1,6 +1,7 @@
 // Regional enemy doctrine weights + regional battlefield events.
 // Wraps spawnComposition (keeps time-scaling) and offerBattlefieldEvent (keeps canOffer guards).
 import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=buildfit1&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {mapRegionalMissionChance} from './map-combat-roles.js';
 const AIR_TYPES=['scout','hunter','bomber','heavyBomber'];
 // weight = [scout,hunter,bomber,heavy,zeppelinShare]
 const DOCTRINE={
@@ -88,7 +89,7 @@ export function installRegionDoctrine(Game){
  Game.prototype.offerBattlefieldEvent=function(preferred){
   const rt=REGION_EVENTS[this.worldRegion()];
   const state=this.battlefieldEvents;
-  if(!preferred&&rt&&this.canOfferBattlefieldEvent?.()&&this.rng()<.6&&state&&state.lastType!==rt){
+  if(!preferred&&rt&&this.canOfferBattlefieldEvent?.()&&this.rng()<mapRegionalMissionChance(this,rt)&&state&&state.lastType!==rt){
    const event={id:++state.serial,type:rt,label:EVENT_LABEL[rt],status:'active',offeredAt:this.t||0,startedAt:this.t||0,region:this.worldRegion(),targets:[],deadline:(this.t||0)+70};
    if(this._spawnRegionalTargets(event)){
     state.current=event;

@@ -24,6 +24,7 @@ const grenadePose={};
 export function drawGrenade(c,g,x,y){
  const pose=grenadeVisualPose(g,grenadePose),flight=g.phase==='flight';
  c.save();c.translate(x,y-g.height);
+ if(g.ammunitionScale>1)c.scale(g.ammunitionScale,g.ammunitionScale);
  const separate=flight&&fxReady('grenadeFlight')&&drawOrdnanceFlightTrail(c,'grenadeFlight',0,0,18,18,pose.bearing);
  drawProjectileTactic(c,g,0,0,pose.bearing);
  c.rotate(pose.spin);
@@ -75,6 +76,15 @@ function blastFlame(c,x,y,d,q){
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
+ if(f.steelPenetration){
+  const age=combatFxAge(f),a=f.direction,q=Math.max(0,1-age/f.maxLife);
+  if(age<.08&&fxReady('armorSpark'))fx(c,'armorSpark',x,y,28,15,a,q);
+  for(let i=0;i<2;i++){
+   const dir=a+(i===0?-.5:.5),travel=5+age*(i===0?105:145),key='metalShard'+i;
+   if(fxReady(key))fx(c,key,x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,8,6,dir+age*4,q);
+  }
+  return true;
+ }
  if(f.riiCascade&&drawRIICollapseFx(c,f,x,y,combatFxAge(f),fx,radius))return true;
  if(f.v1500Cascade&&drawV1500CollapseFx(c,f,x,y,combatFxAge(f),fx,radius))return true;
  if(f.fxProfile==='cannonMuzzle'){drawArtilleryMuzzle(c,fx,x,y,f.direction,combatFxAge(f),{heavy:f.heavy,scale:f.muzzleScale,smokeOnly:true});return true;}

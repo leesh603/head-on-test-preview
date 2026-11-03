@@ -24,7 +24,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  mannock:{start:'coverOrder',sustain:'cover',symbol:null,reaction:'rescueShot'},
  mckeever:{start:'gunnerHandoff',sustain:'twoSeater',symbol:null,reaction:'handoff'},
  hawker:{start:'steadySight',sustain:'gunPlatform',symbol:null,reaction:'aimedShot'},
- nungesser:{start:'deathMark',sustain:'deathMark',symbol:null,reaction:null},
+ nungesser:{start:'blackHeartBreakthrough',sustain:'blackHeartBreakthrough',symbol:null,reaction:null},
  rickenbacker:{start:'ringPass',sustain:'ringFlight',symbol:'ring94',reaction:'targetSwitch'},
  ball:{start:'cloudAmbush',sustain:'concealment',symbol:null,reaction:'ambushShot'},
  barker:{start:'lastStand',sustain:'survival',symbol:null,reaction:'escape'},
@@ -92,7 +92,7 @@ export function nungesserSmokeStage(){return 0;}
 export function nungesserAimOffset(){return 0;}
 // Compatibility hooks retained for old hostile-round resolver imports. This kit
 // no longer rewards grazes, deletes hostile rounds or supplies invulnerability.
-export function nungesserState(p){return signatureState(p).nungesser??={markKey:null,markRemaining:0,boostKey:null,boostUntil:0};}
+export function nungesserState(p){return signatureState(p).nungesser??={markKey:null,markRemaining:0,boostKey:null,boostUntil:0,pressureHits:0,pressureUntil:0,procSerial:0,burstRemaining:0,wake:[]};}
 export function nungesserInterception(){return null;}
 export function consumeNungesserInterception(){return false;}
 export function nungesserRoundReaction(){return false;}

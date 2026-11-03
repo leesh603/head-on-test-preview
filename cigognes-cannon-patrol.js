@@ -50,9 +50,14 @@ export function tickCigognesPatrol(g,dt){
   s.elapsed+=dt;s.age+=dt;if(s.elapsed>=B.maxDuration){withdraw(g,'timeout');return;}
   if(s.phase==='entry'&&visible(g,leader,-20))phase(g,s,'aim');
   else if(s.phase==='aim'&&s.age>=B.prepare){s.lockedAim=leader.a;leader.cigognesHeading=leader.a;phase(g,s,'locked');}
-  else if(s.phase==='locked'&&s.age>=B.lock){fireCigognes(g,leader);s.shots++;phase(g,s,'reload');}
+  else if(s.phase==='locked'&&s.age>=B.lock){
+   fireCigognes(g,leader);
+   // A hidden/offscreen/suppressed shot must not spend the three-shell budget.
+   if(leader.cigognesFiredCycle===s.shots){s.shots++;phase(g,s,'reload');}
+   else phase(g,s,'turn');
+  }
   else if(s.phase==='reload'&&s.age>=B.reload){if(s.shots>=B.shots){withdraw(g,'departed');return;}phase(g,s,'turn');}
-  else if(s.phase==='turn'){const p=pilot(g),a=Math.atan2(p.y-leader.y,p.x-leader.x);if(s.age>1.2&&Math.abs(angle(a-leader.a))<.18){leader.cigognesHeading=leader.a;phase(g,s,'aim');}}
+  else if(s.phase==='turn'){const p=pilot(g),a=Math.atan2(p.y-leader.y,p.x-leader.x);if(s.age>1.2&&visible(g,leader,-30)&&Math.abs(angle(a-leader.a))<.18){leader.cigognesHeading=leader.a;phase(g,s,'aim');}}
  }
  for(const e of es)if(e.cigognesPhase==='exit'&&!visible(g,e,110))g.enemies=g.enemies.filter(x=>x!==e);
  if(!members(g).length&&!cigognesActive(g)){s.phase='idle';if(!g.squadronManaged&&!blocked(g)){s.nextIn=Math.max(0,s.nextIn-dt);if(!s.nextIn)spawnCigognesPatrol(g);}}
@@ -61,6 +66,10 @@ export function cigognesSteering(g,e){if(!e.cigognesRole)return null;const s=g.c
  if(e.cigognesPhase!=='exit'){
   if(e.cigognesRole==='cannon'){
    if(s?.phase==='aim'||s?.phase==='turn')heading=Math.atan2(p.y-e.y,p.x-e.x);
+   const range=Math.hypot(p.x-e.x,p.y-e.y),pace=Math.max(80,(p.speed||150)*(p.airframeSpeed??1)*(p.pursuitSpeedFactor??1));
+   // Recover contact after the head-on pass; slow while banking, then close.
+   const recovery=s?.phase==='turn',v=recovery?(Math.abs(angle(heading-e.a))>.55?200:range>260||!visible(g,e,-45)?Math.min(380,pace+200):Math.max(B.speed,pace)):['aim','locked'].includes(s?.phase)&&Math.cos(p.a-e.a)>.65?Math.max(B.speed,pace):B.speed;
+   e.speed=e.dogfightCruise=e.personalityCruise=e.cruiseSpeedCap=v;
    // A shallow bank belongs to the reload, never to the locked cannon shot.
    if(s?.phase==='reload')heading=s.reloadHeading+(s.bankSide||1)*.48*Math.min(1,s.age/1.1);
   }else{const lead=members(g).find(x=>x.cigognesRole==='cannon');if(lead){
@@ -68,7 +77,7 @@ export function cigognesSteering(g,e){if(!e.cigognesRole)return null;const s=g.c
    const tx=lead.x-Math.cos(a)*80*(e.cigognesRank||1)-Math.sin(a)*side*spread,ty=lead.y-Math.sin(a)*80*(e.cigognesRank||1)+Math.cos(a)*side*spread;
    // Pursue ahead of the moving station, not a stationary point behind it.
    const along=(tx-e.x)*Math.cos(a)+(ty-e.y)*Math.sin(a),leadTarget=(s?.phase==='turn'||s?.phase==='aim')?Math.atan2(p.y-lead.y,p.x-lead.x):s?.phase==='reload'?(s.reloadHeading+(s.bankSide||1)*.48*Math.min(1,s.age/1.1)):lead.cigognesHeading,rate=Math.max(-B.turn,Math.min(B.turn,angle(leadTarget-a)*3));
-   const v=Math.max(60,Math.min(245,B.speed-side*rate*spread+along*.34));
+   const v=Math.max(60,Math.min(Math.min(450,Math.max(245,lead.speed+160)),lead.speed-side*rate*spread+along*.34));
    e.speed=e.dogfightCruise=e.personalityCruise=e.cruiseSpeedCap=v;
    heading=Math.atan2(ty+Math.sin(a)*v*.8-e.y,tx+Math.cos(a)*v*.8-e.x);
   }}

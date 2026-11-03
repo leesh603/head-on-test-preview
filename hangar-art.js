@@ -4,6 +4,8 @@ export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'air
 const artCache=new Map(),artReady=new Map();
 export function hangarArtNow(key){return artReady.get(key)?.url||''}
 export function hangarArtSource(key){
+ if(key==='prinz_friedrich_albatros_d1')return './mech/prinz_friedrich_albatros_d1.webp?v=albatros-d1-20261103';
+ if(key==='robinson_be2c')return './mech/robinson_be2c.webp?v=capital-pilots-20261103';
  const file=hangarKeyFile[key]||key;
  const path=HANGAR_OUTLINE_ART[key]||HANGAR_OUTLINE_ART[file]||AIRCRAFT_OUTLINE_ART['mech/'+file];
  return path?`./${path}?v=${AIRCRAFT_ART_REVISION}`:'';

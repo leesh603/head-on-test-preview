@@ -1,10 +1,11 @@
-import {prepareSynthesisBomb,detonateSynthesisPayload} from './weapon-synthesis.js';
+import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js';
 import {tagBishopBombImpact} from './bishop-sortie-fx.js';
 import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
 import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
 import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
 import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
+import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js';
 export {BOMBER_TRANSFER_DESCRIPTION};
 export const BOMBER_TRANSFER=Object.freeze({
  entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3.5,hpCap:520,speed:.76,turn:.62,period:4.8,count:5,spacing:56,interval:.18,radius:96,damage:145,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),
@@ -71,14 +72,91 @@ export function capBomberSalvoDamage(e,b,damage){
 
 export function detonateFriendlyBomb(w,b){
  const p=w.players?w.players.find(p=>p.id===b.ownerId):w;
- if(!p||b.bomberTransfer&&(!active(p)))return;
+ if(!p||b.friendlyBombDetonated||b.enemy||b.ownerId!=null&&b.ownerId!==(p.id||'p1')||b.bomberTransfer&&(!active(p)))return;
  prepareSynthesisBomb(p,b);
- const previous=w.combatFX?.at(-1);
- p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo,pilotSupport:!!b.pilotSupport});
+ b.friendlyBombDetonated=true;
+ const previous=w.combatFX?.at(-1),before=w.bullets?.length||0;
+ const damage=b.steelCoreBomb?b.damage*HEAVY_AMMUNITION.bombDamageFraction:b.damage;
+ p.queueExplosionDamage(b.x,b.y,b.radius,damage,{fxSource:b.grenade?'grenade':'bomb',grenade:!!b.grenade,bomberSalvo:b.bomberSalvo,pilotSupport:!!b.pilotSupport});
+ const blast=w.bullets?.length>before?w.bullets.at(-1):null;
+ if(blast&&b.steelCoreBomb)blast.steelCoreBlast=true;
+ if(blast&&b.ordnanceProfile){blast.ordnanceProfile=b.ordnanceProfile;blast.target=b.contactTarget;}
+ inheritSynthesisBlast(p,b,blast);
  const effect=w.combatFX?.at(-1);if(effect&&effect!==previous){tagBishopBombImpact(p,b,effect);effect.impactWeapon=b.cooperBomb||b.sprite==='cooper'?'cooper':b.sprite==='puw'?'puw':'bomb';if(Number.isFinite(b.releaseAngle))effect.direction=b.releaseAngle;else if(Math.hypot(b.vx||0,b.vy||0)>0)effect.direction=Math.atan2(b.vy,b.vx);}
- if(b.tacticalBomb){const blast=w.bullets.at(-1);if(blast?.actualExplosion&&blast.ownerId===b.ownerId){blast.tacticalRound=true;blast.projectileCombo=b.projectileCombo;}}
- if(b.synthesisSupport){const blast=w.bullets.at(-1);if(blast?.actualExplosion){blast.synthesisSupport=true;blast.ally=true;}}
  detonateSynthesisPayload(p,b);
+}
+
+const bombOwner=(world,bomb)=>world.players?world.players.find(p=>p.id===bomb.ownerId):world;
+const bombTargetKey=target=>target.stageBossBody||target;
+const steelBombFirstTarget=Symbol('steelBombFirstTarget');
+
+function bombContact(world,owner,bomb,exclude){
+ const candidates=world.projectileCandidates?.(bomb)||world.enemies||[];
+ const x=bomb.x,y=bomb.y,dx=x-bomb.previousX,dy=y-bomb.previousY;
+ let first=null,firstAt=Infinity;
+ for(const target of candidates){
+  if(!(target.hp>0)||target.deathHandled||bombTargetKey(target)===exclude||owner.canHitTarget?.(target,bomb)===false||!world.targetCollision?.(target,x,y,bomb))continue;
+  let lo=0,hi=1;
+  // The same swept collision routines used by gunfire also select boss parts.
+  // Narrow down their first contact without substituting a circular boss hull.
+  for(let i=0;i<8&&(dx||dy);i++){
+   const at=(lo+hi)/2;
+   bomb.x=bomb.previousX+dx*at;bomb.y=bomb.previousY+dy*at;
+   if(world.targetCollision(target,bomb.x,bomb.y,bomb))hi=at;
+   else lo=at;
+  }
+  bomb.x=x;bomb.y=y;
+  if(hi<firstAt){first=target;firstAt=hi;}
+ }
+ if(first){bomb.x=bomb.previousX+dx*firstAt;bomb.y=bomb.previousY+dy*firstAt;}
+ return first;
+}
+
+export function startSteelBomb(world,owner,bomb,target){
+ if(!owner?.upgrades?.steelCore||bomb.enemy||bomb.actualExplosion||bomb.synthesisChild||bomb.secondaryExplosion||bomb.steelCoreBomb||bomb.ownerId!=null&&bomb.ownerId!==(owner.id||'p1'))return false;
+ const heading=Math.hypot(bomb.vx||0,bomb.vy||0)>0?Math.atan2(bomb.vy,bomb.vx):bomb.releaseAngle??owner.a??0;
+ if(!target){bomb.previousX=bomb.x;bomb.previousY=bomb.y;target=bombContact(world,owner,bomb,null);}
+ bomb.steelCoreBomb=true;bomb.contactTarget=target;
+ prepareSynthesisBomb(owner,bomb);
+ // The already loaded Grünkreuz charge follows both physical impacts. Other
+ // reserved payloads are discharged once through the normal synthesis path.
+ if(owner.upgrades.grunkreuz)bomb.synthesisPayload.gas=true;
+ detonateFriendlyBomb(world,bomb);
+ bomb[steelBombFirstTarget]=target&&bombTargetKey(target);
+ bomb.steelCoreFlight=true;bomb.friendlyBombDetonated=false;bomb.synthesisDetonated=false;
+ bomb.synthesisPayload={gas:!!bomb.synthesisPayload.gas};
+ bomb.sx=bomb.x;bomb.sy=bomb.y;bomb.releaseAngle=heading;bomb.contactTarget=null;
+ bomb.vx=Math.cos(heading)*HEAVY_AMMUNITION.bombSpeed;bomb.vy=Math.sin(heading)*HEAVY_AMMUNITION.bombSpeed;
+ bomb.life=bomb.maxLife=HEAVY_AMMUNITION.bombTimeout;
+ return true;
+}
+
+export function tickFriendlyBomb(world,bomb,dt){
+ const owner=bombOwner(world,bomb);
+ if(owner)bomb.ammunitionScale=ammunitionVisualScale(owner);
+ if(bomb.steelCoreFlight){
+  const travel=Math.min(dt,Math.max(0,bomb.life));
+  const {bombMinSeparation,bombMaxSeparation,bombRadiusSpacing,bombSpeed}=HEAVY_AMMUNITION;
+  const radius=owner?.explosionRadius?.(bomb.radius)??bomb.radius;
+  const minimum=Math.min(bombMaxSeparation,Math.max(bombMinSeparation,radius*bombRadiusSpacing));
+  const remaining=Math.max(0,minimum-(bomb.maxLife-bomb.life)*bombSpeed);
+  const lead=Math.min(travel,remaining/bombSpeed);
+  bomb.previousX=bomb.x+bomb.vx*lead;bomb.previousY=bomb.y+bomb.vy*lead;
+  bomb.x+=bomb.vx*travel;bomb.y+=bomb.vy*travel;bomb.life-=dt;
+  if(owner&&travel>lead)bomb.contactTarget=bombContact(world,owner,bomb,bomb[steelBombFirstTarget]);
+  if(bomb.contactTarget||bomb.life<=0){bomb.life=0;detonateFriendlyBomb(world,bomb);}
+  return;
+ }
+ let target=bomb.contactTarget||null;
+ if(bomb.cooperBomb){
+  const travel=Math.min(dt,Math.max(0,bomb.life));
+  bomb.previousX=bomb.x;bomb.previousY=bomb.y;
+  bomb.x+=bomb.vx*travel;bomb.y+=bomb.vy*travel;bomb.age+=travel;
+  if(owner?.upgrades?.steelCore)target=bombContact(world,owner,bomb,null);
+ }
+ bomb.life-=dt;
+ if(!target&&bomb.life>0)return;
+ if(!startSteelBomb(world,owner,bomb,target))detonateFriendlyBomb(world,bomb);
 }
 
 function bombingTarget(p){
@@ -104,7 +182,7 @@ function releaseBomb(p,fit){
  const lateral=fit.count===5?[0,-28,28,-28,28][index]:[22,0,-22][index],flight=.85;
  const bomb={ownerId:p.id,sx:p.x-ca*5,sy:p.y-sa*5,x:fit.tx+ca*offset-sa*lateral,y:fit.ty+sa*offset+ca*lateral,life:flight,maxLife:flight,radius:fit.radius,damage:p.payloadPower(fit.damage),releaseAngle:fit.heading,sprite:fit.count===3?'puw':index%2?'hales':'cooper',bomberTransfer:true,bomberSalvo:fit.salvo};
  if(p.upgrades?.wimperisSight){bomb.wimperisCenterX=fit.tx;bomb.wimperisCenterY=fit.ty;}
- correctWimperisBomb(p,bomb);(world(p).friendlyBombs??=[]).push(bomb);
+ correctWimperisBomb(p,bomb);prepareSynthesisBomb(p,bomb);(world(p).friendlyBombs??=[]).push(bomb);
  fit.remaining--;fit.drop+=fit.interval;
 }
 

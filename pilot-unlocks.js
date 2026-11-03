@@ -7,6 +7,8 @@ export const DEFAULT_PILOTS=Object.freeze(['immelmann','udet','brumowski','hawke
 const goal=(key,label,value)=>Object.freeze({key,label,goal:value});
 const challenge=(id,title,description,goals,sortie=false)=>{const copy=PILOT_UNLOCK_COPY[id]||{};return Object.freeze({id,title,titleEn:copy.titleEn,description,descriptionEn:copy.descriptionEn,history:copy.historyKo??'',historyEn:copy.historyEn??'',goals:Object.freeze(goals.map((g,i)=>Object.freeze({...g,labelEn:copy.goalLabelsEn?.[i]}))),sortie});};
 export const PILOT_CHALLENGES=Object.freeze([
+ challenge('friedrich_karl','베를린 결전','베를린 방어선의 최종보스를 격파합니다.',[goal('berlinCapitalFinalClear','베를린 최종보스 격파',1)]),
+ challenge('robinson','런던 결전','런던 대공습의 최종보스를 격파합니다.',[goal('londonCapitalFinalClear','런던 최종보스 격파',1)]),
  challenge('navarre','베르됭의 보초','협상국 기체로 베르됭 지역 보스를 3회 격파하고, 해당 지역에서 랭킹 격추 12기를 기록합니다.',[goal('verdunBossClears','협상국 · 베르됭 보스 격파',3),goal('verdunRanked','협상국 · 베르됭 랭킹 격추',12)]),
  challenge('frommherz','교관의 표적 지시','동맹국 기체로 직접 기관총을 맞힌 적을 3초 안에 내 일반 편대기가 마무리하는 전과를 60회 기록합니다. 편대기가 필요합니다.',[goal('instructorAssists','동맹국: 직접 명중 3초 내 내 일반 편대기 마무리',60)]),
  challenge('baron','붉은 남작의 자격','한 출격에서 독일군 기체로 랭킹 격추 80기를 기록합니다.',[goal('sortieGermanRanked','독일군 랭킹 격추 (한 출격 최고)',80)],true),
@@ -71,7 +73,7 @@ const unlockSession=globalThis[Symbol.for('headon.pilot-unlocks.v1')]??={book:nu
 export function setPilotUnlockBook(value){unlockSession.book=value;if(unlockSession.book)unlockSession.book.data.pilotUnlocks=cleanPilotUnlocks(unlockSession.book.data.pilotUnlocks)}
 export const pilotUnlocked=id=>DEFAULT_PILOTS.includes(id)||!!unlockSession.book?.data.pilotUnlocks?.unlocked?.[id];
 export const pilotUnlockProgress=id=>(definitions.get(id)?.goals||[]).map(g=>({...g,value:Math.min(g.goal,(definitions.get(id)?.sortie?unlockSession.book?.data.pilotUnlocks?.best?.[id]?.[g.key]:unlockSession.book?.data.pilotUnlocks?.metrics?.[g.key])||0)}));
-const central=new Set(['frommherz','baron','voss','boelcke','goering','huffzky','berthold','wolff','loewenhardt','jacobs','gontermann','lothar','sachsenberg','schleich',...DEFAULT_PILOTS.slice(0,3)]);
+const central=new Set(['friedrich_karl','frommherz','baron','voss','boelcke','goering','huffzky','berthold','wolff','loewenhardt','jacobs','gontermann','lothar','sachsenberg','schleich',...DEFAULT_PILOTS.slice(0,3)]);
 export function pilotUnlockFallback(id,faction){if(pilotUnlocked(id))return id;return (faction|| (central.has(id)?'central':'entente'))==='central'?'immelmann':'hawker'}
 export const eligibleForPilotUnlocks=g=>!!g&&!g.testMode&&!g.developmentMode&&!g.debugMode&&g.mode!=='campaign'&&!(typeof location!=='undefined'&&/[?&](?:\w*qa|test|debug)(?:[=&]|$)/i.test(location.search));
 export const directPilotSource=b=>!!b&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.ghost&&!b.environmental&&!b.pilotSupport;
@@ -154,6 +156,23 @@ export class PilotUnlockRun {
  }
  part(body,part,source){if(!part?.destroyed||this.parts.has(part))return;this.parts.add(part);if(!directPilotSource(source))return;const p=players(this.g).find(p=>pid(p)===(source.ownerId||'p1'));if(!p)return;const s=this.state(p),kind=part.kind||part.id||'';if(/gun|turret|cannon|barrel|launcher|mount|battery|engine|motor/.test(kind+' '+(part.id||'')))this.publish(s,{add:{bossParts:1},unique:{partBossKinds:[this.g.stageBoss?.stages?.encounter?.bossId||body.kind]}})}
  mission(event){if(!event?.id||this.missions.has(event.id))return;this.missions.add(event.id);const key={RESCUE:'rescues',RECON_ESCORT:'escorts'}[event.type];if(key)for(const p of players(this.g))if(live(p))this.publish(this.state(p),{add:{[key]:1}})}
+ // The verified host capital-final receipt is the only entry point. Ordinary
+ // bossClear calls, capital midbosses and the later Zero District are unrelated.
+ // Rewards intentionally cross factions: Berlin -> Karl; London -> Robinson.
+ capitalFinalClear(receipt){
+  const g=this.g,stages=g.stageBoss?.stages,encounter=stages?.encounter;
+  const key={'final-kaiserkrone':'berlinCapitalFinalClear','final-leviathan':'londonCapitalFinalClear'}[receipt?.bossId];
+  if(!key||!eligibleForPilotUnlocks(g)||g.practiceMode||['practice','training'].includes(g.mode)||g.online&&!g.host||g.state!=='playing'||receipt.capitalFinalVerified!==true)return false;
+  if(!encounter||stages.phase!=='clear-pending'||stages.capitalRound!==1||!stages.capitalEncounter||stages.capitalBossId!==receipt.bossId||receipt.runId!==g.stageBoss.runId||receipt.encounterId!==encounter.id||receipt.bossId!==encounter.bossId||receipt.capitalId!==receipt.bossId||receipt.loopIndex!==stages.loopIndex||receipt.teamFaction!==stages.teamFaction||receipt.playerFaction!==receipt.teamFaction||encounter.completed!==true)return false;
+  if(!(encounter.bodies instanceof Map)||!encounter.bodies.size||![...encounter.bodies.values()].every(body=>body.isCapitalBoss===true&&body.dead===true))return false;
+  const token='capital-final:'+receipt.runId+':'+receipt.encounterId;if(this.clears.has(token))return false;
+  const survivors=players(g).filter(live);if(!survivors.length)return false;
+  this.clears.add(token);
+  // Max keeps a shared local co-op account and repeated snapshots idempotent.
+  // Both player packets still carry proof, so an online guest records its own.
+  for(const p of survivors)this.publish(this.state(p),{max:{[key]:1}});
+  return true;
+ }
  bossClear({id,bossId}){if(!id||this.clears.has(id))return;this.clears.add(id);for(const p of players(this.g)){if(!live(p))continue;const add={},unique={},s=this.state(p),region=this.g.worldRegion?.()??this.g.region;const escort=p.upgrades?.aceWingman&&(this.g.allies||[]).find(a=>a.aceWingman&&(a.ownerId||'p1')===pid(p)&&a.life>0&&a.hp>0);const qualified=[];if(escort){if(s.escortWing!==escort){s.escortWing=escort;s.escortKinds=new Set()}s.escortKinds.add(bossId);if(s.escortKinds.size>=threshold('goering','aceEscortBossKinds'))qualified.push('goering')}else{s.escortWing=null;s.escortKinds=new Set()}const wings=(this.g.allies||[]).filter(a=>(a.ownerId||'p1')===pid(p)&&!a.eventRescue&&!a.missionTarget&&a.life>0&&(a.hp===undefined||a.hp>0));if(wings.length>=3)unique.wingBossKinds=[bossId];if(regions[region])unique.seaRegions=[regions[region]];if(region===12&&getAircraftMeta(p.plane,p.pilot)?.faction==='entente')add.verdunBossClears=1;if(night(this.g))add.nightBosses=1;this.publish(s,{add,unique,qualified})}}
  tick(dt){this.rankedKills();const g=this.g,now=g.t||0;for(const p of players(g)){this.equipment(p);const s=this.state(p);if(!live(p)||(p.heineckeUses||0)!==s.uses){s.invalid=true;s.low=false;s.recovered=false;s.lowAt=null;s.lowAces=0;s.uses=p.heineckeUses||0;continue}const ratio=p.hp/p.maxHp;if(ratio<=.25)s.low=true;if(s.low&&ratio>=.8)s.recovered=true;
    s.clean+=dt;s.bestClean=Math.max(s.bestClean,s.clean);const concealed=p.cloudDepth>=1&&(p.cloudConceal||0)>=1.2;if(concealed)s.cloud+=dt;if(s.inCloud&&!concealed&&p.cloudDepth<1)s.cloudExit=now;s.inCloud=concealed;

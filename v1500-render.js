@@ -10,13 +10,20 @@ export function drawV1500Boss(c,e,point,scale,images){
  if(damaged||e.parts?.wing_port?.hp<=e.parts?.wing_port?.maxHp*.55||e.damage?.wing_port==='destroyed')patch(0,190,710,310);
  if(damaged||e.parts?.wing_starboard?.hp<=e.parts?.wing_starboard?.maxHp*.55||e.damage?.wing_starboard==='destroyed')patch(1064,190,710,310);
  if(damaged)patch(835,430,105,450);
+ // Reuse only the struck wing's painted pixels: no whole-airframe white flash.
+ if(!e.v1500Shadow)for(const [id,sx] of [['wing_port',0],['wing_starboard',1064]]){
+  const hit=e.flash?.[id]||0;if(hit<=0)continue;
+  c.save();c.globalCompositeOperation='lighter';c.globalAlpha*=clamp(hit/.12)*.45;
+  const image=e.parts?.[id]?.hp<=e.parts?.[id]?.maxHp*.55?art:hull;
+  c.drawImage(image,sx,190,710,310,sx-887,190-443.5,710,310);c.restore();
+ }
  for(const[id,p]of Object.entries(V1500_POINTS)){const part=e.parts?.[id],state=e.damage?.[id],hit=e.flash?.[id]||0;if(!id.startsWith('engine'))continue;
   const front=id.endsWith('front'),sx=p.x+887-60,sy=front?125:265;
   if(state==='destroyed'||state==='damaged'||part&&part.hp<=part.maxHp*.55)patch(sx,sy,120,front?140:160);
   if(hit>0&&!e.v1500Shadow){c.save();c.globalCompositeOperation='lighter';c.globalAlpha*=clamp(hit/.12)*.6;c.drawImage(hull,sx,sy,120,front?140:160,sx-887,sy-443.5,120,front?140:160);c.restore();}
  }
  for(const[id,p]of Object.entries(V1500_PROP_POINTS)){const rear=id.endsWith('rear'),im=images.get(rear?V1500_ART.rear:V1500_ART.front);if(!im)continue;const prop=(e.visualProps||e.props)?.[id],phase=prop?.phase??0;c.save();c.translate(p.x,p.y);c.scale(1,.14);c.rotate(phase);const size=rear?160:185;c.drawImage(im,-size/2,-size/2*im.height/im.width,size,size*im.height/im.width);c.restore();}
- const gun=images.get(V1500_ART.gun);for(const id of ['gun_nose','gun_dorsal','gun_tail']){if(e.parts?.[id]?.hp<=0||e.damage?.[id]==='destroyed')continue;const p=V1500_POINTS[id];c.save();c.translate(p.x,p.y);c.rotate(e.turretAngles?.[id]||0);c.translate(0,9*clamp((e.gunRecoil?.[id]||0)/.11));c.drawImage(gun,-10.5,-42,21,21*gun.height/gun.width);c.restore();}
+ const gun=images.get(V1500_ART.gun);for(const id of ['gun_nose','gun_dorsal','gun_tail']){if(e.parts?.[id]?.hp<=0||e.damage?.[id]==='destroyed')continue;const p=V1500_POINTS[id];c.save();c.translate(p.x,p.y);c.rotate(e.turretAngles?.[id]||0);c.translate(0,9*clamp((e.gunRecoil?.[id]||0)/.11));c.drawImage(gun,-10.5,-42,21,21*gun.height/gun.width);const hit=e.flash?.[id]||0;if(hit>0&&!e.v1500Shadow){c.globalCompositeOperation='lighter';c.globalAlpha*=clamp(hit/.12)*.65;c.drawImage(gun,-10.5,-42,21,21*gun.height/gun.width);}c.restore();}
  c.restore();
  if(!e.v1500Shadow)for(const[id,p]of Object.entries(V1500_POINTS)){const part=e.parts?.[id];if(!id.startsWith('engine')||!part||part.hp>part.maxHp*.55)continue;const w=v1500WorldPoint(e,p),ratio=scale/e.scale,x=point.x+(w.x-e.x)*ratio,y=point.y+(w.y-e.y)*ratio,size=part.hp<=0?25:17;fx(c,'profileEngine',x,y,size*ratio,size*1.4*ratio,e.a,.75);}
  return true;

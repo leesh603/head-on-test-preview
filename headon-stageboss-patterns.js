@@ -1,3 +1,4 @@
+import {bomberWingContact,recordBomberWingHit} from './bomber-wing-damage.js';
 import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
 import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031';
 import {createCapitalBoss} from './capital-bosses.js';
@@ -157,10 +158,10 @@ class NavalPatternBoss extends PatternBoss {
 }
 class ZubianHalf extends NavalPatternBoss {
   hit(attack){if(this.protection>0)return{damage:0,blocked:true};return super.hit(attack);}
-  constructor({role,hullYaw=0,inheritedParts,...options}) {
+  constructor({role,hullYaw=0,inheritedParts,inheritedMotionTime=0,...options}) {
     const positions=role==='front'?[['frontGun',0,-44,19],['frontEngine',0,56,22]]:[['rearGun',0,34,19],['rearEngine',0,-40,22]];
     super({...options,parts:positions.map(([id,x,y,radius])=>({id,x,y,radius,maxHp:inheritedParts?.get(id)?.maxHp||options.tuning.partHp})),kind:'hms-zubian-'+role});
-    this.role=role;this.hullYaw=hullYaw;this.splitYaw=hullYaw;for(const p of this.parts.values()){const inherited=inheritedParts?.get(p.id);if(inherited)p.hp=inherited.hp;}
+    this.role=role;this.hullYaw=hullYaw;this.splitYaw=hullYaw;for(const p of this.parts.values()){const inherited=inheritedParts?.get(p.id);if(inherited){p.hp=inherited.hp;for(const key of ['aimAngle','navalWreckAngle'])if(Number.isFinite(inherited[key]))p[key]=inherited[key];if(Number.isFinite(inherited.navalShotAt))p.navalShotAt=inherited.navalShotAt-inheritedMotionTime;}}
     this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.mortarRound=0;this.splitAge=0;this.splitX=this.x;this.splitY=this.y;this.lastStand=false;this.finalClock=5.5;this.evasionSide=role==='front'?1:-1;this.syncParts();
   }
   update(dt,{players,bounds}) {
@@ -262,7 +263,7 @@ export class Zubian extends NavalPatternBoss {
     if(this.phase==='splitting'){
       const progress=Math.min(1,this.stateAge/1.2);this.splitGap=ZUBIAN_LAYOUT.splitGap*progress*progress*(3-2*progress);if(this.stateAge<1.2)return;
       if(!this.encounter)throw new Error('Zubian must belong to an encounter before splitting');
-      const children=['front','rear'].map(role=>new ZubianHalf({id:this.id+'-'+role,role,tuning:{...this.t,maxHp:this.hp/2},...zubianSplitPose(this,role),hullYaw:this.hullYaw,inheritedParts:this.parts,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:52*(this.t.geometryScale||1)}));
+      const children=['front','rear'].map(role=>new ZubianHalf({id:this.id+'-'+role,role,tuning:{...this.t,maxHp:this.hp/2},...zubianSplitPose(this,role),hullYaw:this.hullYaw,inheritedParts:this.parts,inheritedMotionTime:this.motionTime||0,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:52*(this.t.geometryScale||1)}));
       this.encounter.replaceBody(this.id,children);for(const child of children){child.protection=this.t.splitProtection||0;child.coreVulnerable=!child.protection;if(child.gun()?.destroyed)child.onPartDestroyed(child.gun());}
       this.command('split',{children:children.map(b=>b.id),x:this.x,y:this.y});
     }
@@ -1520,9 +1521,20 @@ class FormationAceBoss extends PatternBoss {
   }
   aimAt(p){const pa=Math.atan2(p.y-this.y,p.x-this.x);return{pa,rel:Math.atan2(Math.sin(pa-this.a),Math.cos(pa-this.a)),dist:Math.hypot(p.x-this.x,p.y-this.y)};}
   move(dt,speed,bounds){
+    if(!(dt>0))return;
+    const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2;
+    const vx=Number.isFinite(this.flightBoundsX)?(cx-this.flightBoundsX)/dt:0,vy=Number.isFinite(this.flightBoundsY)?(cy-this.flightBoundsY)/dt:0;
+    this.flightBoundsX=cx;this.flightBoundsY=cy;
+    const margin=Math.min(130,(bounds.right-bounds.left)*.22,(bounds.bottom-bounds.top)*.22),look=.75;
+    const px=this.x+Math.cos(this.a)*speed*look,py=this.y+Math.sin(this.a)*speed*look;
+    const edge=px<bounds.left+margin||px>bounds.right-margin||py<bounds.top+margin||py>bounds.bottom-margin;
+    let want=this.a;
+    if(edge){want=Math.atan2(cy-this.y,cx-this.x);speed=Math.min(360,Math.max(speed*.8,vx*Math.cos(want)+vy*Math.sin(want)+65));}
+    // Clamp heading change, not world position. A translating camera cannot
+    // drag a leader sideways/backwards along its viewport edge.
+    const old=this.flightHeading??this.a,delta=Math.atan2(Math.sin(want-old),Math.cos(want-old));
+    this.a=old+Math.max(-3.3*dt,Math.min(3.3*dt,delta));this.flightHeading=this.a;
     this.x+=Math.cos(this.a)*speed*dt;this.y+=Math.sin(this.a)*speed*dt;
-    this.x=Math.max(bounds.left+36,Math.min(bounds.right-36,this.x));
-    this.y=Math.max(bounds.top+36,Math.min(bounds.bottom-36,this.y));
   }
   liveWingmen(){return this.formationStatus129?.()||[];}
   launchWing(bounds){
@@ -1825,17 +1837,25 @@ export class LondonRaidApron extends LondonApron {
 export class GothaRaider extends PatternBoss {
  constructor({slot=0,...options}){super({...options,kind:'gotha-raider',coreRadius:34,parts:[
   {id:'engine-left',x:-23,y:-8,radius:12,maxHp:options.tuning.maxHp*.2},{id:'engine-right',x:23,y:-8,radius:12,maxHp:options.tuning.maxHp*.2},
-  {id:'bomb-bay',x:0,y:-14,radius:10,maxHp:options.tuning.maxHp*.24},{id:'rear-gun',x:0,y:9,radius:9,maxHp:options.tuning.maxHp*.14},{id:'front-gun',x:0,y:-26,radius:9,maxHp:options.tuning.maxHp*.12}]});
+  {id:'bomb-bay',x:0,y:-14,radius:10,maxHp:options.tuning.maxHp*.24},{id:'rear-gun',x:0,y:9,radius:9,maxHp:options.tuning.maxHp*.14},{id:'front-gun',x:0,y:-60,radius:9,maxHp:options.tuning.maxHp*.12}]});
   this.slot=slot;this.formationTotal=1;this.anchorX=this.x;this.anchorY=this.y;this.a=Math.PI/2;this.ownsMotion129=true;this.coreVulnerable=true;
   this.phase='approach';this.entryAge=0;this.y-=260+slot*110;this.raidSerial=0;this.raidWait=slot*2.4;this.runRemaining=0;this.glideAge=0;this.bayOpen=0;
   this.mounts=new Map([...this.parts].map(([id,p])=>[id,{x:p.x,y:p.y}]));this.rotateMounts();}
  suppressive(){}
  engines(){return ['engine-left','engine-right'].filter(id=>!this.parts.get(id).destroyed).length;}
  rotateMounts(){const a=this.a+Math.PI/2,c=Math.cos(a),s=Math.sin(a);for(const [id,m] of this.mounts){const p=this.parts.get(id);p.x=m.x*c-m.y*s;p.y=m.x*s+m.y*c;}}
- locateHit(attack){if(Number.isFinite(attack.previousX)&&Number.isFinite(attack.previousY)){const n=Math.min(64,Math.max(1,Math.ceil(Math.hypot(attack.x-attack.previousX,attack.y-attack.previousY)/Math.max(3,attack.radius||3))));for(let i=0;i<=n;i++){const h=this.locateHit({...attack,x:attack.previousX+(attack.x-attack.previousX)*i/n,y:attack.previousY+(attack.y-attack.previousY)*i/n,previousX:undefined,previousY:undefined});if(h)return h;}return null;}const hit=super.locateHit(attack);if(hit)return hit;const a=this.a+Math.PI/2,dx=attack.x-this.x,dy=attack.y-this.y,x=dx*Math.cos(a)+dy*Math.sin(a),y=-dx*Math.sin(a)+dy*Math.cos(a),r=attack.radius||0;
-  return (x/(103+r))**2+((y+37)/(16+r))**2<=1||(x/(93+r))**2+((y+3)/(11+r))**2<=1||(x/(15+r))**2+(y/(87+r))**2<=1?{partId:null}:null;}
- hit(attack){const part=attack.partId&&this.parts.get(attack.partId),damage=attack.damage*(part?.id==='bomb-bay'&&this.bayOpen<.3?.5:!part&&this.engines()?.7:1),result=super.hit({...attack,damage});
-  if(part&&result.damage&&!this.dead){const body=super.hit({damage:result.damage*.75});result.bodyDefeated=body.bodyDefeated;}return result;}
+ locateHit(attack){if(Number.isFinite(attack.previousX)&&Number.isFinite(attack.previousY)){const n=Math.min(64,Math.max(1,Math.ceil(Math.hypot(attack.x-attack.previousX,attack.y-attack.previousY)/Math.max(3,attack.radius||3))));for(let i=0;i<=n;i++){const h=this.locateHit({...attack,x:attack.previousX+(attack.x-attack.previousX)*i/n,y:attack.previousY+(attack.y-attack.previousY)*i/n,previousX:undefined,previousY:undefined});if(h)return h;}return null;}const a=this.a+Math.PI/2,dx=attack.x-this.x,dy=attack.y-this.y,x=dx*Math.cos(a)+dy*Math.sin(a),y=-dx*Math.sin(a)+dy*Math.cos(a),r=attack.radius||0;
+  // Match the long engine pods and the painted fuselage, not an invisible
+  // 34px central disc that intercepted nearly every gun/engine shot.
+  for(const [id,m] of this.mounts){const p=this.parts.get(id),engine=id.startsWith('engine-'),rx=engine?9:p.radius,ry=engine?20:p.radius;if(p.hittable&&!p.destroyed&&((x-m.x)/(rx+r))**2+((y-m.y)/(ry+r))**2<=1)return{partId:id};}
+  const hull=this.coreVulnerable&&((x/(103+r))**2+((y+37)/(16+r))**2<=1||(x/(93+r))**2+((y+3)/(11+r))**2<=1||(x/(9+r))**2+((y-4)/(83+r))**2<=1);
+  if(!hull)return null;
+  // Only the actual central mounting surface transfers hull contact to its
+  // component. Outer wings remain hull and the biplane gaps stay empty.
+  if(Math.abs(x)<=12+r){const id=y>=0&&y<=24+r?'rear-gun':y>=-24-r&&y<0?'bomb-bay':null,p=this.parts.get(id);if(p&&!p.destroyed)return{partId:id};}
+  return{partId:null,wingSide:bomberWingContact(this.kind,x,y,r)};}
+ hit(attack){const part=attack.partId&&this.parts.get(attack.partId),damage=attack.damage*(part?.id==='bomb-bay'&&this.bayOpen<.3?.5:!part&&this.engines()?.7:1),result=super.hit({...attack,damage});if(!part)recordBomberWingHit(this,attack.wingSide,result.damage);
+  if(part&&result.damage){part.hitFlash=.16;if(!this.dead){const body=super.hit({damage:result.damage*.75});result.bodyDefeated=body.bodyDefeated;}}return result;}
  abortRun(){if(this.runTarget)this.command('city-bomb-abort',{runId:this.runId});this.runTarget=null;this.runRemaining=0;this.bayOpen=0;this.bayWarned=false;this.onBombLine=false;}
  onPartDestroyed(p){if(p.id==='bomb-bay'){this.abortRun();this.phase='payload-lost';this.command('phase-change',{phase:this.phase});}
   if(p.id==='rear-gun'||p.id==='front-gun'){this.gothaVolley=null;this.command('cancel-hazards',{tag:this.id+'-'+p.id,pendingOnly:true});}
@@ -1858,7 +1878,15 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(BOSS_CATALOG[bossId]?.capitalFinal)return new BossEncounter({id,bossId,bodies:[createCapitalBoss({id:id+':body',tuning,x,y,emit,rng,faction},bossId)]});
   if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100})]});encounter.bossId=bossId;return encounter;}
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
-  if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(tuning.sommeApproach?(slot===0?80:-110):(slot===0?-100:65))*scale,emit,rng,faction:faction||'entente'}))});}
+  if(bossId==='mark4-wedge'){
+   const scale=sommeScale(tuning,true)*.82,count=9,t={...tuning,maxHp:tuning.maxHp/count,sommeScale:scale};
+   const columns=[0,-1,1],front=tuning.sommeApproach?80:145;
+   const bodies=Array.from({length:count},(_,slot)=>new Mark1Landship({
+    id:id+':mark1:'+slot,slot,tuning:t,x:x+columns[slot%3]*244*scale,
+    y:y+(front-Math.floor(slot/3)*244)*scale,emit,rng,faction:faction||'entente'
+   }));
+   return new BossEncounter({id,bossId,bodies});
+  }
   if(bossId==='o400-squadron'){const t={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new O400Raider({id:id+':o400:'+slot,slot,tuning:t,x,y,emit,faction:faction||'entente'}))});}
   if(bossId==='gotha-squadron'){
    const flightTuning={...tuning,maxHp:tuning.maxHp/9,partHp:tuning.partHp/9,geometryScale:1},bodies=[];
@@ -1874,6 +1902,8 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x,y}));
   return new BossEncounter({id,bossId,bodies});
 }
+
+
 
 
 

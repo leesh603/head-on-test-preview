@@ -37,11 +37,11 @@ export function syncIntrusionTarget(g){
  target.collisionRadius=Math.hypot(e.width,e.height)*.5;
  g.enemies.push(target);
 }
-export function intrusionTargetCollision(g,target,x,y,b={}){if(!maritimeAttackable(g.intrusionBoss))return false;if(b.identityDotTarget)return target.encounterId===g.intrusionBoss?.encounterId&&['entering','active'].includes(g.intrusionBoss.phase)&&target.stageBossBody.parts.get(b.identityDotTarget.id)===b.identityDotTarget&&b.identityDotTarget.hp>0&&intrusionPartExposed(g.intrusionBoss,b.identityDotTarget.id);return target.encounterId===g.intrusionBoss?.encounterId&&!!locateIntrusionHit(g,{x,y,previousX:b.previousX??x,previousY:b.previousY??y,radius:b.actualExplosion?b.explosionRadius:b.collisionRadius||0});}
+export function intrusionTargetCollision(g,target,x,y,b={}){if(!maritimeAttackable(g.intrusionBoss))return false;if(b.identityDotTarget)return target.encounterId===g.intrusionBoss?.encounterId&&['entering','active'].includes(g.intrusionBoss.phase)&&target.stageBossBody.parts.get(b.identityDotTarget.id)===b.identityDotTarget&&b.identityDotTarget.hp>0&&intrusionPartExposed(g.intrusionBoss,b.identityDotTarget.id);return target.encounterId===g.intrusionBoss?.encounterId&&!!locateIntrusionHit(g,{x,y,previousX:b.previousX??x,previousY:b.previousY??y,actualExplosion:b.actualExplosion===true,radius:b.actualExplosion?b.explosionRadius:b.collisionRadius||0});}
 export function hitIntrusionTarget(g,target,b,damage){
  if(target.encounterId!==g.intrusionBoss?.encounterId||!maritimeAttackable(g.intrusionBoss))return{damage:0,broken:[]};
  const partId=b.identityDotTarget?.id;if(b.identityDotTarget&&target.stageBossBody.parts.get(partId)!==b.identityDotTarget)return {damage:0,broken:[]};
- return hitIntrusionAt(g,{partId,x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.actualExplosion?b.explosionRadius:b.collisionRadius||0,damage,ownerId:b.ownerId});
+ return hitIntrusionAt(g,{partId,x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,actualExplosion:b.actualExplosion===true,radius:b.actualExplosion?b.explosionRadius:b.collisionRadius||0,damage,ownerId:b.ownerId});
 }
 
 /** Area hazards damage the hull, not the read-only enemy proxy or a guessed part. */

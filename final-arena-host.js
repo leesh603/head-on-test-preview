@@ -37,7 +37,7 @@ function targetBoss(a,e){return finalArenaBosses(a).find(b=>b.id===e.finalArenaB
 export function finalArenaCollision(g,e,x,y,b={}){
  const boss=targetBoss(g.finalArena,e);
  if(!e.finalArenaTarget||!isFinalArena(g)||g.finalArena.phase!=='battle'||e.hp<=0||!boss?.active||boss.defeated)return false;
- const x0=b.previousX??x,y0=b.previousY??y,dx=x-x0,dy=y-y0,q=clamp(((e.x-x0)*dx+(e.y-y0)*dy)/(dx*dx+dy*dy||1),0,1),r=e.hitRadius+(b.collisionRadius||0)+(b.actualExplosion?b.explosionRadius||0:0);
+ const x0=b.previousX??x,y0=b.previousY??y,dx=x-x0,dy=y-y0,q=clamp(((e.x-x0)*dx+(e.y-y0)*dy)/(dx*dx+dy*dy||1),0,1),r=e.hitRadius*(b.ammunitionHitScale||1)+(b.collisionRadius||0)+(b.actualExplosion?b.explosionRadius||0:0);
  return Math.hypot(x0+q*dx-e.x,y0+q*dy-e.y)<=r;
 }
 export function hitFinalArena(g,e,b,damage){

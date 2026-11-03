@@ -1,6 +1,6 @@
 import {drawHuffzkyRearCue} from './huffzky-rear-fx.js';
 import {drawGontermannPhaseCue} from './gontermann-phase-fx.js';
-import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue,drawNungesserMark,drawBarkerDamageWake} from './death-defiance-fx.js?v=deathdefiance1';
+import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue,drawNungesserWorld,drawBarkerDamageWake} from './death-defiance-fx.js?v=deathdefiance1';
 import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=pressurelink1';
 import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=crew20261024';
 import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=firedive1';
@@ -340,7 +340,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
  return function drawPilotSignature(c,p,x,y,layer='under'){
   const s=p.pilotSignatureState,profile=PILOT_SIGNATURES[p.pilot];if(!s||!profile||!(p.hp>0)||![x,y,p.a].every(Number.isFinite))return false;
   c.save();try{
-   c.translate(x,y);if(layer==='front'&&p.pilot==='nungesser')drawNungesserMark(c,p,insignia);if(isAlbatrosHunter(p))c.globalCompositeOperation='source-over';if(layer!=='front')worldEffects(c,p);else{if(FIRE_DIVE_PILOTS.has(p.pilot)||p.pilot==='gontermann')drawFireDiveWorld(c,p,texture,true,ordnanceGroundShift(p));if(ESCORT_PILOTS.has(p.pilot))drawEscortWorld(c,p,lotharTexture,true);if(CAVALRY_RACER_PILOTS.has(p.pilot))drawCavalryRacerWorld(c,p,lotharTexture,true);if(isAlbatrosHunter(p))drawAlbatrosWorld(c,p,lotharTexture,true);if(COMMAND_PILOTS.has(p.pilot))drawCommandWorld(c,p,lotharTexture,true);}c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
+   c.translate(x,y);if(p.pilot==='nungesser')drawNungesserWorld(c,p,texture,layer==='front',insignia);if(isAlbatrosHunter(p))c.globalCompositeOperation='source-over';if(layer!=='front')worldEffects(c,p);else{if(FIRE_DIVE_PILOTS.has(p.pilot)||p.pilot==='gontermann')drawFireDiveWorld(c,p,texture,true,ordnanceGroundShift(p));if(ESCORT_PILOTS.has(p.pilot))drawEscortWorld(c,p,lotharTexture,true);if(CAVALRY_RACER_PILOTS.has(p.pilot))drawCavalryRacerWorld(c,p,lotharTexture,true);if(isAlbatrosHunter(p))drawAlbatrosWorld(c,p,lotharTexture,true);if(COMMAND_PILOTS.has(p.pilot))drawCommandWorld(c,p,lotharTexture,true);}c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
    if(layer==='front'){
     if(p.pilot==='mckeever')drawMckeeverGuns(c,p,texture);
     if(DEFIANCE_PILOTS.has(p.pilot))drawDeathDefianceLocal(c,p,texture,true,insignia);
@@ -368,4 +368,3 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
   return true;
  };
 }
-

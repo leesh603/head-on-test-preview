@@ -1,7 +1,7 @@
 import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,canMoveMaanHull,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){
@@ -48,7 +48,8 @@ class DesertHull extends BaseBoss {
    for(const car of this.encounter?.bodies.values()||[])if(car.leader===this)car.stageArrival(bounds);
   }
   const factory=this.kind==='wustenpanzer',start=factory?3.6:3,progress=clamp((this.entryAge-start)/(this.entryDuration-start),0,1),smooth=progress*progress*(3-2*progress),oldY=this.y;
-  this.x=this.entryStart.x;this.y=this.entryStart.y+(this.entryTarget.y-this.entryStart.y)*smooth;
+  const nextY=this.entryStart.y+(this.entryTarget.y-this.entryStart.y)*smooth;
+  if(canMoveMaanHull(this,this.entryStart.x,nextY,this.hullYaw)){this.x=this.entryStart.x;this.y=nextY;}
   this.driveVelocity=dt?(this.y-oldY)/dt:0;this.hidden=false;
   this.rollTracks(this.y-oldY,0);
   if(factory&&previous<2.8&&this.entryAge>=2.8){this.workshop.destroyedAt=2.8;this.command('maan-workshop-collapse',{x:this.workshop.x,y:this.workshop.openingY});}
@@ -98,7 +99,9 @@ class DesertHull extends BaseBoss {
   this.driveVelocity=(this.driveVelocity||0)+clamp(wanted-(this.driveVelocity||0),-28*dt,(h?38:10)*dt);
   if(!mobility)this.driveVelocity=0;
   const turn=this.drivePause>0?0:steering*dt,distance=this.driveVelocity*dt;
-  this.hullYaw+=turn;this.x+=Math.sin(this.hullYaw)*distance;this.y-=Math.cos(this.hullYaw)*distance;
+  const yaw=this.hullYaw+turn,x=this.x+Math.sin(yaw)*distance,y=this.y-Math.cos(yaw)*distance;
+  if(!canMoveMaanHull(this,x,y,yaw)){this.driveVelocity=0;this.escortYieldUntil=(this.motionTime||0)+1.2;this.syncParts();return;}
+  this.hullYaw=yaw;this.x=x;this.y=y;
   this.rollTracks(distance,turn);this.syncParts();this.separateEscorts();
  }
  separateEscorts(){resolveMaanGround(this.encounter);}
@@ -272,19 +275,19 @@ export class SinaiLandship extends DesertHull {
 export class RollsRoyceEscort extends BaseBoss {
  constructor({leader,side,tuning,...o}){super({...o,maxHp:tuning.partHp*.7,coreRadius:23});Object.assign(this,{kind:'maan-rolls-royce',leader,side,t:tuning,faction:o.faction,ownsMotion129:true,hullYaw:Math.PI,age:0,hidden:true,coreVulnerable:false});}
  stageArrival(bounds){
-  const b=this.leader,lane=Math.min(maanClearance(b).x+28,(bounds.right-bounds.left)/2-45);
+  const b=this.leader,lane=maanClearance(b).x+28;
   this.arrivalStart={x:b.entryTarget.x+this.side*Math.max(65,lane),y:b.entryTarget.y-240};
   this.arrivalTarget={x:this.arrivalStart.x,y:b.entryTarget.y+b.layout.height/2+110};
   Object.assign(this,this.arrivalStart);this.clearHull();this.arrivalStart={x:this.x,y:this.y};
  }
  stageReinforcement(){
   const b=this.leader,r=maanClearance(b),cars=[...this.encounter.bodies.values()].filter(c=>c.leader===b&&!c.dead);
-  for(let rank=0;rank<8;rank++){const p=maanWorld(b,this.side*(r.x+30),r.y+100+rank*100);if(cars.every(c=>Math.hypot(c.x-p.x,c.y-p.y)>MAAN_ESCORT_RADIUS*2+12)){Object.assign(this,p);break;}}
+  for(let rank=0;rank<8;rank++){const p=maanWorld(b,this.side*(r.x+30),r.y+100+rank*100);if(cars.every(c=>Math.hypot(c.x-p.x,c.y-p.y)>MAAN_ESCORT_RADIUS*2+16)){Object.assign(this,p);break;}}
   this.hidden=false;this.coreVulnerable=true;this.clearHull();
  }
  clearHull(){
   const b=this.leader,p=maanLocal(b,this.x,this.y),r=maanClearance(b);
-  if(Math.abs(p.x)<=r.x&&Math.abs(p.y)<=r.y){
+  if(this.hidden&&Math.abs(p.x)<=r.x&&Math.abs(p.y)<=r.y){
    const dx=r.x-Math.abs(p.x),dy=r.y-Math.abs(p.y);
    if(dx<dy)p.x=(p.x<0?-1:p.x>0?1:this.side)*(r.x+.5);else p.y=(p.y<0?-1:1)*(r.y+.5);
    Object.assign(this,maanWorld(b,p.x,p.y));
@@ -307,7 +310,7 @@ export class RollsRoyceEscort extends BaseBoss {
   const facing=Math.atan2(dy,dx)+Math.PI/2,delta=Math.atan2(Math.sin(facing-this.hullYaw),Math.cos(facing-this.hullYaw));
   this.hullYaw+=clamp(delta,-1.5*dt,1.5*dt);
   const distance=Math.min(d,speed*dt)*Math.max(0,Math.cos(delta)),x=this.x+Math.sin(this.hullYaw)*distance,y=this.y-Math.cos(this.hullYaw)*distance;
-  const occupied=[...this.encounter.bodies.values()].some(c=>c!==this&&c.leader===b&&!c.dead&&!c.hidden&&segmentBox(this.x,this.y,x,y,c.x,c.y,MAAN_ESCORT_RADIUS*2+8,MAAN_ESCORT_RADIUS*2+8));
+  const occupied=[...this.encounter.bodies.values()].some(c=>c!==this&&c.leader===b&&!c.dead&&!c.hidden&&(()=>{const dx=x-this.x,dy=y-this.y,l=dx*dx+dy*dy,t=clamp(((c.x-this.x)*dx+(c.y-this.y)*dy)/(l||1),0,1);return Math.hypot(this.x+dx*t-c.x,this.y+dy*t-c.y)<MAAN_ESCORT_RADIUS*2+16;})());
   if(occupied||maanGroundBlocked(b,this.x,this.y,x,y)){this.driveVelocity=0;return;}
   this.x=x;this.y=y;this.driveVelocity=dt?distance/dt:0;
  }
@@ -325,7 +328,9 @@ export class RollsRoyceEscort extends BaseBoss {
   // target, and destroying it leaves that side empty until native resupply.
   const sameFlank=Math.sign(focus.x||this.side)===this.side;
   const chase=order==='flank'&&!s&&!escortSalvo&&!b.gone('command')&&sameFlank;
-  const target=chase?maanWorld(b,this.side*Math.min(r.x+240,Math.max(r.x+55,Math.abs(focus.x))),clamp(focus.y,-r.y-180,r.y+180)):order==='screen'?maanWorld(b,this.side*95,-r.y-65):order==='withdraw'?maanWorld(b,this.side*100,r.y+100):s?{x:s.lane.x+this.side*(s.lane.width/2+90),y:s.lane.y-80}:maanWorld(b,this.side*(r.x+55),clamp(focus.y,-r.y-120,r.y+180));
+  const yielding=(b.escortYieldUntil||0)>(b.motionTime||0),local=maanLocal(b,this.x,this.y);
+  const escape=Math.abs(local.x)/r.x>Math.abs(local.y)/r.y?maanWorld(b,Math.sign(local.x||this.side)*(r.x+105),local.y):maanWorld(b,local.x,Math.sign(local.y||1)*(r.y+105));
+  const target=yielding?escape:chase?maanWorld(b,this.side*Math.min(r.x+240,Math.max(r.x+55,Math.abs(focus.x))),clamp(focus.y,-r.y-180,r.y+180)):order==='screen'?maanWorld(b,this.side*95,-r.y-65):order==='withdraw'?maanWorld(b,this.side*100,r.y+100):s?{x:s.lane.x+this.side*(s.lane.width/2+90),y:s.lane.y-80}:maanWorld(b,this.side*(r.x+55),clamp(focus.y,-r.y-120,r.y+180));
   this.driveTo(dt,target,42);resolveMaanGround(this.encounter);
   if(b.serviceWindow>0)return;
   // Scouts pressure the flanks first, then yield to the hull's warned salvo.

@@ -5,6 +5,12 @@ const entry=(ko,en)=>({ko:{passive:ko[0],skill:ko[1],passiveShort:ko[2],activeSh
 // Fit the available title width; never shorten an approved name to a syllable cap.
 // Aircraft-specific entries use the existing pilot:aircraft display key.
 export const PILOT_IDENTITY_COPY={
+ friedrich_karl:entry(
+ ["호엔촐레른의 혜안","제국의 포령","집중 명중한 표적에 주무장과 자신의 지원 공격이 추가 피해를 줍니다.","표적에 계속 명중시키면 최대 3회의 공중 포격을 유도합니다.","집중 명중한 적 하나를 7초간 표적으로 지정합니다. 그 적에게 주무장 피해 +8%, 자신의 폭발물·편대 피해 +15%. 보스에게는 각각 +4%·+8%가 적용됩니다.","5초간 지정 표적에 직접 명중시키면 최대 3회의 지연 공중 포격을 유도합니다. 장착한 주무장을 그대로 사용하며 보스 포격 피해는 제한됩니다."],
+ ["Hohenzollern Insight","Imperial Fire Order","Focused hits mark a target for extra primary and owned support damage.","Keep hitting your marked target to direct up to three airburst salvos.","Focused hits designate one enemy for 7s. Your primary deals +8% damage, and your explosives and wingmen deal +15% (+4% and +8% against bosses).","For 5s, direct hits on your marked target call up to three delayed airburst salvos. Keep your equipped primary; artillery damage against bosses is limited."]),
+ robinson:entry(
+ ["불침번","제3탄창","주요 위협을 향해 기동하고 명중한 표적을 추격합니다.","연속 명중으로 3단계를 완성하면 표적 내부를 집중 점화합니다.","주요 위협에 접근하면 속도 +12%·선회 +15%. 첫 직접 명중부터 6초간 그 표적에 주무장 피해 +12%(보스 +6%). 직접 격추하면 2.5초간 속도 +20%.","6초간 같은 적에 연속 명중해 3단계를 완성하면 집중 점화를 한 번 일으킵니다. 장착한 주무장과 탄약을 그대로 사용하며 관통은 추가되지 않습니다."],
+ ["Night Watch","The Third Drum","Maneuver toward priority threats and pursue the target you hit.","Complete three stages of consecutive hits to ignite the target internally.","Approaching a priority threat grants +12% speed and +15% turn rate. The first direct hit starts 6s of +12% primary damage against it (+6% vs bosses). A personal kill grants +20% speed for 2.5s.","For 6s, consecutive hits on one enemy build three stages and trigger one focused ignition. Keep your equipped primary and ammunition; no additional piercing."]),
  navarre:entry(
  ["열세의 사냥꾼","베르됭 봉쇄","주변 적기가 아군보다 많으면 기관총탄이 적 한 기를 추가 관통합니다.","방어 공역 안에서 직접 맞힌 적의 엔진을 손상시켜 느리게 합니다.","주변 적기가 자신과 아군기를 합친 수보다 많으면 기관총탄이 적 한 기를 추가 관통합니다.","발동 지점에 잠시 방어 공역을 펼치며, 공역 안의 적을 기관총으로 직접 맞히면 엔진을 손상시켜 느리게 합니다. 감속은 공역을 벗어나도 잠시 유지됩니다."],
  ["Outnumbered Hunter","Verdun Blockade","Your machine-gun rounds pierce one extra enemy when nearby hostiles outnumber friendlies.","Direct gun hits inside a defensive airspace damage enemy engines and slow them.","When nearby enemies outnumber you and your allies combined, your machine-gun rounds pierce one extra enemy.","Create temporary defensive airspace at your activation point; direct machine-gun hits inside damage enemy engines and slow them. The slowdown briefly persists after they leave."]),
@@ -96,8 +102,8 @@ export const PILOT_IDENTITY_COPY={
  ["플라잉 메카닉","기내 응급수리","레벨업 시 강화 선택지가 증가합니다.","기내 응급수리로 자신의 내구도를 즉시 회복합니다.","레벨업 선택지가 4개로 늘어납니다.","최대 내구도의 35%를 즉시 수리합니다."],
  ["Flying Mechanic","Onboard Emergency Repair","Gain more upgrade choices at each level.","Perform onboard emergency repairs to restore your own durability immediately.","Gain four choices at each level.","Immediately restore 35% of maximum durability."]),
  nungesser:entry(
- ["검은 심장의 집념","죽음의 표식","교전을 끊었다가 같은 적을 다시 공격하면 잠시 피해가 증가합니다.","조준 중인 적을 표식하고 5초간 빠른 직접 관통 사격을 퍼붓습니다. 격추하면 남은 시간을 다음 조준 표적으로 넘깁니다.","같은 적에게 0.3초 이상에 걸쳐 기관총을 3번 명중한 뒤 1.5초 이상 8초 이내에 다시 맞히면, 2초간 그 적에게 주는 기관총 피해가 25% 증가합니다. 재발동 간격은 4초이며 각도 제한은 없습니다.","5초간 관통 사격하며 연사 +60%, 표식 피해 +50%(집념 적용 시 +75%). 기관총으로 직접 격추하면 남은 표식을 다음 조준 대상에게 넘깁니다."],
- ["Black Heart Tenacity","Death Mark","Re-engage the same enemy after breaking contact to briefly increase damage.","Mark the enemy in your sights for 5 seconds of rapid direct piercing gunfire. A direct kill passes the remaining time to the next aimed enemy.","Land 3 machine-gun hits on one enemy over at least 0.3 seconds, then hit it again after a gap of 1.5 to 8 seconds to gain 25% machine-gun damage against it for 2 seconds. Retrigger interval: 4 seconds; no angle requirement.","For 5 seconds, fire piercing rounds with 60% more fire rate and 50% more damage to the marked target (75% with Tenacity). A personal machine-gun kill transfers the remaining mark duration to the next aimed target."]),
+ ["죽음의 집념","죽음의 기사","근거리에서 같은 적을 연속 명중하면 집념이 발동합니다.","5초간 가속하며 관통 2연사를 퍼붓습니다. 직접 조종하고 사격합니다.","260 이내 같은 적에게 기관총을 3회 명중하면 3초간 그 적에게 기관총 피해 +30%. 명중 간격은 1.2초 이내, 동일 순간의 산탄은 1회로 셉니다. 표적별 재발동 대기 4초. 강화탄은 검게 바뀝니다.","5초간 속도 +25%·선회 +15%·연사 +35%·장전 속도 +35%. 총구마다 0.065초 뒤 75% 피해의 관통 추가탄을 발사합니다. 추가탄도 탄약 1발을 사용하며 표적 지정은 필요하지 않습니다."],
+ ["Defiant Spirit","Knight of Death","Repeated close-range gun hits on one enemy trigger Tenacity.","Accelerate for 5 seconds and fire paired piercing bursts while steering and firing manually.","Land 3 gun hits on one enemy within 260 to gain 30% gun damage against it for 3s. Gaps may not exceed 1.2s; simultaneous pellets count once. Per-target retrigger: 4s. Empowered rounds turn black.","For 5s: speed +25%, turn +15%, fire rate +35%, reload speed +35%. Each firing gun releases a piercing follow-up after 0.065s at 75% damage, spending one additional round. No designated target required."]),
  rickenbacker:entry(
  ["레이서의 본능","햇 인 더 링 · 질주","주변의 적이 많을수록 기관총 피해가 증가합니다.","링을 두르고 이동 속도가 2배로 증가하며, 직접 조종하고 사격합니다.","주변 적 1기당 기관총 피해가 6%씩 최대 30% 증가합니다.","4초간 이동 속도가 2배로 증가하며, 직접 조종하고 조준해 사격합니다."],
  ["Racer's Instinct","Hat in the Ring · Sprint","Nearby enemies increase machine-gun damage.","Wear the ring and double your flight speed while steering and firing manually.","Gain 6% machine-gun damage per nearby enemy, up to 30%.","Double flight speed for 4 seconds while steering, aiming and firing manually."]),
@@ -112,3 +118,10 @@ export const PILOT_IDENTITY_COPY={
  ["Balloon Buster","Chain Detonation","Increase machine-gun damage against airships and airship bosses.","Land incendiary and detonating bursts to chain explosions through burning enemies.","Deal 20% more machine-gun damage to airships, including airship bosses. Ordinary bombers and ground bosses are excluded.","Spend ammunition on incendiary bursts followed by detonating bursts; hitting a burning target triggers nearby burning enemies in sequence. Up to 6 detonations can chain, without automatically killing living targets."])
 };
 export const pilotIdentityCopy=(id,locale='ko')=>{const copy=PILOT_IDENTITY_COPY[id]?.[locale==='en'?'en':'ko'];return copy?{...copy}:copy;};
+// Keep the roster's one-line descriptions, but expose the two capital rewards'
+// target rules and real percentages when a player explicitly opens details.
+export function pilotPopoverDescription(id,kind,locale='ko'){
+ if(kind!=='active'&&kind!=='passive')return '';
+ const copy=pilotIdentityCopy(id,locale);if(!copy)return '';
+ return copy[kind+(id==='friedrich_karl'||id==='robinson'?'Detail':'Short')]||'';
+}

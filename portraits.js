@@ -9,6 +9,7 @@ const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','
 for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=tame3&b=bust2`;
 for(const id of ['huffzky','mckeever'])portraitSources[id]=`./portrait-${id==='mckeever'?'mckeever-powell129':id}.webp?v=crew20261024`;
 for(const id of ['navarre','frommherz'])portraitSources[id]=`./portrait-${id}.webp?v=navarre-frommherz-20261027`;
+for(const id of ['friedrich_karl','robinson'])portraitSources[id]=`./portrait-${id}.webp?v=capital-pilots-20261103`;
 export const portraitThumbnailSources={};
 // Load weight: surfaces use a 960px copy (portrait-sized/) and roster circles a 224px thumbnail
 // (portrait-thumbs/). The authored originals stay for the full-size lightbox only.

@@ -32,9 +32,11 @@ function engine(c,p,x,y,time,phase,dead=false){
  if(state===2)c.rotate(.2+phase*.1);else c.scale(.2+.8*Math.abs(Math.cos(time*41+phase)),1);
  tile(c,14,0,0,32,[88,87]);c.restore();tile(c,state,x,y,38.4,pivot);
  if(state===2){fx(c,'fireEngine',x,y,22,28,0,.7);fx(c,'smokeDark',x,y-23,35,45,0,.5);}
+ else if(state===1)fx(c,'smokeTrail',x,y+22,18,38,Math.PI/2,.45);
 }
 function bay(c,b,p,x,y){
  if(p.destroyed){tile(c,11,x,y,21,[80,96]);return;}
+ if(p.hp<p.maxHp*.55){tile(c,10,x,y,21,[97,96]);fx(c,'smokeDark',x,y+14,16,24,0,.28);return;}
  const q=Math.max(0,Math.min(1,b.bayOpen||0)),k=21/192;
  tile(c,10,x,y,21,[97,96]);
  // Only the two authored leaves move; the open interior and hinge frame stay.
@@ -49,6 +51,30 @@ function rearGun(c,b,p,x,y){
  c.save();c.translate(x,y);c.rotate((p.aimAngle??((b.a||0)+(p.id==='front-gun'?0:Math.PI)))-(b.a||0));
  c.drawImage(images.guns,...f.rect,-f.pivot[0]*k,-f.pivot[1]*k,f.rect[2]*k,f.rect[3]*k);c.restore();
  if(p.destroyed)fx(c,'smokeDark',x,y-15,24,29,0,.35);
+ else if(p.gunFlash>0)fx(c,'muzzle',x,y,12,20,(p.aimAngle??b.a)-b.a,Math.min(1,p.gunFlash/.12));
+}
+function wingRects(c,side){
+ const x=side==='left'?-105:38;
+ c.rect(x,-56,67,37);c.rect(x,-15,67,25);
+}
+function drawGothaHull(c,b,legacy,crash){
+ // Keep torn panels through the first crash frame and authored wreck crossfade.
+ const wings=legacy?.naturalWidth?b.wingDamage:null;
+ c.save();
+ for(const side of ['left','right'])if(wings?.[side]?.stage===2){
+  c.beginPath();c.rect(-105,-105,210,210);wingRects(c,side);c.clip('evenodd');
+ }
+ c.drawImage(images.hull,-105,-105,210,210);c.restore();
+ if(!wings)return;
+ for(const side of ['left','right']){
+  const w=wings[side];if(!(w?.stage>0))continue;
+  c.save();c.beginPath();wingRects(c,side);c.clip();c.globalAlpha*=w.stage===2?1:.48;
+  // Reuse the registered authored Gotha wreck only on the struck outboard
+  // panels. Never replace its engines, cockpit, bomb bay or complete airframe.
+  c.drawImage(legacy,legacy.naturalWidth/2,0,legacy.naturalWidth/2,legacy.naturalHeight,-105,-105,210,210);
+  c.restore();
+ }
+ for(const side of ['left','right'])if(wings[side]?.hitFlash>0)fx(c,'armorSpark',side==='left'?-68:68,-34,18,18,0,Math.min(1,wings[side].hitFlash/.12));
 }
 export function drawDetailedGotha(c,b,legacy){
  if(!gothaDetailReady())return false;
@@ -58,12 +84,13 @@ export function drawDetailedGotha(c,b,legacy){
  // Crossfade into the registered, authored wreck instead of swapping skins
  // on the first defeat frame. Keep the detailed plane if that atlas is absent.
  c.save();c.globalAlpha*=1-mix;
- c.drawImage(images.hull,-105,-105,210,210);
+ drawGothaHull(c,b,legacy,crash);
  for(const p of b.parts||[]){
   const {x,y}=gothaPartLocal(b,p);
   if(p.id.startsWith('engine-'))engine(c,p,x,y,b.motionTime||0,p.id==='engine-left'?0:1.7,!!crash);
   else if(p.id==='bomb-bay')bay(c,b,p,x,y);
   else if(p.id==='rear-gun'||p.id==='front-gun')rearGun(c,b,p,x,y);
+  if(p.hitFlash>0)fx(c,'armorSpark',x,y,18,18,0,Math.min(1,p.hitFlash/.12));
  }
  c.restore();
  if(mix){c.save();c.globalAlpha*=mix;c.drawImage(legacy,legacy.naturalWidth/2,0,legacy.naturalWidth/2,legacy.naturalHeight,-105,-105,210,210);c.restore();}
@@ -75,3 +102,4 @@ export function drawDetailedGotha(c,b,legacy){
  if(crash&&crash.progress<.45)for(const side of [-1,1])fx(c,'debrisShard',side*(38+crash.progress*90),12+crash.progress*55,12,18,side*crash.progress*5,(1-crash.progress/.45)*.8);
  c.restore();return true;
 }
+

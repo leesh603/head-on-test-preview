@@ -1,6 +1,7 @@
 // Sortie-local tactical consequences. Uses the existing rounds, grenades,
 // escape repair and wing engagement loop; never changes a pilot's skill.
 import {combatImpactResult} from './combat-impact-result.js';
+import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js';
 export const TACTICAL_COMBAT_BALANCE=Object.freeze({reinforcements:2,wingCap:9,reinforcementDamage:.55,passEntry:.45,passWindow:.7,passExit:190,passCooldown:4,counterWindow:3,counterCooldown:8,repairCooldown:12,linkCooldown:4,bombCooldown:6,coverCooldown:7});
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
@@ -8,7 +9,8 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const world=p=>p.combatWorld?.()||p;
 const alive=e=>e&&e.hp>0&&e.alive!==false&&!e.dead&&!e.expired&&!e.crashing&&!e.rivalEscaped;
 const targets=p=>{const w=world(p);return [...(w.enemies||[]),...(w.eliteEnemies?.members||[])];};
-const gun=b=>b&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.ghost&&!b.rocket&&!b.blast&&!b.actualExplosion&&!b.motorCannon&&!b.cow37&&!b.mauserRound&&!b.fonckSeeker&&!b.fonckSalvo&&!b.tacticalRound;
+const equipmentChild=b=>b?.synthesisChild||b?.secondaryExplosion||b?.burnTick||b?.gas;
+const gun=b=>b&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.ghost&&!b.rocket&&!b.blast&&!b.actualExplosion&&!b.motorCannon&&!b.cow37&&!b.mauserRound&&!b.fonckSeeker&&!b.fonckSalvo&&!b.tacticalRound&&!equipmentChild(b);
 const state=p=>{if(!p._netTacticalCombat||p._netTacticalCombat.upgrades!==p.upgrades||p.t<p._netTacticalCombat.lastAt)p._netTacticalCombat={upgrades:p.upgrades,lastAt:p.t,passReady:true};p._netTacticalCombat.lastAt=p.t;return p._netTacticalCombat;};
 const handledImpacts=new WeakMap();
 const ready=(s,key,now,cooldown)=>{if(now<(s[key]||0))return false;s[key]=now+cooldown;return true;};
@@ -42,6 +44,13 @@ function cue(p,id,target=p,interval=.55){
  s.announced??={};if(!s.announced[id]){s.announced[id]=true;p.event?.('tacticalActivation',id);}
 }
 function damage(p,n){return typeof p.payloadPower==='function'?p.payloadPower(n):n;}
+// Freeze compatible equipment at the actual launch, not at a later frame or
+// detonation. A tactic remains the carrier: child darts/fields cannot proc it.
+function equippedPayload(p,b){
+ prepareSynthesisBomb(p,b,{tactical:true});
+ if(b.rocket)b.synthesisPrepared=true;
+ return b;
+}
 function payload(p,target,{rear=false,base=34,combo=null}={}){
  const w=world(p);if(!livePlayer(p)||(rear?(w.friendlyBombs?.length||0)>48:(w.bullets?.length||0)>480))return false;
  // Killing hits can still link into the next live aircraft. Preserve the proc
@@ -54,10 +63,10 @@ function payload(p,target,{rear=false,base=34,combo=null}={}){
   // A blocking bomb must burst on the pursuit lane even if no aircraft
   // touches it. Reuse the shared timed-bomb pipeline in solo and co-op.
   if(rear){const life=.55,reach=120,radius=area?104:focus?62:84;
-   (w.friendlyBombs??=[]).push({...appearance,ownerId:p.id||'p1',sx:p.x,sy:p.y,x:p.x+Math.cos(a)*reach,y:p.y+Math.sin(a)*reach,life,maxLife:life,releaseAngle:a,radius,damage:power,tacticalPayloadApplied:true,tacticalBomb:true});
+   (w.friendlyBombs??=[]).push(equippedPayload(p,{...appearance,ownerId:p.id||'p1',sx:p.x,sy:p.y,x:p.x+Math.cos(a)*reach,y:p.y+Math.sin(a)*reach,life,maxLife:life,releaseAngle:a,radius,damage:power,tacticalPayloadApplied:true,tacticalBomb:true,tacticalRound:true}));
    continue;
   }
-  (w.bullets??=[]).push({...appearance,x:p.x+Math.cos(a)*24,y:p.y+Math.sin(a)*24,vx:Math.cos(a)*480,vy:Math.sin(a)*480,life:1.6,enemy:false,ownerId:p.id||'p1',damage:power,rocket:true,upgradeRocket:true,tacticalRound:true,explosionDamage:power,explosionBaseRadius:area?104:focus?62:84,collisionRadius:10,hit:new Set()});
+  (w.bullets??=[]).push(equippedPayload(p,{...appearance,x:p.x+Math.cos(a)*24,y:p.y+Math.sin(a)*24,vx:Math.cos(a)*480,vy:Math.sin(a)*480,life:1.6,enemy:false,ownerId:p.id||'p1',damage:power,rocket:true,upgradeRocket:true,tacticalRound:true,releaseAngle:a,explosionDamage:power,explosionBaseRadius:area?104:focus?62:84,collisionRadius:10,hit:new Set()}));
  }
  return true;
 }
@@ -76,7 +85,7 @@ function followups(p,s,now){
    const w=world(p);if((w.friendlyBombs?.length||0)>48)return true;
    const rear=shot.combo==='blockingBombing',target=alive(shot.target)?shot.target:nearest(p,650),point=rear?{x:p.x-Math.cos(p.a)*(120+shot.index*55),y:p.y-Math.sin(p.a)*(120+shot.index*55)}:target?tacticalAimPoint(p,target):null;
    if(point){const branch=p.weaponMods?.EXPLOSIVE,area=branch==='area',focus=branch==='focus',side=rear?0:(shot.index===1?-1:1)*(area?72:focus?18:38),life=.28;
-    (w.friendlyBombs??=[]).push({ownerId:p.id||'p1',sx:p.x,sy:p.y,x:point.x-Math.sin(p.a)*side,y:point.y+Math.cos(p.a)*side,life,maxLife:life,radius:(rear?84:68)*(area?1.24:focus?.74:1),damage:damage(p,shot.base*(area?.85:focus?1.12:1)),tacticalPayloadApplied:true,tacticalBomb:true,projectileDoctrine:branch,projectileCombo:shot.combo});cue(p,shot.combo,point,.15);
+    (w.friendlyBombs??=[]).push(equippedPayload(p,{ownerId:p.id||'p1',sx:p.x,sy:p.y,x:point.x-Math.sin(p.a)*side,y:point.y+Math.cos(p.a)*side,life,maxLife:life,radius:(rear?84:68)*(area?1.24:focus?.74:1),damage:damage(p,shot.base*(area?.85:focus?1.12:1)),tacticalPayloadApplied:true,tacticalBomb:true,tacticalRound:true,projectileDoctrine:branch,projectileCombo:shot.combo}));cue(p,shot.combo,point,.15);
    }
    return false;
   }
@@ -212,8 +221,12 @@ export function installTacticalCombat(Game,{PLANES={}}={}){
  const impact=Game.prototype.specialRoundImpact;
  Game.prototype.specialRoundImpact=function(b,e){
   const w=world(this),start=w.bullets?.length||0,result=impact?.call(this,b,e);
-  if(b?.projectileCombo&&b.ownerId===(this.id||'p1'))for(let i=start;i<(w.bullets?.length||0);i++){const blast=w.bullets[i];if(blast.actualExplosion&&blast.ownerId===b.ownerId){blast.projectileCombo=b.projectileCombo;blast.tacticalRound=true;}}
-  if(!b||b.enemy||b.patrol||b.tacticalRound||b.ownerId&&b.ownerId!==(this.id||'p1')||!livePlayer(this)||!e)return result;
+  if(b?.projectileCombo&&b.ownerId===(this.id||'p1'))for(let i=start;i<(w.bullets?.length||0);i++){const blast=w.bullets[i];if(blast.actualExplosion&&blast.ownerId===b.ownerId){
+   blast.projectileCombo=b.projectileCombo;blast.tacticalRound=true;
+   if(b.rocket&&b.tacticalRound)inheritSynthesisBlast(this,b,blast);
+  }}
+  if(b?.rocket&&b.tacticalRound&&b.projectileCombo&&!equipmentChild(b)&&!b.enemy&&b.ownerId===(this.id||'p1')&&combatImpactResult(b,e)?.damage>0)detonateSynthesisPayload(this,b);
+  if(!b||b.enemy||b.patrol||b.tacticalRound||equipmentChild(b)||b.ownerId&&b.ownerId!==(this.id||'p1')||!livePlayer(this)||!e)return result;
   let hits=handledImpacts.get(b);if(!hits){hits=new WeakSet();handledImpacts.set(b,hits);}if(hits.has(e))return result;hits.add(e);
   const s=state(this),now=this.t||0,ownGun=gun(b)||b.cow37;
   if(b.tacticalAreaShell&&!b.tacticalAreaDetonated){b.tacticalAreaDetonated=true;this.queueExplosionDamage?.(e.x,e.y,74,b.damage*.22,{secondaryExplosion:true,exclude:e});}

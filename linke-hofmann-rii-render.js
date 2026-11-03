@@ -22,6 +22,7 @@ export async function prepareRIIAssets(){
 const scaleOf=b=>Number.isFinite(b?.geometryScale)&&b.geometryScale>0?b.geometryScale:1;
 const partsOf=b=>b.parts instanceof Map?[...b.parts.values()]:Array.isArray(b.parts)?b.parts:Object.values(b.parts||{});
 const broken=(parts,id)=>parts.some(p=>p.id===id&&(p.destroyed===true||p.hp===0));
+const damagedEngine=(parts,id)=>id.startsWith('engine-')&&parts.some(p=>p.id===id&&p.hp<=p.maxHp*.5);
 export function riiExtents(body){
  const s=scaleOf(body),a=(body.a??-Math.PI/2)+Math.PI/2,c=Math.abs(Math.cos(a)),n=Math.abs(Math.sin(a));
  const halfWidth=(900*c+450*n)*s,halfHeight=(900*n+450*c)*s,x=body.x||0,y=body.y||0;
@@ -44,14 +45,14 @@ export function drawRIIBoss(c,b,{time=0,effect,images:bank}={}){
  // Underslung ordnance is behind the airframe, never a dorsal hatch.
  if(!b.dead&&bomb?.naturalWidth)for(const [id,x]of [['rack-left',-250],['rack-right',250]])if(!broken(parts,id))for(let n=0;n<(b.rackAmmo?.[id]??2);n++){c.save();try{c.translate(x-7+n*14,40);c.rotate(-Math.PI/2);const width=60*RII_BOMB_ART.height/RII_BOMB_ART.width;c.drawImage(bomb,-30,-width/2,60,width);}finally{c.restore();}}
  c.drawImage(b.dead&&damaged?.naturalWidth?damaged:hull,-900,-450,1800,900);
- if(!b.dead&&damaged?.naturalWidth)for(const [id,r]of Object.entries(regions))if(broken(parts,id)){
+ if(!b.dead&&damaged?.naturalWidth)for(const [id,r]of Object.entries(regions))if(broken(parts,id)||damagedEngine(parts,id)){
   const [x,y,right,bottom]=r;c.save();try{c.beginPath();c.rect(x-900,y-450,right-x,bottom-y);c.clip();c.drawImage(damaged,-900,-450,1800,900);}finally{c.restore();}
  }
- if(typeof effect==='function')for(let i=1;i<=4;i++)if(broken(parts,'engine-'+i)||b.crash){
+ if(typeof effect==='function')for(let i=1;i<=4;i++)if(broken(parts,'engine-'+i)||damagedEngine(parts,'engine-'+i)||b.crash){
   const r=regions['engine-'+i],x=(r[0]+r[2])/2-900,y=(r[1]+r[3])/2-450;
   const pulse=1+.12*Math.sin((b.defeatAge||time)*17+i);
-  effect(c,'smokeTrail',x,y+28,42*pulse,70*(b.crash?1.7:1),0,.58);
-  effect(c,'fireEngine',x,y,24*pulse,36*pulse,0,.65);
+  effect(c,'smokeTrail',x,y+28,42*pulse,70*(b.crash?1.7:1),0,(broken(parts,'engine-'+i)||b.crash)?.58:.30);
+  if(broken(parts,'engine-'+i)||b.crash)effect(c,'fireEngine',x,y,24*pulse,36*pulse,0,.65);
  }
  if(b.crash&&typeof effect==='function'){
   const age=b.defeatAge||0;
@@ -71,6 +72,13 @@ export function drawRIIBoss(c,b,{time=0,effect,images:bank}={}){
   c.save();try{c.translate(x,-3);c.rotate(angle+Math.PI/2-yaw);c.drawImage(gun,-27*.52,-82*.8+recoil,27,82);
    if(state.flash>0&&typeof effect==='function')effect(c,'muzzle',0,-65.6,38,64,0,Math.min(1,state.flash/.035));
   }finally{c.restore();}
+ }
+ // Brief additive redraw is clipped to the struck component, never the giant hull.
+ if(!b.dead)for(const [id,left]of Object.entries(b.hitFlash||{})){
+  if(!(left>0))continue;
+  const r=regions[id]||(id==='rack-left'?[632,460,668,520]:id==='rack-right'?[1132,460,1168,520]:id==='core'?[868,468,932,532]:null);
+  if(!r)continue;const [x,y,right,bottom]=r;
+  c.save();try{c.beginPath();c.rect(x-900,y-450,right-x,bottom-y);c.clip();c.globalCompositeOperation='lighter';c.globalAlpha*=Math.min(1,left/.12)*.6;c.drawImage(hull,-900,-450,1800,900);}finally{c.restore();}
  }
  return true;
  }finally{c.restore();drawRIIReleasedBombs(c,b,{effect,images:bank});}
@@ -112,3 +120,4 @@ export function drawRIIHazard(c,h,z=1,{effect=fx,mark=impactMark}={}){
   return true;
  }finally{c.restore();}
 }
+

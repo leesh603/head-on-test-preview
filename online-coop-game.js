@@ -1,11 +1,13 @@
 import {LegacyProjectileStream} from './legacy-projectile-stream.js';
 import {snapshotLaonBattle} from './laon-battle.js';
 import {legacySquadronSnapshot} from './legacy-squadron-adapter.js';
-import {advanceNungesserReplica} from './nungesser-combat.js';
+import {advanceNungesserReplica,NUNGESSER_BALANCE} from './nungesser-combat.js';
 import {navarreSuppressionVisual} from './navarre-frommherz-combat.js';
 import * as finalArenaAchievementGate from './achievements.js?v=pandemonium394r2';
 import {receiveIntrusionVisual,advanceIntrusionVisual} from './intrusion-network-visual.js';
 import {captureNavarreFrommherzVisual} from './navarre-frommherz-view.js';
+import {captureCapitalPilotsVisual} from './capital-pilots-view.js';
+import {capitalPilotsFlightModifiers} from './capital-pilots-combat.js';
 import {equipmentCruiseMultiplier} from './equipment-flight-balance.js';
 import {momentumTier} from './ace-momentum.js';
 import {syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
@@ -91,7 +93,7 @@ export class OnlineCoopGame extends CoopGame {
   const ack=this._netFinalArenaReady;
   return !!(local&&!this._netDisconnected&&ack?.ready&&ack.token===a.token&&ack.phase===a.phase&&ack.formToken===(a.formToken||null)&&performance.now()-ack.at<1500);
  }
- disposeOnline(){this._netLegacyShots.clear();this.legacySquadronVisual=null;for(const [id,e] of this._netReplica)if(id.startsWith('legacy:')){this._netTargets.delete(e);this._netReplica.delete(id);}this._netEligibilityDisposed=true;this._netPeerFinalArenaEligibility=null;this._netFinalArenaEligibilityChallenge=null;clearInterval(this._netTimer);this.session.onGameMessage=null;}
+ disposeOnline(){this._netLegacyShots.clear();this.legacySquadronVisual=null;for(const [id,e] of this._netReplica)if(id.startsWith('legacy:')){this._netTargets.delete(e);this._netReplica.delete(id);}for(const p of this.players){p.resetCapitalPilotsCombat?.();p.capitalPilotsVisual=null;}this._netEligibilityDisposed=true;this._netPeerFinalArenaEligibility=null;this._netFinalArenaEligibilityChallenge=null;clearInterval(this._netTimer);this.session.onGameMessage=null;}
  worldRegion(){return this.host?super.worldRegion():this.region;}
  updateCamera(dt){const p=cameraTarget(this);if(!p)return;const k=1-Math.exp(-dt*12);this.camera.x+=(p.x-this.camera.x)*k;this.camera.y+=(p.y-this.camera.y)*k;this.camera.zoom=1;}
  constrainMove(p,x0,y0){
@@ -216,7 +218,7 @@ export class OnlineCoopGame extends CoopGame {
   world.alpsTerrain=field?pack({seed:field.seed,cellSize:field.cellSize,safeAreas:field.safeAreas,damageFraction:field.damageFraction,cooldown:field.cooldown,time:field.time}):null;
   const message={type:'state',pandemoniumVictory:this._netPandemoniumVictory,factionFinalReceipts:this._netFactionFinalReceipts,finalArenaEligibility:{runId:this._netEligibilityRunId,challenge:this._netFinalArenaEligibilityChallenge,qualified:this.finalArenaLocalQualified()},seq:++this._netLastState,full:!!this._netFull,world:this._netDelta.take('world',world),players:[],lanes:{},shots:[],shotUpdates:[],retired:[],events:this._netEvents.splice(0),upgradeResults:this._netUpgradeResults.splice(0)};this._netFull=false;
   if(legacyDelta){message.legacyShots=this._netLegacyShots.take(this.eliteEnemies?.projectiles||[],this.t||0,message.full||this._netLegacyNeedsFull);this._netLegacyNeedsFull=false;}
-  for(const p of this.players){const data=ownWithoutPose(p);data.navarreFrommherzVisual=captureNavarreFrommherzVisual(p);message.players.push({id:p.id,pose:pose(p),data:this._netDelta.take(p.id,data)});}
+  for(const p of this.players){const data=ownWithoutPose(p);data.navarreFrommherzVisual=captureNavarreFrommherzVisual(p);data.capitalPilotsVisual=captureCapitalPilotsVisual(p);message.players.push({id:p.id,pose:pose(p),data:this._netDelta.take(p.id,data)});}
   const aliveIds=new Set(['world','boss','p1','p2']);
   for(const lane of LANES){const rows=[];for(const entity of this[lane]||[]){const id=this.idOf(entity);aliveIds.add(id);const data=ownWithoutPose(entity);if(lane==='enemies'){data.formationLeaderId=entity.formationLeader?.id??null;const slow=navarreSuppressionVisual(this,entity);if(slow.length)data.navarreSuppressionFx=slow;}rows.push({id,pose:pose(entity),data:this._netDelta.take(id,data)});}message.lanes[lane]=rows;}
   const current=new Set();for(const b of this.bullets){if(b.life<=0)continue;const id=this.idOf(b);current.add(id);if(!this._netBullets.has(id)){message.shots.push({id,data:pack(b)});this._netBullets.set(id,b);}else if(b.fonckHoming||b.telescopeGuided||b.fonckSeeker||(b.telescopeAge||0)>0)message.shotUpdates.push({id,pose:pose(b),life:b.life});}
@@ -242,7 +244,7 @@ export class OnlineCoopGame extends CoopGame {
   const priorIntrusion=this.intrusionBoss;
   const before=this.state,oldRegion=this.region,priorChoice=this.activeUpgrade?.id,priorRevision=this.activeUpgrade?.revision||0;applyFields(this,m.world);receiveIntrusionVisual(this,priorIntrusion,m.full);
   this._netDisconnected=false;this.restoreTerrain();
-  for(const row of m.players){const p=this.player(row.id),status=p.status;applyFields(p,row.data);const [x,y,a,vx,vy]=row.pose;
+  for(const row of m.players){const p=this.player(row.id),status=p.status;if(m.full&&!Object.hasOwn(row.data?.set||{},'capitalPilotsVisual'))p.capitalPilotsVisual=null;applyFields(p,row.data);if(p.status==='downed'||p.hp<=0)p.capitalPilotsVisual=null;const [x,y,a,vx,vy]=row.pose;
    if(row.id===this.localPlayerId){
     if(m.full||status!==p.status||Math.hypot(x-p.x,y-p.y)>180||p.status!=='alive'||this.state!=='playing'){p.x=x;p.y=y;p.a=a;this._netCorrection={x:0,y:0,a:0};}
     else {const lead=.065;this._netCorrection={x:x+vx*lead-p.x,y:y+vy*lead-p.y,a:Math.atan2(Math.sin(a-p.a),Math.cos(a-p.a))};}
@@ -305,7 +307,7 @@ export class OnlineCoopGame extends CoopGame {
   if(this.state==='playing'){
    for(const owner of this.players){advanceUdetReplica(owner,step);advanceNungesserReplica(owner,step);}
    const p=this.player(this.localPlayerId);if(p.status==='alive'){
-    const acrobat=udetFlightModifiers(p),turn=p.turn;p.turn*=acrobat.turn;try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=momentumTier(p).speed*acrobat.speed*(p.pilot==='rickenbacker'&&p.skillTime>0&&p.hp>0?2:1)*p.baseSpeed*equipmentCruiseMultiplier(p)*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(airbrakeMovement(p,step,p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1))*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
+    const acrobat=udetFlightModifiers(p),capital=capitalPilotsFlightModifiers(p),breakthrough=p.pilot==='nungesser'&&p.skillTime>0&&p.pilotSignatureState?.nungesser?.burstRemaining>0,turn=p.turn;p.turn*=acrobat.turn*capital.turn*(breakthrough?NUNGESSER_BALANCE.turn:1);try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=momentumTier(p).speed*acrobat.speed*capital.speed*(breakthrough?NUNGESSER_BALANCE.speed:1)*(p.pilot==='rickenbacker'&&p.skillTime>0&&p.hp>0?2:1)*p.baseSpeed*equipmentCruiseMultiplier(p)*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(airbrakeMovement(p,step,p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1))*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
     const x=p.x,y=p.y;p.x+=Math.cos(p.a)*velocity*step;p.y+=Math.sin(p.a)*velocity*step;this.constrainMove(p,x,y);
     const k=1-Math.exp(-step*10),c=this._netCorrection;p.x+=c.x*k;p.y+=c.y*k;p.a+=c.a*k;c.x*=1-k;c.y*=1-k;c.a*=1-k;
    }
@@ -317,5 +319,3 @@ export class OnlineCoopGame extends CoopGame {
   this.updateCamera(step);
  }
 }
-
-

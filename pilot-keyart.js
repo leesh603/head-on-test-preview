@@ -1,6 +1,8 @@
 // One representative painting per pilot, independent of selected airframe and combat.
 const art=(id,version='pilotkey1')=>Object.freeze({mobile:`hangar-keyart/${id}.webp?v=${version}`,pc:`hangar-keyart/${id}.webp?v=${version}`});
 export const PILOT_KEYART=Object.freeze({
+ friedrich_karl:Object.freeze({mobile:'portrait-sized/portrait-friedrich_karl.webp?v=capital-pilots-20261103&opt=1',pc:'portrait-sized/portrait-friedrich_karl.webp?v=capital-pilots-20261103&opt=1'}),
+ robinson:Object.freeze({mobile:'portrait-sized/portrait-robinson.webp?v=capital-pilots-20261103&opt=1',pc:'portrait-sized/portrait-robinson.webp?v=capital-pilots-20261103&opt=1'}),
  navarre:Object.freeze({mobile:'portrait-sized/portrait-navarre.webp?v=navarre-frommherz-20261027&opt=1',pc:'portrait-sized/portrait-navarre.webp?v=navarre-frommherz-20261027&opt=1'}),
  frommherz:Object.freeze({mobile:'portrait-sized/portrait-frommherz.webp?v=navarre-frommherz-20261027&opt=1',pc:'portrait-sized/portrait-frommherz.webp?v=navarre-frommherz-20261027&opt=1'}),
  baron:Object.freeze({mobile:'hangar-keyart-mobile.webp?v=ui5',pc:'hangar-keyart-pc.webp?v=ui5'}),

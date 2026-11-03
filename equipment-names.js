@@ -6,6 +6,13 @@ export const MEDAL_DISPLAY_NAMES=Object.freeze({
 export function medalDisplayName(faction='central',locale='ko'){
  return MEDAL_DISPLAY_NAMES[faction==='entente'?'entente':'central'][locale==='en'?'en':'ko'];
 }
+const PROTOTYPE_AMMO_NAMES={
+ central:{ko:'크루프 시제탄약',en:'Krupp Prototype Ammunition'},
+ entente:{ko:'울위치 시제탄약',en:'Woolwich Prototype Ammunition'}
+};
+export function prototypeAmmoName(faction,locale='ko'){
+ return PROTOTYPE_AMMO_NAMES[faction==='entente'?'entente':'central'][locale==='en'?'en':'ko'];
+}
 export const EQUIPMENT_NAMES_KO=Object.freeze({
  ironCross:MEDAL_DISPLAY_NAMES.central.ko,
  redScarf:'붉은 남작의 머플러',

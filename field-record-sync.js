@@ -59,7 +59,8 @@ export function syncFieldRecord(data){
  const oldById=new Map();
  for(const [group,ids] of oldRows)for(let i=0;i<data[group].length;i++){const row=data[group][i];oldById.set(row.id||ids[i],row)}
  const description=(u,rarity)=>upgradeDescription(u.id,Game.prototype.upgradeDescription(u.id,rarity));
- const iconFor=id=>(rareSpecializationFor(id)?'./augmentation-icons/'+rareSpecializationFor(id).icon:'')||oldById.get(id)?.icon|| (NEW_ICONS[id]?'./augmentation-icons/'+NEW_ICONS[id]+'.webp':'');
+ const ammunitionIcons={prototypeAmmo:'krupp_prototype_ammunition',steelCore:'steel_core_ammunition'};
+ const iconFor=id=>ammunitionIcons[id]?'./augmentation-icons-384/'+ammunitionIcons[id]+'.webp':(rareSpecializationFor(id)?'./augmentation-icons/'+rareSpecializationFor(id).icon:'')||oldById.get(id)?.icon|| (NEW_ICONS[id]?'./augmentation-icons/'+NEW_ICONS[id]+'.webp':'');
  const rowFor=(u,group)=>({...oldById.get(u.id),id:u.id,name:upgradeName(u.id,u.name).replace('르네 퐁크','르네 폰크'),desc:description(u,u.rareOnly?'rare':'normal'),icon:iconFor(u.id),target:en?(group==='legendary'?'Special Equipment':u.rareOnly?'Rare-only Upgrade':'Standard Upgrade'):(group==='legendary'?'특수장비':u.rareOnly?'레어 전용 강화':'일반 · 매직 · 레어')});
  data.normal=UPGRADES.filter(u=>!u.legendary&&!u.specialDoctrine&&!u.weaponMod).map(u=>{
   const row=rowFor(u,'normal');if(u.rareOnly)delete row.tiers;else row.tiers=Object.fromEntries(['normal','magic','rare'].map(tier=>[tier,description(u,tier)]));return row;

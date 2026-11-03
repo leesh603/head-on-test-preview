@@ -45,7 +45,7 @@ export function drawIntrusionBoss(ctx,encounter,point,scale){
   // Missing state falls back only for non-destructible fixed base. Explicit null hides a module.
   const spec=Object.hasOwn(p.states,state)?p.states[state]:p.states.intact;
   if(!spec)continue;const image=bank.images.get(spec.src);if(!image)continue;
-  let delta=(state!=='destroyed'||p.destroyedRotates!==false)&&(p.kind==='barrel'||p.rotatesWithTurret)?(encounter.turretAngles?.[p.group]??0):0;
+  let delta=(p.kind==='barrel'||p.rotatesWithTurret)?(state==='destroyed'&&p.destroyedRotates===false?(encounter.destroyedTurretAngles?.[p.group]??encounter.turretAngles?.[p.group]??0):(encounter.turretAngles?.[p.group]??0)):0;
   delta=Math.max(-p.arc,Math.min(p.arc,delta));
   ctx.save();ctx.translate(spec.x,spec.y);ctx.rotate(p.angle+delta);
   if(p.revealOnly)ctx.globalAlpha*=maritimeReveal(encounter);

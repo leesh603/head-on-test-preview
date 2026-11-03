@@ -1,3 +1,4 @@
+import {ammunitionPartPadding} from './heavy-ammunition.js';
 import {squadronPending} from './squadron-combat-state.js';
 import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js';
 import {recordCombatImpact} from './combat-impact-result.js';
@@ -106,7 +107,7 @@ export function facilityTargets(g){
  return facilityMission(event)&&event.status==='active'&&event.region===region(g)&&event.regionKey===facilityStageKey(g)?event.targets.filter(e=>e.hp>0):[];
 }
 export function facilityCollision(e,x,y,b={}){
- const cx=e.x+e.hitOffsetX,cy=e.y+e.hitOffsetY,pad=b.collisionRadius||0,hw=e.hitWidth/2+pad,hh=e.hitHeight/2+pad;
+ const cx=e.x+e.hitOffsetX,cy=e.y+e.hitOffsetY,pad=ammunitionPartPadding(b),hw=e.hitWidth/2+pad,hh=e.hitHeight/2+pad;
  if(b.actualExplosion){const dx=Math.max(0,Math.abs(x-cx)-hw),dy=Math.max(0,Math.abs(y-cy)-hh);return dx*dx+dy*dy<=(b.explosionRadius||0)**2;}
  // Segment/AABB test: high-speed rounds cannot tunnel through small roofs.
  const px=b.previousX??x,py=b.previousY??y,dx=x-px,dy=y-py;let lo=0,hi=1;

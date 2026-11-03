@@ -7,6 +7,13 @@ export const O400_LAYOUT=Object.freeze({
   ['engine-left',-27,-23,7,.24],['engine-right',27,-23,7,.24],
   ['front-gun',0,-53,5,.13],['rear-gun',0,-14,5,.13],['bomb-bay',0,10,6,.22]
  ]),
+ // Painted nacelles are long, narrow structures, not 7px circles. These
+ // local surface footprints stop at the actual component, never the wingtip.
+ partFootprints:Object.freeze({
+  'engine-left':{rx:6,ry:22},'engine-right':{rx:6,ry:22},
+  'front-gun':{rx:7,ry:7},'rear-gun':{rx:7,ry:7},
+  'bomb-bay':{rx:7,ry:8}
+ }),
  hulls:Object.freeze([
   [[-6,-57],[6,-57],[6,20],[4,49],[-4,49],[-6,20]],
   [[-90,-31],[-86,-37],[-7,-33],[7,-33],[86,-37],[90,-31],[90,-15],[85,-10],[7,-7],[-7,-7],[-85,-10],[-90,-15]],
@@ -16,3 +23,4 @@ export const O400_LAYOUT=Object.freeze({
   [[22,-35],[32,-35],[33,-9],[21,-9]]
  ].map(p=>Object.freeze(p.map(([x,y])=>Object.freeze({x,y})))))
 });
+

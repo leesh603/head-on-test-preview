@@ -1,5 +1,13 @@
 // Concise current ability text shown only after medal enhancement.
 export const MEDAL_ACTIVE_COPY=Object.freeze({
+  "friedrich_karl": [
+    "6초간 표적을 직접 맞히면 최대 3회의 지연 포격을 유도합니다. 포격 위력 +25%·범위 +15%(보스 위력 +12%).",
+    "For 6s, direct hits on your marked target call up to 3 delayed salvos. Artillery damage +25%, radius +15% (+12% damage vs bosses)."
+  ],
+  "robinson": [
+    "7.2초간 집중 명중으로 3단계를 더 빨리 완성합니다. 최종 점화 위력 +30%(보스 +15%). 주무장·탄약 유지, 관통 추가 없음.",
+    "For 7.2s, focused hits complete all 3 stages faster. Final ignition damage +30% (+15% vs bosses). Keeps primary and ammo; no extra piercing."
+  ],
   "baron": [
     "5.4초간 급선회하며 사냥감을 추적합니다. 표적 후방 공격 피해가 20%, 보스에게는 12% 증가합니다.",
     "Turn tightly and hunt your target for 5.4s. Rear hits deal +20% damage (+12% vs bosses)."
@@ -105,8 +113,8 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Instantly repair 46.7% of maximum durability."
   ],
   "nungesser": [
-    "6초간 관통 사격하며 연사와 표식 대상 피해가 각각 60% 증가합니다. 기관총 격추 시 남은 표식을 다음 적에게 넘깁니다.",
-    "Fire piercing rounds for 6s: fire rate +60%, marked-target damage +60%. A gun kill passes the remaining mark to the next target."
+    "6초간 속도 +25%·선회 +15%·연사·장전 +35%. 관통 추가탄 피해 90%, 탄약 1발 사용.",
+    "For 6s: speed +25%, turn +15%, fire/reload speed +35%. Piercing follow-up damage is 90%; each follow-up spends one round."
   ],
   "rickenbacker": [
     "5초간 속도가 2배가 됩니다. 그동안 다른 표적에 기관총을 맞히면 0.65초간 발사탄 피해가 15%, 보스에게는 10% 증가합니다.",
@@ -152,7 +160,7 @@ const COW_ACTIVE_COPY=Object.freeze({
  loewenhardt:['낮게 진입한 뒤 3.24초간 수직 상승 사격하며 실탄을 소비하는 COW 일제사격 1회를 추가합니다.','Enter low, then climb while firing for 3.24s, adding 1 COW salvo using real ammo.'],
  sachsenberg:['무적으로 상승한 뒤 급강하하며 연속 사격합니다. 실탄을 소비하는 COW 일제사격을 최대 2회 추가합니다.','Climb invulnerably, then dive with rapid fire and up to 2 extra COW salvos using real ammo.'],
  barker:['8.1초간 내구도가 1 아래로 떨어지지 않습니다. 치명타를 버티면 실탄을 소비하는 COW 반격 일제사격을 한 번 발사합니다.','Durability cannot fall below 1 for 8.1s. Surviving a lethal hit triggers one COW counter salvo using real ammo.'],
- nungesser:['6초간 연사와 표식 대상 COW 직접 피해가 각각 60% 증가합니다. 관통하지 않으며 주무장 격추 시 남은 표식을 다음 적에게 넘깁니다.','For 6s, fire rate and marked-target COW direct damage rise by 60%. Shells do not pierce; a primary kill passes the remaining mark onward.'],
+ nungesser:['6초간 이동과 선회, 장전이 빨라집니다. COW 포탄에는 관통이나 추가 사격이 적용되지 않습니다.','For 6s, movement, turning, and reloading are faster. COW shells do not pierce or fire a follow-up shot.'],
  lothar:['6.5초간 연사가 50%, 속도가 15% 증가합니다. 주무장 격추 후 3.5초 내 다른 적 명중 시 1초씩, 최대 3초 연장됩니다.','Gain +50% fire rate and +15% speed for 6.5s. After a primary kill, hit another enemy within 3.5s: +1s, up to +3s.'],
  rickenbacker:['5초간 속도가 2배가 됩니다. 그동안 다른 표적에 주무장을 맞히면 0.65초간 발사탄 직접 피해가 15%, 보스에게는 10% 증가합니다.','Double speed for 5s. Hit a different enemy with your primary: rounds fired for 0.65s deal +15% direct damage (+10% vs bosses).'],
  navarre:['넓은 방어 공역 안에서 COW를 직접 맞힌 적을 2.6초간 감속시킵니다. 포탄은 관통하지 않으며 보스 감속은 제한됩니다.','Direct COW hits inside the expanded defensive zone slow enemies for 2.6s. Shells do not pierce; boss slowing is limited.'],

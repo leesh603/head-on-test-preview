@@ -1,4 +1,4 @@
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
+import {pilotPopoverDescription} from './pilot-identity-copy.js?v=merge20261017';
 /* Hangar compact (Phase 2). Presentation only: an aircraft sheet toggle and
    tap-to-read skill badges on phones. Never clones state, never touches
    handlers of existing controls. */
@@ -63,10 +63,9 @@ function currentLoadout(m) {
     duration = G.skillDuration.call(fake);
     cooldown = G.skillCooldown.call(fake);
   } catch { cooldown = hunter ? PILOT_BALANCE?.cooldowns?.baron_albatros : p.cooldown; }
-  const copy = pilotIdentityCopy(id, document.documentElement.lang);
   return {
-    active: copy?.activeShort || m.i18n.pilotDescription(id, desc),
-    passive: copy?.passiveShort || m.i18n.passiveDescription(id, passiveDesc),
+    active: pilotPopoverDescription(id, 'active', document.documentElement.lang) || m.i18n.pilotDescription(id, desc),
+    passive: pilotPopoverDescription(id, 'passive', document.documentElement.lang) || m.i18n.passiveDescription(id, passiveDesc),
     duration, cooldown
   };
 }

@@ -231,7 +231,7 @@ export class StageBossAddon {
         y:b.top-20-i*25,vx:0,vy:tuning.bulletSpeed*.75,radius:10,damage:tuning.damage,warning:.65,duration:8,visual:'building-debris'});
     }else this.hooks.onCue({...event,encounterId});
   }
-  hit({bodyId,partId=null,damage,faction}) {
+  hit({bodyId,partId=null,damage,faction,wingSide=null}) {
     if(this.ended)return{damage:0,blocked:true};
     const body=this.stages.encounter?.bodies.get(bodyId);
     if(!body||body.arrivalPending||(faction&&faction===body.faction))return{damage:0,blocked:true};
@@ -246,7 +246,7 @@ export class StageBossAddon {
     // Scripted weak points (rail cars) may also hold until the boss has fired.
     if(this.showFloors&&partId&&typeof body.partFloor==='function'){const part=body.parts.get(partId),pf=body.partFloor(partId);if(part&&pf>0)damage=Math.min(damage,Math.max(0,part.hp-pf));}
     const floor=this.floorFor(body);
-    if(!(floor>0))return body.hit({partId,damage});
+    if(!(floor>0))return body.hit({partId,damage,wingSide});
     // Approaching a phase gate the boss braces: the last 4 % above the line takes
     // a tenth of the damage, the line itself holds, and the boss is hurried into
     // its next warned attack (see noteGate). Weak points still break at full
@@ -259,7 +259,7 @@ export class StageBossAddon {
     // Several bosses pass weak-point damage into the hull and can die inside the
     // part hit, so a part hit spends at most the hull left above the line.
     else damage=Math.min(damage,Math.max(0,before-floor));
-    const result=body.hit({partId,damage});
+    const result=body.hit({partId,damage,wingSide});
     if(!body.dead&&body.hp<Math.min(floor,before)){const held=Math.min(floor,before);if(!hull)body.pendingDrop=(body.pendingDrop||0)+held-body.hp;body.hp=held;}
     if(!body.dead&&body.hp<=top+.5){this.noteGate(body,floor);result.armored=true;}
     return result;
@@ -298,9 +298,14 @@ export class StageBossAddon {
     dt=Math.min(.05,dt);if(!dt)return false;
     // Bosses see copies of the pilots carrying their turn rate; the host's frame objects stay untouched.
     frame={...frame,dt,players:(frame.players||[]).map(p=>({...p}))};this.time+=dt;this.frameContext=frame;this.recordTrail(frame);for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;
-    for(const d of this.bodyDefeats){d.age+=dt;if((d.kind==='gotha-raider'||d.kind==='o400-raider')&&!d.impacted&&d.age>=d.duration*.86){
-      d.impacted=true;const pose=gothaCrashPose(d,d.age,d.duration);
-      this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:d.kind==='o400-raider'?'o400-squadron':'gotha-squadron',x:pose.x,y:pose.y,radius:58,final:false});
+    for(const d of this.bodyDefeats){d.age+=dt;if(d.kind==='gotha-raider'||d.kind==='o400-raider'){
+      // Small, staggered engine/bay failures follow the falling aircraft; no
+      // screen-filling single blast or explosion left at its old world pose.
+      const pulses=[{at:.18,x:-24,y:-12,r:20},{at:.42,x:24,y:-12,r:23},{at:.68,x:0,y:8,r:26},{at:.86,x:0,y:0,r:38}];
+      d.pulse??=0;
+      while(d.pulse<pulses.length&&d.age>=d.duration*pulses[d.pulse].at){const q=pulses[d.pulse++],pose=gothaCrashPose(d,d.age,d.duration),c=Math.cos(pose.angle),s=Math.sin(pose.angle);
+       this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:d.kind==='o400-raider'?'o400-squadron':'gotha-squadron',x:pose.x+(q.x*c-q.y*s)*pose.scale,y:pose.y+(q.x*s+q.y*c)*pose.scale,radius:q.r,final:false});
+      }
     }}
     this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
     const encounter=this.stages.encounter;
@@ -349,8 +354,8 @@ export class StageBossAddon {
   }
   updateDefeat(dt) {
     const d=this.defeatSequence;if(!d)return;d.age=Math.min(d.duration,d.age+dt);
-    // Each Gotha owns its moving crash and one impact; keep the clear delay.
-    if(d.bossId==='gotha-squadron')return;
+    // Each city bomber owns its moving crash and bounded chain; keep the clear delay.
+    if(d.bossId==='gotha-squadron'||d.bossId==='o400-squadron')return;
     for(const b of this.stages.encounter?.bodies.values()||[])if(b.isCapitalBoss){b.defeatAge=d.age;b.destroying=true;for(const p of b.parts.values())if(d.age>=.4+[...b.parts.keys()].indexOf(p.id)*.11&&p.hp>0&&p.id!==(b.kind==='final-kaiserkrone'?'main-envelope':'flying-boat-hull')){p.hp=0;p.destroyedAt=d.age;}b.syncParts();}
     if(d.collapseSites){
       while(d.pulse<d.collapseSites.length&&d.age>=d.collapseSites[d.pulse].at){
@@ -409,3 +414,4 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
+

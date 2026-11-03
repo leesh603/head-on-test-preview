@@ -22,7 +22,7 @@ function event(g,e,b,v){
 function sync(g,e,b){b._intrusionEmit=v=>event(g,e,b,v);const handled=e.riiBrokenIds||=([]);for(const p of b.parts.values()){const q=e.parts?.[p.id];if(!q)continue;p.maxHp=q.maxHp;p.hp=q.hp;if(p.hp<=0&&!handled.includes(p.id)){handled.push(p.id);b.onPartDestroyed(p);}}}
 function sample(g,e,dt){const p=players(g)[0]||g,v=velocity(p),old=e.riiPlayerMotion;if(!old){e.riiPlayerMotion={x:finite(p.x),y:finite(p.y),vx:v.x,vy:v.y};return;}const dx=(finite(p.x)-old.x)/dt,dy=(finite(p.y)-old.y)/dt,k=1-Math.exp(-8*dt),bad=Math.hypot(dx,dy)>800;old.vx+=((bad?v.x:dx)-old.vx)*k;old.vy+=((bad?v.y:dy)-old.vy)*k;old.x=finite(p.x);old.y=finite(p.y);}
 export function stepRIIMotion(g,e,dt){
- initializeRII(e);if(!(dt>0))return;sample(g,e,dt);const b=bodyFor(e);sync(g,e,b);
+ initializeRII(e);if(!(dt>0))return;for(const id in e.flash||{})if((e.flash[id]-=dt)<=0)delete e.flash[id];sample(g,e,dt);const b=bodyFor(e);sync(g,e,b);
  // Lifecycle cleanup must clear the cached simulation too, not only its JSON view.
  if(e.phase==='retreating'||e.phase==='resolved')b.visualBombs=[];
  if(e.phase==='reserved'||e.phase==='warning'||e.phase==='resolved'){b.updateArrival(dt);save(e,b);return;}
@@ -54,8 +54,20 @@ export function stepRIICombat(g,e,dt){initializeRII(e);if(e.phase!=='active'||e.
 }
 export function beginRIIDestruction(g,e){initializeRII(e);const b=bodyFor(e);sync(g,e,b);if(e.riiCollapse)return;b.beginCrash();b.dead=true;e.riiCollapse={age:0,index:0,sites:riiCollapseSites(b)};e.riiShots=[];e.hazards=[];e.shotCues=[];b.visualBombs=[];save(e,b);}
 export function stepRIIDestruction(g,e,dt){if(!e.riiCollapse)beginRIIDestruction(g,e);const b=bodyFor(e),c=e.riiCollapse;c.age+=dt;b.updateCrash(dt,c.age,RII_DESTRUCTION_TIME);while(c.index<c.sites.length&&c.sites[c.index].at<=c.age){const v=riiCollapsePulse(b,c.sites[c.index++]);const presentation={event:(...args)=>g.event?.(...args),shake:g.shake||0};queueRIICollapseFx(presentation,v,(unused,spec)=>pushExplosionFx(g,spec));g.shake=presentation.shake;(g.events||=[]).push({...v,encounterId:e.encounterId});}save(e,b);}
-export function locateRIIIntrusionHit(e,x,y,padding=0,previousX=x,previousY=y){const b=bodyFor(e),prior=[...b.parts.values()].map(p=>[p,p.hp]);try{for(const p of b.parts.values())if(e.parts?.[p.id])p.hp=e.parts[p.id].hp;const hit=b.locateHit({x,y,radius:padding,previousX,previousY});return hit?hit.partId||'core':null;}finally{for(const [p,hp]of prior)p.hp=hp;}}
-export function drawRIIIntrusionBoss(c,e,point,scale,images){const state={...e.rii,propellerPhase:e.visualRIIPropellerPhase??e.rii?.propellerPhase,turretStates:Object.fromEntries(Object.entries(e.rii?.turretStates||{}).map(([id,s])=>[id,{...s,angle:Number.isFinite(e.turretAngles?.[id])?e.a+e.turretAngles[id]:s.angle}])),kind:'linke-hofmann-r-ii',x:point.x,y:point.y,a:e.a,geometryScale:scale,parts:RII_LAYOUT.parts.map(p=>({...p,...e.parts?.[p.id],hp:e.damage?.[p.id]==='destroyed'?0:e.parts?.[p.id]?.hp??100,maxHp:e.parts?.[p.id]?.maxHp??100})),visualBombs:[]};return drawRIIBoss(c,state,{images,time:e.age||0,effect:e.riiShadow?undefined:fx});}
+export function locateRIIIntrusionHit(e,x,y,padding=0,previousX=x,previousY=y,actualExplosion=false){
+ const b=bodyFor(e),parts=b.parts,prior=[...parts.values()].map(p=>[p,p.hp]);
+ try{
+  for(const p of parts.values())if(e.parts?.[p.id])p.hp=e.parts[p.id].hp;
+  // An area impact may contain several internal engines simultaneously. Resolve
+  // equal-time contacts nearest the actual blast centre, not map insertion order.
+  // Swept rounds retain the native first-surface intersection and exact radii.
+  if(actualExplosion&&padding>0&&x===previousX&&y===previousY)b.parts=new Map([...parts].sort(([,a],[,c])=>Math.hypot(x-b.x-a.x,y-b.y-a.y)-Math.hypot(x-b.x-c.x,y-b.y-c.y)));
+  const hit=b.locateHit({x,y,radius:padding,previousX,previousY});return hit?hit.partId||'core':null;
+ }finally{b.parts=parts;for(const [p,hp]of prior)p.hp=hp;}
+}
+export function drawRIIIntrusionBoss(c,e,point,scale,images){const state={...e.rii,hitFlash:e.riiShadow?{}:e.flash,propellerPhase:e.visualRIIPropellerPhase??e.rii?.propellerPhase,turretStates:Object.fromEntries(Object.entries(e.rii?.turretStates||{}).map(([id,s])=>[id,{...s,angle:Number.isFinite(e.turretAngles?.[id])?e.a+e.turretAngles[id]:s.angle}])),kind:'linke-hofmann-r-ii',x:point.x,y:point.y,a:e.a,geometryScale:scale,parts:RII_LAYOUT.parts.map(p=>({...p,...e.parts?.[p.id],hp:e.damage?.[p.id]==='destroyed'?0:e.parts?.[p.id]?.hp??100,maxHp:e.parts?.[p.id]?.maxHp??100})),visualBombs:[]};return drawRIIBoss(c,state,{images,time:e.age||0,effect:e.riiShadow?undefined:fx});}
 export function drawRIIIntrusionBombs(c,e,point,z,images){const origin=point(0,0);c.save();c.translate(origin.x,origin.y);c.scale(z,z);drawRIIReleasedBombs(c,{...e.rii,visualBombs:(e.rii?.visualBombs||[]).map(b=>({...b,age:b.age+(e.visualRIITime||0)})),geometryScale:e.scale},{images});c.restore();}
 
 export const drawRIIIntrusion=drawRIIIntrusionBoss;
+
+
