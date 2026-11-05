@@ -185,11 +185,13 @@ export function queueMaritimeAttack(g,e,layout,api){
  const before=e.hazards.length+e.shotCues.length;
  const splash=splashPoint(g,e,p,api);
  const guns=layout.targets.filter(t=>t.muzzle&&api.canFire(e,t.id));
- const ordered=[...guns.slice(e.volley%Math.max(1,guns.length)),...guns.slice(0,e.volley%Math.max(1,guns.length))];let heavyQueued=false;
+ const side=e.volley%2?1:-1;
+ const ordered=[...guns.slice(e.volley%Math.max(1,guns.length)),...guns.slice(0,e.volley%Math.max(1,guns.length))];
+ ordered.sort((a,b)=>Number(a.kind==='anti_air'&&a.x*side<0)-Number(b.kind==='anti_air'&&b.x*side<0));
+ let heavyQueued=false,aaSide=null;
  for(const gun of ordered){
   // Alternating pairs leave a readable lane; destroyed guns never get replacement emitters.
   const aa=gun.kind==='anti_air';
-  if(aa&&gun.x*(e.volley%2?1:-1)<0)continue;
   const impact=aa?p:splash;
   if(!impact)continue;
   const target=api.local(e,impact.x,impact.y);
@@ -211,6 +213,10 @@ export function queueMaritimeAttack(g,e,layout,api){
   // Each fan ray must clear the same authored superstructure, not merely its middle ray.
   const offsets=spread.filter(offset=>api.clear(e,gun.id,muzzle,a+offset));
   if(!offsets.length)continue;
+  // Prefer the alternating side, but a destroyed/blocked side must not silence
+  // the surviving battery. Still allow only one side's fan in each salvo.
+  if(aaSide!==null&&Math.sign(gun.x)!==aaSide)continue;
+  aaSide=Math.sign(gun.x);
   e.shotCues.push({...world,localMuzzle:muzzle,localAngle:a,a:a+e.a+Math.PI/2,partId:gun.id,age:0,warning:aa?.8:1.2,damage:aa?10:19,speed:aa?285:235,offsets,done:false});
  }
  // Keep alternating targets/batteries, but reserve the full cooldown for real ordnance.
