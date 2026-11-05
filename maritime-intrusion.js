@@ -12,6 +12,7 @@ export const MARITIME_PROFILES = Object.freeze({
 const finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const angle=n=>Math.atan2(Math.sin(n),Math.cos(n));
+const SPLASH_WARNING=1.8;
 export const isMaritimeIntrusion=e=>!!MARITIME_PROFILES[typeof e==='string'?e:e?.profileId];
 export function maritimeAttackable(e){return e?.profileId!=='nachtwal'||!e.naval||e.naval.phase==='surfaced';}
 export function maritimeOpacity(e,visual=true){
@@ -45,6 +46,12 @@ export function revealMaritimeDecoy(e){
  const n=initMaritimeMotion(e);if(n.revealing)return;n.revealing=true;e.attackClock=Math.max(finite(e.attackClock),1.8);
 }
 export function maritimeReveal(e,visual=true){if(visual&&Number.isFinite(e?.visualMaritimeReveal))return e.visualMaritimeReveal;return e.profileId==='qship'?clamp(finite(e.naval?.reveal),0,1):1;}
+function stepDecoyReveal(e,n,dt){
+ n.disguiseAge+=dt;
+ if(n.disguiseAge>=1||e.hp<e.maxHp)revealMaritimeDecoy(e);
+ if(n.revealing)n.reveal=Math.min(1,n.reveal+dt/1.5);
+ e.movementPhase=n.reveal>=1?'guns-exposed':n.revealing?'revealing':'disguised';
+}
 const cruise=e=>e.profileId==='nachtwal'?7:e.profileId==='seeadler'?10:e.profileId==='qship'?9:12;
 function integrateVessel(e,n,dt,targetSpeed,targetHeading){
  const turn=e.profileId==='nachtwal'?.14:.065;
@@ -58,21 +65,25 @@ function integrateVessel(e,n,dt,targetSpeed,targetHeading){
 }
 /** Reserve an unoccupied water contact before its first visible frame.
  * Existing traffic never gets shoved aside by a newly materialised boss. */
-export function placeMaritimeContact(g,e,layout,x,y,commit=true){
+export function placeMaritimeContact(g,e,layout,x,y,commit=true,heading=e.a){
  const obstacles=surfaceTraffic(g).map(fleetHull);
  for(const b of g.stageBoss?.stages?.encounter?.bodies?.values?.()||[])if(!b.dead){const r=bossHullRect(b);if(r)obstacles.push(r);}
- const hull={w:layout.width*e.scale,h:layout.height*e.scale,yaw:e.a+Math.PI/2};
- const candidates=[0,-.22,.22,-.42,.42];
+ const hull={w:layout.width*e.scale,h:layout.height*e.scale,yaw:heading+Math.PI/2};
+ // Prefer a clear broadside flypast, then fall back to the center and wider contacts.
+ // Seeadler's forward mounts need more separation on narrow viewports.
+ const broadside=e.profileId==='seeadler'?Math.min(.42,164/e.width):.22;
+ const candidates=e.profileId==='nachtwal'?[0,-.22,.22,-.42,.42]:[broadside,-broadside,0,-.42,.42];
  for(const forward of [0,-.22,.22])for(const lateral of candidates){
   const dx=lateral*e.width,dy=forward*e.height;
-  const pose={...hull,x:x+Math.cos(e.a+Math.PI/2)*dx+Math.cos(e.a)*dy,y:y+Math.sin(e.a+Math.PI/2)*dx+Math.sin(e.a)*dy};
-  if(!obstacles.some(r=>hullOverlap(pose,r,24))){if(commit){e.x=pose.x;e.y=pose.y;e.contactPlaced=true;}return true;}
+  const pose={...hull,x:x+Math.cos(heading+Math.PI/2)*dx+Math.cos(heading)*dy,y:y+Math.sin(heading+Math.PI/2)*dx+Math.sin(heading)*dy};
+  if(!obstacles.some(r=>hullOverlap(pose,r,24))){if(commit){e.x=pose.x;e.y=pose.y;e.a=heading;e.contactPlaced=true;}return true;}
  }
  return false;
 }
 /** Entry and withdrawal retain vessel inertia, not a freeze→instant speed change. */
 export function stepMaritimeTransit(e,dt){
  const n=initMaritimeMotion(e);n.clock+=dt;
+ if(e.profileId==='qship'&&e.phase==='entering')stepDecoyReveal(e,n,dt);
  integrateVessel(e,n,dt,cruise(e),n.course);
 }
 /** Sinking hull retains momentum while the existing death fade removes it. */
@@ -83,12 +94,8 @@ export function stepMaritimeMotion(e,dt){
  if(!isMaritimeIntrusion(e)||e.phase!=='active')return false;
  const n=initMaritimeMotion(e);n.clock+=dt;n.phaseAge+=dt;
  let speed=cruise(e),heading=n.course+Math.sin(n.clock*.12)*(e.profileId==='seeadler'?.10:.16);
- if(e.profileId==='qship'){
-  n.disguiseAge+=dt;
-  if(n.disguiseAge>=3.5||e.hp<e.maxHp)revealMaritimeDecoy(e);
-  if(n.revealing)n.reveal=Math.min(1,n.reveal+dt/1.5);
-  e.movementPhase=n.reveal>=1?'guns-exposed':n.revealing?'revealing':'disguised';
- }else if(e.profileId==='nachtwal'){
+ if(e.profileId==='qship')stepDecoyReveal(e,n,dt);
+ else if(e.profileId==='nachtwal'){
   const control=e.parts.dive_control;
   if(control?.hp<=0&&['diving','submerged'].includes(n.phase))changePhase(e,'surfacing');
   if(n.phase==='surfaced'&&n.phaseAge>=8.5&&!(control?.hp<=0)){
@@ -109,41 +116,95 @@ export function stepMaritimeMotion(e,dt){
  integrateVessel(e,n,dt,speed,heading);
  return true;
 }
+function splashPoint(g,e,p,api){
+ if(!api.predictImpact)return p;
+ const forecast=api.predictImpact(g,e,p,SPLASH_WARNING);
+ if(e.profileId!=='nachtwal'||e.phase!=='entering')return forecast;
+ // Nachtwal can defend on the current bearing while that impact stays in
+ // view. Lead a narrow flypast so the warning remains ahead of the pilot.
+ if(!forecast||Math.abs(forecast.x-p.x)<e.width*.48&&Math.abs(forecast.y-p.y)<e.height*.48)return p;
+ return forecast;
+}
+// Prepare for the first legal visible shot, rather than chasing a bearing that
+// will be obsolete when the aircraft reaches this world-anchored vessel.
+function preparationPoint(g,e,p,gun,api){
+ const n=e.naval,heading=finite(p.a,-Math.PI/2),speed=finite(p.baseSpeed,p.speed||0)*finite(p.pilotFlightFraction,1);
+ const vx=finite(p.vx,Math.cos(heading)*speed),vy=finite(p.vy,Math.sin(heading)*speed);
+ let delay=e.profileId==='qship'?(1-finite(n?.reveal))*1.5+Math.max(0,1-finite(n?.disguiseAge)):0;
+ if(e.profileId==='nachtwal'&&n&&n.phase!=='surfaced')delay=n.phase==='diving'?Math.max(0,1.1-n.phaseAge)+4:n.phase==='submerged'?Math.max(0,2.8-n.phaseAge)+1.2:Math.max(0,1.2-n.phaseAge);
+ if(api.world){
+  const w=api.world(e,gun),shipSpeed=finite(n?.speed),relative=[Math.cos(e.a)*shipSpeed-vx,Math.sin(e.a)*shipSpeed-vy];
+  let entry=0,exit=Infinity;
+  for(const [i,d,half]of [[0,w.x-finite(g.x),e.width*.46],[1,w.y-finite(g.y),e.height*.46]]){
+   if(Math.abs(relative[i])<.001){if(Math.abs(d)>half)exit=-1;continue;}
+   const a=(-half-d)/relative[i],b=(half-d)/relative[i];entry=Math.max(entry,Math.min(a,b));exit=Math.min(exit,Math.max(a,b));
+  }
+  if(exit>=entry)delay=Math.max(delay,entry);
+ }
+ const lead=delay+(gun.kind==='anti_air'?0:SPLASH_WARNING);
+ return{x:p.x+vx*lead,y:p.y+vy*lead};
+}
+// Keep a stable cooperative target while slewing, but do not let an unreachable
+// pilot over the hull prevent a surviving broadside from engaging their partner.
+function maritimeTarget(g,e,layout,api){
+ const players=api.alive(g);if(!players.length)return null;
+ if(players.length===1)return players[0];
+ for(let i=0;i<players.length;i++){
+  const p=players[(e.volley+i)%players.length],splash=splashPoint(g,e,p,api);
+  for(const gun of layout.targets){
+   const part=e.parts[gun.id];if(!gun.muzzle||!(part?.hp>0)||e.profileId==='dreadnought'&&gun.kind==='anti_air'&&part.hp<=part.maxHp*.5)continue;
+   const impact=gun.kind==='anti_air'?p:splash;if(!impact)continue;
+   const target=api.local(e,impact.x,impact.y),m=gun.muzzle;
+   const delta=angle(Math.atan2(target.y-m.pivotY,target.x-m.pivotX)-m.angle);
+   if(Math.abs(delta)>m.arc)continue;
+   const c=Math.cos(delta),s=Math.sin(delta),muzzle={x:m.pivotX+(m.x-m.pivotX)*c-(m.y-m.pivotY)*s,y:m.pivotY+(m.x-m.pivotX)*s+(m.y-m.pivotY)*c};
+   if(!api.clear||api.clear(e,gun.id,muzzle,m.angle+delta))return p;
+  }
+ }
+ return players[e.volley%players.length];
+}
 /** Aiming follows a finite slew rate. A pending telegraph locks the owning gun. */
 export function aimMaritimeGuns(g,e,layout,dt,api){
- if(!isMaritimeIntrusion(e)||!maritimeAttackable(e)||!maritimeWeaponsReady(e))return;
- const players=api.alive(g);if(!players.length)return;
- const target=api.local(e,players[e.volley%players.length].x,players[e.volley%players.length].y);
- for(const gun of layout.targets.filter(t=>t.muzzle&&api.canFire(e,t.id))){
+ // Concealment/submersion gates discharge, not preparation of a surviving mount.
+ if(!isMaritimeIntrusion(e))return;
+ const player=maritimeTarget(g,e,layout,api);if(!player)return;
+ for(const gun of layout.targets.filter(t=>t.muzzle&&e.parts[t.id]?.hp>0)){
   if(e.shotCues.some(q=>q.partId===gun.id&&!q.done)||e.hazards.some(q=>q.sourcePartId===gun.id&&!q.done))continue;
+  const impact=preparationPoint(g,e,player,gun,api);
+  const target=api.local(e,impact.x,impact.y);
   const m=gun.muzzle,wanted=clamp(angle(Math.atan2(target.y-m.pivotY,target.x-m.pivotX)-m.angle),-m.arc,m.arc);
   const current=finite(e.turretAngles[gun.id]),speed=gun.kind==='anti_air'?1.35:.72;
-  e.turretAngles[gun.id]=current+clamp(wanted-current,-speed*dt,speed*dt);
+  e.turretAngles[gun.id]=api.initialPose?wanted:current+clamp(wanted-current,-speed*dt,speed*dt);
  }
 }
 /** Uses real authored muzzle/pivot data. No center-of-hull bullets or invisible underwater fire. */
 export function queueMaritimeAttack(g,e,layout,api){
  if(!isMaritimeIntrusion(e))return false;
  if(!maritimeAttackable(e)||!maritimeWeaponsReady(e))return false;
- const players=api.alive(g);if(!players.length)return false;
- const p=players[e.volley%players.length],target=api.local(e,p.x,p.y),before=e.hazards.length+e.shotCues.length;
+ const p=maritimeTarget(g,e,layout,api);if(!p)return false;
+ const before=e.hazards.length+e.shotCues.length;
+ const splash=splashPoint(g,e,p,api);
  const guns=layout.targets.filter(t=>t.muzzle&&api.canFire(e,t.id));
  const ordered=[...guns.slice(e.volley%Math.max(1,guns.length)),...guns.slice(0,e.volley%Math.max(1,guns.length))];let heavyQueued=false;
  for(const gun of ordered){
   // Alternating pairs leave a readable lane; destroyed guns never get replacement emitters.
-  if(gun.kind==='anti_air'&&gun.x*(e.volley%2?1:-1)<0)continue;
+  const aa=gun.kind==='anti_air';
+  if(aa&&gun.x*(e.volley%2?1:-1)<0)continue;
+  const impact=aa?p:splash;
+  if(!impact)continue;
+  const target=api.local(e,impact.x,impact.y);
   const available=e.parts[gun.id]?.state==='damaged'&&gun.damagedMuzzles?gun.damagedMuzzles:(gun.muzzles||[gun.muzzle]);if(!available.length)continue;
   const m=available[e.volley%available.length],d=finite(e.turretAngles[gun.id]);
   const desired=Math.atan2(target.y-m.pivotY,target.x-m.pivotX);
   if(Math.abs(angle(desired-(m.angle+d)))>.22)continue;
   const c=Math.cos(d),s=Math.sin(d),muzzle={x:m.pivotX+(m.x-m.pivotX)*c-(m.y-m.pivotY)*s,y:m.pivotY+(m.x-m.pivotX)*s+(m.y-m.pivotY)*c};
-  const a=m.angle+d,world=api.world(e,muzzle),aa=gun.kind==='anti_air';
+  const a=m.angle+d,world=api.world(e,muzzle);
   if(!api.visible(g,e,world)||!api.clear(e,gun.id,muzzle,a))continue;
   if(!aa){
    // Deck/main guns shell the sea, never emit horizontal anti-aircraft bullets.
    // Spray danger to low-flying aircraft is a disclosed arcade exaggeration.
    if(heavyQueued)continue;
-   if(api.visible(g,e,p)&&!e.hazards.some(h=>h.sourcePartId===gun.id&&!h.done)){heavyQueued=true;e.hazards.push({kind:'naval-splash',x:p.x,y:p.y,radius:34,age:0,warning:1.8,damage:17,sourcePartId:gun.id,localMuzzle:muzzle,localAngle:a,done:false});queueArtilleryMuzzle(g,{x:world.x,y:world.y,angle:a+e.a+Math.PI/2,scale:.9,heavy:true});}
+   if(!e.hazards.some(h=>h.sourcePartId===gun.id&&!h.done)){heavyQueued=true;e.hazards.push({kind:'naval-splash',x:impact.x,y:impact.y,radius:34,age:0,warning:SPLASH_WARNING,damage:17,sourcePartId:gun.id,localMuzzle:muzzle,localAngle:a,done:false});queueArtilleryMuzzle(g,{x:world.x,y:world.y,angle:a+e.a+Math.PI/2,scale:.9,heavy:true});}
    continue;
   }
   const spread=[-.09,0,.09];
@@ -153,7 +214,9 @@ export function queueMaritimeAttack(g,e,layout,api){
   e.shotCues.push({...world,localMuzzle:muzzle,localAngle:a,a:a+e.a+Math.PI/2,partId:gun.id,age:0,warning:aa?.8:1.2,damage:aa?10:19,speed:aa?285:235,offsets,done:false});
  }
  // Keep alternating targets/batteries, but reserve the full cooldown for real ordnance.
- e.volley++;return e.hazards.length+e.shotCues.length>before;
+ const queued=e.hazards.length+e.shotCues.length>before;
+ if(queued)e.volley++;
+ return queued;
 }
 export function maritimeAttackInterval(e){return e.profileId==='dreadnought'?2.15:e.profileId==='seeadler'?2.7:2.4;}
 export function maritimeTactic(e,locale='ko'){
