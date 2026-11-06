@@ -1,4 +1,4 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -112,17 +112,24 @@ export class CapitalBoss extends BaseBoss{
   if(!this.lastCapitalTarget){const p=ctx.players.find(p=>p.alive);if(p)this.lastCapitalTarget={...p,vx:0,vy:0};}
   return this.lastCapitalTarget;
  }
+ gunAim(p,target){
+  const q=capitalPartPose(this,p);
+  if(this.kind==='final-leviathan'){
+   const flight=clamp(Math.hypot(target.x-q.x,target.y-q.y)/this.t.bulletSpeed,.1,.85);
+   target=predictPilot(target,.8+flight);
+  }
+  return wrap(Math.atan2(target.y-q.y,target.x-q.x)+Math.PI/2-this.hullYaw);
+ }
  aimedGuns(ctx){
   const target=this.targetFor(ctx);if(!target)return [];
   return [...this.parts.values()].filter(p=>{
    if(p.kind!=='turret'||!live(p))return false;
-   const q=capitalPartPose(this,p),aim=wrap(Math.atan2(target.y-q.y,target.x-q.x)+Math.PI/2-this.hullYaw),relative=wrap(aim-p.baseAim);
+   const aim=this.gunAim(p,target),relative=wrap(aim-p.baseAim);
    return relative>=p.arc[0]+.04&&relative<=p.arc[1]-.04&&Math.abs(wrap(aim-p.angle))<.18;
   });
  }
  fireGuns(ctx){
-  const all=[...this.parts.values()].filter(p=>p.kind==='turret'&&live(p));if(!all.length)return false;
-  const guns=this.aimedGuns(ctx);if(!guns.length)return true;
+  const guns=this.aimedGuns(ctx);if(!guns.length)return false;
   const count=Math.min(2,guns.length),start=(this.gunCursor||0)%guns.length;this.gunCursor=start+count;
   for(let j=0;j<count;j++){
    const p=guns[(start+j)%guns.length],a=this.hullYaw+p.angle-Math.PI/2,delay=j*.22;
@@ -139,8 +146,10 @@ export class CapitalBoss extends BaseBoss{
  }
  special(ctx){
   const p=this.targetFor(ctx);if(!p)return;
-  const targetX=p.x+(p.vx||0)*.85,targetY=p.y+(p.vy||0)*.85,step=this.specialCursor||0;this.specialCursor=step+1;
+  const step=this.specialCursor||0;
+  const {x:targetX,y:targetY}=this.kind==='final-leviathan'?predictPilot(p,1.88):predictPilot({...p,omega:0},.85);
   if(this.kind==='final-kaiserkrone'){
+   this.specialCursor=step+1;
    const doors=[...this.parts.values()].filter(q=>q.kind==='door'&&live(q));if(!doors.length)return this.lastStand(ctx);
    doors.forEach(q=>q.hatchOpen=1);this.hatchUntil=(this.combatTime||0)+2.9;
    const mount=doors[step%doors.length],m=capitalPartPose(this,mount);
@@ -158,12 +167,14 @@ export class CapitalBoss extends BaseBoss{
    }
   }else{
    const decks=[...this.parts.values()].some(q=>q.kind==='fighter'&&live(q));
-   if(step%3===2&&decks){this.launchDeck(ctx);this.deckClock=Math.max(this.deckClock,11);return;}
+   if(step%3===2&&decks&&this.deckClock<=3){this.launchDeck(ctx);this.deckClock=11;this.specialCursor=step+1;return true;}
    const guns=this.aimedGuns(ctx),all=[...this.parts.values()].filter(q=>q.kind==='turret'&&live(q));
    if(!guns.length){
-    if(!all.length){if(decks){this.launchDeck(ctx);this.deckClock=Math.max(this.deckClock,11);}else this.lastStand(ctx);}
-    return;
+    if(all.length)return false;
+    if(decks){if(this.deckClock<=0){this.launchDeck(ctx);this.deckClock=11;}}else this.lastStand(ctx);
+    return true;
    }
+   this.specialCursor=step+1;
    const wing=guns.filter(q=>!/^(bow|stern)-gun$/.test(q.id)),main=guns.filter(q=>/^(bow|stern)-gun$/.test(q.id));
    if(step%3===1&&wing.length){
     // Each surviving wing battery commits its own physical sightline. The
@@ -189,6 +200,7 @@ export class CapitalBoss extends BaseBoss{
      this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceBarrelOffset:offset,kind:'circle',x:targetX+ux*i*145,y:targetY+uy*i*145,sourceX:m.x,sourceY:m.y,radius:70,warning:1.6,delay:(i+1)*.28,duration:.2,once:true,damage:this.t.damage*.9,visual:'black-flak',ordnanceFamily:'he',tag:this.id+':salvo'});
     }
    }
+   return true;
   }
  }
 
@@ -233,7 +245,12 @@ export class CapitalBoss extends BaseBoss{
    if(p.kind==='door'&&combatNow>(this.hatchUntil||0))p.hatchOpen=Math.max(0,p.hatchOpen-dt*1.8);
    if(p.kind==='fighter')p.launchAge=Math.min(3,(p.launchAge??3)+dt);
    if(p.kind==='turret'&&live(p)&&combatNow<(p.aimHoldUntil||0)&&Number.isFinite(p.aimHoldAngle))p.angle=p.baseAim+clamp(wrap(p.aimHoldAngle+Math.PI/2-this.hullYaw-p.baseAim),p.arc[0],p.arc[1]);
-   if(p.kind==='turret'&&live(p)&&combatNow>=(p.aimHoldUntil||0)&&target){const q=capitalPartPose(this,p),aim=wrap(Math.atan2(target.y-q.y,target.x-q.x)+Math.PI/2-this.hullYaw),relative=clamp(wrap(aim-p.baseAim),p.arc[0],p.arc[1]);p.angle=turn(p.angle,p.baseAim+relative,dt*(this.parts.get('command-cabin')?.hp<=0?.38:.75));}
+   if(p.kind==='turret'&&live(p)&&combatNow>=(p.aimHoldUntil||0)&&target){
+    const relative=clamp(wrap(this.gunAim(p,target)-p.baseAim),p.arc[0],p.arc[1]);
+    const damaged=this.parts.get('command-cabin')?.hp<=0;
+    const slew=this.kind==='final-leviathan'?(damaged?.65:1.3):(damaged?.38:.75);
+    p.angle=turn(p.angle,p.baseAim+relative,dt*slew);
+   }
   }this.syncParts();
   if(this.entryLeft>0){this.phase='capital-entry';return;}
   const fraction=this.hp/this.maxHp,next=fraction<=.33?3:fraction<=.66?2:1;
@@ -245,8 +262,17 @@ export class CapitalBoss extends BaseBoss{
   if(this.recoveryLeft>0)return;
   const suppressed=ctx.capitalDefenseSuppressed?1.2:1;
   this.attackClock-=dt;this.specialClock-=dt;this.deckClock-=dt;
-  if(this.attackClock<=0){this.attackClock=(next===3?2.2:2.8)*suppressed;if(!this.fireGuns(ctx)){if(this.kind==='final-leviathan'&&[...this.parts.values()].some(p=>p.kind==='fighter'&&live(p)))this.deckClock=Math.min(this.deckClock,0);else this.lastStand(ctx);}}
-  if(this.specialClock<=0){this.specialClock=(next===3?7:9)*suppressed;this.special(ctx);this.attackClock=Math.max(this.attackClock,2.5);}
+  if(this.attackClock<=0){
+   const hasGuns=[...this.parts.values()].some(p=>p.kind==='turret'&&live(p));
+   this.attackClock=(next===3?2.2:2.8)*suppressed;
+   if(hasGuns){
+    if(!this.fireGuns(ctx)&&this.kind==='final-leviathan')this.attackClock=.18;
+   }else if(this.kind!=='final-leviathan'||![...this.parts.values()].some(p=>p.kind==='fighter'&&live(p)))this.lastStand(ctx);
+  }
+  if(this.specialClock<=0){
+   if(this.special(ctx)===false)this.specialClock=.25;
+   else{this.specialClock=(next===3?7:9)*suppressed;this.attackClock=Math.max(this.attackClock,2.5);}
+  }
   if(this.deckClock<=0){this.deckClock=11;this.launchDeck(ctx);}
  }
 }

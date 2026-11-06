@@ -5,6 +5,7 @@ export const CAPITAL_TERRAIN_SOURCES=Object.freeze({
  11:'./terrain-capital-london-20261031.webp',
  18:'./terrain-capital-berlin-20261031.webp'
 });
+const LONDON_BOROUGH_ART='./terrain-city-london96.webp';
 const baseColor=region=>region===11?'#232a36':'#45514d';
 const createCanvas=(width,height)=>{
  const canvas=typeof OffscreenCanvas==='function'?new OffscreenCanvas(width,height):document.createElement('canvas');
@@ -23,6 +24,23 @@ function joinTerrainEdges(canvas,border){
  g.putImageData(image,0,0);
 }
 
+function paintBoroughs(tile,image,makeCanvas){
+ const w=tile.width,h=tile.height,variant=makeCanvas(w,h),ctx=variant.getContext('2d');
+ ctx.drawImage(tile,0,0);
+ for(const [sy,sh,y,dh] of [[.015,.31,.045,.325],[.69,.295,.655,.30]]){
+  const pw=Math.round(w*.84),ph=Math.round(h*dh),panel=makeCanvas(pw,ph),q=panel.getContext('2d');
+  q.drawImage(image,image.naturalWidth*.08,image.naturalHeight*sy,image.naturalWidth*.84,image.naturalHeight*sh,0,0,pw,ph);
+  q.globalCompositeOperation='destination-in';
+  for(const [x,v] of [[pw,0],[0,ph]]){
+   const fade=q.createLinearGradient(0,0,x,v);
+   for(const [offset,alpha] of [[0,0],[.06,.16],[.18,1],[.82,1],[.94,.16],[1,0]])fade.addColorStop(offset,'rgba(0,0,0,'+alpha+')');
+   q.fillStyle=fade;q.fillRect(0,0,pw,ph);
+  }
+  ctx.drawImage(panel,Math.round(w*.08),Math.round(h*y));
+ }
+ return variant;
+}
+
 export class CapitalTerrainRenderer{
  constructor({imageFactory=()=>typeof Image==='undefined'?null:new Image(),canvasFactory=createCanvas}={}){
   this.imageFactory=imageFactory;this.canvasFactory=canvasFactory;this.entries=new Map();
@@ -31,13 +49,20 @@ export class CapitalTerrainRenderer{
   const source=CAPITAL_TERRAIN_SOURCES[region];if(!source)return Promise.resolve(false);
   if(this.entries.has(region))return this.entries.get(region).ready;
   const image=this.imageFactory();if(!image)return Promise.resolve(false);
-  const entry={image,tile:null,ready:null};
+  const entry={image,tile:null,variant:null,ready:null};
   entry.ready=new Promise(resolve=>{
    image.onload=()=>Promise.resolve(image.decode?.()).catch(()=>{}).then(()=>{
     if(!image.naturalWidth){resolve(false);return;}
     const tile=this.canvasFactory(image.naturalWidth,image.naturalHeight),g=tile.getContext('2d');
-    g.drawImage(image,0,0);joinTerrainEdges(tile,4);
-    entry.tile=tile;resolve(true);
+    g.drawImage(image,0,0);joinTerrainEdges(tile,region===11?18:4);
+    entry.tile=tile;
+    const boroughs=region===11&&typeof g.createLinearGradient==='function'?this.imageFactory():null;
+    if(!boroughs){resolve(true);return;}
+    boroughs.onload=()=>Promise.resolve(boroughs.decode?.()).catch(()=>{}).then(()=>{
+     if(boroughs.naturalWidth)entry.variant=paintBoroughs(tile,boroughs,this.canvasFactory);
+     resolve(true);
+    });
+    boroughs.onerror=()=>resolve(true);boroughs.decoding='async';boroughs.src=LONDON_BOROUGH_ART;
    });
    image.onerror=()=>resolve(false);
   });
@@ -51,13 +76,12 @@ export class CapitalTerrainRenderer{
   const tile=entry?.tile;
   if(tile){
    const size=CAPITAL_TERRAIN_SIZE,left=cx-width/2,top=cy-height/2;
-   // 2x upscale every frame: bilinear ('low') looks the same here and avoids the costly
-   // high-quality resampler on every blit.
-   context.imageSmoothingEnabled=true;context.imageSmoothingQuality='low';
+   // Keep the heavier interpolation out of the shared Berlin renderer.
+   context.imageSmoothingEnabled=true;context.imageSmoothingQuality=region===11?'medium':'low';
    for(let row=Math.floor(top/size);row*size<top+height;row++)for(let col=Math.floor(left/size);col*size<left+width;col++){
     // Integer world anchors plus a single pixel overlap avoid raster gaps at
     // positive and negative coordinates without reversing buildings or rivers.
-    context.drawImage(tile,Math.floor(col*size-left),Math.floor(row*size-top),size+1,size+1);
+    context.drawImage(((row+col)%2&&entry.variant)||tile,Math.floor(col*size-left),Math.floor(row*size-top),size+1,size+1);
    }
   }
   context.restore();return !!tile;

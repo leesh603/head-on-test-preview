@@ -20,8 +20,10 @@ function artwork(im){
  if(!cv)return im;
  cv.width=im.naturalWidth;cv.height=im.naturalHeight;
  const q=cv.getContext('2d');q.drawImage(im,0,0);q.globalCompositeOperation='destination-in';
+ // Blend the full width of the bordering woodland, leaving the gun, revetments
+ // and their service road at full opacity around the actual foundation.
  for(const [x,y] of [[cv.width,0],[0,cv.height]]){
-  const fade=q.createLinearGradient(0,0,x,y);fade.addColorStop(0,'#0000');fade.addColorStop(.045,'#000');fade.addColorStop(.955,'#000');fade.addColorStop(1,'#0000');q.fillStyle=fade;q.fillRect(0,0,cv.width,cv.height);
+  const fade=q.createLinearGradient(0,0,x,y);for(const [offset,alpha] of [[0,0],[.03,.07],[.08,.48],[.16,1],[.86,1],[.94,.42],[.98,.06],[1,0]])fade.addColorStop(offset,'rgba(0,0,0,'+alpha+')');q.fillStyle=fade;q.fillRect(0,0,cv.width,cv.height);
  }
  q.globalCompositeOperation='source-over';source=im;patch=cv;return patch;
 }
@@ -30,7 +32,7 @@ export function paintLaonTerrain(c,g,cx,cy,width,height,art=images){
  if(!origin||![art.map,art.forest].every(ready)||typeof c.createPattern!=='function')return false;
  const a=LAON_GROUND,left=cx-width/2-origin.x,top=cy-height/2-origin.y,patchLeft=-a.foundationX/a.sourceWidth*a.size,patchTop=-a.foundationY/a.sourceHeight*a.size;
  if(forestSource!==art.forest){forestSource=art.forest;patterns=new WeakMap();}
- if(!patterns.has(c)){const p=c.createPattern(art.forest,'repeat');p.setTransform({a:a.size/art.forest.naturalWidth,b:0,c:0,d:a.size/art.forest.naturalHeight,e:0,f:0});patterns.set(c,p);}
+ if(!patterns.has(c)){const p=c.createPattern(art.forest,'repeat');p.setTransform({a:a.size/art.forest.naturalWidth,b:0,c:0,d:a.size/art.forest.naturalHeight,e:patchLeft+a.size*.31,f:patchTop+a.size*.24});patterns.set(c,p);}
  c.save();c.beginPath();c.rect(0,0,width,height);c.clip();c.translate(-left,-top);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
  c.fillStyle=patterns.get(c);c.fillRect(left,top,width,height);
  // One railhead, one artillery clearing. Outside it only forest repeats.

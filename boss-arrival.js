@@ -71,7 +71,7 @@ function formationArrival(encounter,bodies,frame){
 // Set the flight's destination once, in the same moving airspace the player
 // will occupy at release. Translate native anchors too; never drag the camera.
 function positionAirArrival(encounter,bodies,frame){
- const ids=['siemens-schuckert-r-viii','supermarine-nighthawk','staaken-rvi','paris-staaken-rvi','gik','ca4','zeppelin-l70','hma23'];
+ const ids=['siemens-schuckert-r-viii','supermarine-nighthawk','staaken-rvi','paris-staaken-rvi','gik','ca4','zeppelin-l70','hma23','final-leviathan'];
  if(!ids.includes(encounter.bossId))return;
  const p=frame.players?.find(p=>p.alive!==false);if(!p)return;
  const vx=p.vx||0,vy=p.vy||0,speed=Math.hypot(vx,vy),scale=Math.min(1,400/Math.max(1,speed));
@@ -145,7 +145,11 @@ export function tickBossArrival(addon,encounter,dt,frame){
  }
  if(pending)return true;
  encounter.arrivalPending=false;
- for(const body of encounter.bodies.values()){body.arrivalPending=false;delete body.arrivalPath;}
+ for(const body of encounter.bodies.values()){
+  body.arrivalPending=false;delete body.arrivalPath;
+  // The rendered fly-in has already provided the Leviathan's warning window.
+  if(body.kind==='final-leviathan')body.entryLeft=Math.min(body.entryLeft,.55);
+ }
  const queued=addon.arrivalQueue||[];addon.arrivalQueue=[];
  for(const [event,id,tuning] of queued)addon.accept(event,id,tuning);
  return true;
