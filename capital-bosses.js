@@ -128,8 +128,8 @@ export class CapitalBoss extends BaseBoss{
    return relative>=p.arc[0]+.04&&relative<=p.arc[1]-.04&&Math.abs(wrap(aim-p.angle))<.18;
   });
  }
- fireGuns(ctx){
-  const guns=this.aimedGuns(ctx);if(!guns.length)return false;
+ fireGuns(ctx,guns=this.aimedGuns(ctx)){
+  if(!guns.length)return [...this.parts.values()].some(p=>p.kind==='turret'&&live(p));
   const count=Math.min(2,guns.length),start=(this.gunCursor||0)%guns.length;this.gunCursor=start+count;
   for(let j=0;j<count;j++){
    const p=guns[(start+j)%guns.length],a=this.hullYaw+p.angle-Math.PI/2,delay=j*.22;
@@ -167,11 +167,11 @@ export class CapitalBoss extends BaseBoss{
    }
   }else{
    const decks=[...this.parts.values()].some(q=>q.kind==='fighter'&&live(q));
-   if(step%3===2&&decks&&this.deckClock<=3){this.launchDeck(ctx);this.deckClock=11;this.specialCursor=step+1;return true;}
+   if(step%3===2&&decks){this.launchDeck(ctx);this.deckClock=11;this.specialCursor=step+1;return true;}
    const guns=this.aimedGuns(ctx),all=[...this.parts.values()].filter(q=>q.kind==='turret'&&live(q));
    if(!guns.length){
     if(all.length)return false;
-    if(decks){if(this.deckClock<=0){this.launchDeck(ctx);this.deckClock=11;}}else this.lastStand(ctx);
+    if(decks){this.launchDeck(ctx);this.deckClock=Math.max(this.deckClock,11);}else this.lastStand(ctx);
     return true;
    }
    this.specialCursor=step+1;
@@ -266,8 +266,11 @@ export class CapitalBoss extends BaseBoss{
    const hasGuns=[...this.parts.values()].some(p=>p.kind==='turret'&&live(p));
    this.attackClock=(next===3?2.2:2.8)*suppressed;
    if(hasGuns){
-    if(!this.fireGuns(ctx)&&this.kind==='final-leviathan')this.attackClock=.18;
-   }else if(this.kind!=='final-leviathan'||![...this.parts.values()].some(p=>p.kind==='fighter'&&live(p)))this.lastStand(ctx);
+    const guns=this.aimedGuns(ctx);
+    if(guns.length)this.fireGuns(ctx,guns);
+    else if(this.kind==='final-leviathan')this.attackClock=.18;
+   }else if(this.kind==='final-leviathan'&&[...this.parts.values()].some(p=>p.kind==='fighter'&&live(p)))this.deckClock=Math.min(this.deckClock,0);
+   else this.lastStand(ctx);
   }
   if(this.specialClock<=0){
    if(this.special(ctx)===false)this.specialClock=.25;

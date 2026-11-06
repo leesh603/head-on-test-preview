@@ -142,7 +142,7 @@ function aimAirGuns(g,e,dt){
  const ps=alive(g);if(!ps.length)return;
  const target=airGunTarget(e,ps[e.volley%ps.length]);
  for(const gun of intrusionLayout(e.profileId).targets){
-  if(!gun.muzzle||!intrusionPartCanFire(e,gun.id)||e.shotCues.some(q=>q.partId===gun.id&&!q.done))continue;
+  if(!gun.muzzle||!intrusionPartCanFire(e,gun.id)||e.shotCues.some(q=>q.partId===gun.id))continue;
   const m=gun.muzzles?.[e.volley%gun.muzzles.length]||gun.muzzle;
   const aim=Math.atan2(target.y-m.y,target.x-m.x),diff=Math.atan2(Math.sin(aim-m.angle),Math.cos(aim-m.angle));
   const desired=clamp(diff,-m.arc,m.arc),current=finite(e.turretAngles[gun.id]);
@@ -157,11 +157,11 @@ function combat(g,e,dt){
   if(!intrusionPartCanFire(e,q.partId)){q.done=true;q.age=last+.2;continue;}
   if(q.localMuzzle){Object.assign(q,intrusionWorldPoint(e,q.localMuzzle));q.a=q.localAngle+e.a+Math.PI/2;}
   q.age+=dt;
-  if(q.done||q.age<q.warning+(q.fired||0)*.14)continue;
-  q.fired=(q.fired||0)+1;q.done=q.fired>=count;
+  if((q.fired||0)>=count||q.age<q.warning+(q.fired||0)*.14)continue;
+  q.fired=(q.fired||0)+1;q.done=true;
   if(!visible(g,e,q)||!ownBodyClear(e,q.partId,q.localMuzzle,q.localAngle))continue;
   let fired=false;
-  for(const offset of q.offsets||[(q.fired-1-(count-1)/2)*.055]){
+  for(const offset of q.offsets||[0]){
    if(!ownBodyClear(e,q.partId,q.localMuzzle,q.localAngle+offset))continue;
    (g.bullets||=[]).push({x:q.x,y:q.y,vx:Math.cos(q.a+offset)*(q.speed||270),vy:Math.sin(q.a+offset)*(q.speed||270),life:2.5,enemy:true,visualType:'boss',damage:q.damage,intrusionEncounterId:e.encounterId,encounterId:e.encounterId,sourceBossId:e.profileId,sourcePartId:q.partId});
    fired=true;
