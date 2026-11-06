@@ -1,9 +1,10 @@
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=gal1&phoneperf=20261103';
 // One authored Paris district. Scenery never owns combat coordinates or RNG.
 // The surrounding city and Seine continue outside it; landmarks appear once.
 export const PARIS_GROUND=Object.freeze({width:3200,left:-1600,top:-1700,bottom:1824,plaza:{x:-672,y:-790,w:1344,h:660},river:{north:500,south:800},hospital:{x:-780,y:330,w:488,h:352},rail:{x:680,y:230,w:552,h:328}});
 const bands=Object.freeze([[0,.22,-1700,-790],[.22,.39,-790,-130],[.39,.59,-130,500],[.59,.75,500,800],[.75,1,800,1824]]);
-let source=null,citySource=null,district=null,river=null,cityPatterns=new WeakMap();
-export function releaseParisTerrain(){source=null;citySource=null;district=null;river=null;cityPatterns=new WeakMap();}
+let source=null,citySource=null,cityTile=null,district=null,river=null,cityPatterns=new WeakMap();
+export function releaseParisTerrain(){source=null;citySource=null;cityTile=null;district=null;river=null;cityPatterns=new WeakMap();}
 const ready=im=>im?.complete&&im.naturalWidth>0;
 function canvas(w,h){
  const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):globalThis.document?.createElement?.('canvas');
@@ -24,17 +25,24 @@ function artwork(im){
  if(source===im)return true;
  const d=canvas(im.naturalWidth,im.naturalHeight),r=canvas(Math.round(im.naturalWidth*.13),Math.round(im.naturalHeight*.16));
  if(!d||!r)return false;
- const q=d.getContext('2d');q.drawImage(im,0,0);feather(q,d.width,d.height,.09,.075);
+ const q=d.getContext('2d');q.filter='saturate(.72) contrast(.87)';q.drawImage(im,0,0);q.filter='none';feather(q,d.width,d.height,.09,.075);
  // A quiet bank segment contains no bridge, plaza, hospital or station.
- const rc=r.getContext('2d');rc.drawImage(im,im.naturalWidth*.855,im.naturalHeight*.59,im.naturalWidth*.13,im.naturalHeight*.16,0,0,r.width,r.height);
+ const rc=r.getContext('2d');rc.filter='saturate(.72) contrast(.87)';rc.drawImage(im,im.naturalWidth*.855,im.naturalHeight*.59,im.naturalWidth*.13,im.naturalHeight*.16,0,0,r.width,r.height);rc.filter='none';
  feather(rc,r.width,r.height,0,.09);
  source=im;district=d;river=r;return true;
 }
 export function paintParisTerrain(c,g,cx,cy,w,h,images){
  const origin=g?.parisBattle?.origin;
  if(!origin||![images.map,images.surround].every(ready)||typeof c.createPattern!=='function'||!artwork(images.map))return false;
- if(citySource!==images.surround){citySource=images.surround;cityPatterns=new WeakMap();}
- if(!cityPatterns.has(c)){const p=c.createPattern(citySource,'repeat');p.setTransform({a:3200/1254,b:0,c:0,d:3200/1254,e:0,f:0});cityPatterns.set(c,p);}
+ if(citySource!==images.surround){
+  citySource=images.surround;cityPatterns=new WeakMap();
+  cityTile=canvas(citySource.naturalWidth,citySource.naturalHeight);
+  const q=cityTile.getContext('2d');q.filter='saturate(.58) brightness(.69) contrast(.90)';q.drawImage(citySource,0,0);q.filter='none';
+ }
+ if(!cityPatterns.has(c)){
+  const p=c.createPattern(cityTile,'repeat'),s=1152/cityTile.width;
+  p.setTransform({a:s,b:0,c:0,d:s,e:0,f:0});cityPatterns.set(c,p);
+ }
  const left=cx-w/2-origin.x,top=cy-h/2-origin.y,ground=PARIS_GROUND;
  c.save();c.beginPath();c.rect(0,0,w,h);c.clip();c.translate(-left,-top);
  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
@@ -56,6 +64,6 @@ export function paintParisTerrain(c,g,cx,cy,w,h,images){
    c.drawImage(district,0,a*district.height,district.width,(b-a)*district.height,ground.left,y0,ground.width,y1-y0);
   }
  }
- c.restore();return true;
+ c.restore();applyTerrainAtmosphere(c,'london',w,h);return true;
 }
 

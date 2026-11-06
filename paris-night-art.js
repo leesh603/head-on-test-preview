@@ -8,7 +8,7 @@ import {paintParisTerrain,releaseParisTerrain} from './paris-terrain.js?v=paris2
 let images={};
 export function releaseParisArt(){images={};releaseParisTerrain();}
 export function prepareParisArt(){
- return Promise.all([['map','paris-city-1918-20261101.webp'],['surround','terrain-london359r2.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp?v=bomber-style20261024'],['staakenWreck','paris-staaken-wreck-camo-20261030.webp'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp?v=bomber-style20261024'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
+ return Promise.all([['map','paris-city-1918-20261101.webp'],['surround','terrain-city359.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp?v=bomber-style20261024'],['staakenWreck','paris-staaken-wreck-camo-20261030.webp'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp?v=bomber-style20261024'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=r5&b=city4';
  })));
 }

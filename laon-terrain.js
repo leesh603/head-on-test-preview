@@ -1,3 +1,4 @@
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=gal1&phoneperf=20261103';
 // Authored Laon woodland emplacement, anchored to the actual gun foundation.
 // This renderer owns scenery only: no RNG, camera, collision or mission clock.
 export const LAON_GROUND=Object.freeze({size:1536,sourceWidth:1254,sourceHeight:1254,foundationX:625,foundationY:820});
@@ -19,7 +20,7 @@ function artwork(im){
  const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(im.naturalWidth,im.naturalHeight):globalThis.document?.createElement?.('canvas');
  if(!cv)return im;
  cv.width=im.naturalWidth;cv.height=im.naturalHeight;
- const q=cv.getContext('2d');q.drawImage(im,0,0);q.globalCompositeOperation='destination-in';
+ const q=cv.getContext('2d');q.filter='saturate(.74) contrast(.87)';q.drawImage(im,0,0);q.filter='none';q.globalCompositeOperation='destination-in';
  // Blend the full width of the bordering woodland, leaving the gun, revetments
  // and their service road at full opacity around the actual foundation.
  for(const [x,y] of [[cv.width,0],[0,cv.height]]){
@@ -37,5 +38,5 @@ export function paintLaonTerrain(c,g,cx,cy,width,height,art=images){
  c.fillStyle=patterns.get(c);c.fillRect(left,top,width,height);
  // One railhead, one artillery clearing. Outside it only forest repeats.
  if(left<patchLeft+a.size&&left+width>patchLeft&&top<patchTop+a.size&&top+height>patchTop)c.drawImage(artwork(art.map),patchLeft,patchTop,a.size,a.size);
- c.restore();return true;
+ c.restore();applyTerrainAtmosphere(c,'rural',width,height);return true;
 }

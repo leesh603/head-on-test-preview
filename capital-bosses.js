@@ -128,6 +128,20 @@ export class CapitalBoss extends BaseBoss{
    return relative>=p.arc[0]+.04&&relative<=p.arc[1]-.04&&Math.abs(wrap(aim-p.angle))<.18;
   });
  }
+ fireWingWaves(p,a,delay){
+  const late=this.capitalPhase===3, waves=late?3:2, width=late?4:3;
+  const side=this.gunCursor%2?1:-1,m=capitalMuzzle(this,p,a);
+  this.emit({type:'charge-warning',bossId:this.id,partId:p.id,x:m.x,y:m.y,targetX:m.x+Math.cos(a)*760,targetY:m.y+Math.sin(a)*760,seconds:.85+delay});
+  for(let wave=0;wave<waves;wave++)for(let lane=-width;lane<=width;lane++){
+   // The opening shifts one lane between waves. Each group still leaves
+   // a gap wide enough for the pilot to cross the advancing front.
+   if(lane===(wave%2?side:-side))continue;
+   const angle=a+lane*.105, speed=this.t.bulletSpeed*(1.12+wave*.11);
+   this.emit({type:'hazard',bossId:this.id,sourcePartId:p.id,sourceAngle:a,kind:'projectile',x:m.x,y:m.y,
+    vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,radius:7,warning:.85,delay:delay+wave*.32,duration:3.2,
+    damage:this.t.damage*.65,visual:'aa-shell',ordnanceFamily:'he',tag:this.id+':wing-wave'});
+  }
+ }
  fireGuns(ctx,guns=this.aimedGuns(ctx)){
   if(!guns.length)return [...this.parts.values()].some(p=>p.kind==='turret'&&live(p));
   const count=Math.min(2,guns.length),start=(this.gunCursor||0)%guns.length;this.gunCursor=start+count;
@@ -135,6 +149,11 @@ export class CapitalBoss extends BaseBoss{
    const p=guns[(start+j)%guns.length],a=this.hullYaw+p.angle-Math.PI/2,delay=j*.22;
    p.aimHoldUntil=(this.combatTime||0)+1+delay;p.aimHoldAngle=a;
    const main=this.kind==='final-leviathan'&&/^(bow|stern)-gun$/.test(p.id),barrel=this.parts.get(p.id+'-barrel');
+   if(this.kind==='final-leviathan'&&ctx.bounds&&!main){
+    p.aimHoldUntil=(this.combatTime||0)+1.6+delay;
+    this.fireWingWaves(p,a,delay);
+    continue;
+   }
    const offsets=main?(source(this,barrel)?.barrelOffsets||[-10,10]):[0];
    for(const offset of offsets){
     const m=capitalMuzzle(this,p,a,offset);
@@ -223,22 +242,40 @@ export class CapitalBoss extends BaseBoss{
   if(this.dead)return;
   this.entryLeft=Math.max(0,this.entryLeft-dt);this.recoveryLeft=Math.max(0,this.recoveryLeft-dt);
   const engines=[...this.parts.values()].filter(p=>p.kind==='engine'),power=engines.filter(live).length/engines.length;
-  const now=this.motionTime||0,combatNow=this.combatTime||0;
+  const now=this.motionTime||0,combatNow=this.combatTime||0,target=this.targetFor(ctx);
+  const maneuver=this.kind==='final-leviathan'&&ctx.bounds&&target;
   if(power>0){
    const airship=this.kind==='final-kaiserkrone',port=engines.filter(p=>/^port/.test(p.id)&&live(p)).length,starboard=engines.filter(p=>/^starboard/.test(p.id)&&live(p)).length;
-   const heading=Math.sin(now*(airship?.12:.18))*(airship?.23:.4)+(port-starboard)*.025;
+   let heading=Math.sin(now*(airship?.12:.18))*(airship?.23:.4)+(port-starboard)*.025;
+   let speed=airship?30:49,turnLimit=airship?.045:.075,acceleration=airship?9:15;
+   if(maneuver){
+    const pursuit=predictPilot(target,1.12),dx=pursuit.x-this.x,dy=pursuit.y-this.y,distance=Math.hypot(dx,dy);
+    const {left,right,top,bottom}=ctx.bounds,station=clamp(Math.min(right-left,bottom-top)*.53,235,400);
+    this.passSide??=dx>=0?1:-1;
+    // Fly a broadside arc nearby and cut back toward the fight if a pilot
+    // leaves it. The hull never follows the camera's position directly.
+    const arc=clamp(Math.PI/2-(distance-station)/station*2.3,0,2.27);
+    heading=Math.atan2(dy,dx)+Math.PI/2+this.passSide*arc+(port-starboard)*.035;
+    const pilotSpeed=Math.hypot(target.vx||0,target.vy||0),closing=distance>station*1.38;
+    speed=clamp(Math.max(104+this.capitalPhase*13,pilotSpeed*(closing?1.23:.86)),104,232);
+    const alignment=Math.abs(wrap(heading-this.hullYaw));
+    speed*=1-.55*clamp((alignment-.42)/1.38,0,1);
+    if(this.recoveryLeft>0)speed*=.78;
+    turnLimit=combatNow<(this.leviathanVolleyUntil||0)?.29:.56;
+    acceleration=58;
+   }
    // Heavy hulls build speed and turn rate instead of instantly entering a
    // full-speed sine weave. Translation always follows the visible nose.
-   const maxTurn=(airship?.045:.075)*power,desiredTurn=clamp(wrap(heading-this.hullYaw)*.65,-maxTurn,maxTurn);
-   this.capitalTurnRate=(this.capitalTurnRate||0)+clamp(desiredTurn-(this.capitalTurnRate||0),-maxTurn*dt,maxTurn*dt);
+   const maxTurn=turnLimit*power,desiredTurn=clamp(wrap(heading-this.hullYaw)*(maneuver?1.1:.65),-maxTurn,maxTurn);
+   const turnAccel=maxTurn*dt*(maneuver?2.4:1);
+   this.capitalTurnRate=(this.capitalTurnRate||0)+clamp(desiredTurn-(this.capitalTurnRate||0),-turnAccel,turnAccel);
    this.hullYaw+=this.capitalTurnRate*dt;
-   const targetSpeed=(airship?30:49)*power,acceleration=airship?9:15;
+   const targetSpeed=speed*power;
    this.capitalSpeed=(this.capitalSpeed||0)+clamp(targetSpeed-(this.capitalSpeed||0),-acceleration*dt,acceleration*dt);
    this.x+=Math.sin(this.hullYaw)*this.capitalSpeed*dt;this.y-=Math.cos(this.hullYaw)*this.capitalSpeed*dt;
   }else{
    this.capitalSpeed=0;this.capitalTurnRate=0;
   }
-  const target=this.targetFor(ctx);
   for(const p of this.parts.values()){
    p.recoil=Math.max(0,p.recoil-dt);p.gunFlash=Math.max(0,(p.gunFlash||0)-dt);
    if(p.kind==='propeller'&&live(this.parts.get(p.parent))&&!p.disabled)p.propellerAngle+=dt*(source(this,p)?.speed||24);
@@ -255,9 +292,9 @@ export class CapitalBoss extends BaseBoss{
   if(this.entryLeft>0){this.phase='capital-entry';return;}
   const fraction=this.hp/this.maxHp,next=fraction<=.33?3:fraction<=.66?2:1;
   if(next!==this.capitalPhase){this.capitalPhase=next;this.recoveryLeft=Math.max(this.recoveryLeft,2.2);this.emit({type:'phase-change',bossId:this.id,phase:'capital-phase-'+next});}
-  if(fraction<=.5&&!this.acePairRequested){this.acePairRequested=true;this.recoveryLeft=Math.max(this.recoveryLeft,5);this.aceWaitUntil=combatNow+5;this.emit({type:'capital-ace-pair',bossId:this.id,faction:this.faction,x:this.x,y:this.y});}
-  if(ctx.capitalAcesAlive>0&&combatNow<(this.aceWaitUntil||0)+22){this.recoveryLeft=Math.max(this.recoveryLeft,.12);this.phase='capital-ace-cover';return;}
-  this.recoveryClock-=dt;if(this.recoveryClock<=0){this.recoveryClock=13;this.recoveryLeft=Math.max(this.recoveryLeft,2.3);}
+  if(fraction<=.5&&!this.acePairRequested){this.acePairRequested=true;const cover=this.kind==='final-leviathan'?3.2:5;this.recoveryLeft=Math.max(this.recoveryLeft,cover);this.aceWaitUntil=combatNow+cover;this.emit({type:'capital-ace-pair',bossId:this.id,faction:this.faction,x:this.x,y:this.y});}
+  if(ctx.capitalAcesAlive>0&&combatNow<(this.aceWaitUntil||0)+(this.kind==='final-leviathan'?0:22)){this.recoveryLeft=Math.max(this.recoveryLeft,.12);this.phase='capital-ace-cover';return;}
+  this.recoveryClock-=dt;if(this.recoveryClock<=0){this.recoveryClock=13;this.recoveryLeft=Math.max(this.recoveryLeft,this.kind==='final-leviathan'?1.55:2.3);}
   this.phase=this.recoveryLeft>0?'capital-recovery':'capital-phase-'+next;
   if(this.recoveryLeft>0)return;
   const suppressed=ctx.capitalDefenseSuppressed?1.2:1;
@@ -267,7 +304,10 @@ export class CapitalBoss extends BaseBoss{
    this.attackClock=(next===3?2.2:2.8)*suppressed;
    if(hasGuns){
     const guns=this.aimedGuns(ctx);
-    if(guns.length)this.fireGuns(ctx,guns);
+    if(guns.length){
+     this.fireGuns(ctx,guns);
+     if(maneuver)this.leviathanVolleyUntil=combatNow+1.6;
+    }
     else if(this.kind==='final-leviathan')this.attackClock=.18;
    }else if(this.kind==='final-leviathan'&&[...this.parts.values()].some(p=>p.kind==='fighter'&&live(p)))this.deckClock=Math.min(this.deckClock,0);
    else this.lastStand(ctx);
