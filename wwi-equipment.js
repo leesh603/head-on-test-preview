@@ -1,6 +1,6 @@
-import {FLIGHT_EQUIPMENT,flightEquipmentAllowed,correctWimperisBomb,sampleWimperisMotion,equipmentTargets} from './flight-equipment.js';
-import {tickSynthesis,prepareSynthesisBomb,SYNTHESIS_BALANCE} from './weapon-synthesis.js';
-import {combatImpactResult} from './combat-impact-result.js';
+import {FLIGHT_EQUIPMENT,flightEquipmentAllowed,correctWimperisBomb,sampleWimperisMotion,equipmentTargets} from './flight-equipment.js?v=09c75d146ae4289d';
+import {tickSynthesis,prepareSynthesisBomb,SYNTHESIS_BALANCE} from './weapon-synthesis.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
 export {equipmentTargets};
 
 export const WWI_EQUIPMENT=Object.freeze([

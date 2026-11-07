@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=09c75d146ae4289d';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -163,6 +163,12 @@ export class CapitalBoss extends BaseBoss{
    }
   }return true;
  }
+ reserveSalvoRecovery(seconds){
+  // The native reload starts after the last committed round has cleared.
+  // The same hold also keeps hurry() from layering another attack over it.
+  this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+seconds);
+  this.recoveryClock=seconds;
+ }
  special(ctx){
   const p=this.targetFor(ctx);if(!p)return;
   const step=this.specialCursor||0;
@@ -173,7 +179,21 @@ export class CapitalBoss extends BaseBoss{
    doors.forEach(q=>q.hatchOpen=1);this.hatchUntil=(this.combatTime||0)+2.9;
    const mount=doors[step%doors.length],m=capitalPartPose(this,mount);
    const speed=Math.hypot(p.vx||0,p.vy||0),a=speed>10?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a);
-   if(this.capitalPhase>=2&&step%3===2){
+   if(this.capitalPhase>=2&&step%3===1){
+    // A brief two-sided carpet leaves the pilot's flight corridor open.
+    // Losing a hatch removes its entire lane, including pending releases.
+    const rows=this.capitalPhase===3?6:4,hatches=doors.slice(0,2);
+    for(const [index,hatch] of hatches.entries()){
+     const side=hatch.side==='left'?-1:1,origin=capitalPartPose(this,hatch);
+     for(let row=0;row<rows;row++){
+      const along=(row-(rows-1)/2)*115;
+      this.emit({type:'hazard',bossId:this.id,sourcePartId:hatch.id,kind:'circle',x:targetX+ux*along-uy*side*150,y:targetY+uy*along+ux*side*150,sourceX:origin.x,sourceY:origin.y,airborneBomb:true,sprite:'puw',radius:58,warning:2,delay:row*.22+index*.12,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});
+     }
+    }
+    const release=2+(rows-1)*.22+(hatches.length-1)*.12;
+    this.hatchUntil=Math.max(this.hatchUntil,(this.combatTime||0)+release);
+    this.reserveSalvoRecovery(release+.22);
+   }else if(this.capitalPhase>=2&&step%3===2){
     // Two staggered mine groups leave an open central flight lane. Mines
     // deploy visibly from the surviving hatch using the native mine lifecycle.
     const points=[];for(const side of [-1,1])for(let i=0;i<2;i++)points.push({x:targetX+ux*(i-.5)*125-uy*side*150,y:targetY+uy*(i-.5)*125+ux*side*150});
@@ -198,13 +218,19 @@ export class CapitalBoss extends BaseBoss{
    if(step%3===1&&wing.length){
     // Each surviving wing battery commits its own physical sightline. The
     // crossing fans share neither a floating muzzle nor an invisible gun.
-    for(const [index,mount] of wing.slice(0,2).entries()){
+    const batteries=wing.slice(0,2),climax=this.capitalPhase>=2,waves=climax?(this.capitalPhase===3?3:2):1;
+    for(const [index,mount] of batteries.entries()){
      const a=this.hullYaw+mount.angle-Math.PI/2,m=capitalMuzzle(this,mount),delay=index*.25;
-     mount.aimHoldUntil=(this.combatTime||0)+2.2;mount.aimHoldAngle=a;
+     mount.aimHoldUntil=(this.combatTime||0)+Math.max(2.2,1.8+delay+(waves-1)*.42);mount.aimHoldAngle=a;
      this.emit({type:'charge-warning',bossId:this.id,partId:mount.id,x:m.x,y:m.y,targetX:m.x+Math.cos(a)*700,targetY:m.y+Math.sin(a)*700,seconds:1.6+delay});
-     const half=this.capitalPhase===3?2:1;
-     for(let i=-half;i<=half;i++){const angle=a+i*.13;this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceAngle:a,kind:'projectile',x:m.x,y:m.y,vx:Math.cos(angle)*this.t.bulletSpeed*1.1,vy:Math.sin(angle)*this.t.bulletSpeed*1.1,radius:7,warning:1.6,delay,duration:3.2,damage:this.t.damage*.8,visual:'aa-shell',ordnanceFamily:'he',tag:this.id+':crossfire'});}
+     const half=climax?2:1,gap=climax?Math.max(.14,Math.asin(Math.min(.5,48/Math.max(1,Math.hypot(targetX-m.x,targetY-m.y))))):.13;
+     for(let wave=0;wave<waves;wave++)for(let i=-half;i<=half;i++){
+      // Repeated fronts retain one readable gap along each warned sightline.
+      if(climax&&i===0)continue;
+      const angle=a+i*gap;this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceAngle:a,kind:'projectile',x:m.x,y:m.y,vx:Math.cos(angle)*this.t.bulletSpeed*1.1,vy:Math.sin(angle)*this.t.bulletSpeed*1.1,radius:7,warning:1.6,delay:delay+wave*.42,duration:3.2,damage:this.t.damage*.8,visual:'aa-shell',ordnanceFamily:'he',tag:this.id+':crossfire'});
+     }
     }
+    if(climax){const release=1.6+(batteries.length-1)*.25+(waves-1)*.42;this.leviathanVolleyUntil=(this.combatTime||0)+release;this.reserveSalvoRecovery(release+3.2);}
    }else{
     const mount=(main.length?main:guns)[step%(main.length||guns.length)],a=this.hullYaw+mount.angle-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a);
     mount.aimHoldUntil=(this.combatTime||0)+2.5;mount.aimHoldAngle=a;
@@ -296,9 +322,14 @@ export class CapitalBoss extends BaseBoss{
   if(ctx.capitalAcesAlive>0&&combatNow<(this.aceWaitUntil||0)+(this.kind==='final-leviathan'?0:22)){this.recoveryLeft=Math.max(this.recoveryLeft,.12);this.phase='capital-ace-cover';return;}
   this.recoveryClock-=dt;if(this.recoveryClock<=0){this.recoveryClock=13;this.recoveryLeft=Math.max(this.recoveryLeft,this.kind==='final-leviathan'?1.55:2.3);}
   this.phase=this.recoveryLeft>0?'capital-recovery':'capital-phase-'+next;
-  if(this.recoveryLeft>0)return;
+  if(this.recoveryLeft>0||combatNow<(this.basicHoldUntil||0))return;
   const suppressed=ctx.capitalDefenseSuppressed?1.2:1;
   this.attackClock-=dt;this.specialClock-=dt;this.deckClock-=dt;
+  if(this.specialClock<=0){
+   if(this.special(ctx)===false)this.specialClock=.25;
+   else{this.specialClock=(next===3?7:9)*suppressed;this.attackClock=Math.max(this.attackClock,2.5);}
+  }
+  if(this.recoveryLeft>0||combatNow<(this.basicHoldUntil||0))return;
   if(this.attackClock<=0){
    const hasGuns=[...this.parts.values()].some(p=>p.kind==='turret'&&live(p));
    this.attackClock=(next===3?2.2:2.8)*suppressed;
@@ -311,10 +342,6 @@ export class CapitalBoss extends BaseBoss{
     else if(this.kind==='final-leviathan')this.attackClock=.18;
    }else if(this.kind==='final-leviathan'&&[...this.parts.values()].some(p=>p.kind==='fighter'&&live(p)))this.deckClock=Math.min(this.deckClock,0);
    else this.lastStand(ctx);
-  }
-  if(this.specialClock<=0){
-   if(this.special(ctx)===false)this.specialClock=.25;
-   else{this.specialClock=(next===3?7:9)*suppressed;this.attackClock=Math.max(this.attackClock,2.5);}
   }
   if(this.deckClock<=0){this.deckClock=11;this.launchDeck(ctx);}
  }

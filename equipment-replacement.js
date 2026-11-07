@@ -1,5 +1,5 @@
-import {resetBishopGloves} from './equipment-flight-balance.js';
-import {attachAircraftPersonality} from './aircraft-personality164.js';
+import {resetBishopGloves} from './equipment-flight-balance.js?v=09c75d146ae4289d';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=09c75d146ae4289d';
 /** Rebuild only upgrade-owned contributions. Never replay combat or mutate a live world. */
 const clone=v=>JSON.parse(JSON.stringify(v));
 export function beginEquipmentLedger(p){
@@ -13,7 +13,7 @@ export function recordEquipmentDoctrine(p,id){if(!p._equipmentReplay)p.equipment
 export function equipmentRemovable(p,id){return !!p.upgrades?.[id]&&!!p.equipmentLedger?.history.some(e=>e.id===id&&e.rarity==='legendary'&&e.active!==false)&&!p.equipmentLedger.baseline.upgrades[id];}
 const MULT=new Set(['speed','baseSpeed','turn','damage','rate','cooldownMult','maxHp','xpGainMult','wingmanDamageMult']);
 const KEYS=['speed','baseSpeed','turn','damage','rate','cooldownMult','maxHp','xpGainMult','wingmanDamageMult','gunUpgradeBonus','explosiveBonus','commandBonus','commandRateBonus','permanentWingman','shots','freeVolleyShots','magnet','armorUpgradeHp','baseBeltCapacity','transferBaseRate','evadeCooldownMult','evadeInvulnerability','skillEnhanced','redScarf','prancingHorse','telescope','mccuddenRepair','motorCannon','sacredCowling','jArmorCapsule','mauserAceKiller','scarffRing','cow37','unlimitedAmmo','rankinShrapnel','grunkreuz','brockSmoke','mercedesAppliedBase','projectileDistributorLevel'];
-const TIMERS={sparkPlug:['mccuddenRepairTimer','repairFlash151'],motorCannon:['motorCannonTimer'],mauserAceKiller:['mauserTimer'],rearGunner:['scarffTimer','scarffAim'],cow37:['cow37Timer'],rankinShell:['rankinShrapnelTimer','rankinFlash','equipmentRankinFx'],grunkreuz:['grunkreuzTimer','grunkreuzOn','grunkreuzOff'],kaiserFog:['brockSmokeTimer','kaiserFogTime'],aceWingman:['aceWingmanPilotId','aceWingmanRespawnAt'],strutterAirbrake:['airbrakeTime','airbrakeCooldown'],fieryGrapnel:['grapnelTargetId','grapnelCable'],hytheCamera:['hytheTargetId','hytheAnalysis']};
+const TIMERS={sparkPlug:['mccuddenRepairTimer','repairFlash151'],motorCannon:['motorCannonTimer'],mauserAceKiller:['mauserTimer'],rearGunner:['scarffTimer','scarffAim'],cow37:['cow37Timer'],rankinShell:['rankinShrapnelTimer','rankinFlash','equipmentRankinFx'],grunkreuz:['grunkreuzTimer','grunkreuzOn','grunkreuzOff'],kaiserFog:['brockSmokeTimer','kaiserFogTime'],aceWingman:['aceWingmanPilotId','aceWingmanRespawnAt','aceWingmanArmament','aceWingmanIntroduced'],strutterAirbrake:['airbrakeTime','airbrakeCooldown'],fieryGrapnel:['grapnelTargetId','grapnelCable'],hytheCamera:['hytheTargetId','hytheAnalysis']};
 export function equipmentModel(p,Game,removed){
  const ledger=p.equipmentLedger,m=Object.create(Game.prototype);Object.assign(m,clone(ledger.baseline));
  Object.assign(m,{_equipmentReplay:true,state:'upgrade',rng:()=>.5,events:[],allies:[],bullets:[],enemies:[],friendlyBombs:[],friendlyBombers:[],formationWings:[],divingSquadron:[],airshipFleet:[],event(){},checkLevel(){},burst(){},smoke(){}});
@@ -39,7 +39,7 @@ export function removeEquipment(p,id,Game,PLANES){
  if(id==='lufberyCircle')delete p.equipmentCoverWings;
  if(id==='badinGauge'){delete p.equipmentCruiseSpeed;p.equipmentStraight=0;}
  if(id==='mercedesEngine'){delete p.mercedesOutput160;delete p.mercedesHeading160;}
- if(id==='aceWingman')world.allies=(world.allies||[]).filter(a=>!owned(a)||!a.aceWingman);
+ if(id==='aceWingman')world.allies=(world.allies||[]).filter(a=>!owned(a)||!a.aceWingman||a.aceSource==='rescue');
  if(['goeringBaton','airshipTransfer'].includes(id)){let kept=0;world.allies=(world.allies||[]).filter(a=>!owned(a)||!a.permanent||a.aceWingman||kept++<(p.permanentWingman||0));}
  if(['bomberTransfer','mgTransfer','airshipTransfer'].includes(id)){
   delete p.bomberTransfer;p.airframeSpeed=1;p.pendingOrdnance=[];

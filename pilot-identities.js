@@ -1,12 +1,13 @@
-import {ammunitionVisualScale} from './heavy-ammunition.js';
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
-import {installPilotFeedback} from './pilot-feedback.js';
-import {wwiWingTarget} from './wwi-equipment.js';
-import {wingmanBossPass} from './engagement-flow174.js?v=gal1&airbattle=20261025&afc=1&td4=20261026';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
-import {headOnTarget} from './engagement-feedback.js?v=tame3';
-import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js';
-import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js';
+import {ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=09c75d146ae4289d';
+import {installPilotFeedback} from './pilot-feedback.js?v=09c75d146ae4289d';
+import {wwiWingTarget} from './wwi-equipment.js?v=09c75d146ae4289d';
+import {wingmanBossPass} from './engagement-flow174.js?v=09c75d146ae4289d';
+import {advanceWingFlight} from './wingman-flight.js?v=09c75d146ae4289d';
+import {headOnTarget} from './engagement-feedback.js?v=09c75d146ae4289d';
+import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js?v=09c75d146ae4289d';
+import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
+import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js?v=09c75d146ae4289d';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -43,7 +44,7 @@ export function installPilotIdentities(Game,PILOTS){
   this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0||this.status==='downed')return false;
   const s=this.identityState();this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();s.activeAge=0;
   if(this.pilot==='collishaw')beginCollishawJetstream(this);
-  if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];const count=this.skillEnhanced?8:6;for(let i=0;i<count;i++){const a=this.a+i*Math.PI*2/count;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:this.skillEnhanced?1.6:1.2,hp:1,decoy:true,identityDecoy:true,medalDecoy:!!this.skillEnhanced,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
+  if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];const count=this.skillEnhanced?8:6;for(let i=0;i<count;i++){const a=this.a+i*Math.PI*2/count;w.revisionDecoys.push(beginVossDecoyFlight({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:this.skillEnhanced?1.6:1.2,hp:1,decoy:true,identityDecoy:true,medalDecoy:!!this.skillEnhanced,vx:Math.cos(a)*140,vy:Math.sin(a)*140},i))}}
   if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.evadeDirection=-(this.evadeDirection||1);this.immelmannTurn={heading:this.a,direction:this.evadeDirection,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
  if(this.pilot==='boelcke'){const w=this.combatWorld();w.allies??=[];const formationSize=this.skillEnhanced?5:4;for(let i=0;i<formationSize;i++)w.allies.push({ownerId:own(this),slot:(this.permanentWingman||0)+i,plane:this.plane,x:this.x,y:this.y,a:this.a,life:this.skillTime,fire:.85+Math.floor(i/2)*.12,temporary:true,boelckePincer:true})}
   if(this.pilot==='udet'){this.udetBoost=0;this.evadeTime=this.skillTime;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,this.skillTime);this.fire=Math.min(this.fire,0);s.udetActiveBonus=(s.grazes||0)*.1;s.grazes=0}
@@ -190,6 +191,6 @@ export function installPilotIdentities(Game,PILOTS){
   return true;
  };
  const oldTickWorld=Game.prototype.tickRevisionWorld;
- Game.prototype.tickRevisionWorld=function(dt){oldTickWorld.call(this,dt);for(const d of this.revisionDecoys||[])if(d.identityDecoy){d.x+=d.vx*dt;d.y+=d.vy*dt}};
+ Game.prototype.tickRevisionWorld=function(dt){oldTickWorld.call(this,dt);for(const d of this.revisionDecoys||[])if(d.identityDecoy)advanceVossDecoyFlight(d,dt)};
  installPilotFeedback(Game,PILOTS);
 }

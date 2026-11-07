@@ -1,22 +1,26 @@
 /** Optional sea encounters. Fictional WWI-inspired designs, not historical ship replicas. */
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
-import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
-import {surfaceTraffic,fleetHull} from './naval-spacing.js';
+import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack} from './submarine-intrusion.js?v=09c75d146ae4289d';
+export const isSubmarine=e=>isNewSubmarine(e)||(typeof e==='string'?e:e?.profileId)==='nachtwal';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
+import {surfaceTraffic,fleetHull} from './naval-spacing.js?v=09c75d146ae4289d';
 export const MARITIME_STAGES = Object.freeze([1,16]); // Adriatic sea and Jutland only.
 export const MARITIME_PROFILES = Object.freeze({
  dreadnought:{id:'dreadnought',name:'드레드노트',faction:'entente',mode:'naval-broadside',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.60,detail:'대공포를 끊고 포격 사이로 파고들어라',artStatus:'new independent fictional WWI naval design; separate rotating turret assemblies'},
  nachtwal:{id:'nachtwal',name:'나흐트발',faction:'central',mode:'naval-submarine',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.43,detail:'항적을 쫓아 부상 직후를 노려라',artStatus:'new independent fictional submarine cruiser; existing authored deck-gun sprites reused'},
  qship:{id:'qship',name:'Q-ship',faction:'entente',mode:'naval-decoy',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.46,detail:'위장 덮개가 열리면 노출된 함포를 노려라',artStatus:'WWI Q-ship inspired game variant; fixed hull and separately opening concealment panels'},
- seeadler:{id:'seeadler',name:'제아들러',faction:'central',mode:'naval-sailing-raider',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.48,detail:'전방 양현 함포를 끊어라',artStatus:'SMS Seeadler inspired German naval commerce raider, not a pirate ship'}
+ seeadler:{id:'seeadler',name:'제아들러',faction:'central',mode:'naval-sailing-raider',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.48,detail:'전방 양현 함포를 끊어라',artStatus:'SMS Seeadler inspired German naval commerce raider, not a pirate ship'},
+ ...SUBMARINE_PROFILES
 });
 const finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const angle=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const SPLASH_WARNING=1.8;
 export const isMaritimeIntrusion=e=>!!MARITIME_PROFILES[typeof e==='string'?e:e?.profileId];
-export function maritimeAttackable(e){return e?.profileId!=='nachtwal'||!e.naval||e.naval.phase==='surfaced';}
+export function maritimeAttackable(e){return !isSubmarine(e)||!e.naval||e.naval.phase==='surfaced';}
 export function maritimeOpacity(e,visual=true){
  if(visual&&Number.isFinite(e?.visualMaritimeOpacity))return e.visualMaritimeOpacity;
+ if(isNewSubmarine(e))return 1;
  if(e?.profileId!=='nachtwal'||!e.naval)return 1;
  const n=e.naval;
  if(n.phase==='diving')return 1-clamp(n.phaseAge/1.1,0,1);
@@ -26,7 +30,7 @@ export function maritimeOpacity(e,visual=true){
 }
 export function maritimeDamageMultiplier(e,id){
  if(id!=='core')return 1;
- if(e.profileId==='nachtwal')return e.naval?.phase==='surfaced'&&e.naval.phaseAge<2.4?1.35:1;
+ if(isSubmarine(e))return e.naval?.phase==='surfaced'&&e.naval.phaseAge<2.4?1.35:1;
  const aa=Object.values(e.parts||{}).filter(p=>p.kind==='anti_air');
  return e.profileId==='dreadnought'&&aa.length&&aa.every(p=>p.hp<=0)?1.25:1;
 }
@@ -52,10 +56,11 @@ function stepDecoyReveal(e,n,dt){
  if(n.revealing)n.reveal=Math.min(1,n.reveal+dt/1.5);
  e.movementPhase=n.reveal>=1?'guns-exposed':n.revealing?'revealing':'disguised';
 }
-const cruise=e=>e.profileId==='nachtwal'?7:e.profileId==='seeadler'?10:e.profileId==='qship'?9:12;
+const cruise=e=>isSubmarine(e)?7:e.profileId==='seeadler'?10:e.profileId==='qship'?9:12;
 function integrateVessel(e,n,dt,targetSpeed,targetHeading){
- const turn=e.profileId==='nachtwal'?.14:.065;
+ const turn=isNewSubmarine(e)?.25*submarineDrive(e).turn:e.profileId==='nachtwal'?.14:.065;
  e.a+=clamp(angle(targetHeading-e.a),-turn*dt,turn*dt);
+ if(isNewSubmarine(e))targetSpeed*=submarineDrive(e).speed;
  n.speed+=clamp(targetSpeed-n.speed,-4*dt,3*dt);
  e.x+=Math.cos(e.a)*n.speed*dt;e.y+=Math.sin(e.a)*n.speed*dt;
  e.driveVelocity=n.speed;
@@ -92,22 +97,23 @@ export function stepMaritimeWreck(e,dt){const n=initMaritimeMotion(e);n.clock+=d
  * bounded acceleration and heading-aligned integration; no lateral sliding. */
 export function stepMaritimeMotion(e,dt){
  if(!isMaritimeIntrusion(e)||e.phase!=='active')return false;
- const n=initMaritimeMotion(e);n.clock+=dt;n.phaseAge+=dt;
- let speed=cruise(e),heading=n.course+Math.sin(n.clock*.12)*(e.profileId==='seeadler'?.10:.16);
+ const n=initMaritimeMotion(e);n.clock+=dt;n.phaseAge+=dt;if(isNewSubmarine(e))stepSubmarineMechanisms(e,dt);
+ let speed=cruise(e),heading=n.course+(isNewSubmarine(e)?0:Math.sin(n.clock*.12)*(e.profileId==='seeadler'?.10:.16));
  if(e.profileId==='qship')stepDecoyReveal(e,n,dt);
- else if(e.profileId==='nachtwal'){
+ else if(isSubmarine(e)){
+  const timing=isNewSubmarine(e)?submarineTimings(e):{exposed:8.5,diving:1.1,submerged:2.8,surfacing:1.2};
   const control=e.parts.dive_control;
   if(control?.hp<=0&&['diving','submerged'].includes(n.phase))changePhase(e,'surfacing');
-  if(n.phase==='surfaced'&&n.phaseAge>=8.5&&!(control?.hp<=0)){
+  if(n.phase==='surfaced'&&n.phaseAge>=timing.exposed&&!(control?.hp<=0)){
    n.cycle++;n.travelAngle=e.a+(n.cycle%2?1:-1)*.35;
    changePhase(e,'diving');
-  }else if(n.phase==='diving'&&n.phaseAge>=1.1)changePhase(e,'submerged');
-  else if(n.phase==='submerged'&&n.phaseAge>=2.8)changePhase(e,'surfacing');
-  else if(n.phase==='surfacing'&&n.phaseAge>=1.2){n.course=e.a;changePhase(e,'surfaced');}
+  }else if(n.phase==='diving'&&n.phaseAge>=timing.diving)changePhase(e,'submerged');
+  else if(n.phase==='submerged'&&n.phaseAge>=timing.submerged)changePhase(e,'surfacing');
+  else if(n.phase==='surfacing'&&n.phaseAge>=timing.surfacing){n.course=e.a;changePhase(e,'surfaced');}
   if(n.phase!=='surfaced'){
    heading=finite(n.travelAngle,e.a);speed=n.phase==='submerged'?15:7;
    // A short ahead-of-bow cue follows the continuous path. It is never a teleport target.
-   const left=n.phase==='diving'?2.8+Math.max(0,1.1-n.phaseAge):n.phase==='submerged'?Math.max(0,2.8-n.phaseAge):0;
+   const left=n.phase==='diving'?timing.submerged+Math.max(0,timing.diving-n.phaseAge):n.phase==='submerged'?Math.max(0,timing.submerged-n.phaseAge):0;
    n.destination={x:e.x+Math.cos(heading)*left*12,y:e.y+Math.sin(heading)*left*12};
   }
   e.movementPhase=n.phase;
@@ -166,7 +172,7 @@ function maritimeTarget(g,e,layout,api){
 /** Aiming follows a finite slew rate. A pending telegraph locks the owning gun. */
 export function aimMaritimeGuns(g,e,layout,dt,api){
  // Concealment/submersion gates discharge, not preparation of a surviving mount.
- if(!isMaritimeIntrusion(e))return;
+ if(!isMaritimeIntrusion(e)||isNewSubmarine(e))return;
  const player=maritimeTarget(g,e,layout,api);if(!player)return;
  for(const gun of layout.targets.filter(t=>t.muzzle&&e.parts[t.id]?.hp>0)){
   if(e.shotCues.some(q=>q.partId===gun.id&&!q.done)||e.hazards.some(q=>q.sourcePartId===gun.id&&!q.done))continue;
@@ -179,6 +185,7 @@ export function aimMaritimeGuns(g,e,layout,dt,api){
 }
 /** Uses real authored muzzle/pivot data. No center-of-hull bullets or invisible underwater fire. */
 export function queueMaritimeAttack(g,e,layout,api){
+ if(isNewSubmarine(e)){queueSubmarineAttack(g,e,layout,api);return !!e.naval?.didQueueAttack;}
  if(!isMaritimeIntrusion(e))return false;
  if(!maritimeAttackable(e)||!maritimeWeaponsReady(e))return false;
  const p=maritimeTarget(g,e,layout,api);if(!p)return false;
@@ -224,15 +231,16 @@ export function queueMaritimeAttack(g,e,layout,api){
  if(queued)e.volley++;
  return queued;
 }
-export function maritimeAttackInterval(e){return e.profileId==='dreadnought'?2.15:e.profileId==='seeadler'?2.7:2.4;}
+export function maritimeAttackInterval(e){if(isNewSubmarine(e)&&e.naval?.didQueueAttack===false)return .25;return e.profileId==='m1'?5.2:e.profileId==='uboat'?3.2:e.profileId==='dreadnought'?2.15:e.profileId==='seeadler'?2.7:2.4;}
 export function maritimeTactic(e,locale='ko'){
  const en=locale==='en';
  if(e.profileId==='qship')return maritimeWeaponsReady(e)?(en?'GUNS EXPOSED · Break the deck mounts':'위장 해제 · 노출된 함포를 파괴하라'):(en?'DECOY CONTACT · Concealed guns opening':'위장 상선 · 숨겨진 함포가 열린다');
  if(e.profileId==='seeadler')return en?'SAILING RAIDER · Silence the forward broadside':'무장 범선 · 전방 양현 함포를 끊어라';
- if(e.profileId==='nachtwal'){
+ if(isSubmarine(e)){
   if(e.naval?.phase==='diving')return en?'DIVING · Track the wake':'잠항 중 · 항적을 따라가라';
   if(e.naval?.phase==='submerged')return en?'SUBMERGED · Watch the surfacing mark':'잠항 중 · 부상 지점 확인';
   if(e.naval?.phase==='surfacing')return en?'SURFACING · Prepare to attack':'부상 중 · 공격 준비';
+  if(isNewSubmarine(e)&&e.parts.deck_gun?.hp<=0)return en?'MAIN GUN DISABLED · Break the remaining systems':'주포 파괴 · 남은 주요 부위를 파괴하세요.';
   if(e.parts.dive_control?.hp<=0)return en?'Dive controls disabled · Finish the hull':'잠항 장치 파괴 · 선체를 마무리하라';
   return e.naval?.phaseAge<2.4?(en?'EXPOSED · Strike now':'취약 구간 · 지금 집중 공격'):(en?'Break the deck guns or dive controls':'갑판포와 잠항 장치를 노려라');
  }

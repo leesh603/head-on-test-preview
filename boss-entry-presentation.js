@@ -2,7 +2,7 @@
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const families={
  artillery:['livens-flame-projector','minenwerfer-battery','morser-battery'],
- rail:['paris-gun','lincomparable'],railCarrier:['fliegerzug'],
+ rail:['bruno-railway-gun','lincomparable'],railCarrier:['fliegerzug'],
  naval:['sms-stuttgart','hms-zubian','jutland-grand-fleet'],
  airship:['zeppelin-l70','hma23','final-kaiserkrone'],
  bomber:['final-leviathan','supermarine-nighthawk','siemens-schuckert-r-viii','o400-squadron','gotha-squadron','paris-staaken-rvi','gik','ca4','staaken-rvi'],

@@ -1,13 +1,13 @@
-import {periodicSandPixels} from './maan-ground.js?v=tame3';
-import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=1022';
-import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover6';
-import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {fx} from './fx-art.js?v=tame3';
-import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
-import {bombArcPose} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
-import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
+import {periodicSandPixels} from './maan-ground.js?v=09c75d146ae4289d';
+import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=09c75d146ae4289d';
+import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=09c75d146ae4289d';
+import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {drawBossOrdnance} from './boss-ordnance-art.js?v=09c75d146ae4289d';
+import {bombArcPose} from './bomb-sprites.js?v=09c75d146ae4289d';
+import {drawDressingSprite} from './background-dressing.js?v=09c75d146ae4289d';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
+import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=09c75d146ae4289d';
 
 export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp',land:'terrain-dover-downland-20261030.webp',sea:'jutland-sea.webp'});
 const images=new Map();let pending=null,generation=0;
@@ -22,9 +22,14 @@ export function prepareDoverAssets(region){
   im.onerror=()=>resolve(false);im.src='./'+path+'?v=dover6';
  }))).then(results=>{if(epoch===generation&&typeof document!=='undefined')for(const key of ['land','sea']){const im=images.get(key);if(!im?.naturalWidth)continue;const cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;const context=cv.getContext('2d');context.drawImage(im,0,0);const pixels=context.getImageData?.(0,0,cv.width,cv.height);if(pixels?.data){const tile=periodicSandPixels(pixels.data,cv.width,cv.height);cv.width=tile.width;cv.height=tile.height;const g=cv.getContext('2d'),data=g.createImageData(tile.width,tile.height);data.data.set(tile.data);g.putImageData(data,0,0);images.set(key,cv);}}return results;});return pending;
 }
-export function paintDover(c,g,cx,cy,w,h,renderer){
+// The ground (sea, chalk downland, cliffs, night grade) is fixed in world space, so
+// the caller may keep it in a world-anchored buffer (paintDoverGround + the token that
+// changes when the chart or its art changes) and pass groundPainted.
+export function paintDoverGround(c,g,cx,cy,w,h,renderer){paintDoverTerrain(c,doverPatrolChart(g),cx,cy,w,h,images.get('terrain'),renderer,{land:images.get('land'),sea:images.get('sea')});}
+export function doverGroundToken(g){const chart=doverPatrolChart(g),ready=k=>{const im=images.get(k);return im&&(im.naturalWidth||im.width)?1:0};return `${chart.left}|${chart.top}|${generation}|${ready('terrain')}${ready('land')}${ready('sea')}`;}
+export function paintDover(c,g,cx,cy,w,h,renderer,{groundPainted=false}={}){
  const chart=doverPatrolChart(g),left=cx-w/2,top=cy-h/2;
- paintDoverTerrain(c,chart,cx,cy,w,h,images.get('terrain'),renderer,{land:images.get('land'),sea:images.get('sea')});c.save();
+ if(!groundPainted)paintDoverTerrain(c,chart,cx,cy,w,h,images.get('terrain'),renderer,{land:images.get('land'),sea:images.get('sea')});c.save();
  // The same quiet cyan chevrons as the harbor approach, on the real coast course.
  // Keep them visible during the boss fight as the channel continues north.
  const lead=doverCliffRoute(chart,g.y,330,180);

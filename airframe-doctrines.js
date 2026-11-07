@@ -1,8 +1,8 @@
 // Data only: combat and doctrine modules both depend on this catalog.
-export const BOMBER_TRANSFER_DESCRIPTION='중폭격기로 바뀌어 4.5~4.8초마다 융단·집중폭격을 하고 후방 사수가 합류하며, 선회기동은 방어탄막으로 바뀝니다. 내구도 3.2~3.5배(최대 480~520)·속도 20~24%감소·선회 34~38%감소·피탄면적 증가가 적용되고 폭발물 강화는 유지되며 다른 기체 전환과 함께 장착할 수 없습니다.';
+export const BOMBER_TRANSFER_DESCRIPTION='중폭격기로 바뀌어 4.5~4.8초마다 융단·집중폭격을 하고 후방 사수가 합류하며, 선회 기동은 방어탄막으로 바뀝니다. 내구도 3.2~3.5배(최대 480~520)·속도 20~24%감소·선회 34~38%감소·피탄면적 증가가 적용되고 폭발물 강화는 유지되며 다른 기체 전환과 함께 장착할 수 없습니다.';
 export const BUILD_TRANSFER_DESCRIPTIONS=Object.freeze({
- mgTransfer:'중무장기로 바뀌어 추적 기관총 2정·전방 피해 40%증가·내구도 2배(최대 360)를 얻고 후방 사수를 유지하며 선회기동은 요격 화망으로 바뀝니다. 속도 14%·선회 22%가 줄고 피탄면적이 증가하며 다른 기체 전환과 함께 장착할 수 없습니다.',
- airshipTransfer:'비행선으로 바뀌어 호위기 3기(전체최대 7기)·편대 피해 35%증가·내구도 4배(최대 600)를 얻고 기존 편대 강화를 유지하며 선회기동은 대공 방어망으로 바뀝니다. 속도 38%·선회 50%가 줄고 피탄면적이 크게 증가하며 다른 기체 전환과 함께 장착할 수 없습니다.'
+ mgTransfer:'중무장기로 바뀌어 추적 기관총 2정·전방 피해 40%증가·내구도 2배(최대 360)를 얻고 후방 사수를 유지하며 선회 기동은 요격 화망으로 바뀝니다. 속도 14%·선회 22%가 줄고 피탄면적이 증가하며 다른 기체 전환과 함께 장착할 수 없습니다.',
+ airshipTransfer:'비행선으로 바뀌어 호위기 3기(전체최대 7기)·편대 피해 35%증가·내구도 4배(최대 600)를 얻고 기존 편대 강화를 유지하며 선회 기동은 대공 방어망으로 바뀝니다. 속도 38%·선회 50%가 줄고 피탄면적이 크게 증가하며 다른 기체 전환과 함께 장착할 수 없습니다.'
 });
 // Airframe conversion is a free, optional special doctrine, independent of the
 // five family doctrines and the one composite tactic. Reuse the approved art.

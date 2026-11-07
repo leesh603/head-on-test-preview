@@ -1,11 +1,12 @@
-import {facilityPlan} from './ground-facility-missions.js';
-import {transportConvoyActive} from './transport-convoy.js';
-import {photoReconActive} from './photo-recon-encounters.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {momentumCombatTarget} from './ace-momentum.js';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261025';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
+import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
+import {facilityPlan} from './ground-facility-missions.js?v=09c75d146ae4289d';
+import {transportConvoyActive} from './transport-convoy.js?v=09c75d146ae4289d';
+import {photoReconActive} from './photo-recon-encounters.js?v=09c75d146ae4289d';
+import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
+import {momentumCombatTarget} from './ace-momentum.js?v=09c75d146ae4289d';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=09c75d146ae4289d';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=09c75d146ae4289d';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=09c75d146ae4289d';
 
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',
@@ -155,12 +156,25 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
  // Their weapons still wait for the complete quiet interval. Count time already
  // spent without visible pressure, including an ace's offscreen exit.
  const quietElapsed=quietSince==null?0:Math.max(0,now-quietSince);
- const rest=pattern===P.RECOVERY?Math.max(.2,plannedRest-quietElapsed-1.75):plannedRest;
+ // Aircraft may enter silently before trailing bullets finish the protected rest.
+ // Keep weapon release tied to pressure, including those still-visible bullets.
+ const approachQuietSince=state.lastContactAt??quietSince;
+ const approachQuietElapsed=approachQuietSince==null?0:Math.max(0,now-approachQuietSince);
+ const rest=pattern===P.RECOVERY?Math.max(.2,plannedRest-approachQuietElapsed-1.75):plannedRest;
  if(pattern===P.RECOVERY)state.fireResumeAt=now+Math.max(0,plannedRest-quietElapsed);
  state.recoveryDuration=null;
  state.endsAt=now+(pattern===P.RECOVERY?rest:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.shape=chooseShape(game,state,pattern);
  state.nextActionAt=now+.35;state.queue=facilityPlan(game,planFor(pattern,now,compact));
+ const front=game.stageBoss?.stages.front;
+ const targets=front?(game.frontTargets??=[]):null;
+ if(front&&state.queue.length&&now-(game.stageStartTime||0)>=25&&!game.doverMission&&!game.laonBattle&&![17,19].includes(game.stageBoss.stages.stageIndex)){
+  if(front.risk===1&&state.queue.length>4)state.queue.pop();
+  if(front.risk>=3&&targets.length<front.risk-2&&!targets.some(e=>e.hp>0&&!e.expired&&!e.crashing)){
+   state.queue.push({type:'bomber',layout:'bomber',index:0,count:1,delay:5,frontTarget:true});
+   state.endsAt=Math.max(state.endsAt,now+12);
+  }
+ }
  if(support){state.objective.supportTarget=support;state.queue=action('hunter','escort',Math.min(3,directorCap(game)));}
  // Crossing elements and the decoy's covering pair arrive in separate beats.
  for(const entry of state.queue)entry.delay=entry.layout==='decoyWing'?1.5:entry.layout==='cross'&&state.shape==='alternating'?Math.floor(entry.index/2)*1.15:entry.layout==='pincer'&&state.shape==='alternating'?(entry.index%2)*.35:0;state.history.push(pattern);state.history=state.history.slice(-6);
@@ -290,7 +304,13 @@ function place(game,e,layout,index,count){
  if(layout==='circle'&&e.directorSquad){
   const squad=e.directorSquad,anchor=game.battleDirector.anchor;
   const radius=(game.viewWidth||960)<=720?155:195;
-  squad.circle??={x:anchor.x+Math.cos(anchor.a)*340,y:anchor.y+Math.sin(anchor.a)*340,radius,a:anchor.a,start:game.t||0};
+  // Admit the entire orbit together, including slots born on later ticks.
+  // Generic tangent-based arrival translation cannot preserve a shared center.
+  const view=arrivalViewport(game),ca=Math.cos(anchor.a),sa=Math.sin(anchor.a);
+  const extent=Math.abs(ca)*view.w+Math.abs(sa)*view.h;
+  const forward=extent+radius+90-(anchor.x-view.x)*ca-(anchor.y-view.y)*sa;
+  squad.circle??={x:anchor.x+Math.cos(anchor.a)*forward,y:anchor.y+Math.sin(anchor.a)*forward,radius,a:anchor.a,start:game.t||0};
+  e.arrivalAuthored=true;
   const phase=anchor.a+index*Math.PI*2/count;e.directorCirclePhase=phase;
   e.x=squad.circle.x+Math.cos(phase)*radius;e.y=squad.circle.y+Math.sin(phase)*radius;e.a=phase+Math.PI/2;
   e.combatPassHeading=e.a;e.directorLaunchAt=e.directorReadyAt;e.directorChoreographyDone=false;
@@ -298,7 +318,7 @@ function place(game,e,layout,index,count){
  }
 
  if(ordinaryFighter(e)&&['headOn','cross','pincer','chase','bait','veteran','decoyWing'].includes(layout)){
-  const stagger=layout==='cross'?(index%2)*1+Math.floor(index/2)*.18:layout==='pincer'?(index%2)*.55+Math.floor(index/2)*.18:layout==='chase'?index*.22:Math.floor((index+1)/2)*.16;
+  const stagger=layout==='cross'?(index%2)*.82+Math.floor(index/2)*.16:layout==='pincer'?(index%2)*.48+Math.floor(index/2)*.16:layout==='chase'?index*.18:Math.floor((index+1)/2)*.16;
   e.directorLaunchAt=e.directorReadyAt+stagger;e.directorFireHoldUntil=e.directorLaunchAt;
   e.directorChoreographyDone=false;e.directorBeat=null;
   if(['headOn','veteran','chase'].includes(layout)){e.a=layout==='chase'?Math.atan2(p.y-e.y,p.x-e.x):game.battleDirector.anchor.a+Math.PI;e.combatPassHeading=e.a;}
@@ -421,7 +441,7 @@ function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
  // creates the existing Break/re-entry opening instead of a homing attack.
  if(e.directorBeat==='attack'&&Number.isFinite(e.directorPassAim))return{delta:angleDiff(e.directorPassAim,e.a),turn:baseTurn};
  let heading=fighterAim(game,e,contact);
- if(e.directorRole==='cover'&&!e.directorRoleTarget){
+ if(e.directorRole==='cover'&&!e.directorRoleTarget&&!(e.directorBeat==='attack'&&now-e.directorLaunchAt>.55&&Math.hypot(contact.x-e.x,contact.y-e.y)<390)){
   const slot=e.directorSlot===1?-1:1;
   return formationStationSteering(e,squad.leader,{back:-65,lateral:slot*100},dt,baseTurn,angleDiff);
  }
@@ -518,7 +538,8 @@ function endCircleDefense(game,squad){
 function updateCircleDefense(game,squad,living,now){
  const players=(game.players||[game]).filter(visibleContact);
  let circle=squad.circle;
- if(circle&&(living.length<3&&now-circle.start>=.85||!players.length||now-circle.start>8||living.some(w=>tacticalRest(w,now)))){endCircleDefense(game,squad);return;}
+ const leaving=circle&&players.length&&players.every(p=>{const dx=p.x-circle.x,dy=p.y-circle.y;return Math.hypot(dx,dy)>circle.radius&&dx*Math.cos(p.a)+dy*Math.sin(p.a)>0;});
+ if(circle&&(living.length<3&&now-circle.start>=.85||!players.length||leaving||now-circle.start>8||living.some(w=>tacticalRest(w,now)))){endCircleDefense(game,squad);return;}
  if(now<(squad.circleDecisionAt||0))return;squad.circleDecisionAt=now+.35;
  let victim=null,pursuer=null;
  for(const w of living){pursuer=players.find(p=>rearThreat(p,w));if(pursuer){victim=w;break;}}
@@ -835,7 +856,9 @@ function tickDirector(game,dt){
  // slots. Remove only departed ordinary scene aircraft, without kill rewards.
  const zoom=game.camera?.zoom||1,cx=game.camera?.x??game.x,cy=game.camera?.y??game.y;
  const inView=e=>Math.abs(e.x-cx)<(game.viewWidth||960)/(2*zoom)&&Math.abs(e.y-cy)<(game.viewHeight||720)/(2*zoom);
- if((game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.crashing&&inView(e))||(game.bullets||[]).some(b=>b.enemy&&b.life>0&&inView(b)))state.lastPressureAt=now;
+ const aircraftContact=(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.crashing&&inView(e));
+ if(aircraftContact)state.lastContactAt=now;
+ if(aircraftContact||(game.bullets||[]).some(b=>b.enemy&&b.life>0&&inView(b)))state.lastPressureAt=now;
  for(let i=(game.enemies?.length||0)-1;i>=0;i--){const e=game.enemies[i];if(regular(e)&&e.directorSceneId&&(e.directorLayout==='recovery'||e.directorSceneId<state.sceneId)&&!e.battlefieldEventId&&!e.bossMinion&&!e.stageBossBody&&(Math.abs(e.x-cx)>(game.viewWidth||960)/(2*zoom)+190||Math.abs(e.y-cy)>(game.viewHeight||720)/(2*zoom)+190)){e.expired=true;game.enemies.splice(i,1);}}
  const ace=activeAce(game),elite=!!game.eliteEnemies?.active||!!game.squadronDirector?.owner,previousAce=state.hadAce,previousElite=state.hadElite;
  state.hadAce=ace;state.hadElite=elite;
@@ -900,7 +923,10 @@ function tickDirector(game,dt){
  // Arrive as one squad, but spread the spawn cost over a few frames:
  // at most two new aircraft per tick, the rest join on following ticks.
  const slots=Math.min(state.queue.length,Math.max(0,cap-live),2);
- for(let i=0;i<slots;i++){
+ // A type-specific cap (for example rural bombers) must not block eligible
+ // fighters behind it. Retry blocked entries later without enlarging any cap.
+ const deferred=[];let admitted=0;
+ for(let attempts=state.queue.length;attempts>0&&admitted<slots;attempts--){
   const due=state.queue.findIndex(item=>now>=state.startedAt+.35+(item.delay||0));if(due<0)break;const [next]=state.queue.splice(due,1);let e;
   game.directorSpawning=true;try{e=game.spawnEnemy?.(next.type)}finally{game.directorSpawning=false}
   if(e){
@@ -908,12 +934,17 @@ function tickDirector(game,dt){
    // Existing formation paint can retune a regional two-seater to its ordinary
    // fighter fit. Seed intent using that final airframe instead of a stale fit.
    if(!e.directorSquad&&directorAircraftEligible(game,e))place(game,e,next.layout,next.index,next.count);
-   state.spawned++;
+   if(next.frontTarget){
+    (game.frontTargets??=[]).push(e);e.frontTarget=true;
+    game.event?.('wave','추가 주요표적 · 폭격기 진입');
+   }
+   state.spawned++;admitted++;
    state.objective?.members.push(e);
    if(e.type==='bomber'){e.directorRouteHeading=e.combatPassHeading??e.a;e.directorRouteOrigin={x:e.x,y:e.y};}
   }
-  else{state.queue.unshift(next);break;}
+  else deferred.push(next);
  }
+ state.queue.unshift(...deferred);
  state.nextActionAt=state.queue.length?now+.05:now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
 
@@ -951,8 +982,8 @@ export function installBattleDirector(Game,deps={}){
   if((this.t||0)<e.dangerAimUntil){e.fire=e.dangerAimUntil-(this.t||0);return false}
   e.dangerAimUntil=0;return true;
  };
- Game.prototype.directorMobSpawnsSuppressed=function(){if(this.battlefieldEventSpawning||this.bossMechanicSpawn)return false;if(exclusiveEvent(this))return true;const state=this.battleDirector;return !!(state&&state.pattern&&!state.suspended&&state.pattern!==P.ACE_PRESSURE&&!activeAce(this))};
- Game.prototype.tickBattleDirector=function(dt){this._directorStep=Math.min(.04,Math.max(0,dt||0));if(this.state==='playing')tickSquadrons(this,this._directorStep);return tickDirector(this,dt)};
+ Game.prototype.directorMobSpawnsSuppressed=function(){if(this.battlefieldEventSpawning||this.bossMechanicSpawn)return false;if(this.operationBattle||exclusiveEvent(this))return true;const state=this.battleDirector;return !!(state&&state.pattern&&!state.suspended&&state.pattern!==P.ACE_PRESSURE&&!activeAce(this))};
+ Game.prototype.tickBattleDirector=function(dt){if(this.operationBattle)return;this._directorStep=Math.min(.04,Math.max(0,dt||0));if(this.state==='playing')tickSquadrons(this,this._directorStep);return tickDirector(this,dt)};
  Game.prototype.beginBattleDirectorPattern=function(pattern){if(!Object.values(P).includes(pattern))return null;return beginPattern(this,directorState(this),pattern)};
 
  const regularLimit=Game.prototype.regularEnemyLimit;

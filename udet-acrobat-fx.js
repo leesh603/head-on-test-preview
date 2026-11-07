@@ -1,5 +1,5 @@
 // Authored air ribbons show real earned charges; muzzle accents require a real shot.
-import {udetPhase,udetStacks,udetRollPose} from './udet-acrobatics.js';
+import {udetPhase,udetStacks,udetRollPose} from './udet-acrobatics.js?v=09c75d146ae4289d';
 export const UDET_FX_PALETTE=Object.freeze({red:'#d96363',ivory:'#f3e9d2',gold:'#efd18b',smoke:'#b4a5a3'});
 const clamp=n=>Math.max(0,Math.min(1,n));
 export function drawUdetWake(c,p,tex){const f=p.udetAcrobat;if(!f)return;

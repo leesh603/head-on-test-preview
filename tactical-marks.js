@@ -10,25 +10,25 @@ function inked(c,width,color,path){c.lineCap='round';c.lineJoin='round';c.stroke
 const toneColor=(tone,heavy)=>heavy?MARK.heavy:MARK[tone]||tone||MARK.warn;
 
 // Pre-impact zone. p = warning progress 0..1 (brackets close onto r at 1).
-export function impactMark(c,x,y,r,p=0,{heavy=false,tone='warn',alpha=1,cross=true,fill=true}={}){
+export function impactMark(c,x,y,r,p=0,{heavy=false,tone='warn',alpha=1,cross=true,fill=true,exact=false}={}){
  if(!(r>0))return;p=clamp01(p);const col=toneColor(tone,heavy);
  c.save();c.setLineDash([]);c.globalAlpha*=alpha;
- if(fill){c.fillStyle=`rgba(22,12,6,${.08+.2*p})`;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();}
- const rr=r*(1.28-.28*p),span=Math.min(.42,22/Math.max(1,rr)+.22),tick=Math.min(r*.14,12);
+ if(fill){c.fillStyle=exact&&heavy?`rgba(157,31,19,${.14+.18*p})`:`rgba(22,12,6,${.08+.2*p})`;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();}
+ const rr=exact?r:r*(1.28-.28*p),span=Math.min(.42,22/Math.max(1,rr)+.22),tick=Math.min(r*.14,12);
  for(let i=0;i<4;i++){const m=i*Math.PI/2+Math.PI/4;
   inked(c,heavy?3:2.4,col,()=>{c.beginPath();c.arc(x,y,rr,m-span,m+span);});
   inked(c,1.6,col,()=>{c.beginPath();c.moveTo(x+Math.cos(m)*rr,y+Math.sin(m)*rr);c.lineTo(x+Math.cos(m)*(rr-tick),y+Math.sin(m)*(rr-tick));});}
  c.globalAlpha*=.55;c.setLineDash([3,7]);inked(c,1,col,()=>{c.beginPath();c.arc(x,y,r,0,TAU);});c.setLineDash([]);c.globalAlpha/=.55;
- if(heavy){c.globalAlpha*=.8;inked(c,1.2,col,()=>{c.beginPath();c.arc(x,y,r*.5,0,TAU);});c.globalAlpha/=.8;}
+ if(heavy&&(!exact||fill)){c.globalAlpha*=.8;inked(c,1.2,col,()=>{c.beginPath();c.arc(x,y,r*.5,0,TAU);});c.globalAlpha/=.8;}
  if(cross){const s=Math.min(7,r*.25);inked(c,1.5,col,()=>{c.beginPath();c.moveTo(x-s,y);c.lineTo(x+s,y);c.moveTo(x,y-s);c.lineTo(x,y+s);});}
  c.restore();
 }
 // Expanding shock / sand ring: the danger is the band between inner and outer.
-export function bandMark(c,x,y,inner,outer,p=0,{heavy=false,tone='warn'}={}){
+export function bandMark(c,x,y,inner,outer,p=0,{heavy=false,tone='warn',exact=false}={}){
  const col=toneColor(tone,heavy);c.save();c.setLineDash([]);
- c.fillStyle=`rgba(22,12,6,${.06+.12*clamp01(p)})`;c.beginPath();c.arc(x,y,outer,0,TAU);if(inner>0)c.arc(x,y,inner,0,TAU,true);c.fill('evenodd');
+ c.fillStyle=exact&&heavy?`rgba(157,31,19,${.11+.15*clamp01(p)})`:`rgba(22,12,6,${.06+.12*clamp01(p)})`;c.beginPath();c.arc(x,y,outer,0,TAU);if(inner>0)c.arc(x,y,inner,0,TAU,true);c.fill('evenodd');
  c.setLineDash([3,7]);c.globalAlpha*=.6;if(inner>0)inked(c,1,col,()=>{c.beginPath();c.arc(x,y,inner,0,TAU);});c.globalAlpha/=.6;c.setLineDash([]);
- c.restore();impactMark(c,x,y,outer,p,{heavy,tone,fill:false,cross:false});
+ c.restore();impactMark(c,x,y,outer,p,{heavy,tone,fill:false,cross:false,exact});
 }
 // Weak point / hittable part: four square corner brackets (no ring).
 export function partMark(c,x,y,rx,ry=rx,{color='#e8cf98',alpha=1,hp=null,brackets=true}={}){

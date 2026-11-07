@@ -1,4 +1,4 @@
-import {pilotPopoverDescription} from './pilot-identity-copy.js?v=merge20261017';
+import {pilotPopoverDescription} from './pilot-identity-copy.js?v=09c75d146ae4289d';
 /* Hangar compact (Phase 2). Presentation only: an aircraft sheet toggle and
    tap-to-read skill badges on phones. Never clones state, never touches
    handlers of existing controls. */

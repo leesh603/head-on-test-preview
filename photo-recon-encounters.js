@@ -1,4 +1,5 @@
-import {majorEncounterBlocked} from './encounter-admission.js';
+import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
+import {majorEncounterBlocked} from './encounter-admission.js?v=09c75d146ae4289d';
 /** Enemy photographic reconnaissance: a periodic mission, not a boss or player camera objective. */
 export const PHOTO_RECON_BALANCE=Object.freeze({firstMin:6,firstMax:8,intervalMin:70,intervalMax:100,deadline:18,delayMin:8,delayMax:12,dispatchWindow:9,bossReserve:6,spawnSpacing:.45});
 export const PHOTO_RECON_PROFILES=Object.freeze({
@@ -119,7 +120,7 @@ function fireRecon(g,e){
  // Forward fixed MG and rear observer's defensive arc, not 360-degree fire.
  if(Math.abs(delta)>.22&&Math.abs(delta)<Math.PI-.85)return true;
  const rear=Math.abs(delta)>Math.PI/2,a=rear?aim:e.a,offset=rear?-12:20;
- g.bullets??=[];g.bullets.push({x:e.x+Math.cos(e.a)*offset,y:e.y+Math.sin(e.a)*offset,vx:Math.cos(a)*185,vy:Math.sin(a)*185,life:2,enemy:true,sourceX:e.x,sourceY:e.y,damage:profile.damage*(1+(g.t||0)/240),visualType:'scout'});e.muzzleFlash=.14;e.gunAim=a;g.event?.('enemyShot','');return true;
+ g.bullets??=[];g.bullets.push({x:e.x+Math.cos(e.a)*offset,y:e.y+Math.sin(e.a)*offset,vx:Math.cos(a)*185,vy:Math.sin(a)*185,life:2,enemy:true,sourceX:e.x,sourceY:e.y,damage:profile.damage*(1+combatDamageTime(g)/240),visualType:'scout'});e.muzzleFlash=.14;e.gunAim=a;g.event?.('enemyShot','');return true;
 }
 export function installPhotoReconEncounters(Game){
  const p=Game.prototype;if(Object.hasOwn(p,'__photoReconEncounters'))return;p.__photoReconEncounters=true;
@@ -130,6 +131,8 @@ export function installPhotoReconEncounters(Game){
  // nextBossAt/pendingAceCount in the legacy wave loop and loses the reservation.
  const scheduled=p.runScheduledAces;if(scheduled)p.runScheduledAces=function(...args){if(photoReconActive(this))return;return scheduled.apply(this,args);};
  for(const name of ['offerBattlefieldEvent','availableAcePilots']){const previous=p[name];if(previous)p[name]=function(...args){if(photoReconActive(this))return name==='availableAcePilots'?[]:null;return previous.apply(this,args);};}
- const director=p.tickBattleDirector;p.tickBattleDirector=function(dt){if(host(this)&&['pending','dispatching'].includes(this.photoReconDirector?.phase))return;return director?.call(this,dt);};
+ // The Director reserves a three/four-aircraft ordinary budget throughout all
+ // active recon phases. Let it advance during the warned reinforcement delay;
+ // the suppression wrappers below still prevent unbudgeted ambient waves.
  for(const name of ['mobSpawnsSuppressed','directorMobSpawnsSuppressed']){const suppression=p[name];p[name]=function(){return ['pending','dispatching'].includes(this.photoReconDirector?.phase)||suppression?.call(this);};}
 }

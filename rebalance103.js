@@ -1,6 +1,6 @@
-import {isFinalArenaTargetProxy} from './final-arena-budget.js';
+import {isFinalArenaTargetProxy} from './final-arena-budget.js?v=09c75d146ae4289d';
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {WING_PLANES} from './engine.js?v=09c75d146ae4289d';
 
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
@@ -18,10 +18,10 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  PILOTS.hawker={name:'라노 호커',alias:'VICTORIA CROSS',faction:'entente',portrait:1,skill:'모든 것을 공격하라',desc:'5초간 공격속도 +100%, 기관총 탄약 무제한.',cooldown:20};
  PILOTS.berthold={name:'루돌프 베르톨트',alias:'THE IRON KNIGHT',faction:'central',portrait:0,skill:'불굴의 의지',desc:'5초간 받는 피해 65% 감소. 저체력 패시브와 중첩됩니다.',cooldown:20};
  PILOT_PLANES.hawker='airco_dh2';PILOT_PLANES.berthold='pfalz_d3a';
- const passives={baron:['사냥 본능','강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.'],fonck:['정밀의 에이스','기관총 탄퍼짐 감소, 탄속 +25%.'],voss:['고독한 늑대','400 범위 적 1기당 공격력·속도·선회 +4%, 최대 +24%.'],boelcke:['Dicta Boelcke','적 측면·후방에서 기관총 피해 +25%.'],collishaw:['Black Flight','검은 삼엽기 윙맨 2기가 서로 다른 적을 분산 압박합니다.'],baracca:['Cavallino Rampante','적과 정면으로 마주칠 때 기관총 피해 +30%.'],udet:['공중 곡예사','현재 체력이 100보다 낮으면 부족한 체력 1당 공격력 +0.5%, 속도·선회 +0.3%.'],guynemer:['모퇴르 카농','4초마다 피해 90의 대형 관통 기관포 발사.'],bishop:['근접 사냥꾼','300 범위 안의 적에게 기관총 피해 +80%.'],goering:['백색 편대장','백색 윙맨 1기와 상시 출격.'],immelmann:['독일의 독수리','큰 방향전환·선회기동 직후 1.5초간 탄 퍼짐 감소·연사 +20%.'],mannock:['엄호전의 에이스','아군을 공격 중인 적에게 기관총 피해 +15%, 엄호 교전 중 연사 +15%.'],mckeever:['후방사수 · 파월','전방과 후방 동시 사격.'],huffzky:['후방 사수','에만이 후방의 적을 상시 조준하여 견제합니다.'],hawker:['빅토리아 십자훈장 수훈자','선회 속도 손실 −25%. 직진 유지 시 최대 속도 +20%.'],berthold:['철혈의 에이스','체력 50% 이하에서 받는 피해 25% 감소.']};
+ const passives={baron:['사냥 본능','강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.'],fonck:['정밀의 에이스','기관총 탄퍼짐 감소, 탄속 +25%.'],voss:['고독한 늑대','400 범위 적 1기당 공격력·속도·선회 +4%, 최대 +24%.'],boelcke:['Dicta Boelcke','적 측면·후방에서 기관총 피해 +25%.'],collishaw:['Black Flight','검은 삼엽기 편대기 2기가 서로 다른 적을 분산 압박합니다.'],baracca:['Cavallino Rampante','적과 정면으로 마주칠 때 기관총 피해 +30%.'],udet:['공중 곡예사','현재 체력이 100보다 낮으면 부족한 체력 1당 공격력 +0.5%, 속도·선회 +0.3%.'],guynemer:['모퇴르 카농','4초마다 피해 90의 대형 관통 기관포 발사.'],bishop:['근접 사냥꾼','300 범위 안의 적에게 기관총 피해 +80%.'],goering:['백색 편대장','백색 편대기 1기와 상시 출격.'],immelmann:['독일의 독수리','큰 방향전환·선회 기동 직후 1.5초간 탄 퍼짐 감소·연사 +20%.'],mannock:['엄호전의 에이스','아군을 공격 중인 적에게 기관총 피해 +15%, 엄호 교전 중 연사 +15%.'],mckeever:['후방사수 · 파월','전방과 후방 동시 사격.'],huffzky:['후방 사수','에만이 후방의 적을 상시 조준하여 견제합니다.'],hawker:['빅토리아 십자훈장 수훈자','선회 속도 손실 −25%. 직진 유지 시 최대 속도 +20%.'],berthold:['철혈의 에이스','체력 50% 이하에서 받는 피해 25% 감소.']};
  for(const[id,[name,desc]]of Object.entries(passives)){PILOTS[id].passive=name;PILOTS[id].passiveDesc=desc;}
  PILOTS.collishaw.desc='6초간 블랙 플라이트가 좌우로 갈라져 서로 다른 각도에서 적을 협공합니다. 무적 없음.';
- PILOTS.goering.desc='백색 윙맨 1기와 상시 출격. 신호탄에 맞춰 편대가 수렴하며 5초간 윙맨 공격력 3배·공격속도 2배.';
+ PILOTS.goering.desc='백색 편대기 1기와 상시 출격. 신호탄에 맞춰 편대가 수렴하며 5초간 편대기 공격력 3배·공격속도 2배.';
  PILOTS.immelmann.cooldown=11;
   const descriptions={prancingHorse:'이동 속도 +20%, 전방에서 받는 피해 −25%.',ironCross:'파일럿 액티브가 강화되고 재사용 대기시간이 20% 감소합니다.',steelPlate:'기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%. 한 출격 1회.',loEmblem:'최대 내구도 −50%. 기관총·폭발물·편대 피해 +30%, 편대 연사 +30%, 이동 속도·선회력 +20%.',sacredCowling:'근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.',boelckeDicta:'경험치 획득량 +30%. 협동에서는 보유자에게만 적용됩니다.',fogCompass:'경험치와 수리 아이템의 획득 반경이 크게 증가합니다.',rearGunner:'기본 기관총 사격 방향이 초당 약 66°로 회전합니다. 완전 후방 조준 약 2.7초. 총기 수·탄약 소모는 유지됩니다.'};
  const names={steelPlate:'J형 장갑 캡슐',boelckeDicta:'뵐케의 금언집',fogCompass:'C-O 5/17 에어로 컴퍼스',rearGunner:'스카프링 총좌'};
@@ -197,7 +197,17 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
   // Scripted escorts have a reserved formation budget; ordinary waves retain
   // their adaptive cap and every path remains under the existing hard limit.
   if(live.length+reserved+aceReserve+laonReserve>=(this.bossMechanicSpawn?65:this.enemyCapacity()))return false;
-  const regularAircraft=live.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type));
+  // The Director has already deducted active mission aircraft from its ordinary
+  // budget. Do not charge those same owned targets a second time here. Keep
+  // unowned/stale targets in the count and keep the world-wide limit above.
+  let reservedMissionAircraft=null;
+  if(this.directorSpawning){
+   const fronts=(this.ruralFronts?.fronts||[]).filter(f=>f.status==='active');
+   const frontAircraft=fronts.flatMap(f=>(f.enemies||[]).filter(e=>e.hp>0&&!e.expired));
+   if(frontAircraft.length)reservedMissionAircraft=new Set(frontAircraft.filter(e=>e.missionTarget));
+   else{const event=this.battlefieldEvents?.current;if(event?.status==='active'&&event.id!=null)reservedMissionAircraft=new Set(live.filter(e=>e.missionTarget&&e.battlefieldEventId===event.id));}
+  }
+  const regularAircraft=live.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)&&!reservedMissionAircraft?.has(e));
   if(['scout','hunter','bomber'].includes(type)&&((!this.bossMechanicSpawn&&!this.battlefieldEventSpawning)||laonReserve>0)&&regularAircraft.length+laonReserve>=this.regularEnemyLimit())return false;
   if(type==='zeppelin'&&!this.bossMechanicSpawn&&live.some(e=>e.type==='zeppelin'))return false;
   if(type==='heavyBomber'&&live.some(e=>e.heavyBomber))return false;

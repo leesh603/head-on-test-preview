@@ -1,5 +1,5 @@
-import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
-import {factoryMuzzleLocal} from './pandemonium-factory-mechanics.js';
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=09c75d146ae4289d';
+import {factoryMuzzleLocal} from './pandemonium-factory-mechanics.js?v=09c75d146ae4289d';
 // Only authored sprites: no geometry stand-ins for missing factory artwork.
 export const profile=Object.freeze({variant:'factory',label:'공장형 · 이동 군수공장',worldScale:1,width:512,height:768,pivot:{x:256,y:384},assetRoot:'./asset-bank/pandemonium-factory/'});
 const specs={"aaHead": [135.0, 134.98046875, 0.19598086124401914], "aaBarrel": [58.265625, 315.60546875, 0.15311004784688995], "aaWreck": [139.18359375, 137.0, 0.19598086124401914], "crawlerHousing": [139.0, 185.18359375, 0.2143540669856459], "crawlerWreck": [143.18359375, 186.28515625, 0.2143540669856459], "craneBoom": [204, 526, 0.22]};

@@ -1,15 +1,15 @@
-import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
-import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
-import {equipmentMountArtReady} from './equipment-mount-fx.js?v=equipmentmount20261030';
-import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=equipmentdetail20261030';
-import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=equipmentextension20261030';
-import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=equipmentart20261030';
-import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {WWI_FRAMES} from './wwi-equipment-art-data.js';
-import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
-import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
-import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=09c75d146ae4289d';
+import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js?v=09c75d146ae4289d';
+import {equipmentMountArtReady} from './equipment-mount-fx.js?v=09c75d146ae4289d';
+import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=09c75d146ae4289d';
+import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=09c75d146ae4289d';
+import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=09c75d146ae4289d';
+import {bombSprite} from './bomb-sprites.js?v=09c75d146ae4289d';
+import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=09c75d146ae4289d';
+import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js?v=09c75d146ae4289d';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=09c75d146ae4289d';
+import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js?v=09c75d146ae4289d';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=09c75d146ae4289d';
 
 let atlas,bomb,brakePanel,grapnelAtlas;
 const load=(file,set)=>new Promise(resolve=>{
@@ -59,7 +59,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    sprite(c,'grapnelHead',sx(b.x),sy(b.y),20*z,b.target?.a??0);
   }
   for(const field of p.synthesisZones||[])if(field.life>0&&visible(field.x,field.y,150)){
-   if(field.payload.incendiary)drawIncendiaryFire(c,sx(field.x),sy(field.y),0,100*z,3-field.life,Math.min(1,field.life));
+   if(field.payload.incendiary)drawIncendiaryFire(c,sx(field.x),sy(field.y),0,100*z,3-field.life,Math.min(1,field.life),'legacy');
    if(field.payload.smoke)sprite(c,'verySmoke',sx(field.x),sy(field.y),190*z,0,Math.min(.7,field.life));
   }
   c.save();c.translate(sx(pose.x),sy(pose.y));c.scale(z*(pose.scale||1),z*(pose.scale||1));c.globalAlpha*=pose.alpha??1;applyPlayerAttitude(c,p,pose);

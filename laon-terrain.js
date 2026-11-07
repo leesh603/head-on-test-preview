@@ -1,4 +1,4 @@
-import {applyTerrainAtmosphere} from './alps-terrain117.js?v=gal1&phoneperf=20261103';
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=09c75d146ae4289d';
 // Authored Laon woodland emplacement, anchored to the actual gun foundation.
 // This renderer owns scenery only: no RNG, camera, collision or mission clock.
 export const LAON_GROUND=Object.freeze({size:1536,sourceWidth:1254,sourceHeight:1254,foundationX:625,foundationY:820});

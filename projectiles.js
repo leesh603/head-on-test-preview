@@ -1,13 +1,13 @@
-import {canvasCullView,outsideCanvas} from './render-culling.js';
-import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
-import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
-import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
-import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
+import {canvasCullView,outsideCanvas} from './render-culling.js?v=09c75d146ae4289d';
+import {drawWhiteFlightRound} from './goering-whiteflight-fx.js?v=09c75d146ae4289d';
+import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js?v=09c75d146ae4289d';
+import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=09c75d146ae4289d';
+import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js?v=09c75d146ae4289d';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=09c75d146ae4289d';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=tame3';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=09c75d146ae4289d';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -89,6 +89,7 @@ export function tacticalTracerProfile(b){
 // These are still machine-gun rounds: short painted needles with a restrained
 // warm tail, rather than the old 48–50px white capsules joining into a beam.
 const PILOT_GUN_TRACERS=Object.freeze({
+ ironSalvo:Object.freeze({length:18,width:2.7,color:'#b98353',core:'#ffe0a0',glow:.16}),
  nungesserCounter:Object.freeze({length:28,width:3.2,color:'#bdab89',core:'#f4e7c9',glow:.10}),
  nungesserBreakthrough:Object.freeze({length:25,width:3,color:'#b9b4a6',core:'#e8e4d6',glow:.08}),
  fonck:Object.freeze({length:22,width:3.3,color:'#c8ac79',core:'#f0e3c5',glow:.18}),
@@ -97,7 +98,7 @@ const PILOT_GUN_TRACERS=Object.freeze({
 });
 export function pilotGunTracerStyle(b){
  if(!b||b.enemy||b.rocket||b.motorCannon||b.cow37||b.actualExplosion||b.blast||!(b.life>0))return null;
- return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:(b.ally||b.formation||b.patrol)?null:b.nungesserCounter?PILOT_GUN_TRACERS.nungesserCounter:b.nungesserBreakthrough?PILOT_GUN_TRACERS.nungesserBreakthrough:null;
+ return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:(b.ally||b.formation||b.patrol)?null:b.ironSalvo?PILOT_GUN_TRACERS.ironSalvo:b.nungesserCounter?PILOT_GUN_TRACERS.nungesserCounter:b.nungesserBreakthrough?PILOT_GUN_TRACERS.nungesserBreakthrough:null;
 }
 export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
  const scale=b?.ammunitionScale||1;
@@ -109,7 +110,7 @@ export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
 function drawPilotGunTracerBody(c,b,x,y,paint,ready){
  if(drawNungesserBlackRound(c,b,x,y,paint,ready))return true;
  const signature=gunSignatureId(b);
- if(['mauser','incendiary','telescope'].includes(signature)||signature==='piercing'&&!b.nungesserCounter&&!b.nungesserBreakthrough)return false;
+ if(['mauser','incendiary','telescope'].includes(signature)||signature==='piercing'&&!b.ironSalvo&&!b.nungesserCounter&&!b.nungesserBreakthrough)return false;
  const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
  const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.5,cy=y-Math.sin(a)*s.length*.5;
  if(ready('tracerCore')){

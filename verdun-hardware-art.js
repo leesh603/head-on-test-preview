@@ -1,4 +1,4 @@
-import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=tame3';
+import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=09c75d146ae4289d';
 
 // Measured barrel/receiver joints in the approved source crops. The lower
 // carriage retains its pivot; only the steel above this joint recoils.

@@ -1,4 +1,5 @@
-import {airThreatMuzzles,aaMuzzle} from './air-threat-profiles.js';
+import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
+import {airThreatMuzzles,aaMuzzle} from './air-threat-profiles.js?v=09c75d146ae4289d';
 // Existing volley schedules call these helpers. They create no extra enemies,
 // timers or prototype layers, and cap fire well below the previous 45-round volley.
 function protectedUnit(e){return !e?.airThreatArt||e.stageBossBody||e.bossMinion||e.bossPilot;}
@@ -13,7 +14,7 @@ export function fireAirThreatVolley(g,e,followup=false){
  if(e.hp<=0||g.sunStrikeContains?.(e)||(g.online&&g.host===false))return true;
  const muzzles=airThreatMuzzles(e),role=e.airThreatRole;
  const count=role==='heavy-defense'?3:role==='bomber'?2:1;
- const damage=Math.round(9*(1+(g.t||0)/240));
+ const damage=Math.round(9*(1+combatDamageTime(g)/240));
  for(const m of muzzles)emit(g,e,m,count,role==='bomber'?160:185,damage);
  e.muzzleFlash=.14;g.event?.('enemyShot','');return true;
 }

@@ -1,5 +1,5 @@
 // Tiny authored Scarff hardware and compass pickup wisps. Visual state only.
-import {WWI_FRAMES} from './wwi-equipment-art-data.js';
+import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=09c75d146ae4289d';
 // Visual reuse of the existing Lewis-shaped Hythe hardware; not a claim that
 // the camera sprite is a historically exact Scarff gun. Preserve its full cell
 // alpha, but size using the painted235px bbox and register the magazine pivot.

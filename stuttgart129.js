@@ -1,5 +1,5 @@
-import {steerNaval} from './adriatic-boss-layout.js?v=tame3';
-import {FixedPool} from './support-pool129.js';
+import {steerNaval} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
+import {FixedPool} from './support-pool129.js?v=09c75d146ae4289d';
 export const HANGAR=Object.freeze({x:0,y:.213,w:.25,h:.314}); // normalized to full base image
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function segmentDistance(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?clamp(((x-a.x)*dx+(y-a.y)*dy)/l,0,1):0;return Math.hypot(x-a.x-t*dx,y-a.y-t*dy);}
@@ -132,7 +132,7 @@ export class StuttgartSupport {
   if(this.fireWarning){this.fireWarning.left-=dt;if(this.fireWarning.left<=0){const warning=this.fireWarning;this.fireWarning=null;this.fire(warning.targets,warning.angle,warning.gunIds);}}
   if(this.phase===1){this.fireClock-=dt;if(this.time>=1.8&&this.fireClock<=0&&!this.fireWarning){this.fireClock=5.5*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.prepareFire(players);}}
   this.projectiles.visit(p=>{if(p.age<p.warning&&p.sourcePartId&&this.parts.get(p.sourcePartId)?.hp<=0){this.projectiles.release(p.index,p.generation);return;}const ax=p.x,ay=p.y;p.age+=dt;if(p.age<p.warning)return;if(!p.activated){p.activated=true;if(p.raidHeavy)this.onCue({type:'hazard-activated',encounterId:this.id,kind:'projectile',visual:'stuttgart-flak',ordnanceFamily:p.ordnanceFamily,raidHeavy:true,sourcePartId:p.sourcePartId,x:p.x,y:p.y});}p.x+=p.vx*dt;p.y+=p.vy*dt;
-   if(p.kind==='flak'&&!p.applied){p.applied=true;this.fx('burst',p.x,p.y,p.radius,.45);this.onCue({type:'flak-burst',encounterId:this.id,x:p.x,y:p.y});}
+   if(p.kind==='flak'&&!p.applied){p.applied=true;this.fx('flakBurst',p.x,p.y,p.radius,.45);this.onCue({type:'flak-burst',encounterId:this.id,x:p.x,y:p.y});}
    for(const target of players){if(!p.active||!target.alive||p.hits.has(target.id))continue;
     const old={x:target.teleported?target.x:target.previousX??target.x,y:target.teleported?target.y:target.previousY??target.y};
     const hit=p.kind==='shell'?segmentDistance(0,0,{x:ax-old.x,y:ay-old.y},{x:p.x-target.x,y:p.y-target.y})<=p.radius+(target.radius??0):Math.hypot(p.x-target.x,p.y-target.y)<=p.radius+(target.radius??0);

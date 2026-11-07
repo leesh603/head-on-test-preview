@@ -1,4 +1,4 @@
-import {weaponImpactKind} from './weapon-impact-profile.js';
+import {weaponImpactKind} from './weapon-impact-profile.js?v=09c75d146ae4289d';
 // Choreography for the existing combatFX list and approved painted sprites.
 // No damage, timers, simulation RNG, emitted particles, or additional atlas.
 export const EXPLOSION_LIFE=Object.freeze({aircraft:.72,fuelFire:3.2,groundShell:.48,heavyShell:.88,ammoCookoff:2.65,bulletImpact:.27,armorBreak:.85,engineBreak:1.5,navalBreak:1.3});
@@ -12,18 +12,45 @@ export function advanceReplicaImpactFx(world,dt){
  }
 }
 export function combatFxAge(f){return Math.max(0,f.maxLife-f.life)+(replicaAges.get(f)?.age||0)}
+// Keep the same small queues, but spend them on the most meaningful contacts.
+// Expired/ordinary effects yield before player hits, parts, and boss destruction.
+export function combatFxPriority(f){
+ if(f.life<=0||f.fxHidden)return -1;
+ if(f.kind==='bossFinal'||f.fxProfile==='bossFinal'||f.fxSource==='bossFinal'||f.v1500Cascade||f.riiCascade)return 7;
+ if(f.presentationContact||f.fxProfile==='aircraftCritical'&&f.player)return 6;
+ if(['armorBreak','engineBreak','navalBreak'].includes(f.fxProfile))return 5;
+ if(f.fxProfile==='aircraftCritical'&&f.pilotKill)return 4;
+ if(f.finisher||f.breakup||f.killExplosion||f.fxProfile==='aircraftCritical'&&f.lethal)return 3;
+ if(f.fxProfile==='aircraftCritical')return 2;
+ return f.fxProfile==='bulletImpact'?0:1;
+}
+function evictionIndex(list,priority,group){
+ let index=-1,lowest=Infinity;
+ for(let i=0;i<list.length;i++)if(!group||group(list[i])){
+  const rank=combatFxPriority(list[i]);
+  if(rank<=priority&&rank<lowest){index=i;lowest=rank;}
+ }
+ return index;
+}
+export function reserveCombatFxSlot(world,f,group=null,limit=0){
+ const list=world.combatFX??=[],priority=combatFxPriority(f);
+ if(group){
+  let count=0;for(const current of list)if(group(current))count++;
+  while(count>=limit){const i=evictionIndex(list,priority,group);if(i<0)return false;list.splice(i,1);count--;}
+ }
+ while(list.length>=EXPLOSION_LIMITS.total){const i=evictionIndex(list,priority);if(i<0)return false;list.splice(i,1);}
+ return true;
+}
+const bulletImpact=f=>f.fxProfile==='bulletImpact';
+const compactMgImpact=f=>f.ordinaryMg===true&&!f.finisher&&!f.breakup&&!f.blocked&&!f.partHit&&!f.railArmor&&!f.incendiary&&!f.piercing;
+const profiled=f=>!!f.fxProfile;
 export function queueCombatImpact(world,round,target,details){
  const now=world.t||0,previous=impactTimes.get(target)??-Infinity;
  if(!details.finisher&&!details.breakup&&now-previous<(world.viewWidth<=720?.065:.045))return null;
  impactTimes.set(target,now);
- const list=world.combatFX??=[],limit=world.viewWidth<=720?8:14;
- let count=0,oldest=-1;
- for(let i=0;i<list.length;i++)if(list[i].fxProfile==='bulletImpact'){count++;if(oldest<0)oldest=i;}
- if(count>=limit)list.splice(oldest,1);
- // A light hit must never evict a boss collapse or a heavy impact.
- if(list.length>=EXPLOSION_LIMITS.total)return null;
  const f={x:round.x,y:round.y,radius:18,life:.27,maxLife:.27,fxProfile:'bulletImpact',feedbackId:'hit:'+(world.combatFeedbackSerial=(world.combatFeedbackSerial||0)+1),direction:Math.atan2(round.vy||0,round.vx||0),...details};
- list.push(f);return f;
+ if(!reserveCombatFxSlot(world,f,bulletImpact,world.viewWidth<=720?8:14))return null;
+ world.combatFX.push(f);return f;
 }
 export const EXPLOSION_LIMITS=Object.freeze({mobile:18,desktop:28,total:35});
 const FRAMES=Object.freeze({air:['profileAir0','profileAir1','profileAir2','profileAir3'],earth:['profileEarth0','profileEarth1','profileEarth2','profileEarth3'],ammo:['profileAmmo0','profileAmmo1','profileAmmo2','profileAmmo3']});
@@ -40,15 +67,9 @@ export function drawPartFuelFire(c,fx,part,x,y,time,size,remaining=3){
  return drawFuelFire(c,fx,x,y,Math.max(0,time-fuelStarts.get(part)),size,0,remaining);
 }
 export function pushExplosionFx(world,f){
- const list=world.combatFX??=[];
- if(f.fxProfile){
-  const limit=world.viewWidth<=720?EXPLOSION_LIMITS.mobile:EXPLOSION_LIMITS.desktop;
-  let count=0,oldest=-1;
-  for(let i=0;i<list.length;i++)if(list[i].fxProfile){count++;if(oldest<0)oldest=i}
-  if(count>=limit)list.splice(oldest,1);
- }
- if(list.length>=EXPLOSION_LIMITS.total)list.splice(0,list.length-EXPLOSION_LIMITS.total+1);
- list.push(f);return f;
+ const limit=world.viewWidth<=720?EXPLOSION_LIMITS.mobile:EXPLOSION_LIMITS.desktop;
+ if(reserveCombatFxSlot(world,f,f.fxProfile?profiled:null,limit))world.combatFX.push(f);
+ return f;
 }
 export function advanceExplosionFx(world,dt){
  const list=world.combatFX??=[];let w=0;
@@ -59,7 +80,8 @@ export function advanceExplosionFx(world,dt){
   if(f.life<=0||f.fxProfile&&(Math.abs(f.x-world.x)>hw+margin||Math.abs(f.y-world.y)>hh+margin))continue;
   list[w++]=f;
  }
- list.length=w;if(w>35)list.splice(0,w-35);
+ list.length=w;
+ while(list.length>EXPLOSION_LIMITS.total)list.splice(evictionIndex(list,Infinity),1);
 }
 const clamp=n=>Math.max(0,Math.min(1,n));
 function shards(c,fx,x,y,age,d,metal,count,up=false){
@@ -82,19 +104,31 @@ export function drawExplosionProfile(c,f,x,y,fx){
  const profile=f.fxProfile;if(!EXPLOSION_LIFE[profile])return false;
  const age=Math.max(0,f.maxLife-f.life)+(replicaAges.get(f)?.age||0),r=f.radius||34;
  if(profile==='bulletImpact'){
-  const a=f.direction||0,q=clamp(age/.27),fade=1-q,metal=f.material==='metal',blocked=!!f.blocked;
+  const compact=compactMgImpact(f);
+  if(compact&&age>=.18)return true;
+  const a=f.direction||0,q=clamp(age/(compact?.18:.27)),fade=1-q,metal=f.material==='metal',blocked=!!f.blocked;
   const strength=clamp(((f.streak||1)-1)/5),decisive=f.finisher||f.breakup;
   const variant=(f.impactVariant||0)%3,mass=Math.max(1,Math.min(1.16,f.impactMass||1));
-  const size=blocked?21:(metal?32:40)*(1+strength*.24+(decisive?.3:0))*mass;
+  // Ordinary hits keep their authored material cue at aircraft scale, even in a long burst.
+  const size=compact?(metal?18:f.material==='fabric'?20:22):blocked?24:(metal?32:40)*(1+strength*.24+(decisive?.3:0)+(f.partHit?.12:0))*mass;
   const width=size*(.9+variant*.08),contactAngle=a+(variant-1)*.09;
+  if(blocked){
+   // A short backward painted ricochet reads as deflection, without the damage
+   // flash or torn fragments of a successful part hit.
+   const back=contactAngle+Math.PI,travel=q*14;
+   if(age<.09)fx(c,'armorSpark',x,y,22,12,contactAngle,(1-age/.09)*.8);
+   fx(c,'ricochet',x+Math.cos(back)*travel,y+Math.sin(back)*travel,width*(1+q*.6),size*.55,back,fade*.9);
+   return true;
+  }
   // A compact painted contact flash makes the first frames legible; the torn
   // fabric/sparks and directed fragments carry the rest of the impact.
-  if(!blocked&&age<.12)fx(c,'profileFlash',x,y,width*.78,size*.68,contactAngle,Math.min(1,(.12-age)/.065)*(decisive?.95:.9));
-  fx(c,blocked?'ricochet':metal?'armorSpark':'debris',x,y,width*(.7+q*.5),size,contactAngle,fade*(blocked?.65:f.material==='fabric'?.76:.9));
+  const flashLife=compact?.085:.12;
+  if(!blocked&&age<flashLife)fx(c,'profileFlash',x,y,width*(compact?.58:.78),size*(compact?.48:.68),contactAngle,Math.min(1,(flashLife-age)/(compact?.04:.065))*(decisive?.95:compact?.78:.9));
+  fx(c,(blocked||f.railArmor)?'ricochet':metal?'armorSpark':'debris',x,y,width*(.7+q*.5),size,contactAngle,fade*(blocked?.65:f.material==='fabric'?.76:.9));
   if(!blocked&&f.incendiary&&age<.12)fx(c,'fireEngine',x,y,18+q*12,13+q*8,a,(1-age/.12)*.65);
   if(!blocked)for(let i=0,count=decisive?5:f.piercing?3:2;i<count;i++){
-   const dir=contactAngle+(i-(count-1)/2)*(decisive?.63:.7),travel=(18+i*11)*q*(decisive?1.6:1);
-   const shard=(metal?8:11)*(decisive?1.3:1);
+   const dir=contactAngle+(i-(count-1)/2)*(decisive?.63:.7),travel=(compact?9+i*5:18+i*11)*q*(decisive?1.6:1);
+   const shard=(compact?(metal?5:f.material==='fabric'?5.5:6.5):metal?8:11)*(decisive?1.3:1);
    fx(c,metal?'metalShard'+(i%4):'debrisShard',x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,shard,shard,dir+q*3,fade*.85);
   }
   return true;

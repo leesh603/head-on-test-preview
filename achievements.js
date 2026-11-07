@@ -1,6 +1,7 @@
-import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=09c75d146ae4289d';
 // Service record also retains per-pilot aircraft unlock progress.
-import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pandemonium394r2&art=pilot-recovery2';
+import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=09c75d146ae4289d';
+import {frontLength} from './dynamic-front.js?v=09c75d146ae4289d';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
 const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네메르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'눙게서',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
 const pilotLabelsEn={baron:'Manfred von Richthofen',voss:'Werner Voss',boelcke:'Oswald Boelcke',udet:'Ernst Udet',goering:'Hermann Göring',berthold:'Rudolf Berthold',wolff:'Kurt Wolff',loewenhardt:'Erich Loewenhardt',jacobs:'Josef Jacobs',brumowski:'Godwin Brumowski',lothar:'Lothar von Richthofen',sachsenberg:'Gotthard Sachsenberg',fonck:'René Fonck',collishaw:'Raymond Collishaw',baracca:'Francesco Baracca',guynemer:'Georges Guynemer',bishop:'Billy Bishop',mannock:'Mick Mannock',hawker:'Lanoe Hawker',mccudden:'James McCudden',nungesser:'Charles Nungesser',rickenbacker:'Eddie Rickenbacker',ball:'Albert Ball',barker:'Billy Barker'};
@@ -118,6 +119,7 @@ export function secretMedalDisclosure(d,record){const hidden=d.id==='pandemonium
 
 export const eligibleForMedals=g=>{g=g?.world||g;return !!g&&!g.testMode&&!g.online&&g.mode!=='campaign'};
 const pilots=g=>g.players||[g],living=p=>p.hp>0&&(!p.status||p.status==='alive');
+const routeGoal=stages=>stages?.front?frontLength(stages.front):stages?.order?.length||0;
 export function achievementRun(g){g=g?.world||g;if(!book||!eligibleForMedals(g))return null;let r=runs.get(g);if(!r){r=new SortieAchievements(g,book);runs.set(g,r)}return r}
 export function awardPriorityKill(g,e,ownerId){const before=g.mode==='coop2'?(g.priorityKills||0):typeof g.recordedKills==='function'?g.recordedKills():(g.priorityKills||0);g.priorityKills=(g.priorityKills||0)+1;achievementRun(g)?.kill(e,ownerId);pilotUnlockRun(g)?.rankedKills(ownerId||'p1',before)}
 export function achievementEnemyDefeated(g,e,source){achievementRun(g)?.enemyDefeated(e);pilotUnlockRun(g)?.noteDeath(e,source)}
@@ -173,16 +175,23 @@ export class SortieAchievements {
   for(const p of ps){const recovery=this.recoveries.get(p.id||'p1');if(recovery&&living(p)&&(p.heineckeUses||0)===recovery.uses)add.miracle=1}this.recoveries.clear();
   const s=this.g.stageBoss?.stages;
   if(s){if(this.routeLoop!==s.loopIndex){this.routeLoop=s.loopIndex;this.routeClears.clear();this.routeAwarded=false;this.routeOrder=[...(s.order||[])]}
-   if(this.routeOrder.includes(s.stageIndex))this.routeClears.add(s.stageIndex);
-   if(!this.routeAwarded&&this.routeOrder.length>0&&this.routeClears.size===new Set(this.routeOrder).size){this.routeAwarded=true;add.circuits=1}}
+   // Adaptive routes reveal their next map only after a clear. The first
+   // one-element order is not a complete circuit, and restored old fronts
+   // retain their twelve-map goal until the existing loop has ended.
+   if(s.front)this.routeOrder=[...(s.order||[])];
+   const goal=s.front?frontLength(s.front):new Set(this.routeOrder).size;
+   const capitalReady=!s.front||!s.capitalEncounter||s.capitalRound===1&&bossId===s.capitalBossId;
+   if(this.routeOrder.includes(s.stageIndex)&&(!s.front||s.stageIndex!==s.front.capital||capitalReady))this.routeClears.add(s.stageIndex);
+   const completeOrder=!s.front||this.routeOrder.length===goal&&new Set(this.routeOrder).size===goal&&this.routeOrder.at(-1)===s.front.capital&&s.stageIndex===s.front.capital&&capitalReady;
+   if(!this.routeAwarded&&goal>0&&completeOrder&&this.routeClears.size===goal&&this.routeOrder.every(stage=>this.routeClears.has(stage))){this.routeAwarded=true;add.circuits=1}}
   const unique={bossKinds:[bossId]};if(['zeppelin-l70','hma23'].includes(bossId))unique.airshipBosses=[bossId];if(['a7v-flak','mark-v-cruiser','treffas-wagen'].includes(bossId))unique.ironBosses=[bossId];
-  this.record({add,max:{sortieBosses:this.bosses,routeCoverage:this.routeClears.size},unique});this.boss=null;
+  this.record({add,max:{sortieBosses:this.bosses,routeCoverage:this.routeClears.size,routeGoal:routeGoal(s)},unique});this.boss=null;
  }
  tick(dt){
   if(!this.active())return;this.syncPriority();const g=this.g,ps=pilots(g),now=g.t||0;
   for(const p of ps){this.notePilot(p);const id=p.id||'p1',target=(g.enemies||[]).find(e=>e.hp>0&&e.tailId===p.tailTargetId);
    const prev=this.tail.get(id);if(living(p)&&p.tailLocked&&target){const seconds=prev?.target===target?prev.seconds+dt:dt;this.tail.set(id,{target,seconds});if(seconds>=3){const set=this.tailQualified.get(target)||new Set();set.add(id);this.tailQualified.set(target,set)}}else this.tail.delete(id)}
-  const sec=Math.floor(now/5)*5;if(sec!==this.lastSecond){this.lastSecond=sec;this.record({max:{seconds:ps.some(living)?sec:0,routeGoal:g.stageBoss?.stages?.order?.length||0}})}
+  const sec=Math.floor(now/5)*5;if(sec!==this.lastSecond){this.lastSecond=sec;this.record({max:{seconds:ps.some(living)?sec:0,routeGoal:routeGoal(g.stageBoss?.stages)}})}
   const equipment=Math.max(0,...ps.map(p=>p.legendaryCount?.()||0));this.record({max:{equipment}});
   for(const e of g.enemies||[]){const squad=e.directorSquad;if(!squad)continue;const old=this.formations.get(squad);if(old){if(old.at===null)old.members=[...new Set([...old.members,...squad.members])];continue}if(squad.members.length<2||!squad.leader||squad.leader.hp<=0)continue;this.formations.set(squad,{leader:squad.leader,members:[...squad.members],at:null})}
   for(const [s,f]of this.formations){const dead=e=>e.hp<=0&&!e.rivalEscaped&&this.enemyDeaths.has(e);

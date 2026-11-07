@@ -1,6 +1,6 @@
 // Sachsenberg and Schleich: presentation observes existing combat; no new hits.
-import {signatureCue,signatureState,activatePilotSignature,signatureInterval} from './pilot-signature-state.js';
-import {drawSchleichContact} from './schleich-contact-fx.js';
+import {signatureCue,signatureState,activatePilotSignature,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {drawSchleichContact} from './schleich-contact-fx.js?v=09c75d146ae4289d';
 export const METAL_PILOTS=new Set(['sachsenberg','schleich']);
 export const METAL_FX_LIMITS=Object.freeze({wake:12,wakeLife:.42,sampleInterval:.04,shotInterval:.045});
 export const METAL_FX_PALETTES=Object.freeze({sachsenberg:Object.freeze({edge:'#8ec8e7',core:'#e6f2fa',smoke:'#a1b3c2',spark:'#ccecff'}),schleich:Object.freeze({edge:'#bd7861',core:'#c3c6cb',smoke:'#606773',spark:'#f1b17b'})});

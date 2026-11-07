@@ -1,9 +1,10 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=tame3';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=gal1';
+import {drawFlakAirburst} from './flak-airburst-art.js?v=09c75d146ae4289d';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=09c75d146ae4289d';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=09c75d146ae4289d';
+import {drawShellFlight} from './boss-rounds.js?v=09c75d146ae4289d';
+import {drawAADefense} from './aa-defense-art.js?v=09c75d146ae4289d';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
@@ -182,7 +183,7 @@ export function drawRegionalHazard(c,h,bossKind){
   else drawShellFlight(c,h,q,{arc:74});
  }else{
   const age=Math.max(0,h.age-h.delay-h.warning),progress=clamp(age/Math.max(.01,h.duration)),opacity=Math.min(1,(1-progress)*3);
-  if(h.visual==='black-flak'||h.visual==='observer-shell')drawAADefense(c,progress<.25?'aaFlakHot':progress<.65?'aaFlakDark':'aaFlakSmoke',h.x,h.y,h.radius*2.25,h.radius*2.25,0,opacity);
+  if(h.visual==='black-flak'||h.visual==='observer-shell'){if(!(h.visual==='black-flak'&&drawFlakAirburst(c,h.x,h.y,h.radius*2.25,progress,0,opacity)))drawAADefense(c,progress<.25?'aaFlakHot':progress<.65?'aaFlakDark':'aaFlakSmoke',h.x,h.y,h.radius*2.25,h.radius*2.25,0,opacity);}
   else{const im=image('impact');if(im.naturalWidth){const n=Math.min(3,Math.floor(progress*4)),sw=im.naturalWidth/2,sh=im.naturalHeight/2,size=h.radius*2.35;c.globalAlpha*=opacity;c.imageSmoothingEnabled=true;c.drawImage(im,(n%2)*sw,Math.floor(n/2)*sh,sw,sh,h.x-size/2,h.y-size/2,size,size);}}
  }
  c.restore();return true;

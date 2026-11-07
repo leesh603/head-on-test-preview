@@ -1,10 +1,10 @@
-import {fx,fxTint} from './fx-art.js?v=tame3';
-import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=tame3';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=tame3';
-import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js';
+import {fx,fxTint} from './fx-art.js?v=09c75d146ae4289d';
+import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
+import {getLocale} from './i18n.js?v=09c75d146ae4289d';
+import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=09c75d146ae4289d';
+import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH} from './rural-rail-layout.js?v=09c75d146ae4289d';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=09c75d146ae4289d';
+import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js?v=09c75d146ae4289d';
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
  c.save();c.imageSmoothingEnabled=true;
@@ -17,8 +17,10 @@ export function drawRuralRail(c,b,images,wrecks){
   }else if(p.hittable){
    if(p.gunFlash>0)fx(c,'muzzle',0,-145,27,43,p.shotAngle||0,Math.min(1,p.gunFlash/.08));
    // Brackets identify the currently exposed carriage, without covering its art.
-   c.strokeStyle='#edc17ca8';c.lineWidth=1.5;
-   for(const x of [-76,76])for(const y of [-173,173]){c.beginPath();c.moveTo(x,y-Math.sign(y)*14);c.lineTo(x,y);c.lineTo(x-Math.sign(x)*12,y);c.stroke();}
+   if(!b.railCars.some(other=>other.y>p.y&&!other.destroyed)){
+    c.strokeStyle='#edc17ca8';c.lineWidth=1.5;
+    for(const x of [-76,76])for(const y of [-173,173]){c.beginPath();c.moveTo(x,y-Math.sign(y)*14);c.lineTo(x,y);c.lineTo(x-Math.sign(x)*12,y);c.stroke();}
+   }
    if(p.hp<p.maxHp){c.fillStyle='#292e26';c.fillRect(-50,176,100,4);c.fillStyle='#d5ad6b';c.fillRect(-50,176,100*p.hp/p.maxHp,4);}
   }
   c.restore();
@@ -67,11 +69,11 @@ export function drawRuralRailWarnings(c,b){
   }else{
   for(const [i,p]of plan.points.entries()){
    if(i<(plan.index||0))continue;
-   impactMark(c,p.x,p.y,plan.radius||88,aimP*.6,{tone,heavy:heavy||i===plan.points.length-1,cross:heavy});
+   impactMark(c,p.x,p.y,plan.radius||88,aimP*.6,{tone,heavy:heavy||i===plan.points.length-1,cross:heavy,exact:heavy});
    if(!heavy)label(String(railSalvoBeat(i,plan.points.length,munition)+1),p.x,p.y+5);
   }
   if(heavy){
-   const p=plan.target;bandMark(c,p.x,p.y,plan.start||plan.radius,plan.wave,aimP*.6,{tone});
+   const p=plan.target;bandMark(c,p.x,p.y,Math.max(0,plan.start-RAIL_WAVE_WIDTH),plan.wave,aimP*.6,{heavy:true,exact:true});
    c.fillStyle='#f0cf91';c.font='bold 13px sans-serif';c.textAlign='center';
    c.fillText(getLocale()==='en'?'1 IMPACT → 2 WAVE':'1 착탄 → 2 충격파',p.x,p.y-plan.radius-10);
    if(plan.final)c.fillText(getLocale()==='en'?(plan.locked?'AIM LOCKED':'AIM DRIFT'):(plan.locked?'조준 고정 · 급선회':'조준 이동 · 고정 후 이탈'),p.x,p.y+plan.radius+20);
@@ -88,7 +90,7 @@ export function drawRuralRailWarnings(c,b){
   }
   }
  }
- if(b.kind==='paris-gun'&&b.railGun.brakeAge<.65){const q=b.railGun.brakeAge/.65;
+ if(b.kind==='bruno-railway-gun'&&b.railGun.brakeAge<.65){const q=b.railGun.brakeAge/.65;
   for(const side of [-1,1])fx(c,'gunSmoke',b.x+side*(60+q*40),b.y+105,60+q*65,70+q*75,0,(1-q)*.32);
  }
  if(b.kind==='lincomparable'&&b.railGun.brakeAge<1.2){const q=b.railGun.brakeAge/1.2;for(const side of [-1,1])fx(c,'gunSmoke',b.x+side*(60+q*40),b.y+105,70+q*70,80+q*90,0,(1-q)*.34);}
@@ -97,7 +99,15 @@ export function drawRuralRailWarnings(c,b){
  }
  c.restore();
 }
+function paintRailPressure(c,key,...args){
+ if(key==='artilleryWave')fxTint(c,key,MARK.heavy,...args);
+ else fx(c,key,...args);
+}
 export function drawRuralRailHazard(c,h,options){
+ if(h.phase==='warning'&&h.visual==='rail-shell'&&(/:(?:last-520|520-round)$/).test(h.tag||'')){
+  impactMark(c,h.x,h.y,h.radius,Math.min(1,(h.age-h.delay)/h.warning),{heavy:true,exact:true});
+  return true;
+ }
  if(!['rural-rail-shock','rural-rail-smoke','rural-rail-gas'].includes(h.visual))return false;
  c.save();const warning=h.phase==='warning';
  if(h.visual==='rural-rail-gas'){
@@ -112,8 +122,10 @@ export function drawRuralRailHazard(c,h,options){
    }
   }
  }else if(h.visual==='rural-rail-shock'){
-  if(warning)bandMark(c,h.x,h.y,h.radiusStart,h.radiusLimit,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:h.raidHeavy});
-  else drawArtilleryPressure(c,h,fx,options);
+  if(warning)bandMark(c,h.x,h.y,Math.max(0,h.radiusStart-h.ringWidth),h.radiusLimit,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:true,exact:true});
+  else if(drawArtilleryPressure(c,h,paintRailPressure,options)){
+   impactMark(c,h.x,h.y,h.radius,1,{heavy:true,exact:true,fill:false,cross:false,alpha:.8});
+  }
  }else{
   impactMark(c,h.x,h.y,h.radius,warning?Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)):1,{tone:'blind',cross:false,alpha:warning?1:.45,fill:warning});
   if(!warning){const size=h.radius*2;fx(c,'smokeDark',h.x,h.y,size,size,0,.38);fx(c,'smokeGray',h.x-h.radius*.18,h.y-h.radius*.14,size*.75,size*.75,0,.32);}

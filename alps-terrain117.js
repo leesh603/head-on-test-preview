@@ -1,5 +1,5 @@
-import {applySeaColor} from './sea-colors.js?v=tame3';
-import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=tame3';
+import {applySeaColor} from './sea-colors.js?v=09c75d146ae4289d';
+import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=09c75d146ae4289d';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=r5&b=326',base:'#424b3b',strength:1.25},
  sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=r5&b=326',base:'#245d62',strength:1.11,tileSize:1254},
@@ -36,13 +36,23 @@ export function applyTerrainAtmosphere(ctx,key,width,height){
  ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha*=p.strength;
  ctx.fillStyle=p.color;ctx.fillRect(0,0,width,height);ctx.restore();
 }
-const profileImages=new Map(),profileImageLoads=new Map();
+const profileImages=new Map(),profileImageLoads=new Map(),profileImageRetries=new WeakMap();
+const profileRetryNow=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now();
 function profileImage(key){
  const p=TERRAIN_PROFILES[key];if(!p?.src)return null;
- let image=profileImages.get(key);
- if(image){profileImages.delete(key);profileImages.set(key,image);return image;}
+ let image=profileImages.get(key),attempt=0;
+ if(image){
+  // A failed Image stays complete with no pixels. Retry only while this
+  // profile is requested, with capped backoff; never restart a slow load.
+  if(image.complete&&!image.naturalWidth){
+   const retry=profileImageRetries.get(image),now=profileRetryNow();
+   if(retry.retryAt===null)retry.retryAt=now+Math.min(30000,1000*2**Math.min(retry.attempt,5));
+   if(now>=retry.retryAt){attempt=retry.attempt+1;image=null;profileImageLoads.delete(key);}
+  }
+  if(image){profileImages.delete(key);profileImages.set(key,image);return image;}
+ }
  if(typeof Image==='undefined')return null;
- image=new Image();image.decoding='async';image.src=p.src;profileImages.set(key,image);
+ image=new Image();image.decoding='async';profileImageRetries.set(image,{attempt,retryAt:null});image.src=p.src;profileImages.delete(key);profileImages.set(key,image);
  // The current field and its incoming neighbour cover transitions; visited
  // source bitmaps must not outlive the already bounded rendered tile cache.
  while(profileImages.size>2){const oldest=profileImages.keys().next().value;profileImages.delete(oldest);profileImageLoads.delete(oldest);}

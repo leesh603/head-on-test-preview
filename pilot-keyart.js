@@ -1,10 +1,7 @@
-// One representative painting per pilot, independent of selected airframe and combat.
+// Lobby backgrounds are independent of the selected airframe and combat.
 const art=(id,version='pilotkey1')=>Object.freeze({mobile:`hangar-keyart/${id}.webp?v=${version}`,pc:`hangar-keyart/${id}.webp?v=${version}`});
+export const SHARED_PILOT_KEYART=art('shared-biplane','1');
 export const PILOT_KEYART=Object.freeze({
- friedrich_karl:Object.freeze({mobile:'portrait-sized/portrait-friedrich_karl.webp?v=capital-pilots-20261103&opt=1',pc:'portrait-sized/portrait-friedrich_karl.webp?v=capital-pilots-20261103&opt=1'}),
- robinson:Object.freeze({mobile:'portrait-sized/portrait-robinson.webp?v=capital-pilots-20261103&opt=1',pc:'portrait-sized/portrait-robinson.webp?v=capital-pilots-20261103&opt=1'}),
- navarre:Object.freeze({mobile:'portrait-sized/portrait-navarre.webp?v=navarre-frommherz-20261027&opt=1',pc:'portrait-sized/portrait-navarre.webp?v=navarre-frommherz-20261027&opt=1'}),
- frommherz:Object.freeze({mobile:'portrait-sized/portrait-frommherz.webp?v=navarre-frommherz-20261027&opt=1',pc:'portrait-sized/portrait-frommherz.webp?v=navarre-frommherz-20261027&opt=1'}),
  baron:Object.freeze({mobile:'hangar-keyart-mobile.webp?v=ui5',pc:'hangar-keyart-pc.webp?v=ui5'}),
  voss:art('voss','pilotkey3'),boelcke:art('boelcke','pilotkey3'),immelmann:art('immelmann'),udet:art('udet'),goering:art('goering'),huffzky:art('huffzky'),berthold:art('berthold'),wolff:art('wolff'),loewenhardt:art('loewenhardt'),jacobs:art('jacobs','pilotkey3'),brumowski:art('brumowski','pilotkey5'),gontermann:art('gontermann','pilotkey2'),lothar:art('lothar'),sachsenberg:art('sachsenberg','pilotkey3'),schleich:art('schleich'),fonck:art('fonck'),collishaw:art('collishaw'),baracca:art('baracca'),guynemer:art('guynemer','pilotkey3'),bishop:art('bishop'),mannock:art('mannock'),mckeever:art('mckeever','pilotkey4'),hawker:art('hawker'),mccudden:art('mccudden','pilotkey2'),nungesser:art('nungesser','pilotkey2'),rickenbacker:art('rickenbacker'),ball:art('ball'),barker:art('barker','pilotkey2'),luke:art('luke'),proctor:art('proctor'),lufbery:art('lufbery')
 });
@@ -27,7 +24,8 @@ export function createPilotKeyartController(root,{load=loadImage,now=()=>Date.no
   return job;
  };
  return id=>{
-  const entry=PILOT_KEYART[id];if(!root||!entry)return Promise.resolve(false);
+  if(!root||!id)return Promise.resolve(false);
+  const entry=Object.hasOwn(PILOT_KEYART,id)?PILOT_KEYART[id]:SHARED_PILOT_KEYART;
   if(id===selected&&(!retryAt||now()<retryAt))return pending;
   selected=id;retryAt=0;const token=++serial;
   root.dataset.pilotKeyartRequested=id;root.dataset.pilotKeyartStatus='loading';

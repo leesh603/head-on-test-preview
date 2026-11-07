@@ -1,4 +1,4 @@
-import {drawBertholdCounterLocal} from './berthold-counter-fx.js';
+import {drawBertholdCounterLocal} from './berthold-counter-fx.js?v=09c75d146ae4289d';
 // Authored firing feedback; no fabric cover or floating weapon overlay.
 export const CREW_SCAR_PILOTS=new Set(['huffzky','berthold']);
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));

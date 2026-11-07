@@ -6,7 +6,7 @@ import {
   ELITE_WARNINGS,
   eliteScale,
   squadSize
-} from './elite-config.js';
+} from './elite-config.js?v=09c75d146ae4289d';
 
 const TAU = Math.PI * 2;
 const angleDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
@@ -246,9 +246,19 @@ export class EliteEnemySystem {
   updateLePrieur(squadron, dt) {
     const player = this.host.getPlayer(),cfg = this.config.lePrieur;
     const living=squadron.members.filter(m=>m.alive);
-    if(!living.some(m=>m.id===squadron.rocketShooter)&&living.every(m=>this.memberVisible(m))){
-      const ready=living.filter(m=>m.rocketTimer<=cfg.aimTime+cfg.warningTime&&this.memberVisible(m)).sort((a,b)=>a.rocketTimer-b.rocketTimer||Math.abs(a.slot)-Math.abs(b.slot));
+    const managed=this.host.isManaged?.(),now=this.host.getTime();
+    const shooter=living.find(m=>m.id===squadron.rocketShooter);
+    const stalled=managed&&shooter&&!shooter.rocketLocked&&!this.memberVisible(shooter)&&now-squadron.rocketAttemptAt>4.5;
+    if(stalled){
+      shooter.rocketRetryAt=now+2;
+      shooter.rocketTimer=cfg.aimTime+cfg.warningTime;
+      delete shooter.rocketAim;
+      squadron.rocketShooter=null;
+    }
+    if(!living.some(m=>m.id===squadron.rocketShooter)&&(stalled||living.every(m=>this.memberVisible(m)))){
+      const ready=living.filter(m=>m.rocketTimer<=cfg.aimTime+cfg.warningTime&&this.memberVisible(m)&&!(m.rocketRetryAt>now)).sort((a,b)=>a.rocketTimer-b.rocketTimer||Math.abs(a.slot)-Math.abs(b.slot));
       squadron.rocketShooter=ready[0]?.id;
+      squadron.rocketAttemptAt=now;
     }
     for (const m of squadron.members.filter(m => m.alive)) {
       m.hitFlash = Math.max(0, m.hitFlash - dt);
@@ -268,7 +278,8 @@ export class EliteEnemySystem {
       const flight=this.flightSpeed(m,player);m.x+=Math.cos(m.a)*flight*dt;m.y+=Math.sin(m.a)*flight*dt;
       if(!this.memberVisible(m))continue;
       m.fireTimer-=dt;
-      if(m.fireTimer<=0&&Math.abs(angleDiff(this.rocketIntercept(m,player),m.a))<.18){m.fireTimer=cfg.forwardGunCooldown/squadron.stats.patternScale+this.random()*.45;this.fireTracer(m,m.a,194,Math.max(1,Math.round(m.damage*.58)),'eliteFrontTracer');}
+      const gunSpeed=managed?250:194;
+      if(m.fireTimer<=0&&Math.abs(angleDiff(this.rocketIntercept(m,player,managed?gunSpeed:undefined),m.a))<.18){m.fireTimer=cfg.forwardGunCooldown*(managed?.8:1)/squadron.stats.patternScale+this.random()*.45;this.fireTracer(m,m.a,gunSpeed,Math.max(1,Math.round(m.damage*.58)),'eliteFrontTracer');}
       if(!preparing){m.rocketTimer=Math.max(cfg.aimTime+cfg.warningTime,m.rocketTimer-dt);m.telegraph=0;continue;}
       const aligned=(m.rocketLocked||!m.formationAvoid)&&Math.abs(angleDiff(m.rocketAim??m.a,m.a))<.10;
       if(m.rocketTimer>cfg.warningTime&&m.rocketTimer-dt<=cfg.warningTime&&!aligned)m.rocketTimer=cfg.warningTime+dt;
@@ -287,33 +298,39 @@ export class EliteEnemySystem {
   updateArmored(squadron, dt) {
     const player = this.host.getPlayer();
     const cfg = cfgFor(this.config, squadron.kind);
-    const turn = cfg.turnRate ?? 0.72;
+    const turn = cfg.turnRate ?? 0.72, managed=this.host.isManaged?.();
     const living = squadron.members.filter(m => m.alive);
     for (const m of living) {
       m.hitFlash = Math.max(0, m.hitFlash - dt);
       const aim = Math.atan2(player.y - m.y, player.x - m.x);
-      const desired=this.formationHeading(squadron,m,player,aim);
+      const station=this.formationHeading(squadron,m,player,aim);
+      const forwardSpeed=managed?275:218;
+      const lead=this.rocketIntercept(m,player,forwardSpeed);
+      const approach=managed&&this.memberVisible(m)&&Math.hypot(player.x-m.x,player.y-m.y)<320&&!m.formationAvoid&&m.fireTimer<.45&&Math.abs(angleDiff(lead,m.a))<.42;
+      const desired=approach?station+clamp(angleDiff(lead,station),-.28,.28):station;
       const steering=this.host.steerAircraft?.(m,player,turn,{delta:angleDiff(desired,m.a),turn})||{delta:angleDiff(desired,m.a),turn};
       m.a += clamp(steering.delta, -steering.turn * dt, steering.turn * dt);
       const flight=this.flightSpeed(m,player);m.x+=Math.cos(m.a)*flight*dt;m.y+=Math.sin(m.a)*flight*dt;
       if(!this.memberVisible(m))continue;
       m.fireTimer -= dt;
       if (m.fireTimer <= 0) {
-        m.fireTimer = cfg.frontCooldown / squadron.stats.patternScale + this.random() * .3;
+        m.fireTimer = cfg.frontCooldown * (managed ? .83 : 1) / squadron.stats.patternScale + this.random() * .3;
         if (cfg.twinFront) {
-          this.fireTracer(m, m.a + m.slot * .055 - .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
-          this.fireTracer(m, m.a + m.slot * .055 + .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
-        } else this.fireTracer(m, m.a + m.slot * .055, 218, m.damage, 'eliteFrontTracer');
+          this.fireTracer(m, m.a + m.slot * .055 - .038, forwardSpeed, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
+          this.fireTracer(m, m.a + m.slot * .055 + .038, forwardSpeed, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
+        } else this.fireTracer(m, m.a + m.slot * .055, forwardSpeed, m.damage, 'eliteFrontTracer');
       }
       if (cfg.noRearGun) continue;
       m.rearTimer -= dt;
       const range = Math.hypot(player.x - m.x, player.y - m.y);
       const rearA = m.a + Math.PI;
+      const rearSpeed=managed?255:204;
+      const rearLead=this.rocketIntercept(m,player,rearSpeed);
       const inRearArc = Math.abs(angleDiff(aim, rearA)) <= cfg.rearHalfArc;
       if (m.rearTimer <= 0 && inRearArc && range >= cfg.rearMinRange && range <= cfg.rearMaxRange) {
-        m.rearTimer = cfg.rearCooldown / squadron.stats.patternScale + this.random() * .34;
-        m.gunAim = this.rocketIntercept(m,player,204);
-        this.fireTracer(m, m.gunAim, 204, Math.max(1, Math.round(m.damage * .82)), 'eliteRearTracer', -22);
+        m.rearTimer = cfg.rearCooldown * (managed ? .84 : 1) / squadron.stats.patternScale + this.random() * .34;
+        m.gunAim = managed ? rearA+clamp(angleDiff(rearLead,rearA),-cfg.rearHalfArc,cfg.rearHalfArc) : rearLead;
+        this.fireTracer(m, m.gunAim, rearSpeed, Math.max(1, Math.round(m.damage * .82)), 'eliteRearTracer', -22);
         this.host.emitEvent?.('eliteRearGun', {memberId: m.id});
         this.host.playSound?.('eliteRearGun');
       }

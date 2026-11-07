@@ -21,40 +21,42 @@ export const DEFAULT_ELITE_CONFIG = Object.freeze({
   playerCollisionRadius: 11,
   tier2Stage: 10,
   tier2Chance: 0.55,
+  // Per-member HP caps rise with resilience so the ace cap does not cancel the buff.
+  // Counts, armor, speed and warning/aim windows retain their original counterplay.
   lePrieur: Object.freeze({
-    hpNormalMultiplier: 1.72,
-    aceHpCapPerMember: 0.24,
-    damageNormalMultiplier: 1.48,
-    aceDamageCap: 0.42,
+    hpNormalMultiplier: 4.64,
+    aceHpCapPerMember: 0.65,
+    damageNormalMultiplier: 2.0,
+    aceDamageCap: 0.57,
     speedNormalMultiplier: 1.16,
     aimTime: 1.1,
     warningTime: 0.72,
     rocketSpeed: 236,
     rocketLife: 4.2,
     rocketSpacing: 0.12,
-    rocketCooldown: 8.5,
-    forwardGunCooldown: 2.15
+    rocketCooldown: 6.4,
+    forwardGunCooldown: 1.61
   }),
   schlachtstaffel: Object.freeze({
-    hpNormalMultiplier: 2.08,
-    aceHpCapPerMember: 0.28,
-    damageNormalMultiplier: 1.32,
-    aceDamageCap: 0.38,
+    hpNormalMultiplier: 5.62,
+    aceHpCapPerMember: 0.76,
+    damageNormalMultiplier: 1.78,
+    aceDamageCap: 0.51,
     speedNormalMultiplier: 0.94,
-    frontCooldown: 1.62,
-    rearCooldown: 1.28,
+    frontCooldown: 1.22,
+    rearCooldown: 0.96,
     rearHalfArc: Math.PI * 0.34,
     rearMinRange: 48,
     rearMaxRange: 360
   }),
   junkers: Object.freeze({
-    hpNormalMultiplier: 2.85,
-    aceHpCapPerMember: 0.33,
-    damageNormalMultiplier: 1.45,
-    aceDamageCap: 0.46,
+    hpNormalMultiplier: 7.7,
+    aceHpCapPerMember: 0.89,
+    damageNormalMultiplier: 1.96,
+    aceDamageCap: 0.62,
     speedNormalMultiplier: 0.8,
-    frontCooldown: 1.5,
-    rearCooldown: 1.15,
+    frontCooldown: 1.13,
+    rearCooldown: 0.86,
     rearHalfArc: Math.PI * 0.42,
     rearMinRange: 44,
     rearMaxRange: 400,
@@ -64,12 +66,12 @@ export const DEFAULT_ELITE_CONFIG = Object.freeze({
     memberScale: 1.28
   }),
   salamander: Object.freeze({
-    hpNormalMultiplier: 2.4,
-    aceHpCapPerMember: 0.3,
-    damageNormalMultiplier: 1.52,
-    aceDamageCap: 0.44,
+    hpNormalMultiplier: 6.48,
+    aceHpCapPerMember: 0.81,
+    damageNormalMultiplier: 2.05,
+    aceDamageCap: 0.59,
     speedNormalMultiplier: 0.94,
-    frontCooldown: 1.3,
+    frontCooldown: 0.98,
     armorFactor: 0.6,
     turnRate: 1.05,
     twinFront: true,
@@ -109,3 +111,4 @@ export const ELITE_WARNINGS = Object.freeze({
   [ELITE_KINDS.JUNKERS]: '융커스 J.I 기갑비행대 접근',
   [ELITE_KINDS.SALAMANDER]: '소프위드 샐러맨더 장갑 편대 접근'
 });
+

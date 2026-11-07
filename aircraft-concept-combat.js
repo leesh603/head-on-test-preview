@@ -1,3 +1,4 @@
+import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
 // New concept AIRFRAMES only. Paints and all legacy aircraft retain their chain.
 // Geometry follows planeSprite: 288x320 image, pivot(144,152), .54/2 world scale.
 const IDS=new Set(['01','02','03','04','09','10','13','14','17','18','21','22','25','26','29','30']);
@@ -52,7 +53,7 @@ export function fireConceptEnemy(game,e){
   return distance>=55&&distance<=470&&Math.abs(angle(aim-p.a))<=(m.direction==='aft'?.70:.55);
  });
  if(!eligible.length)return true;
- const count=bomber?3:1,power=1+(game.t||0)/240,damage=Math.round(9*power*(e.aceDamageMultiplier||1)*(e.vossSurge?1.3:1));
+ const count=bomber?3:1,power=1+combatDamageTime(game)/240,damage=Math.round(9*power*(e.aceDamageMultiplier||1)*(e.vossSurge?1.3:1));
  game.bullets??=[];
  for(let i=0;i<count;i++){
   const {p,m}=eligible[i%eligible.length],aim=Math.atan2(contact.y-p.y,contact.x-p.x),spread=(i-(count-1)/2)*.075;
@@ -87,7 +88,7 @@ export function updateConceptAircraft(game,dt){
   if(Math.hypot(contact.x-e.x,contact.y-e.y)>650){e.conceptBombTimer=.25;continue;}
   e.conceptBombTimer=4.2*f.fire;
   const delay=2.3,travel=Math.max(0,Math.min(180,e.speed||0))*delay;
-  game.bombZones??=[];game.bombZones.push({x:p.x+Math.cos(e.a)*travel,y:p.y+Math.sin(e.a)*travel,sx:p.x,sy:p.y,delay,maxDelay:delay,radius:52,damage:22+Math.floor((game.t||0)/90)});
+  game.bombZones??=[];game.bombZones.push({x:p.x+Math.cos(e.a)*travel,y:p.y+Math.sin(e.a)*travel,sx:p.x,sy:p.y,delay,maxDelay:delay,radius:52,damage:22+Math.floor(combatDamageTime(game)/90)});
   game.event?.('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');
  }
 }

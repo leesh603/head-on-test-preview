@@ -1,7 +1,7 @@
 // Painted textures, actual flight samples and actual gun mounts only.
 // These helpers never emit projectiles, change flight values or choose targets.
-import {drawLotharRecoveredBelt} from './lothar-transfer-art.js';
-import {signatureCue} from './pilot-signature-state.js';
+import {drawLotharRecoveredBelt} from './lothar-transfer-art.js?v=09c75d146ae4289d';
+import {signatureCue} from './pilot-signature-state.js?v=09c75d146ae4289d';
 export const LOTHAR_FX_PALETTE=Object.freeze({active:'#f28e38',activeEdge:'#ffc963',passive:'#f8d878',ivory:'#fff2c6',smoke:'#d5b489',brass:'#ffd178'});
 export const LOTHAR_FX_LIMITS=Object.freeze({wake:10,wakeLife:.38,sampleInterval:.04,shotInterval:.04,brassLife:.36});
 const clamp=n=>Math.max(0,Math.min(1,n));

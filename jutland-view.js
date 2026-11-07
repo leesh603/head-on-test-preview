@@ -1,44 +1,111 @@
-import {applySeaColor} from './sea-colors.js?v=tame3';
-import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
-import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=tame3';
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=tame3&perf=1029';
-import {drawSinkingShip} from './ship-sinking.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
-import {jutlandRotate} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {jutlandPoint} from './jutland-route.js?v=gal1';
-import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=tame3';
-import {drawJutlandGun} from './jutland-gun-art.js?v=20261023';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',battleship:'jutland-battleship-neutral.webp',cruiser:'jutland-cruiser.webp',parts:'jutland-parts.webp',central:'asset-bank/outlined/native/boss-zeppelin-l7094.webp',entente:'asset-bank/outlined/native/boss-hma2394.webp'});
-const images=new Map(),pending=new Map();let water=null;
-function load(key){if(images.has(key))return images.get(key);const im=new Image();images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';{const p=new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Jutland asset '+key));});p.catch(()=>{});pending.set(key,p);}im.src='./'+JUTLAND_ASSETS[key]+'?v=r5';return im;}
-export function prepareJutlandAssets(region){if(region!==16){images.clear();pending.clear();water=null;return Promise.resolve();}for(const key of Object.keys(JUTLAND_ASSETS))load(key);return Promise.all([...pending.values(),prepareFactionHulls()]).then(()=>{if(!images.has('sea'))return;const im=images.get('sea');if(water&&water.__src===im)return;const cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;const c=cv.getContext('2d',{willReadFrequently:true});c.drawImage(im,0,0);const p=periodicSandPixels(c.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);water=document.createElement('canvas');water.__src=im;water.width=p.width+2;water.height=p.height+2;const tc=water.getContext('2d'),data=tc.createImageData(p.width,p.height);data.data.set(p.data);tc.putImageData(data,1,1);applySeaColor(tc,'jutland',water.width,water.height);tc.drawImage(water,p.width,1,1,p.height,0,1,1,p.height);tc.drawImage(water,1,1,1,p.height,p.width+1,1,1,p.height);tc.drawImage(water,0,p.height,p.width+2,1,0,0,p.width+2,1);tc.drawImage(water,0,1,p.width+2,1,0,p.height+1,p.width+2,1);});}
-function sprite(c,key,state,x,y,height,angle=0,row=0,pivot=.5){const im=load(key);if(!im.naturalWidth)return;const rect=JUTLAND_RECTS[key]?.[key==='parts'?row*3+state:state]||[0,0,im.naturalWidth,im.naturalHeight],width=height*rect[2]/rect[3];c.save();c.translate(x,y);c.rotate(angle);if(key==='battleship'){const mask=JUTLAND_HULL_MASKS[state];c.beginPath();mask.forEach(([u,v],i)=>i?c.lineTo(u*width,v*height):c.moveTo(u*width,v*height));c.closePath();c.clip();}c.drawImage(im,...rect,-width/2,-height*pivot,width,height);c.restore();}
-export function paintJutland(c,g,cx,cy,w,h){c.fillStyle='#263e4b';c.fillRect(0,0,w,h);if(water)for(const q of maanGroundTiles(cx,cy,w,h,water.width-2,water.height-2))c.drawImage(water,q.x-1,q.y-1,water.width,water.height);const r=g.jutlandRoute;if(!r)return;c.save();c.translate(w/2-cx,h/2-cy);
- // World anchors, a frozen game clock and a periodic decode bake prevent
- // camera-dependent random scenery and per-frame image-data work.
- for(const [i,s,n]of [[0,4500,-1100],[1,7500,1450],[2,10300,-1700]]){const p=jutlandPoint(r,s,n);if(Math.abs(p.x-cx)>w/2+400||Math.abs(p.y-cy)>h/2+600)continue;sprite(c,'cruiser',i%2?1:2,p.x,p.y,420,r.a+Math.PI/2+.15);for(let j=0;j<3;j++)fx(c,'smokeDark',p.x+55+j*80+Math.sin((g.t||0)*.012)*90,p.y-j*45,170+j*60,130+j*55,.2,.14);}c.restore();}
+import {applySeaColor} from './sea-colors.js?v=09c75d146ae4289d';
+import {fleetGunStations} from './naval-faction-atlas.js?v=09c75d146ae4289d';
+import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=09c75d146ae4289d';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=09c75d146ae4289d';
+import {drawSinkingShip} from './ship-sinking.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {impactMark,partMark,aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=09c75d146ae4289d';
+import {jutlandMuzzle,jutlandRotate} from './jutland-boss.js?v=09c75d146ae4289d';
+import {JUTLAND_RECTS} from './jutland-atlas.js?v=09c75d146ae4289d';
+import {drawJutlandGun} from './jutland-gun-art.js?v=09c75d146ae4289d';
+import {drawShellFlight} from './boss-rounds.js?v=09c75d146ae4289d';
+export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',flagship:'jutland-flagship.webp',parts:'jutland-parts.webp'});
+const images=new Map(),pending=new Map();
+let water=null,regionReady=null;
+function load(key){
+ if(images.has(key))return images.get(key);
+ const im=new Image();
+ images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';
+ const ready=new Promise(resolve=>{
+  im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>resolve(im));};
+  im.onerror=()=>resolve(null);
+ });
+ pending.set(key,ready);
+ im.src='./'+JUTLAND_ASSETS[key]+'?v=r5';
+ return im;
+}
+export function prepareJutlandAssets(region){
+ if(region!==16){
+  images.delete('sea');images.delete('flagship');
+  pending.delete('sea');pending.delete('flagship');
+  water=null;regionReady=null;
+  return Promise.resolve();
+ }
+ if(regionReady)return regionReady;
+ const sea=load('sea');
+ load('flagship');load('parts');
+ regionReady=Promise.all([...pending.values()]).then(()=>{
+  if(images.get('sea')!==sea||!sea.naturalWidth)return;
+  const cv=document.createElement('canvas');cv.width=sea.naturalWidth;cv.height=sea.naturalHeight;
+  const c=cv.getContext('2d',{willReadFrequently:true});c.drawImage(sea,0,0);
+  const p=periodicSandPixels(c.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);
+  water=document.createElement('canvas');water.width=p.width+2;water.height=p.height+2;
+  const tc=water.getContext('2d'),data=tc.createImageData(p.width,p.height);
+  data.data.set(p.data);tc.putImageData(data,1,1);
+  applySeaColor(tc,'jutland',water.width,water.height);
+  tc.drawImage(water,p.width,1,1,p.height,0,1,1,p.height);
+  tc.drawImage(water,1,1,1,p.height,p.width+1,1,1,p.height);
+  tc.drawImage(water,0,p.height,p.width+2,1,0,0,p.width+2,1);
+  tc.drawImage(water,0,1,p.width+2,1,0,p.height+1,p.width+2,1);
+ });
+ return regionReady;
+}
+function sprite(c,key,state,x,y,height,angle=0,row=0,pivot=.5){
+ const im=load(key);if(!im.naturalWidth)return false;
+ const rect=JUTLAND_RECTS[key]?.[key==='parts'?row*3+state:state]||[0,0,im.naturalWidth,im.naturalHeight],width=height*rect[2]/rect[3];
+ c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;
+ c.drawImage(im,...rect,-width/2,-height*pivot,width,height);c.restore();
+ return true;
+}
+export function paintJutland(c,g,cx,cy,w,h){
+ c.fillStyle='#263e4b';c.fillRect(0,0,w,h);
+ if(water)for(const q of maanGroundTiles(cx,cy,w,h,water.width-2,water.height-2))c.drawImage(water,q.x-1,q.y-1,water.width,water.height);
+}
 export function jutlandBodyVisible(b,view){
  if(!view)return true;
- // Include rotating barrels, smoke, stern water and the bounded wake trail.
  const radius=Math.hypot(b.width,b.height)/2+360;
- return Math.abs(b.x-view.x)<=view.width/2+radius&&Math.abs(b.y-view.y)<=view.height/2+radius;
+ return hazardPointVisible(view,b.x,b.y,radius);
 }
 export function drawJutlandBody(c,b,deathAge=0,view=null){
  if(!jutlandBodyVisible(b,view))return;
- if(b.dead&&!b.jutlandAirship&&!b.sinkRendered)return drawSinkingShip(c,{key:b,x:b.x,y:b.y,yaw:b.hullYaw||0,width:b.width,height:b.height,age:deathAge,duration:4.4},k=>drawJutlandBody(k,{...b,sinkRendered:true},deathAge));
- const state=b.dead?2:b.hp<b.maxHp*.55?1:0;c.save();if(!b.jutlandAirship)drawShipWater(c,b,b.width,b.height);
- if(b.dead&&b.jutlandAirship){const t=Math.min(1,deathAge/2.65);if(t>=1){c.restore();return;}c.translate(0,t*100);c.globalAlpha*=1-t;if(b.retreating){c.translate(Math.sin(b.hullYaw)*t*650,-Math.cos(b.hullYaw)*t*650);}else{c.translate(b.x,b.y);c.rotate(t*.3);c.scale(1-t*.45,1-t*.45);c.translate(-b.x,-b.y);fx(c,'fireEngine',b.x,b.y,100,200,0,.85);fx(c,'smokeDark',b.x+35,b.y-70,160,260,0,.7);}}
- if(b.jutlandAirship){c.save();c.globalAlpha=.23;sprite(c,b.faction,0,b.x+28,b.y+42,b.height*213/640,b.hullYaw+Math.PI/2);c.restore();sprite(c,b.faction,0,b.x,b.y,b.height*213/640,b.hullYaw+Math.PI/2);if(b.dead&&!b.retreating){fx(c,'fire',b.x,b.y+40,110,180,0,.95);fx(c,'smokeDark',b.x+30,b.y-20,150,240,0,.8);}const p=b.parts.get('gondola');if(!b.dead){if(!p.destroyed)partMark(c,b.x+p.x,b.y+p.y,p.radius,p.radius);c.fillStyle='#d8c59e';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.destroyed?'관측 중단':'관측 장비',b.x+p.x,b.y+p.y+50);}}
- else{drawFactionHull(c,b.faction,b.role,state,b.x,b.y,b.width,b.height,b.hullYaw);if(!b.dead){const mark=jutlandRotate(0,-b.height*.36,b.hullYaw);drawFactionMark(c,b.faction,b.x+mark.x,b.y+mark.y,b.width*.14,b.hullYaw);}for(const p of b.parts.values()){const st=b.dead||p.destroyed?2:p.hp<p.maxHp*.55?1:0,x=b.x+p.x,y=b.y+p.y;
- if(p.row!=null&&!drawJutlandGun(c,load('parts'),p,st,x,y)){const rect=JUTLAND_RECTS.parts[p.row*3],fullHeight=p.size*rect[3]/rect[2],pivot=JUTLAND_RECTS.pivots?.[p.row]??.65;sprite(c,'parts',st,x,y,fullHeight,p.kind==='director'?b.hullYaw:p.angle+Math.PI/2,p.row,pivot);}
- if(!b.dead){c.fillStyle='#101e24';c.fillRect(x-23,y+p.radius+10,46,4);c.fillStyle=p.destroyed?'#64747a':p.kind==='launch'?'#8cbab5':'#d6b57e';c.fillRect(x-23,y+p.radius+10,46*Math.max(0,p.hp/p.maxHp),4);
- if(['engine','director','launch'].includes(p.kind)){c.fillStyle='#d9d2b9';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.destroyed?'파괴':p.kind==='engine'?'보일러':p.kind==='director'?'사격지휘소':'수상기 발진 설비',x,y+p.radius+28);}if(p.kind==='launch'&&!p.destroyed)partMark(c,x,y,p.radius,p.radius,{alpha:.8});}
- if(p.destroyed)fx(c,'smokeDark',x,y,58,90,0,.32);}
- const smoke=jutlandRotate(0,-20,b.hullYaw);if(!b.dead)for(let i=0;i<2;i++)fx(c,'smokeDark',b.x+smoke.x+25+i*42,b.y+smoke.y-45-i*50,90+i*45,130+i*30,.2,.24);}
- if(!b.dead){c.fillStyle='#ccd4cf';c.font='bold 13px sans-serif';c.textAlign='center';c.fillText(b.role==='battleship'?(b.faction==='central'?'대양함대 기함':'대함대 기함'):b.jutlandAirship?'관측 비행선':`호위 순양함 ${b.slot}`,b.x,b.y+b.height*.52+22);c.fillStyle='#12232b';c.fillRect(b.x-55,b.y+b.height*.52+31,110,5);c.fillStyle='#d6b57e';c.fillRect(b.x-55,b.y+b.height*.52+31,110*b.hp/b.maxHp,5);}else if(b.jutlandAirship)fx(c,'smokeDark',b.x,b.y,170,220,0,.45);c.restore();}
+ if(b.dead&&!b.sinkRendered)return drawSinkingShip(c,{key:b,x:b.x,y:b.y,yaw:b.hullYaw||0,width:b.width,height:b.height,age:deathAge,duration:4.4},k=>drawJutlandBody(k,{...b,sinkRendered:true},deathAge));
+ const yaw=b.hullYaw||0,damaged=b.hp<b.maxHp*.45;
+ c.save();
+ drawShipWater(c,b,b.width,b.height);
+ if(!sprite(c,'flagship',0,b.x,b.y,b.height,yaw))drawFactionHull(c,b.faction,b.role,b.dead?2:damaged?1:0,b.x,b.y,b.width,b.height,yaw);
+ const mark=jutlandRotate(0,-b.height*.405,yaw);
+ drawFactionMark(c,b.faction,b.x+mark.x,b.y+mark.y,b.width*.135,yaw);
+ for(const p of b.parts.values()){
+  const state=b.dead||p.destroyed?2:p.hp<p.maxHp*.55?1:0,x=b.x+p.x,y=b.y+p.y;
+  if(!hazardPointVisible(view,x,y,230))continue;
+  if(p.kind==='director'){
+   const rect=JUTLAND_RECTS.parts[9];
+   sprite(c,'parts',state,x,y,98*rect[3]/rect[2],yaw,3);
+  }else drawJutlandGun(c,load('parts'),p,state,x,y);
+  if(b.dead)continue;
+  if(p.destroyed){fx(c,'smokeDark',x,y,75,104,0,.45);continue;}
+  if(p.kind==='gun'&&p.recoil>0){
+   const m=jutlandMuzzle(b,p),age=.22-p.recoil,angle=p.angle+Math.PI/2;
+   if(age<.08)fx(c,'muzzle',m.x,m.y,62,108,angle,1-age/.08);
+   fx(c,'smokePuff',m.x+Math.cos(p.angle)*age*85,m.y+Math.sin(p.angle)*age*85,74,96,angle,p.recoil/.22*.65);
+  }
+  if(p.kind==='director')partMark(c,x,y,p.radius,p.radius,{alpha:.75});
+  c.fillStyle='#101e24';c.fillRect(x-24,y+p.radius+9,48,4);
+  c.fillStyle='#d6b57e';c.fillRect(x-24,y+p.radius+9,48*p.hp/p.maxHp,4);
+ }
+ if(!b.dead){
+  const stack=jutlandRotate(0,b.height*.13,yaw);
+  fx(c,'smokeDark',b.x+stack.x+22,b.y+stack.y-40,118,153,.2,damaged?.42:.23);
+  for(const lane of b.pending?.lanes||[]){
+   const p=b.parts.get(lane.id);if(lane.fired||!p||p.destroyed)continue;
+   const muzzle=jutlandMuzzle(b,p);
+   if(!hazardPointVisible(view,(muzzle.x+lane.x)/2,(muzzle.y+lane.y)/2,Math.hypot(lane.x-muzzle.x,lane.y-muzzle.y)/2+16))continue;
+   aimLine(c,muzzle.x,muzzle.y,lane.x,lane.y,{heavy:lane.id==='aft',alpha:.62,chevron:false});
+  }
+ }
+ c.restore();
+}
 function hazardPointVisible(view,x,y,padding){return !view||Math.abs(x-view.x)<=view.width/2+padding&&Math.abs(y-view.y)<=view.height/2+padding;}
 export function drawJutlandHazard(c,h,view=null){
  if(!h.visual.startsWith('jutland-'))return false;
@@ -59,7 +126,7 @@ export function drawJutlandHazard(c,h,view=null){
  }
  return true;
 }
-export function drawJutlandGuide(c,b,g,w,h,z=1){if(b.dead||b.jutlandAirship)return;const sx=(b.x-g.x)*z+w/2,sy=(b.y-g.y)*z+h/2;if(sx>35&&sx<w-35&&sy>190&&sy<h-115)return;const x=Math.max(28,Math.min(w-28,sx)),y=Math.max(195,Math.min(h-120,sy));c.save();c.translate(x,y);c.rotate(Math.atan2(b.y-g.y,b.x-g.x));c.fillStyle='#f0c584';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();c.fillStyle='#dfd9c4';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText(b.role==='battleship'?'기함':`호위 ${b.slot}`,x,Math.min(h-98,y+21));}
+export function drawJutlandGuide(c,b,g,w,h,z=1){if(b.dead)return;const sx=(b.x-g.x)*z+w/2,sy=(b.y-g.y)*z+h/2;if(sx>35&&sx<w-35&&sy>190&&sy<h-115)return;const x=Math.max(28,Math.min(w-28,sx)),y=Math.max(195,Math.min(h-120,sy));c.save();c.translate(x,y);c.rotate(Math.atan2(b.y-g.y,b.x-g.x));c.fillStyle='#f0c584';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();c.fillStyle='#dfd9c4';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('기함',x,Math.min(h-98,y+21));}
 
 // Faction silhouettes and class-specific decks; rotating guns keep the boss material style.
 export function drawFleetShip(c,e,height,gunPositions){const state=e.hp<=0?2:e.hp<e.maxHp*.55?1:0,yaw=e.a+Math.PI/2;const width=height*(e.shipClass==='aa'?.24:.20);drawFactionHull(c,e.faction,e.shipClass,state,0,0,width,height,yaw);

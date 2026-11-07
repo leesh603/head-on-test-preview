@@ -1,10 +1,12 @@
-import {drawGuynemerRocketSmoke} from './guynemer-rocket-smoke.js';
+import {drawGuynemerRocketSmoke} from './guynemer-rocket-smoke.js?v=09c75d146ae4289d';
+import {drawGuynemerStork} from './guynemer-stork-fx.js?v=09c75d146ae4289d';
+import {roleImage} from './fx-role3.js?v=09c75d146ae4289d';
 // Guynemer's actual ordnance and Bishop's existing altitude/bombing run.
 // All observations use the existing bounded signature queue; no new projectiles.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {drawBishopPassive} from './pilot-passive-art.js';
-import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {drawBishopPassive} from './pilot-passive-art.js?v=09c75d146ae4289d';
+import {bombFallPose} from './bomb-sprites.js?v=09c75d146ae4289d';
+import {combatVisualPose} from './combat-feedback.js?v=09c75d146ae4289d';
 export const ORDNANCE_PILOTS=new Set(['guynemer','bishop']);
 const INSTALLED=Symbol.for('headon.ordnance-pilot-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -52,7 +54,9 @@ export function guynemerRockets(p){
 }
 export function drawOrdnanceWorld(c,p,tex){
  if(!alive(p))return;const shift=ordnanceGroundShift(p);
- if(p.pilot==='guynemer')drawGuynemerRocketSmoke(c,p,tex,shift);
+ if(p.pilot==='guynemer')drawGuynemerRocketSmoke(c,p,(ctx,key,x,y,w,h,a,alpha,color)=>{
+  if(!guynemerSmoke(ctx,x,y,w,h,a,alpha,key))tex(ctx,key,x,y,w,h,a,alpha,color);
+ },shift);
  if(p.pilot==='guynemer')for(const b of guynemerRockets(p)){
   const a=Math.atan2(b.vy,b.vx),ca=Math.cos(a),sa=Math.sin(a),x=b.x-p.x+shift.x,y=b.y-p.y+shift.y;
   tex(c,'incendiary',x-ca*19,y-sa*19,25,8,a,.9,'#e8a15c');
@@ -73,8 +77,15 @@ export function drawOrdnanceWorld(c,p,tex){
 export function drawOrdnanceLocal(c,p,tex,front=false){
  if(!alive(p))return;
  if(p.pilot==='guynemer'){
+  if(!front){const sides=new Set();
+   for(const b of guynemerRockets(p)){const dx=b.x-p.x,dy=b.y-p.y,forward=dx*Math.cos(p.a)+dy*Math.sin(p.a),side=-dx*Math.sin(p.a)+dy*Math.cos(p.a);
+    if(forward<6||forward>65||Math.abs(side)>45)continue;sides.add(side<0?-1:1);
+   }
+   for(const side of sides){guynemerSmoke(c,-4,side*23,47,19,Math.PI,.58);tex(c,'incendiary',1,side*23,42,12,0,.88,'#e8b472');}
+  }
   if(!front){const sides=new Set();for(const b of guynemerRockets(p))if(Math.hypot(b.x-p.x,b.y-p.y)<38){const dy=-(b.x-p.x)*Math.sin(p.a)+(b.y-p.y)*Math.cos(p.a);sides.add(dy<0?-1:1);}
    for(const side of sides)tex(c,'gunSmoke',7,side*24,43,23,-side*.35,.65,'#a7aaa0');return;}
+  drawGuynemerStork(c,p);
   const recoil=p.cannonRecoil129||0;if(recoil<=0)return;const age=.24-recoil;
   if(age>=0&&age<.075)tex(c,'muzzleHeavy',34,0,49,22,0,.94*(1-age/.075),'#f0d0a0');
   tex(c,'gunSmoke',43,0,43+(1-recoil/.24)*15,27,0,.55*clamp(recoil/.24),'#969d99');return;
@@ -89,6 +100,11 @@ export function drawOrdnanceLocal(c,p,tex,front=false){
    }
   }
  }
+}
+function guynemerSmoke(c,x,y,w,h,a,alpha,key='gunSmoke'){
+ const im=roleImage(key,true);if(!im||typeof c.drawImage!=='function')return false;
+ c.save();try{c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-w/2,-h/2,w,h);}finally{c.restore();}
+ return true;
 }
 // Cloud fragments stay where the real climb began, while the aircraft rises.
 // This world pass compensates for the existing visual altitude/recoil offset.
@@ -112,4 +128,3 @@ export function drawOrdnanceCue(c,p,e,tex,front){
   }else{tex(c,'armorSpark',0,0,40,24,a,.9*fade,'#e8d1a6');tex(c,'gunSmoke',-e.age*18,0,35,23,a,.38*fade,'#989b94');}
  }return true;
 }
-

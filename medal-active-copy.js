@@ -81,16 +81,16 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Fire 4 piercing bursts in the direction you aim."
   ],
   "collishaw": [
-    "7.5초간 블랙 플라이트를 지휘합니다. 지원기 2기가 같은 사선으로 진입해 5.4초간 시간차 사격합니다.",
-    "Command Black Flight for 7.5s. Two wingmen enter one firing lane and attack in sequence for 5.4s."
+    "7.5초간 두 호위기가 같은 표적을 두 차례 교차 강습합니다. 각 강습이 4점사로 강화됩니다.",
+    "For 7.5s, two wingmen cross-attack one target twice. Each attack is enhanced to a four-round burst."
   ],
   "baracca": [
     "무적으로 돌격해 경로상의 적을 한 번씩 타격합니다. 타격 폭과 피해가 12% 증가하며 보스 피해는 6% 증가합니다.",
     "Charge invulnerably, hitting each target once. Path width and damage +12% (+6% damage vs bosses)."
   ],
   "guynemer": [
-    "여러 방향으로 로켓 6발씩 총 9회 발사합니다.",
-    "Launch 9 waves of 6 rockets in multiple directions."
+    "양날개에서 3발씩 교대로 발사해, 로켓 6발 포화를 총 9회 퍼붓습니다.",
+    "Alternate three rockets from each wing for nine six-rocket waves."
   ],
   "bishop": [
     "화면 밖으로 상승한 뒤 재진입하며 지정 구역에 폭탄 11발을 투하합니다.",
@@ -168,3 +168,4 @@ const COW_ACTIVE_COPY=Object.freeze({
  ball:['1.875초간 위장합니다. 재등장 후 단독 후방 기습의 첫 명중 일제사격 직접 피해가 25%, 보스에게는 10% 증가합니다.','Cloak for 1.875s. The first accepted salvo of a solo rear ambush deals +25% direct damage (+10% vs bosses).']
 });
 export function medalActiveDescription(id,locale='ko',owner){const row=(owner?.cow37||owner?.upgrades?.cow37)&&COW_ACTIVE_COPY[id]||MEDAL_ACTIVE_COPY[id];return row?.[locale==='en'?1:0]||'';}
+

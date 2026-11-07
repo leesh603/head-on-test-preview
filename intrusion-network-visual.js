@@ -1,6 +1,6 @@
-import {isMaritimeIntrusion,maritimeOpacity,maritimeReveal} from './maritime-intrusion.js';
+import {isMaritimeIntrusion,maritimeOpacity,maritimeReveal} from './maritime-intrusion.js?v=09c75d146ae4289d';
 /** Guest presentation only. Never advances encounter clocks, attacks, damage or rewards. */
-import {intrusionMuzzle} from './intrusion-boss-art.js';
+import {intrusionMuzzle} from './intrusion-boss-art.js?v=09c75d146ae4289d';
 const mixAngle=(a,b,k)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*k;
 const valid=e=>e&&Number.isFinite(e.x+e.y+e.a);
 export function receiveIntrusionVisual(g,previous,full=false){

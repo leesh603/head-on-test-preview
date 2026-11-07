@@ -1,5 +1,5 @@
-import {aimLine} from './tactical-marks.js?v=tame3';
-import {fxImage,fxTint} from './fx-art.js?v=tame3';
+import {aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
+import {fxImage,fxTint} from './fx-art.js?v=09c75d146ae4289d';
 const SIGNAL_COLORS={attack:'#ef957d',regroup:'#a9d18d',defend:'#f2ead1'},signalSprites=new Map();
 function paintSignal(ctx,key,color,x,y,w,h,a,alpha){
  const im=fxImage(key);if(!im||typeof document==='undefined')return fxTint(ctx,key,color,x,y,w,h,a,alpha);
@@ -39,7 +39,7 @@ export function drawFormationSignals(ctx,e,point,now,paint=paintSignal){
 // Threat cues are tied to an actual attack or formation role, using authored FX.
 export function drawEnemyDanger(ctx,e,x,y,time,fx,now,point){
  if(e.hp<=0||e.bossPilot||e.type==='boss'||e.surface||e.stationary)return;
- if(e.legendWingPreparing&&(e.legendWingUnit!=='jasta2'||e.legendWingSlot===0)){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.legendWingUnit==='jasta2'?'편대장 조준 · 격추 시 해체':e.legendWingSlot===0?'56 선도기 사격 준비':'엄호기 차단 준비',x,y-37);ctx.restore();}
+ if(e.legendWingPreparing&&(e.legendWingUnit!=='jasta2'||(e.legendWingLeader??e.legendWingSlot===0))){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.legendWingUnit==='jasta2'?'편대장 조준 · 격추 시 해체':(e.legendWingLeader??e.legendWingSlot===0)?'56 선도기 사격 준비':'엄호기 차단 준비',x,y-37);ctx.restore();}
  if(e.expansionPreparing){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.expansionWingUnit==='jasta5'?'추격 조준 · 크게 선회':'전령기 사격 준비',x,y-37);ctx.restore();}
  if(e.famousWingPreparing){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle='#efb69b';ctx.fillText(e.famousWingUnit==='lafayette'?'엄호 준비 · 피격 시 중단':'교차 사격 준비',x,y-37);ctx.restore();}
  if(e.hatRingGroup!=null&&['warning','salvo'].includes(e.hatRingPhase)){ctx.save();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillStyle=e.hatRingOpen?'#e7dfbe':'#efb69b';ctx.fillText(e.hatRingOpen?'94 · 사격 중지':e.hatRingPhase==='salvo'?'94 · 사격':'94 · 사격 준비',x,y-37);ctx.restore();}

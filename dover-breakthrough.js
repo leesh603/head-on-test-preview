@@ -1,5 +1,5 @@
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
-import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=descent20261022';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
+import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=09c75d146ae4289d';
 
 // Mission tuning lives here; counts, thresholds and pace can be adjusted together.
 export const DOVER_BREAKTHROUGH_BALANCE=Object.freeze({total:18,waveSize:6,maxActive:12,interceptGoal:12,escortGoal:10,routeLength:11200,speed:205,hp:260,waveGap:15,waveProgress:.2,fighterCap:6,fighterInterval:10,coastProgress:.76,resultSeconds:4});
@@ -62,7 +62,7 @@ function spawnWave(g,m){
   m.bombers.push(b);if(m.faction==='entente')(g.enemies??=[]).push(b);
  }
  m.spawned+=count;m.waves++;m.lastWaveAt=m.time;m.bossReady=m.waves>=2;
- g.event?.('wave',`폭격기 ${m.waves}편대 접근 · ${m.spawned}/${c.total}`);spawnFighters(g,m,3);
+ g.event?.('wave',`폭격기 ${m.waves}편대 접근 · ${m.spawned}/${c.total}`);spawnFighters(g,m,m.spawned===c.total?5:3);
 }
 function downBomber(g,m,b){
  if(b.doverResult)return;b.doverResult='shotDown';b.missionTarget=false;m.shotDown++;

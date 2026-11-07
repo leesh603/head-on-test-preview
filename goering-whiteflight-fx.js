@@ -39,3 +39,53 @@ export function drawWhiteFlightMuzzle(c,p,w,x,y,tex){
  for(let i=0;i<2;i++){const dx=12-age*(50+i*14),dy=side*(10+age*(85+i*20)+i*4);tex(c,'bulletBrass',x+ca*dx-sa*dy,y+sa*dx+ca*dy,6,2.5,w.a+side*(.5+age*14+i),.85*fade,'#dcc398');}
  return true;
 }
+
+// Signal and slipstream are drawn from actual activation and wing poses.
+const maneuverWakes=new WeakMap();
+export function drawWhiteFlightSignal(c,p,tex){
+ if(!live(p))return;
+ const e=p.pilotSignatureState?.effects?.find(e=>e.kind==='whiteCommand'&&e.ownerId===owner(p)&&e.life>0&&e.age>=0&&e.age<1.05);
+ if(!e||![e.x,e.y,e.a].every(Number.isFinite))return;
+ const ca=Math.cos(e.a),sa=Math.sin(e.a),age=e.age,fade=Math.min(1,age/.045,e.life/.2);
+ const position=t=>{const forward=10+62*(1-Math.exp(-t*3)),port=-16-t*46;return [e.x-p.x+ca*forward-sa*port,e.y-p.y+sa*forward+ca*port];};
+ for(let i=5;i>=1;i--){
+  const t=age-i*.047;if(t<0)continue;
+  const [x,y]=position(t),spread=age-t;
+  tex(c,i%2?'mistPuff':'gunSmoke',x-sa*spread*9,y+ca*spread*9,30+spread*42,26+spread*28,e.a-.8,.72*(1-i/7)*fade,'#e3e6dc');
+ }
+ const [x,y]=position(age);
+ tex(c,'armorSpark',x,y,31,28,e.a-.8,.98*fade,'#fff9e7');
+ if(age<.2)tex(c,'gunSmoke',e.x-p.x-sa*-14,e.y-p.y+ca*-14,25+age*42,15+age*19,e.a,.35*(1-age/.2),'#d1d4c8');
+}
+export function drawWhiteFlightManeuver(c,p,wings,tex){
+ const signature=p.pilotSignatureState,time=signature?.clock??world(p).t;
+ if(!live(p)||!Number.isFinite(time)){maneuverWakes.delete(p);return;}
+ let cache=maneuverWakes.get(p);
+ if(!cache||cache.signature!==signature||cache.activation!==signature?.activation||time<cache.time||time-cache.time>.25){
+  cache={signature,activation:signature?.activation,time,wings:new Map()};maneuverWakes.set(p,cache);
+ }
+ cache.time=time;
+ const active=p.skillTime>0,flight=wings.filter(w=>owned(p,w)&&(w.permanent||w.whiteTemporary)&&!w.aceWingman&&!w.weaponModFormation&&!w.tacticalWing&&!w.orbit&&[w.x,w.y,w.a].every(Number.isFinite)).slice(0,2);
+ const present=new Set(flight);
+ for(const w of cache.wings.keys())if(!present.has(w))cache.wings.delete(w);
+ for(const w of flight){
+  let poses=cache.wings.get(w)||[],last=poses.at(-1);
+  if(last&&Math.hypot(w.x-last.x,w.y-last.y)>Math.max(40,(time-last.t)*520))poses=[];
+  last=poses.at(-1);
+  if(active&&(!last||time-last.t>=.04)){
+   const ca=Math.cos(w.a),sa=Math.sin(w.a);
+   poses.push({t:time,x:w.x,y:w.y,tips:[-1,1].map(side=>({x:w.x-ca*13-sa*side*20,y:w.y-sa*13+ca*side*20}))});
+  }
+  poses=poses.filter(v=>time-v.t<.65).slice(-16);cache.wings.set(w,poses);
+  const wingAlpha=w.alpha??1;
+  for(let i=1;i<poses.length;i++)for(let side=0;side<2;side++){
+   const from=poses[i-1].tips[side],to=poses[i].tips[side],dx=to.x-from.x,dy=to.y-from.y,length=Math.hypot(dx,dy);
+   if(length<.5||length>38)continue;
+   const age=time-poses[i].t,fade=(1-age/.65)**1.2,a=Math.atan2(dy,dx),height=19+age*10;
+   // Align the painted ribbon within its transparent atlas margin to the tip.
+   // The untinted atlas draw retains its length; tinting fits a square cell.
+   const margin=height*1.65*.19;
+   tex(c,'vaporTrail',(from.x+to.x)/2-p.x+Math.sin(a)*margin,(from.y+to.y)/2-p.y-Math.cos(a)*margin,length+14,height,a,.72*fade*wingAlpha);
+  }
+ }
+}

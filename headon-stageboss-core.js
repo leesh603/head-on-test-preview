@@ -1,5 +1,5 @@
-import {updateBasicBarrage} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
+import {updateBasicBarrage,breakSilence} from './boss-basic-barrage.js?v=09c75d146ae4289d';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
 // Where a pilot will be after t seconds if it keeps doing what it is doing:
 // straight flight, or the turn it is in (omega rad/s, set by the boss runtime).
 export function predictPilot(p,t){
@@ -26,6 +26,10 @@ export class BaseBoss {
       const enc=this.encounter;
       if(enc?.breath&&enc.breathBlocks(event))return;
       if(enc?.breathCfg&&event.type==='hazard')enc.noteHazard(event);
+      // When the boss is next dangerous: what it has launched has landed or expired.
+      // Searchlights and nets are attacks too (they lock the pilot), and a charge warning is one about to land.
+      if(enc&&event.type==='hazard'&&(event.damage>0||event.kind==='searchlight'||event.kind==='net'))enc.threatUntil=Math.max(enc.threatUntil||0,enc.clock+(event.delay||0)+(event.warning||0)+Math.min(event.duration??1,2.2));
+      else if(enc&&event.type==='charge-warning')enc.threatUntil=Math.max(enc.threatUntil||0,enc.clock+(event.seconds||0));
       if(event.type==='hazard'&&event.raidHeavy&&this.kind!=='gallipoli-fortress'){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);if(this._heavyCancelAt!==this.combatTime){this._heavyCancelAt=this.combatTime;emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire',pendingOnly:true});}}
       // While a warned signature attack is being read (its marker or aim line
       // is up), ordinary fire waits rather than layering on top of it. Plain
@@ -127,9 +131,9 @@ const BREATHERS=Object.freeze({
   'morser-battery':{every:10.5,rest:2.6,phase:'schwaben-reload'},
   'paris-staaken-rvi':{every:9.5,rest:2.2,phase:'staaken-gunner-reload'},
   'sinai-landship':{every:10,rest:2.4,phase:'sinai-reload'},
-  'jutland-grand-fleet':{every:12,rest:2.8,phase:'fleet-reload'},
   'gotha-squadron':{every:11,rest:2.4,phase:'gotha-regroup'}
 });
+const GUARD_LINES=Object.freeze([.66,.33]);
 const BREATH_BLOCKED=new Set(['charge-warning','muzzle','mortar-launch','heavy-gun-fired','spawn-minefield']);
 export class BossEncounter {
   constructor({id,bossId,bodies}) {
@@ -142,44 +146,40 @@ export class BossEncounter {
   get completed(){return this.bodies.size>0&&[...this.bodies.values()].every(b=>b.dead);}
   noteHazard(e){if(e.kind==='searchlight'||e.kind==='net')return;const life=e.kind==='projectile'?Math.min(e.duration??2.2,2.2):Math.min(e.duration??.5,1.2);this.lastResolve=Math.max(this.lastResolve||0,this.clock+(e.delay||0)+(e.warning||0)+life);}
   // Objective bombing (a raid on a city district) is not gunnery and runs on its own clock.
-  breathBlocks(e){const b=this.breath;if(!b||this.clock<b.blockFrom||this.clock>=b.until||e.objective)return false;return e.type==='hazard'?e.kind!=='searchlight'&&e.kind!=='net':BREATH_BLOCKED.has(e.type);}
+  breathBlocks(e){const b=this.breath;if(!b||this.clock<b.blockFrom||this.clock>=b.until||e.objective||e.silenceBreak)return false;return e.type==='hazard'?e.kind!=='searchlight'&&e.kind!=='net':BREATH_BLOCKED.has(e.type);}
   breathOpen(){const b=this.breath;return !!b&&this.clock>=b.from&&this.clock<b.until;}
-  // Phase gates for bosses without their own (hpFloor). The encounter's total
-  // health stops at 66 % / 33 % / 5 % until the boss has put a warned attack in the
-  // air at that line and it has landed; the host calls hurry() so that attack comes
-  // at once instead of on its normal timer (rules inside guardFloor). Formations
-  // and split bodies share one gauge.
+  // Bosses without their own hpFloor hold two shared health lines (66%, 33%).
+  // Each line opens once a native warned attack launched since the previous
+  // line opened has activated and its dodge window has ended, so a strong build
+  // still sees a second phrase instead of melting the boss through its first.
+  // The 3 s / 8 s escape limits apply per line. Formations share this guard.
   // Hazards launched within half a second of each other are one attack (a salvo).
   noteShown(lead,start=this.clock){const list=this.shown??=[],end=this.clock+lead+.3,group=list.find(q=>Math.abs(start-q.start)<.5);if(group)group.end=Math.max(group.end,end);else list.push({start,end});}
   pendingAttack(){this.pendingShown=(this.pendingShown||[]).filter(q=>q.h.active&&q.h.generation===q.generation&&!q.h.activated);return this.pendingShown.some(q=>q.start>=(this.gate?.openAt||0));}
   gateBand(){return this.maxHpBudget*.04;}
   // Lines drawn on the boss bar: a rail gun's own schedule, otherwise the shared gates.
-  gateLines(){const live=[...this.bodies.values()].filter(b=>!b.dead);if(live.length===1&&typeof live[0].showSchedule==='function')return [...live[0].showSchedule().hull.map(([,f])=>f),.06];return [.66,.33,.05];}
+  gateLines(){const live=[...this.bodies.values()].filter(b=>!b.dead);if(live.length===1&&live[0].ruralRailBoss)return [];if(live.length===1&&typeof live[0].showSchedule==='function')return [...live[0].showSchedule().hull.map(([,f])=>f),.06];return this.gate?.released?[]:GUARD_LINES.slice(this.gate?.line||0);}
   gateHeld(){return !!this.gateHold&&this.clock<this.gateHold.until;}
   guardFloor(b){
     if(b.dead)return 0;
-    let S=0;for(const x of this.bodies.values())if(!x.dead)S+=Math.max(0,x.hp);
-    const B=this.maxHpBudget,gates=[.66,.33,.05],g=this.gate??={i:0,at:null,used:0,openAt:0},now=this.clock,shown=this.shown||[];
-    while(g.i<gates.length){
-      const G=gates[g.i]*B;this.gateLine=gates[g.i];
-      // Each warned attack made since the previous gate opened pays exactly one gate, and
-      // gates normally open at least 5 s apart. L70's shorter pacing still
-      // waits for a separate warned attack to finish for every phase.
-      // never waits, an overwhelming build sees an attack per phase. A boss that
-      // starts nothing within 3 s of being hurried (disarmed, hidden) is released.
-      const paidBy=()=>{if(now-g.openAt<(b.kind==='zeppelin-l70'?3.5:5))return {paid:-1,started:false};const from=g.openAt;let started=false;
-        for(let k=g.used;k<shown.length;k++){const q=shown[k];if(q.start<from)continue;started=true;if(q.end<=now)return {paid:k,started};}return {paid:-1,started};};
-      if(g.at==null){
-        if(S>G+this.gateBand()){
-          // Already paid on the way in: open early so a normal-pace pilot never feels it.
-          const pre=S<=G+B*.2?paidBy():null;if(pre?.paid>=0){g.used=pre.paid+1;g.i++;g.openAt=now;continue;}
-          return Math.max(0,b.hp-(S-G));}
-        g.at=now;}
-      const {paid,started}=paidBy();const anyStart=this.pendingAttack()||started||shown.slice(g.used).some(q=>q.start>=Math.max(g.at-6,g.openAt));
-      if(paid>=0||!anyStart&&now-g.at>=3||now-g.at>=8){if(paid>=0)g.used=paid+1;g.i++;g.at=null;g.openAt=now;continue;}
+    const g=this.gate??={at:null,openAt:0,released:false,line:0},now=this.clock,shown=this.shown||[];
+    // Each line opens once a warned attack launched since the previous line opened has resolved.
+    const advance=()=>{g.line=(g.line||0)+1;g.at=null;g.openAt=now;this.gateHold=null;if(g.line>=GUARD_LINES.length){g.released=true;this.gateLine=null;}};
+    for(;;){
+      if(g.released)return 0;
+      const from=g.openAt||0;
+      if(shown.some(q=>q.start>=from&&q.end<=now)){advance();continue;}
+      let S=0;for(const x of this.bodies.values())if(!x.dead)S+=Math.max(0,x.hp);
+      const line=GUARD_LINES[g.line||0],G=this.maxHpBudget*line;this.gateLine=line;
+      if(S<=G+this.gateBand()){
+        g.at??=now;
+        // A disarmed or unreachable boss cannot hold the fight forever. These
+        // are the existing escape limits, applied once per line.
+        const started=this.pendingAttack()||shown.some(q=>q.start>=from);
+        if(!started&&now-g.at>=3||now-g.at>=8){advance();continue;}
+      }
       return Math.max(0,b.hp-(S-G));
     }
-    this.gateLine=null;return 0;
   }
   updateBreath(dt){
     this.clock+=dt;const cfg=this.breathCfg;if(!cfg)return;
@@ -205,7 +205,7 @@ export class BossEncounter {
     b.motionTime=(b.motionTime||0)+dt*(b.t?.motionMultiplier||1);b.recoil=Math.max(0,(b.recoil||0)-dt);
     if(b.t?.mobileBoss&&!b.role&&!b.ownsMotion129){
       b.anchorX??=b.x;b.anchorY??=b.y;
-      const ship=['sms-stuttgart','hms-zubian'].includes(b.kind),rail=['paris-gun','lincomparable'].includes(b.kind);
+      const ship=['sms-stuttgart','hms-zubian'].includes(b.kind),rail=['bruno-railway-gun','lincomparable'].includes(b.kind);
       const armor=['a7v-flak','mark-v-cruiser'].includes(b.kind),fixed=['london-apron','drachen-net','armored-harbor-fortress'].includes(b.kind);
       const pace=armor?.18:ship?.42:rail?.55:.32,span=ship?110:rail||armor||fixed?0:65;
       if(rail&&b.railBroken){b.x=b.railStopX??b.x;b.y=b.railStopY??b.y;}
@@ -214,7 +214,7 @@ export class BossEncounter {
     }
     b.update(dt,ctx);
     if(!updateBasicBarrage(b,dt,ctx)&&typeof b.suppressive==='function')b.suppressive(dt,ctx.players);
-  }if(this.bossId==='hms-zubian')separateZubianHalves(this);}
+  }if(this.bossId==='hms-zubian')separateZubianHalves(this);breakSilence(this,dt,ctx);}
   snapshot() {
     let hp=0,aliveParts=0,totalParts=0,shielded=false,formationAlive=0,formationTotal=0;const phases=[];
     for(const b of this.bodies.values()){

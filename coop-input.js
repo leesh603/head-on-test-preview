@@ -22,6 +22,6 @@ export class CoopInput {
 }
 
 export const COOP_RECORD_KEYS=Object.freeze({best:'headon-coop2-best-20261009',ranking:'headon-coop2-ranking-20261009'});
-export function coopRecord(g){return {mode:'coop2',season:'coop2-20261009',runId:g.runId,faction:g.teamFaction,players:g.players.map(p=>({name:p.nickname,pilot:p.pilot})),score:g.priorityKills,durationSeconds:Math.floor(g.t)}}
+export function coopRecord(g){const stages=g.stageBoss?.stages,runId=stages?.front?g.runId.slice(0,72)+'_loop_'+(stages.loopIndex+1):g.runId;return {mode:'coop2',season:'coop2-20261009',runId,faction:g.teamFaction,players:g.players.map(p=>({name:p.nickname,pilot:p.pilot})),score:g.priorityKills,durationSeconds:Math.floor(g.t)}}
 export function saveCoopLocal(storage,record){let rows=[];try{const raw=JSON.parse(storage.getItem(COOP_RECORD_KEYS.ranking)||'[]');if(Array.isArray(raw))rows=raw.filter(r=>r.mode==='coop2'&&r.season==='coop2-20261009')}catch{}if(record.score>0&&!rows.some(r=>r.runId===record.runId))rows.push(record);rows.sort((a,b)=>b.score-a.score);rows=rows.slice(0,10);try{storage.setItem(COOP_RECORD_KEYS.ranking,JSON.stringify(rows));storage.setItem(COOP_RECORD_KEYS.best,String(Math.max(Number(storage.getItem(COOP_RECORD_KEYS.best))||0,record.score)))}catch{}return rows}
 

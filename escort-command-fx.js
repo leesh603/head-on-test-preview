@@ -1,8 +1,8 @@
-import {drawWhiteFlightMuzzle} from './goering-whiteflight-fx.js';
+import {drawWhiteFlightMuzzle,drawWhiteFlightSignal,drawWhiteFlightManeuver} from './goering-whiteflight-fx.js?v=09c75d146ae4289d';
 // Real flight positions and gunfire carry escort orders; healthy wings stay clean.
 // Observe actual owned wingmen, accepted support damage and accepted guard hits.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=09c75d146ae4289d';
 export const ESCORT_PILOTS=new Set(['goering','brumowski']);
 const INSTALLED=Symbol.for('headon.escort-command-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -48,15 +48,16 @@ export function installEscortCoopFx(CoopGame){
 }
 export function drawEscortWorld(c,p,tex,front=false){
  if(!alive(p)||!ESCORT_PILOTS.has(p.pilot))return;
- const shift=ordnanceGroundShift(p),white=p.pilot==='goering',active=p.skillTime>0;
- for(const w of escortWings(p)){
+ const shift=ordnanceGroundShift(p),white=p.pilot==='goering',active=p.skillTime>0,wings=escortWings(p);
+ if(white&&!front){drawWhiteFlightSignal(c,p,tex);drawWhiteFlightManeuver(c,p,wings,tex);}
+ for(const w of wings){
   const x=w.x-p.x+shift.x,y=w.y-p.y+shift.y,ca=Math.cos(w.a),sa=Math.sin(w.a),side=(-Math.sin(p.a)*(w.x-p.x)+Math.cos(p.a)*(w.y-p.y))<0?-1:1;
   const at=(key,dx,dy,width,height,a,alpha,color)=>tex(c,key,x+ca*dx-sa*dy,y+sa*dx+ca*dy,width,height,w.a+a,alpha,color);
   if(front){
    if(w.muzzleFlash>0){if(white&&drawWhiteFlightMuzzle(c,p,w,x,y,tex))continue;const a=w.fireHeading??w.muzzleAngle??w.a,fade=clamp(w.muzzleFlash/.055);
     tex(c,white?'muzzle':'muzzleTwin',x+Math.cos(a)*31,y+Math.sin(a)*31,white?25:29,white?9:13,a,.96*fade,white?'#e9e4c9':'#e1bb85');
    }
-  }else if(active){
+  }else if(active&&!white){
    at('windStreak',-31,side*23,24,3,0,.13,white?'#e1e4d6':'#d9bb95');
   }
  }

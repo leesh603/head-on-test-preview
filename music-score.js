@@ -54,7 +54,7 @@ export const BOSS_ARRANGEMENTS=Object.freeze({
  'final-leviathan':boss('horn',[0,2,6],[0,12,7,15],'bomber','trumpet'),
  'supermarine-nighthawk':boss('clarinet',[0,3,6],[7,8,4,1],'searchlight','horn'),
  'siemens-schuckert-r-viii':boss('trombone',[0,2,4,7],[0,1,4,3],'bomber','cello'),
- 'paris-gun':boss('horn',[0,6],[0,4,3,0],'rail','cello'),lincomparable:boss('trombone',[0,9],[0,1,4,0],'rail','bassoon'),
+ 'bruno-railway-gun':boss('horn',[0,6],[0,4,3,0],'rail','cello'),lincomparable:boss('trombone',[0,9],[0,1,4,0],'rail','bassoon'),
  'paris-geschuetz':boss('trombone',[0,5,11],[0,1,4,0],'siege','bassoon'),
  'french-counter-battery':boss('clarinet',[0,3,7,10],[7,4,6,1],'bomber','trombone'),
  'sms-stuttgart':boss('horn',[0,4,8],[0,4,7,5],'naval','clarinet'),'hms-zubian':boss('clarinet',[0,3,7,10],[7,4,6,3],'split','bassoon'),

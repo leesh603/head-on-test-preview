@@ -5,3 +5,5 @@ export const RURAL_CARS=Object.freeze([
  {id:'car-middle',art:'middle',y:750,share:.18,role:'observer'},
  {id:'car-front',art:'front',y:375,share:.26,role:'ammo'}
 ]);
+
+export const RAIL_WAVE_WIDTH=42;

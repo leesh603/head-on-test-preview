@@ -15,7 +15,7 @@ export const REGION_TRANSITION_LABELS=Object.freeze({
  12:Object.freeze({ko:'베르됭 전투 · 초대형 요새',en:'Verdun · Giant Fortress'}),
  15:Object.freeze({ko:'1918 파리 야간공습 · 탐조등 방공',en:'Paris Night Raid · Searchlight Defense'}),
  17:Object.freeze({ko:'도버 해협 · 해상 야간 차단선',en:'The Dover Strait & Patrol'}),
- 16:Object.freeze({ko:'유틀란트 해전 · 북해 함대전',en:'Jutland · North Sea fleet battle'})
+ 16:Object.freeze({ko:'유틀란트 해전 · 북해 기함',en:'Jutland · North Sea flagship'})
 });
 
 export const COMMON_TRANSITION_TIPS=Object.freeze([

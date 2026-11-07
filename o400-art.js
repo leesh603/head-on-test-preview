@@ -1,7 +1,7 @@
-import {SOMME_FRAMES} from './somme-boss-atlas.js';
-import {fx} from './fx-art.js';
-import {O400_LAYOUT} from './o400-layout.js';
-import {gothaCrashPose} from './aircraft-crash.js';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {O400_LAYOUT} from './o400-layout.js?v=09c75d146ae4289d';
+import {gothaCrashPose} from './aircraft-crash.js?v=09c75d146ae4289d';
 let hull,gun,hardware,wingModerate,wingSevere,pending,attempts=0,retryAt=0;
 export function prepareO400Art(){if(pending)return pending;if(attempts>=3||Date.now()<retryAt)return Promise.resolve();attempts++;
  pending=Promise.all([['hull',O400_LAYOUT.hull],['gun','./boss-mark1-guns-r3.webp'],['hardware','./boss-alps-hardware-20261020.webp?v=muted1'],['wingModerate','./o400-wing-damage-moderate-20261103.webp'],['wingSevere','./o400-wing-damage-severe-20261103.webp']].map(([key,url])=>new Promise(resolve=>{const im=new Image();if(key==='hull')hull=im;else if(key==='gun')gun=im;else if(key==='hardware')hardware=im;else if(key==='wingModerate')wingModerate=im;else wingSevere=im;im.decoding='async';im.onload=()=>resolve(im);im.onerror=()=>{if(key==='hull'&&!im.fallback){im.fallback=true;im.src='./o400-native-fallback-20261031.webp';}else resolve(im);};im.src=url;}))).then(()=>{if(!hull?.naturalWidth||!gun?.naturalWidth||!hardware?.naturalWidth||!wingModerate?.naturalWidth||!wingSevere?.naturalWidth){pending=null;retryAt=Date.now()+1000;}});return pending;}

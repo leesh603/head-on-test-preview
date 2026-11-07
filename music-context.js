@@ -1,4 +1,4 @@
-import {squadronMusicForGame} from './squadron-score.js';
+import {squadronMusicForGame} from './squadron-score.js?v=09c75d146ae4289d';
 // Read-only bridge. Never advances a timer, consumes an event, or changes combat.
 export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin','laon']);
 export const CAMPAIGN_MUSIC=Object.freeze({
@@ -8,7 +8,7 @@ export const CAMPAIGN_MUSIC=Object.freeze({
 const pressure={HEAD_ON_PASS:.72,CROSS_ATTACK:.8,PINCER:.82,CHASE:.64,ESCORT:.48,BOMBER_RUN:.78,ELITE_FORMATION:.85,ACE_PRESSURE:.7};
 const terminal={
  'supermarine-nighthawk':['last-stand'],'siemens-schuckert-r-viii':['last-stand'],
- 'paris-gun':['locomotive','derailed'],lincomparable:['locomotive','derailed'],fliegerzug:['locomotive','derailed'],
+ 'bruno-railway-gun':['locomotive','derailed'],lincomparable:['locomotive','derailed'],fliegerzug:['locomotive','derailed'],
  'mark-v-cruiser':['final-assault'],'minenwerfer-battery':['final-assault'],'armored-harbor-fortress':['final-core'],
  'paris-searchlight-fortress':['last-stand'],'paris-staaken-rvi':['gliding'],'gotha-squadron':['gliding'],
  'french-counter-battery':['final-attack']

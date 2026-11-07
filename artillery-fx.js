@@ -14,7 +14,7 @@ export function queueArtilleryMuzzle(world,{x,y,angle=0,scale=1,heavy=false}={})
  list.push(f);return f;
 }
 export function queueBossArtilleryMuzzle(world,event,body){
- if(event.railArtillery||!body||body.dead||body.railGun&&['paris-gun','lincomparable'].includes(body.kind))return null;
+ if(event.railArtillery||!body||body.dead||body.railGun&&['bruno-railway-gun','lincomparable'].includes(body.kind))return null;
  const part=body.parts?.get?.(event.partId??event.sourcePartId),visual=event.visual||'';
  const mortar=event.type==='mortar-launch',heavy=event.type==='heavy-gun-fired'||body.fortressBoss&&part?.kind==='heavy';
  const discharge=event.type==='hazard-activated'&&event.kind==='projectile'&&/shell|cannon|flak|mortar/.test(visual)&&!/rocket|bomb/.test(visual);
@@ -34,13 +34,13 @@ export function drawArtilleryPressure(c,h,paint,{mobile=false}={}){
  const count=mobile?24:32,mid=(outer+inner)/2,spacing=TAU*mid/count;
  const birth=.65+.35*clamp(age/.1),fade=.65+.35*clamp(remaining/.18);
  c.save();band(c,h.x,h.y,inner,outer);
- // The existing irregular, painted compression ring joins the entire front.
- paint(c,'artilleryWave',h.x,h.y,outer*2.16,outer*2.16,0,.62*birth*fade);
  for(let i=0;i<count;i++){
   const a=i*TAU/count,variation=1+Math.sin(i*2.39)*.12;
   paint(c,'profileDust',h.x+Math.cos(a)*mid,h.y+Math.sin(a)*mid,
    Math.max(width*1.7,spacing*2.25)*variation,width*2.15,a+Math.PI/2,.68*birth*fade);
  }
+ // Keep the irregular painted front readable above the dust.
+ paint(c,'artilleryWave',h.x,h.y,outer*2.16,outer*2.16,0,.90*birth*fade);
  c.restore();
  // A faint wake falls behind the dangerous edge. The cleared centre stays open.
  if(inner>12){c.save();band(c,h.x,h.y,Math.max(0,inner-24),inner);

@@ -1,8 +1,10 @@
-import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=tame3&ai=1018';
-import {alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
-import {harborGunMuzzle} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
-import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=tame3&somme=20261021';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=09c75d146ae4289d';
+import {alpsMuzzle} from './alps-bomber-layout.js?v=09c75d146ae4289d';
+import {harborGunMuzzle} from './harbor-crane-layout.js?v=09c75d146ae4289d';
+import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=09c75d146ae4289d';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=09c75d146ae4289d';
+import {BOSS_LOADOUTS} from './boss-ordnance-loadouts.js?v=09c75d146ae4289d';
+import {bossCounterActive} from './boss-feedback.js?v=09c75d146ae4289d';
 
 // Ordinary fire is separate from the raid controller. Only authored weapons
 // fire; destroying one removes its lane. No new HP or difficulty multipliers.
@@ -12,7 +14,7 @@ const R='rest',R2={p:'rest',t:1.5};
 const sweep2={p:'sweep',passes:2},sweep2p={p:'sweep',passes:2,pair:true},ripple4={p:'ripple',rows:4},stream2={p:'stream',lanes:2},ring3={p:'ring',waves:3};
 export const BASIC_BARRAGES=Object.freeze({
  // Rail guns: the rear car's machine guns hose along the track.
- 'paris-gun':profile(['car-rear'],'rail-mg',.9,7,1.55,[['wall','stream',R2],['wall','sweep',R],[{p:'wall',rows:2},'stream','bracket',R]]),
+ 'bruno-railway-gun':profile(['car-rear'],'rail-mg',.9,7,1.55,[['wall','stream',R2],['wall','sweep',R],[{p:'wall',rows:2},'stream','bracket',R]]),
  lincomparable:profile(['car-rear'],'rail-mg',1.1,7,1.8,[['bracket','wall',R2],['sweep','wall',R],[{p:'wall',rows:2},sweep2p,R]]),
  // Ships: paired guns cross, broadside rows walk.
  'sms-stuttgart':profile(['gun0','gun1','gun2','gun3'],'stuttgart-flak',1.1,7,1.65,[['wall','cross',R2],['cross','wall','ripple',R],[{p:'wall',rows:2},'cross',ripple4,R]]),
@@ -55,9 +57,7 @@ export const BASIC_BARRAGES=Object.freeze({
  'sinai-landship':profile(['lewis'],'maan-mg',1.2,7,1.5,[['stream','fan',R2],['stream','bracket',R],[stream2,'bracket','sweep',R]]),
  'gallipoli-fortress':profile(['aa-west','aa-east','aa-citadel'],'gallipoli-mg',1.2,7,1.5,[['wall','cross',R2],['ring','wall',R],[ring3,{p:'wall',rows:2},'sweep',R]]),
  'paris-searchlight-fortress':profile(['mg-left','mg-right'],'paris-mg',1.1,7,1.8,[['wall','stream',R2],['cross','wall',R],[{p:'wall',rows:2},stream2,'bracket',R]]),
- 'paris-staaken-rvi':profile(['gun-front','gun-top','gun-rear','gun-left','gun-right'],'staaken-mg',.95,7,1.6,[['ring','stream',R2],['ring','cross',R],[ring3,'cross',R]]),
- 'jutland-battleship':profile(['bow-port','bow-starboard','aft-port','aft-starboard'],'zubian-shell',1.2,7,2,[['wall',R2],['wall','ripple',R],[{p:'wall',rows:2},'cross',R]]),
- 'jutland-cruiser':profile(['bow','aft'],'zubian-shell',1.05,5,2.2,[['fan',R2],['bracket',R],['ripple','bracket',R]])
+ 'paris-staaken-rvi':profile(['gun-front','gun-top','gun-rear','gun-left','gun-right'],'staaken-mg',.95,7,1.6,[['ring','stream',R2],['ring','cross',R],[ring3,'cross',R]])
 });
 const quietPhase=/(arrival|entry|buried|lowering|recover|cooldown|reform|service|depressurized|gliding|seam-warning|splitting)/;
 export function basicFirePaused(b){
@@ -111,8 +111,6 @@ function mount(b,p,target,serial){
   const length=p.muzzleLength||0;q={x:q.x+Math.cos(p.angle)*length,y:q.y+Math.sin(p.angle)*length,angle:p.angle};
  }else if(k==='gallipoli-fortress'){
   q={x:q.x+Math.cos(p.angle)*(p.muzzle||0),y:q.y+Math.sin(p.angle)*(p.muzzle||0),angle:p.angle};
- }else if(k.startsWith('jutland-')){
-  const length=p.row===1?85:128;q={x:q.x+Math.cos(p.angle)*length,y:q.y+Math.sin(p.angle)*length,angle:p.angle};
  }
  return q;
 }
@@ -135,6 +133,106 @@ function rankMounts(b,config,target,serial,ports=config.ports,slack=.15){
  }
  return mounts.sort((m,n)=>m.rank-n.rank);
 }
+// Point-blank defence. A pilot circling right over the boss sits inside every
+// gun's dead zone (turret arcs, sponsons, broadside lanes), so the boss melted
+// without answering. Loitering close now draws warned flak airbursts from the
+// live guns, walking round the boss through the airspace the pilot is circling.
+// Making passes, or breaking out of the ring, clears them; orbiting on top does not.
+// Aircraft bosses and the flame projector carry no flak. The A7V and Mark V
+// already answer a pilot on their deck with the warned engine vent and its quiet
+// counter window, and the Zubian's own salvos already rake close passes.
+const NO_CLOSE_FLAK=new Set(['a7v-flak','mark-v-cruiser','hms-zubian','hms-zubian-front','hms-zubian-rear','livens-flame-projector','jasta11-circus','naval10-black-flight','gotha-raider','ca4','gik','supermarine-nighthawk','siemens-schuckert-r-viii','paris-staaken-rvi']);
+export const CLOSE_FLAK=Object.freeze({radius:240,inner:60,loiter:2,cooldown:3.6,warning:1.05,step:.1,pitch:.55,count:5,burst:58,damage:.7});
+function closeInFlak(b,dt,ctx,config){
+ if(NO_CLOSE_FLAK.has(b.kind))return false;
+ // Thrown as an ordnance family the boss already carries; one with no burst
+ // ammunition (fragmentation, HE or mortar) has no close flak.
+ const loadout=BOSS_LOADOUTS[b.kind]||[],family=['fragmentation','he','mortar'].find(f=>loadout.includes(f));if(!family)return false;
+ const C=CLOSE_FLAK;let target=null,best=C.radius;
+ for(const p of ctx.players||[]){if(!p.alive)continue;const d=Math.hypot(p.x-b.x,p.y-b.y);if(d<best){best=d;target=p;}}
+ b.closeLoiter=target?(b.closeLoiter||0)+dt:Math.max(0,(b.closeLoiter||0)-dt*2);
+ b.closeFlakClock=Math.max(0,(b.closeFlakClock||0)-dt);
+ if(!target||b.closeLoiter<C.loiter||b.closeFlakClock>0)return false;
+ // Never over a warned signature phrase: its own dodge (often a corridor close
+ // to the boss) must stay clean while it is being read.
+ if(ctx.canBasicFire&&!ctx.canBasicFire()||(b.basicSoftHold||0)>(b.combatTime||0)||b.encounter?.pendingShown?.some(q=>q.h?.active&&!q.h.activated))return false;
+ // Fired by the boss's own live guns; a boss stripped of its guns has no flak left.
+ const guns=[];for(const id of config.ports){const p=b.parts.get(id);if(p&&!p.destroyed&&p.active!==false&&p.revealed!==false)guns.push(p);}
+ if(config.ports.length&&!guns.length)return false;
+ // The airspace the pilot is circling in: bursts walk round the boss at the
+ // pilot's own distance, from just behind them to well ahead in the direction
+ // they are circling. Leaving the ring, or reversing, clears it.
+ const rx=target.x-b.x,ry=target.y-b.y,r=Math.max(C.inner,Math.min(C.radius-30,Math.hypot(rx,ry))),a0=Math.atan2(ry,rx);
+ const spin=Math.sign(rx*(target.vy||0)-ry*(target.vx||0))||1;
+ // Spaced so each warning ring reads on its own, never a pile of overlapping circles.
+ const pitch=Math.max(C.pitch,C.burst*1.7/r),points=[];for(let k=-1;k<C.count-1;k++){const a=a0+spin*k*pitch;points.push([b.x+Math.cos(a)*r,b.y+Math.sin(a)*r]);}
+ const damage=b.t.damage*C.damage,tag=b.id+':close-flak';
+ for(const [i,[x,y]] of points.entries()){
+  const src=guns[i%Math.max(1,guns.length)],sx=b.x+(src?.x||0),sy=b.y+(src?.y||0);
+  emit(b,{type:'hazard',kind:'circle',x,y,radius:C.burst,warning:C.warning,delay:i*C.step,duration:.24,once:true,damage,
+   visual:'black-flak',ordnanceFamily:family,sourceX:sx,sourceY:sy,sourcePartId:src?.id,tag,basicFire:true});
+ }
+ b.closeFlakClock=C.cooldown;b.closeLoiter=C.loiter*.4;
+ return true;
+}
+// No silent boss: a gap of more than five seconds between attacks is a bug.
+// Native phrases still rest, recover, regroup and open counter windows, but
+// when nothing dangerous has been in play for SILENCE.quiet seconds (up to
+// SILENCE.window inside an announced counter window, a breather or another
+// fire pause) the body nearest the pilot fires one warned suppressive phrase:
+//  - from the weapon it still carries nearest the pilot, in view: flak bursts
+//    from burst ammunition, otherwise a machine-gun fan led onto the pilot
+//    (a wide gunner's sweep within 240 px);
+//  - a disarmed hull fires its crew's small arms from the core;
+//  - a boss out of view or hidden calls warned bursts (or bombs) onto the
+//    pilot with ammunition it declares.
+// It is ordinary fire: it never pays for a health line or holds a signature.
+export const SILENCE=Object.freeze({quiet:2.4,window:3.4,settle:2.5,warning:.85,flakBurst:56,flakDamage:.6,mgRounds:7,mgSpread:.34,closeRange:240,closeSpread:1.1,mgDamage:.45,crewDamage:.3});
+const AIRCRAFT=new Set(['jasta11-circus','naval10-black-flight','gotha-raider','gotha-squadron','o400-squadron','ca4','gik','supermarine-nighthawk','siemens-schuckert-r-viii','paris-staaken-rvi','french-counter-battery']);
+const WEAPON=/gun|turret|mg|cannon|battery|flak|sponson|mortar|howitzer|launcher|nozzle/;
+const inView=(B,x,y)=>!B||x>=B.left&&x<=B.right&&y>=B.top&&y<=B.bottom;
+export function breakSilence(enc,dt,ctx){
+ if(ctx.paused||!(dt>0)||enc.completed)return;
+ // Successful map objectives earn the full announced opening before pressure resumes.
+ if(enc.breath?.mapOperation&&enc.breathOpen?.())return;
+ const players=(ctx.players||[]).filter(p=>p.alive);if(!players.length)return;
+ const now=enc.clock;
+ let body=null,best=Infinity,target=null;
+ for(const b of enc.bodies.values()){
+  if(b.dead||b.arrivalPending||(b.combatTime||0)<SILENCE.settle)continue;
+  // Prefer a body the pilot can see; a hidden one only when none is.
+  const d0=b.hidden?1e6:0;
+  for(const p of players){const d=d0+Math.hypot(p.x-b.x,p.y-b.y);if(d<best){best=d;body=b;target=p;}}
+ }
+ if(!body)return;
+ const pause=enc.breathOpen?.()||bossCounterActive(enc)||basicFirePaused(body);
+ // The host reports what is really in play; bare encounters fall back to launch bookkeeping.
+ const last=enc.liveThreatAt??enc.threatUntil??0;
+ if(now-Math.max(last,enc.silenceBrokenAt??-Infinity)<(pause?SILENCE.window:SILENCE.quiet))return;
+ const loadout=BOSS_LOADOUTS[body.kind]||BOSS_LOADOUTS[enc.bossId]||[],air=AIRCRAFT.has(body.kind)||AIRCRAFT.has(enc.bossId);
+ const burst=['fragmentation','he','mortar'].find(f=>loadout.includes(f)),bomb=['iron-bomb','air-bomb','puw','cooper','hales'].find(f=>loadout.includes(f));
+ const mg=loadout.includes('machine-gun')||!loadout.length;
+ const W=SILENCE.warning,tag=body.id+':suppress',vx=target.vx||0,vy=target.vy||0;
+ let src=null,sd=Infinity;for(const p of body.parts?.values?.()||[]){if(p.destroyed||p.active===false||p.revealed===false||!WEAPON.test(String(p.kind)+' '+p.id))continue;const d=Math.hypot(body.x+(p.x||0)-target.x,body.y+(p.y||0)-target.y);if(d<sd){sd=d;src=p;}}
+ const sx=body.x+(src?.x||0),sy=body.y+(src?.y||0),visible=!body.hidden&&inView(ctx.bounds,sx,sy);
+ const bursts=(family,visual,extra={})=>{for(const [i,k] of [0,.5,1].entries())emit(body,{type:'hazard',kind:'circle',x:target.x+vx*(W+k*.5),y:target.y+vy*(W+k*.5),radius:SILENCE.flakBurst,warning:W,delay:i*.18,duration:.24,once:true,
+  damage:body.t.damage*SILENCE.flakDamage,visual,ordnanceFamily:family,sourceX:sx,sourceY:sy,sourcePartId:src?.id,tag,basicFire:true,silenceBreak:true,...extra});};
+ const fan=(damage,partId)=>{
+  // At range the fan is tight and led; a pilot sitting on the boss gets a wide sweep.
+  const speed=Math.max(240,Math.min(330,(body.t.bulletSpeed||280)*.9)),range=Math.hypot(target.x-sx,target.y-sy),close=range<SILENCE.closeRange;
+  const lead=(W+range/speed)*(close?.3:.85),spread=close?SILENCE.closeSpread:SILENCE.mgSpread,aim=Math.atan2(target.y+vy*lead-sy,target.x+vx*lead-sx);
+  emit(body,{type:'charge-warning',x:sx,y:sy,targetX:sx+Math.cos(aim)*420,targetY:sy+Math.sin(aim)*420,seconds:W,partId,basicFire:true,silenceBreak:true});
+  for(let i=0;i<SILENCE.mgRounds;i++){const a=aim+(i/(SILENCE.mgRounds-1)-.5)*spread;
+   emit(body,{type:'hazard',kind:'projectile',x:sx,y:sy,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:4,damage,delay:W+i*.05,warning:0,
+    duration:Math.min(5,Math.max(2.4,range/speed+1)),visual:'staaken-mg',ordnanceFamily:'machine-gun',sourceX:sx,sourceY:sy,sourcePartId:partId,basicMuzzle:i===0,tag,basicFire:true,silenceBreak:true});}
+ };
+ if(visible&&src&&burst&&!air)bursts(burst,'black-flak');
+ else if(visible&&mg)fan(body.t.damage*(src?SILENCE.mgDamage:SILENCE.crewDamage),src?.id);
+ else if(burst)bursts(burst,'black-flak');
+ else if(bomb)bursts(bomb,'carpet-bomb',{airborneBomb:true});
+ else return;
+ enc.silenceBrokenAt=now;
+}
 // Heavy attacks belong to each boss's physical weapon controller. Ordinary
 // gunfire must not inject a second, family-wide attack over a native phrase.
 export function updateBasicBarrage(b,dt,ctx){
@@ -143,6 +241,8 @@ export function updateBasicBarrage(b,dt,ctx){
  if(ctx.paused||dt<=0)return true;
  if(basicFirePaused(b)){if(!b.basicPaused&&b.basicSerial)emit(b,{type:'cancel-hazards',tag:b.id+':basic-fire',pendingOnly:true});b.basicPaused=true;b.basicClock=.55;return true;}
  b.basicPaused=false;
+ // Added on top of the ordinary phrase; it never takes its beat.
+ closeInFlak(b,dt,ctx,config);
  b.basicClock=(b.basicClock??(1+(b.slot||b.index||0)*.27))-dt;if(b.basicClock>0)return true;
  const players=ctx.players||[],serial=b.basicSerial||0;let live=0;for(const p of players)if(p.alive)live++;
  if(!live)return true;let cursor=serial%live,target;for(const p of players)if(p.alive&&cursor--===0){target=p;break;}

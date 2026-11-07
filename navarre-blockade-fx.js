@@ -1,5 +1,5 @@
 // Read actual accepted suppression, never choose targets or add damage/movement.
-import {navarreSuppressionVisual,NAVARRE_FROMMHERZ_BALANCE as B} from './navarre-frommherz-combat.js';
+import {navarreSuppressionVisual,NAVARRE_FROMMHERZ_BALANCE as B} from './navarre-frommherz-combat.js?v=09c75d146ae4289d';
 const living=p=>p?.pilot==='navarre'&&p.state==='playing'&&p.hp>0&&p.status!=='downed';
 export function navarreSuppressionEntries(w,e){
  if(!(e?.hp>0)||e.expired||e.crashed)return [];

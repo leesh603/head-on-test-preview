@@ -255,8 +255,8 @@ $('patternStep').onclick=()=>{
 // Test Lab only: inspect registered terrain and normal fleet spawning at its edges.
 $('doverView').onclick=async()=>{
  const g=api?.debug?.();if(!g||g.worldRegion()!==17)return;
- const {doverPatrolChart,doverWaterInterval,doverFlightBounds}=await import('./dover-patrol-chart.js?v=dover3');
- const {doverCoastPoint}=await import('./dover-terrain-render.js?v=dover6');
+ const {doverPatrolChart,doverWaterInterval,doverFlightBounds}=await import('./dover-patrol-chart.js?v=09c75d146ae4289d');
+ const {doverCoastPoint}=await import('./dover-terrain-render.js?v=09c75d146ae4289d');
  const c=doverPatrolChart(g),b=doverFlightBounds(g),where=$('doverLocation').value;
  let v=where==='east'?.61:.3,y=c.top+c.height*v,q=doverWaterInterval(g,y),x=where==='west'?doverCoastPoint(c,v,-1).x+170:where==='east'?doverCoastPoint(c,v,1).x-170:(q.left+q.right)/2;
  if(where==='north'){y=c.top-80;const point=doverCoastPoint(c,(y-c.top)/c.height,-1);x=point.x+330;}
@@ -337,7 +337,7 @@ $('fortShot').onclick=()=>{
 };
 $('fortStep').onclick=event=>api?.advanceVerdun?.(event.shiftKey?.1:1);
 setInterval(refreshFort,200);
-function ruralTrain(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[])].find(b=>['paris-gun','lincomparable'].includes(b.kind)&&!b.dead);}
+function ruralTrain(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[])].find(b=>['bruno-railway-gun','lincomparable'].includes(b.kind)&&!b.dead);}
 function ruralProbe(half){
  const b=ruralTrain(),g=api?.debug();if(!b||!g||b.entry)return;
  const part=b.parts.get($('ruralPart').value),x=part?b.x+part.x:b.x,y=part?b.y+part.y:b.y;

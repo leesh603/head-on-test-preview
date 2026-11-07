@@ -1,6 +1,6 @@
 // Flight-time equipment: no projectile guidance and no changes to damage budgets.
 export const FLIGHT_EQUIPMENT=Object.freeze([
- Object.freeze({id:'strutterAirbrake',name:'소프위드 스트러터 에어브레이크',family:'SPEED',desc:'선회기동 중 잠시 감속해 좁게 돌아선 뒤 재가속합니다. 기체 전환 장비와 동시 장착할 수 없습니다.'}),
+ Object.freeze({id:'strutterAirbrake',name:'소프위드 스트러터 에어브레이크',family:'SPEED',desc:'선회 기동 중 잠시 감속해 좁게 돌아선 뒤 재가속합니다. 기체 전환 장비와 동시 장착할 수 없습니다.'}),
  Object.freeze({id:'wimperisSight',name:'윔페리스 폭격 조준기',family:'EXPLOSIVE',desc:'로켓·수류탄·투하 폭탄을 발사할 때 이동 표적의 예상 위치를 조준합니다. 베리 지정 표적, 하이스 분석 표적 순으로 우선하며 발사 후 유도나 발수 증가는 없습니다.'})
 ]);
 export const FLIGHT_EQUIPMENT_BALANCE=Object.freeze({brakeTime:.22,recoveryTime:.12,brakeSpeed:.85,evadeSpeed:2.35,turn:12*Math.PI/180,rocketAngle:.12,grenadeAngle:.16,cooperAngle:.10,bomberAngle:.14});

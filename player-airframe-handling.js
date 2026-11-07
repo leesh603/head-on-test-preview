@@ -15,12 +15,16 @@ export const PLAYER_HANDLING=Object.freeze({
  fokkerdv:fit('energy',1.1,1.07,1.02,1.2,.16),
  albatros:fit('steady',1.4,.95,.98,1),
  albatros_d2:fit('steady',1.45,.94,.97,.95),
+ // D.I keeps its own speed/turn and identity while sharing D.II's envelope.
+ albatros_d1:fit('steady',1.45,.94,.97,.95),
  pfalz_d3a:fit('steady',1.4,.94,.97,1),
  spad12:fit('steady',1.7,.87,.94,1.05),
  junkers_d1:fit('steady',1.5,.87,.94,.9),
  bristol_duo:fit('twoSeat',1.4,.95,.99,1),
  halberstadt_duo:fit('twoSeat',1.5,.91,.96,.85),
  re7:fit('twoSeat',1.65,.85,.93,.8),
+ // Robinson inherits B.E.2c's native fit, not R.E.7's extra player modifiers.
+ be2c:fit('twoSeat',1,1,1,1),
  re8:fit('twoSeat',1.5,.89,.95,.85),
  caudron_g4:fit('twoSeat',1.6,.86,.93,.8),
  voisin_iii:fit('twoSeat',1.55,.84,.92,.8),
@@ -31,6 +35,10 @@ export const PLAYER_HANDLING=Object.freeze({
  hansa_brandenburg_di:fit('steady',1.35,.98,.96,.9)
 });
 const aliases=Object.freeze({
+ // Dedicated early-war paints retain the authored airframe stats while sharing
+ // the established family envelope for energy loss, recovery and steering.
+ prinz_friedrich_albatros_d1:'albatros_d1',
+ robinson_be2c:'be2c',nieuport11:'nieuport',
  navarre_nieuport11:'nieuport11',frommherz_albatros_d3:'albatros',
  fokker_red:'fokker',fokker_voss:'fokker',fokker_standard:'fokker',
  boelcke_albatros:'albatros_d2',baron_albatros:'albatros',brumowski_albatros:'albatros',schleich_albatros:'albatros',wolff_albatros:'albatros',
@@ -38,11 +46,12 @@ const aliases=Object.freeze({
  rickenbacker_spad:'spad',guynemer_spad:'spad12',ball_se5a:'se5a',proctor_se5a:'se5a',mccudden_se5a:'se5a',
  udet_fokkerdv:'fokkerdv',goering_fokkerd7:'fokkerd7',berthold_pfalz:'pfalz_d3a',collishaw_sopwith:'sopwith',barker_snipe:'snipe',gontermann_fokker:'fokker',lothar_dr1:'fokker',fokker_jacobs:'fokker'
 });
-export function playerAirframeModel(id,planes){
+export function playerAirframeModel(id,planes,seen=new Set()){
+ if(!id||seen.has(id))return null;
+ seen.add(id);
  if(PLAYER_HANDLING[id])return id;
- if(aliases[id])return aliases[id];
- const base=planes?.[id]?.sortieBase;
- return base&&base!==id?playerAirframeModel(base,planes):null;
+ const base=aliases[id]||planes?.[id]?.sortieBase;
+ return base&&base!==id?playerAirframeModel(base,planes,seen):null;
 }
 export function playerHandlingProfile(game,planes){
  // Forced manoeuvres and UR transformations retain their existing performance.

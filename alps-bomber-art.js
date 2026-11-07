@@ -1,5 +1,5 @@
-import {drawAlpsGunHardware} from './alps-gun-hardware.js?v=20261022';
-import {ALPS_BOMBER_LAYOUT} from './alps-bomber-layout.js?v=gal1';
+import {drawAlpsGunHardware} from './alps-gun-hardware.js?v=09c75d146ae4289d';
+import {ALPS_BOMBER_LAYOUT} from './alps-bomber-layout.js?v=09c75d146ae4289d';
 export const ALPS_ART_SOURCES=Object.freeze({gik:'./boss-alps-gik-states-20261020.webp?v=bomber-style20261024',ca4:'./boss-alps-ca4-states-20261020.webp?v=bomber-style20261024',hardware:'./boss-alps-hardware-20261020.webp?v=muted1'});
 let images={},pending=null;
 export function prepareAlpsBomberArt(){

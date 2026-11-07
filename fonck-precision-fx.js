@@ -1,5 +1,5 @@
 // Fonck: presentation follows the existing steady lead and finite piercing volley.
-import {signatureState,signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {signatureState,signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js?v=09c75d146ae4289d';
 export const FONCK_FX_PALETTE=Object.freeze({blue:'#9bbbc9',red:'#cf806b',ivory:'#f4e9cd',brass:'#c5a268',smoke:'#84928f'});
 const clamp=n=>Math.max(0,Math.min(1,n));
 const live=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed';
@@ -41,10 +41,17 @@ export function drawFonckLocal(c,p,tex,front=false){
  for(let g=0;g<count;g++){
   const offset=p.weapon?.bidirectional?0:(g-(count-1)/2)*8,ga=p.gunDirection?.(g)??p.a,m=p.bomberGunMount(g,ga,offset),dx=m.x-p.x,dy=m.y-p.y,x=dx*ca+dy*sa,y=-dx*sa+dy*ca;
   if(prepare)tex(c,'metalShard0',x+Math.cos(ga-p.a)*5,y+Math.sin(ga-p.a)*5,12,2.5,ga-p.a,.35+.35*clamp(five.age/.18),FONCK_FX_PALETTE.brass);
-  const shot=f.muzzles[g],age=shot?s.clock-shot.at:Infinity;if(age<0||age>.085)continue;
+  const shot=f.muzzles[g],age=shot?s.clock-shot.at:Infinity;if(age<0||age>(shot?.precise ? .16 : .085))continue;
   const a=shot.a-p.a,fade=1-age/.085;
-  tex(c,'muzzle',x+Math.cos(a)*9,y+Math.sin(a)*9,shot.precise?33:25,shot.precise?12:9,a,.92*fade,FONCK_FX_PALETTE.ivory);
-  if(shot.precise)tex(c,'gunSmoke',x+Math.cos(a)*12,y+Math.sin(a)*12,29,10,a,.32*fade,FONCK_FX_PALETTE.smoke);
+  if(shot.precise){
+   // A crisp flash for each accepted beat, followed by drifting powder smoke.
+   // Keep the existing gun mount and recorded shot heading; no thicker tracer.
+   const ca=Math.cos(a),sa=Math.sin(a),flash=clamp(1-age/.045),smoke=clamp(1-age/.16);
+   if(flash>0)tex(c,'muzzle',x+ca*9,y+sa*9,31,10,a,.96*flash,FONCK_FX_PALETTE.ivory);
+   tex(c,'gunSmoke',x+ca*(12-age*70),y+sa*(12-age*70),25+age*90,10+age*35,a,.34*smoke,FONCK_FX_PALETTE.smoke);
+   continue;
+  }
+  tex(c,'muzzle',x+Math.cos(a)*9,y+Math.sin(a)*9,25,9,a,.92*fade,FONCK_FX_PALETTE.ivory);
  }
 }
 export function drawFonckCue(c,p,e,tex,front){const q=clamp(e.age/e.maxLife),fade=1-q,a=e.a-p.a;
@@ -52,9 +59,16 @@ export function drawFonckCue(c,p,e,tex,front){const q=clamp(e.age/e.maxLife),fad
  if(e.kind==='fonckReady')return true; // Readiness is shown at the actual target.
  if(e.kind==='fonckBrass'){if(front){const back=-e.age*24,side=e.side*(5+e.age*65);tex(c,'bulletBrass',Math.cos(a)*back-Math.sin(a)*side,Math.sin(a)*back+Math.cos(a)*side,e.precise?7:5,2.5,a+e.age*11,.8*fade,FONCK_FX_PALETTE.brass);}return true;}
  if(e.kind==='fonckImpact'){
-  if(front){tex(c,'ricochet',0,0,e.precise?54+q*14:27, e.precise?17:13,a,.94*fade,FONCK_FX_PALETTE.ivory);
-   tex(c,'gunSmoke',-Math.cos(a)*q*12,-Math.sin(a)*q*12,e.precise?44:25,e.precise?24:16,a,.40*fade,FONCK_FX_PALETTE.blue);
-   if(e.precise)for(const side of [-1,1]){const d=q*19;tex(c,'metalShard'+(side>0?0:1),-Math.cos(a)*d-Math.sin(a)*side*d,-Math.sin(a)*d+Math.cos(a)*side*d,8,4,a+side*q*3,.75*fade,FONCK_FX_PALETTE.red);}
+  if(e.precise){
+   if(front){
+    const flash=clamp(1-e.age/.055),spread=1-Math.exp(-e.age*12),ca=Math.cos(a),sa=Math.sin(a);
+    if(flash>0)tex(c,'ricochet',0,0,39,15,a,.94*flash,FONCK_FX_PALETTE.ivory);
+    tex(c,'gunSmoke',-ca*spread*16,-sa*spread*16,27+spread*17,14+spread*7,a,.34*fade,FONCK_FX_PALETTE.smoke);
+    for(const side of [-1,1]){const d=spread*18;tex(c,'metalShard'+(side>0?0:1),-ca*d-sa*side*d,-sa*d+ca*side*d,7,3,a+side*spread*2,.75*fade,FONCK_FX_PALETTE.brass);}
+   }return true;
+  }
+  if(front){tex(c,'ricochet',0,0,27,13,a,.94*fade,FONCK_FX_PALETTE.ivory);
+   tex(c,'gunSmoke',-Math.cos(a)*q*12,-Math.sin(a)*q*12,25,16,a,.40*fade,FONCK_FX_PALETTE.blue);
   }return true;
  }
  return false;

@@ -1,11 +1,11 @@
-import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js';
-import {tagBishopBombImpact} from './bishop-sortie-fx.js';
-import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
-import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js?v=09c75d146ae4289d';
+import {tagBishopBombImpact} from './bishop-sortie-fx.js?v=09c75d146ae4289d';
+import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js?v=09c75d146ae4289d';
+import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js?v=09c75d146ae4289d';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=09c75d146ae4289d';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
-import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
-import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js';
+import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js?v=09c75d146ae4289d';
+import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
 export {BOMBER_TRANSFER_DESCRIPTION};
 export const BOMBER_TRANSFER=Object.freeze({
  entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3.5,hpCap:520,speed:.76,turn:.62,period:4.8,count:5,spacing:56,interval:.18,radius:96,damage:145,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),

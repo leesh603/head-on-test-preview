@@ -1,11 +1,11 @@
-import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
-import {gothaCrashPose} from './aircraft-crash.js';
-import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawAttachedApron} from './london-apron369.js?v=tame3&cityart=20261022';
-const paths={gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=09c75d146ae4289d';
+import {gothaCrashPose} from './aircraft-crash.js?v=09c75d146ae4289d';
+import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=09c75d146ae4289d';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=09c75d146ae4289d';
+import {impactMark,aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {drawAttachedApron} from './london-apron369.js?v=09c75d146ae4289d';
+const paths={districtDamage:'./city-raid-district-damage-20261103.webp',gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();releaseCityBalloonArt();}
 export function prepareLondonArt(){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
@@ -28,9 +28,43 @@ export function drawLondonRaidApron(c,b){
  const intact=londonImage('apron');if(intact)drawAttachedApron(c,b,intact,londonImage('apronDamage')||intact);
  for(const p of b.parts||[])if(p.id==='light'||p.id==='gun')installation(c,p.id,b.x+p.x,b.y+p.y,70*(b.apronScale||1),p.destroyed);
 }
-export function drawLondonWorld(c,g,locale='ko'){const battle=g.londonBattle;if(!battle)return;const en=locale==='en';
+const districtDamageColumns={west:0,docks:1,east:2};
+function drawDistrictDamage(c,d){
+ const col=districtDamageColumns[d.id];
+ if(col===undefined||d.hp*3>d.maxHp*2)return;
+ const im=londonImage('districtDamage');
+ if(!im)return;
+ const row=d.hp<=0?2:d.hp*3<=d.maxHp?1:0;
+ const cellWidth=im.naturalWidth/3,cellHeight=im.naturalHeight/3;
+ const size=180;
+ c.save();
+ c.imageSmoothingEnabled=true;
+ c.drawImage(im,col*cellWidth,row*cellHeight,cellWidth,cellHeight,d.x-size/2,d.y-size/2,size,size);
+ c.restore();
+}
+
+// The daylight city already draws its streets and roofs in world coordinates.
+function drawCityDistrictFires(c,d,time){
+ const damage=1-Math.max(0,d.hp)/d.maxHp;
+ if(damage<=0)return;
+ const sites=[[-17,11],[29,-19],[-46,-24],[43,25],[-13,-49]];
+ const count=Math.min(sites.length,Math.ceil(damage*sites.length));
+ for(let i=0;i<count;i++){
+  const [dx,dy]=sites[i],x=d.x+dx,y=d.y+dy;
+  const flicker=Math.sin(time*8+i*2.3);
+  const drift=Math.sin(time*1.4+i*1.7);
+  const size=23+damage*17;
+  fx(c,'fire',x,y,size,size*(1.18+flicker*.09),0,.74+flicker*.10);
+  fx(c,'smokeDark',x+8+drift*6,y-size*.67,size*1.32,size*1.42,drift*.14,.32+damage*.20);
+ }
+}
+
+export function drawLondonWorld(c,g,locale='ko'){const battle=g.londonBattle||g.cityDefenseRaid;if(!battle)return;// cityDefenseRaid: Central city raid districts (city-air-raid.js)
+const en=locale==='en',daylightCity=battle===g.cityDefenseRaid||battle.cityGotha;
  for(const e of g.enemies||[]){if(!e.londonInstallation||e.hp<=0)continue;const target=(g.players||[g]).find(p=>(p.londonLitUntil||0)>g.t)||(g.players||[g])[0];drawGroundEnemy(c,target&&e.londonInstallation==='gun'?{...e,gunAim:Math.atan2(target.y-e.y,target.x-e.x)}:e,e.x,e.y,74);if(e.londonInstallation==='light'){c.save();c.translate(e.x,e.y);c.rotate(e.scanA);const gradient=c.createLinearGradient(0,0,570,0);gradient.addColorStop(0,'#dfdc9a33');gradient.addColorStop(1,'#dfdc9a00');c.fillStyle=gradient;c.beginPath();c.moveTo(0,0);c.lineTo(570,-96);c.lineTo(570,96);c.closePath();c.fill();c.restore();}}
- for(const d of battle.districts){c.save();c.strokeStyle=d.hp>0?'#a9c7bd80':'#ce816366';c.lineWidth=1.5;c.setLineDash([5,6]);c.beginPath();c.arc(d.x,d.y,56,0,Math.PI*2);c.stroke();c.setLineDash([]);c.font='12px system-ui';c.textAlign='center';c.fillStyle='#e1e6da';c.fillText((en?d.en:d.name)+' '+Math.ceil(d.hp/d.maxHp*100)+'%',d.x,d.y+75);if(d.hp<d.maxHp*.5){fx(c,'fire',d.x,d.y,45,52,0,.6);fx(c,'smokeDark',d.x,d.y-35,84,84,0,.5);}c.restore();}
+ for(const d of battle.districts){if(daylightCity)drawCityDistrictFires(c,d,g.t||0);else drawDistrictDamage(c,d);c.save();c.strokeStyle=d.hp>0?'#a9c7bd80':'#ce816366';c.lineWidth=1.5;c.setLineDash([5,6]);c.beginPath();c.arc(d.x,d.y,56,0,Math.PI*2);c.stroke();c.setLineDash([]);c.font='12px system-ui';c.textAlign='center';c.fillStyle='#e1e6da';c.fillText((en?d.en:d.name)+' '+Math.ceil(d.hp/d.maxHp*100)+'%',d.x,d.y+75);if(!daylightCity&&d.hp<d.maxHp*.5){fx(c,'fire',d.x,d.y,45,52,0,.6);fx(c,'smokeDark',d.x,d.y-35,84,84,0,.5);}c.restore();}
+ // Air-raid bomb runs (city-air-raid): same aim line and impact mark as the squadron's runs.
+ for(const e of battle.raid?.bombers||[]){if(e.cityRaid.resolved||e.cityRaid.dropped||!(e.hp>0))continue;const d=battle.districts.find(d=>d.id===e.cityRaid.target);if(!d)continue;const left=Math.hypot(e.x-d.x,e.y-d.y);c.save();aimLine(c,e.x,e.y,d.x,d.y,{alpha:.55,chevron:false,dash:[6,8]});impactMark(c,d.x,d.y,58,1-Math.min(1,left/1050),{heavy:left<260});c.restore();}
  const encounter=g.stageBoss?.stages.encounter;
  for(const w of battle.warnings){const body=encounter?.bodies.get(w.bodyId);if(!body?.runTarget)continue;c.save();aimLine(c,body.x,body.y,w.x,w.y,{alpha:.7,chevron:false,dash:[6,8]});impactMark(c,w.x,w.y,58,1-Math.min(1,Math.max(0,body.runRemaining)/8),{heavy:!!body.onBombLine});c.fillStyle='#f4cb9b';c.strokeStyle='rgba(20,14,10,.6)';c.lineWidth=3;c.textAlign='center';c.font='bold 13px system-ui';c.fillText((body.onBombLine?(en?'DROP ':'투하 '):(en?'APPROACH ':'폭격 접근 '))+Math.max(0,body.runRemaining).toFixed(1)+(en?'s':'초'),w.x,w.y-66);c.restore();}
 }

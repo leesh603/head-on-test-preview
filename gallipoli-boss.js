@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {segmentDistance} from './alps-geometry117.js?v=tame3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {segmentDistance} from './alps-geometry117.js?v=09c75d146ae4289d';
 export const GALLIPOLI_SCALE=.78;
 const gs=v=>Math.round(v*GALLIPOLI_SCALE);
 export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:gs(1640),halfHeight:gs(1300)});
@@ -113,7 +113,7 @@ export class GallipoliFortress extends BaseBoss{
    const guns=[...this.parts.values()].filter(p=>p.sector===sector.id&&!p.destroyed&&p.repairGrace<=0&&(p.kind==='gun'||p.kind==='aa'));
    const p=guns[this.batteryCursor%Math.max(1,guns.length)];if(!p)continue;
    const point={x:target.x+(i===1?90:i===0?-90:0),y:target.y+(i===2?100:0)},shots=[],ammoGone=this.parts.get('ammo-'+sector.id).destroyed;
-   for(let j=0;j<(p.art==='twin'&&!ammoGone?2:1);j++)shots.push({...point,y:point.y+j*130,radius:p.kind==='aa'?34:60,delay:1+i*1.15+j*.24,barrel:j?1:-1,warning:observed?2:2.5,tag:this.id+':'+p.id});
+   for(let j=0;j<(p.art==='twin'&&!ammoGone?3:1);j++)shots.push({...point,y:point.y+j*130,radius:p.kind==='aa'?34:60,delay:1+i*1.15+j*.24,barrel:j%2?1:-1,warning:observed?2:2.5,tag:this.id+':'+p.id});
    p.aimTarget=point;sources.push({id:p.id,target:point,shots});
   }
   if(!this.commandDestroyed){const point={x:target.x+(target.vx||0)*.65,y:target.y+(target.vy||0)*.65};this.coreAimTarget=point;sources.push({id:null,target:point,shots:[{...point,radius:145,delay:4.5,warning:2.4,raidHeavy:true,duration:.22,tag:this.id+':central'}]});}
@@ -145,10 +145,14 @@ export class GallipoliFortress extends BaseBoss{
  update(dt,{players}){
   if(this.dead)return;this.clock+=dt;this.entryAge=Math.min(5,this.entryAge+dt);if(this.entryAge<5)return;
   this.updateRepairs(dt);if(this.coreVulnerable){this.pendingAttack=null;this.launchWarning=false;return;}
-  this.updateDefensePhase();this.turnTurrets(dt,players);this.tickSorties(dt);this.launchFlash=Math.max(0,(this.launchFlash||0)-dt);
-  if(this.coastalRemaining>0){this.coastalRemaining=Math.max(0,this.coastalRemaining-dt);if(!this.coastalRemaining){this.recoveryRemaining=1.8;this.phase='gallipoli-recovery';this.command('phase-change',{phase:this.phase});}return;}
-  if(this.recoveryRemaining>0){this.recoveryRemaining=Math.max(0,this.recoveryRemaining-dt);return;}
-  if(this.pendingAttack){this.fireIfAligned(dt);return;}
+  this.updateDefensePhase();this.turnTurrets(dt,players);this.launchFlash=Math.max(0,(this.launchFlash||0)-dt);
+  this.finalClock+=dt;
+  if(this.barrageRemaining>0){this.launchWarning=false;this.barrageRemaining=Math.max(0,this.barrageRemaining-dt);if(!this.barrageRemaining){this.recoveryRemaining=3.2;this.phase='gallipoli-recovery';this.command('phase-change',{phase:this.phase,seconds:3.2});}return;}
+  if(this.coastalRemaining>0){this.tickSorties(dt);this.coastalRemaining=Math.max(0,this.coastalRemaining-dt);if(!this.coastalRemaining){this.recoveryRemaining=1.8;this.phase='gallipoli-recovery';this.command('phase-change',{phase:this.phase});}return;}
+  if(this.recoveryRemaining>0){this.launchWarning=false;this.recoveryRemaining=Math.max(0,this.recoveryRemaining-dt);return;}
+  if(this.pendingAttack){if(this.pendingAttack.kind!=='final')this.tickSorties(dt);else this.launchWarning=false;this.fireIfAligned(dt);return;}
+  if(this.finalClock>=18){const target=this.target(players);if(target){this.launchWarning=false;this.planFinal(target);this.fireIfAligned(dt);return;}}
+  this.tickSorties(dt);
   this.coastalClock+=dt*Math.min(2,this.t.patternMultiplier||1);if(this.coastalClock<1.2)return;const target=this.target(players);if(!target)return;this.planZone(target);this.fireIfAligned(dt);
  }
 }

@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
-import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {segmentDistance} from './alps-geometry117.js?v=tame3';
+import {impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
+import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {segmentDistance} from './alps-geometry117.js?v=09c75d146ae4289d';
 
 // Shared measured geometry for the authored fortress layers, hits and muzzles.
 // A fortress is one existing boss body; its core is the body's final hit route.
@@ -197,16 +197,18 @@ export class FortDouaumont extends VerdunFortress{
   }
   const run=this.lastStand;if(!run)return false;run.age+=dt;
   if(!['heavy-left','heavy-right'].some(id=>!this.parts.get(id).destroyed)){this.lastStand=null;this.patternPartId=null;this.batteryStep=0;this.batteryWait=.8;this.recovery=3.2;this.command('phase-change',{phase:'verdun-recovery'});return true;}
-  const order=['heavy-left','heavy-right'];
-  while(run.index<order.length&&run.age>=1.2+run.index*3.2){
-   const i=run.index++,p=this.parts.get(order[i]),target=this.target(players);if(p.destroyed||!target)continue;
+  const order=['heavy-left','heavy-right','heavy-left','heavy-right'];
+  while(run.index<order.length&&run.age>=1.2+run.index*1.6){
+   const i=run.index,p=this.parts.get(order[i]);if(p.salvo)break;
+   run.index++;const target=this.target(players);if(p.destroyed||!target)continue;
    const r=Math.min(48*this.fortScale,(bounds.right-bounds.left)*.1),q=this.landing(target,bounds,.2,r);
    q.x=clamp(q.x+(i%2?1:-1)*r*.8,bounds.left+r,bounds.right-r);
    p.salvo={...q,remaining:.7,angle:Math.atan2(q.y-this.y-p.y,q.x-this.x-p.x),final:true,radius:r};
    this.command('fort-gun-ready',{partId:p.id,x:this.x+p.x,y:this.y+p.y,targetX:q.x,targetY:q.y,seconds:1.4});
   }
   for(const side of ['left','right'])if(this.parts.get('heavy-'+side).salvo)this.heavyGun(this.parts.get('heavy-'+side),side,dt,players,bounds);
-  if(run.index===order.length&&run.age>=7.8&&(!['heavy-left','heavy-right'].some(id=>this.parts.get(id).salvo)||run.age>=11)){
+  if(run.age>=11){run.index=order.length;for(const side of ['left','right'])this.parts.get('heavy-'+side).salvo=null;}
+  if(run.index===order.length&&run.age>=Math.max(7.8,run.clearAt||0)&&!['heavy-left','heavy-right'].some(id=>this.parts.get(id).salvo)){
    for(const side of ['left','right'])this.parts.get('heavy-'+side).salvo=null;
    this.lastStand=null;this.patternPartId=null;this.batteryStep=0;this.batteryWait=.8;this.recovery=3.2;this.command('phase-change',{phase:'verdun-recovery'});
   }
@@ -219,7 +221,7 @@ export class FortDouaumont extends VerdunFortress{
    const q=p.salvo;p.angle=turn(p.angle,q.angle,.63*dt);q.remaining-=dt;
    if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.16){
     const n=q.final?1:control&&!this.flankStarved(side)?2:1,radius=q.radius||clamp(48*this.fortScale,28,48);
-    if(q.final)impactPulse(this,{x:q.x,y:q.y,radius:Math.max(80,radius*1.65),warning:2.5,source:this.muzzle(p),partId:p.id,visual:'verdun-heavy-shell',tag:this.tag(p.id)});
+    if(q.final){impactPulse(this,{x:q.x,y:q.y,radius:Math.max(80,radius*1.65),warning:2.5,source:this.muzzle(p),partId:p.id,visual:'verdun-heavy-shell',tag:this.tag(p.id)});if(this.lastStand)this.lastStand.clearAt=this.lastStand.age+2.72;}
     else for(let i=0;i<n;i++)this.shell(p,{x:clamp(q.x+(i-(n-1)/2)*75*this.fortScale,bounds.left+radius,bounds.right-radius),y:q.y},{radius,warning:control?1.65:2.05,delay:i*.22,damage:1.35});
     p.salvo=null;p.targetCursor=(p.targetCursor||0)+1;this.command('heavy-gun-fired',{partId:p.id});
     return true;

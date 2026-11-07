@@ -1,7 +1,8 @@
 // English for in-game event toasts that were only written in Korean.
 // Presentation only: wraps Game#event to swap the display text when the
 // locale is English. Short technical tokens ('balloon', 'heal', …) pass through.
-import {getLocale,activeName,pilotName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {getLocale,activeName,pilotName} from './i18n.js?v=09c75d146ae4289d';
+import {MAP_OPERATION_PHRASES} from './map-operation-flow.js?v=09c75d146ae4289d';
 
 
 const EXACT = {
@@ -31,7 +32,7 @@ const EXACT = {
   '비행선 붕괴! 충격 돌풍 접근': 'Airship breaking up! Shock gust incoming',
   '비행선 호위 함대 전개': 'Airship escort deploying',
   '샤를 너겐서 · 불사조의 집념': 'Charles Nungesser · Phoenix Resolve',
-  '선회기동기동': 'Maneuver',
+  '선회 기동': 'Maneuver',
   '수상 정찰기 접근 — 구름에 숨거나 격추해 함대 지원을 차단하세요': 'Seaplane scout inbound — hide in cloud or shoot it down to stop fleet support',
   '수상기가 함대에 위치를 송신 — 지원 함대 접근 중': 'Seaplane reported your position — support fleet inbound',
   '수소 화재 · 적과 아군 모두 접근 금지': 'Hydrogen fire · keep clear, friend and foe',
@@ -89,6 +90,7 @@ const PHRASES = [
   ['중열차포', 'Railway gun'], ['드라헨 관측기구', 'Drachen observation balloon'], ['캉코 관측기구', 'Caquot observation balloon'], ['비행선', 'Airship'],
   ['연합국 ', 'Entente '], ['중앙국가 ', 'Central '], ['대공순양함', 'AA cruiser'], ['구축함', 'destroyer'], ['수상 정찰기', 'seaplane scout'],
   [' 접근 · ', ' approaching · '], [' 출현 · ', ' appears · '], [' 출현', ' appears'], [' 확보', ' secured'], [' 진입', ' entered'],
+  ...MAP_OPERATION_PHRASES,
 ].sort((a, b) => b[0].length - a[0].length);
 const PREFIX = [
   ['SPOTTED — 관측망에 포착됐습니다 · 대공포 연사 강화 10초', 'SPOTTED — the spotting net has you · flak rate up for 10s'],

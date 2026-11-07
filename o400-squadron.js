@@ -1,9 +1,15 @@
-import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js';
-import {arrivalFlightTurn} from './boss-arrival-flight.js';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js';
-import {O400_LAYOUT} from './o400-layout.js';
-import {segmentDistance,sweptPolygon} from './alps-geometry117.js';
+import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js?v=09c75d146ae4289d';
+import {arrivalFlightTurn} from './boss-arrival-flight.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {O400_LAYOUT} from './o400-layout.js?v=09c75d146ae4289d';
+import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=09c75d146ae4289d';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+const inView=(q,bounds,margin=0)=>!bounds||(q.x>=bounds.left+margin&&q.x<=bounds.right-margin&&q.y>=bounds.top+margin&&q.y<=bounds.bottom-margin);
+function gunFor(body,p){
+ const bearing=Math.atan2(p.y-body.y,p.x-body.x);
+ const part=body.parts.get(Math.abs(wrap(bearing-body.a))<1.5?'front-gun':'rear-gun');
+ return part.destroyed?null:part;
+}
 export const O400_TURN_RATE=.85;
 export class O400Raider extends BaseBoss {
  constructor({tuning,slot=0,faction='entente',...options}){
@@ -76,18 +82,23 @@ export class O400Raider extends BaseBoss {
   this.x+=Math.cos(this.a)*this.speed*dt;this.y+=Math.sin(this.a)*this.speed*dt;this.rotateMounts();
   for(const part of this.parts.values()){part.gunFlash=Math.max(0,(part.gunFlash||0)-dt);part.hitFlash=Math.max(0,(part.hitFlash||0)-dt);}
   if(!engines){this.phase='gliding';this.glideAge=(this.glideAge||0)+dt;if(this.glideAge>4.6)super.hit({damage:this.hp});return;}
-  const visible=!bounds||(this.x>bounds.left+12&&this.x<bounds.right-12&&this.y>bounds.top+12&&this.y<bounds.bottom-12),beat=time%10,cycle=Math.floor(time/10);
-  const gunner=count===3?rank===Math.floor(beat/2)%3:count===2?rank===cycle%2:true;
+  const visible=inView(this,bounds,12),beat=time%10,cycle=Math.floor(time/10);
+  const scheduled=live[count===3?Math.floor(beat/2)%3:count===2?cycle%2:0];
+  const gunner=live.find(b=>b.volley)||[scheduled,...live].find(b=>b&&b.gunWait<=0&&inView(b,bounds,12)&&b.engines()&&gunFor(b,p));
   this.phase=beat<5.8?(count===1?'short-pass':count===2?'guard-swap':'sequential-cover'):beat<7.2?'parallel-bombing':'recovery';
-  const allowed=visible&&this.age>1.2&&beat<5.8&&gunner;
+  const allowed=visible&&this.age>1.2&&beat<5.8;
   this.gunWait-=dt;
   if(this.volley){const v=this.volley,part=this.parts.get(v.id);v.left-=dt;
    if(!allowed||part.destroyed){this.volley=null;}
-   else if(v.left<=0){this.volley=null;this.gunWait=1.7;const q=this.point(v.id,v.angle);part.gunFlash=.18;this.command('muzzle',{...q,partId:v.id});
+   else if(v.left<=0){this.volley=null;const q=this.point(v.id,v.angle);if(!inView(q,bounds))return;this.gunWait=1.7;part.gunFlash=.18;this.command('muzzle',{...q,partId:v.id});
     for(const off of [-.09,0,.09])this.hazard('projectile',{...q,vx:Math.cos(v.angle+off)*v.speed,vy:Math.sin(v.angle+off)*v.speed,radius:4,damage:this.t.damage*.42,duration:1.6,visual:'gotha-mg',sourcePartId:v.id,sourceOffsetX:Math.cos(v.angle)*5,sourceOffsetY:Math.sin(v.angle)*5,tag:this.id+'-'+v.id,lockedAim:true,signatureAttack:true});
    }
-  }else if(allowed&&this.gunWait<=0){const bearing=Math.atan2(p.y-this.y,p.x-this.x),rel=Math.abs(wrap(bearing-this.a)),id=rel<1.5?'front-gun':'rear-gun',part=this.parts.get(id);
-   if(!part.destroyed){const q=this.point(id),speed=Math.max(260,this.t.bulletSpeed*.8),aim=Math.atan2(p.y+(p.vy||0)*1.1-q.y-Math.sin(this.a)*this.speed*.9,p.x+(p.vx||0)*1.1-q.x-Math.cos(this.a)*this.speed*.9);part.aimAngle=aim;this.volley={id,angle:aim,left:.9,speed};this.command('charge-warning',{...q,partId:id,targetX:q.x+Math.cos(aim)*440,targetY:q.y+Math.sin(aim)*440,lockedAngle:aim,followSource:true,seconds:.9});}
+  }else if(allowed&&beat<4.9&&gunner===this){const part=gunFor(this,p),id=part.id;
+   const q=this.point(id),speed=Math.max(260,this.t.bulletSpeed*.8),fx=q.x+Math.cos(this.a)*this.speed*.9,fy=q.y+Math.sin(this.a)*this.speed*.9;
+   let lead=.9;
+   for(let i=0;i<3;i++)lead=.9+Math.min(1.35,Math.hypot(p.x+(p.vx||0)*lead-fx,p.y+(p.vy||0)*lead-fy)/speed);
+   const aim=Math.atan2(p.y+(p.vy||0)*lead-fy,p.x+(p.vx||0)*lead-fx);
+   part.aimAngle=aim;this.volley={id,angle:aim,left:.9,speed};this.command('charge-warning',{...q,partId:id,targetX:q.x+Math.cos(aim)*440,targetY:q.y+Math.sin(aim)*440,lockedAngle:aim,followSource:true,seconds:.9});
   }
   this.bayOpen=Math.max(0,this.bayOpen-dt*1.5);
   if(visible&&beat>=5.8&&beat<7.2&&this.bombCycle!==cycle&&!this.parts.get('bomb-bay').destroyed&&(count!==2||rank!==cycle%2)){

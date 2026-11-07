@@ -1,6 +1,7 @@
-import {getLocale} from './i18n.js';
+import {getLocale} from './i18n.js?v=09c75d146ae4289d';
 const onlineCopy=(ko,en)=>getLocale()==='en'?en:ko;
-import {OnlineCoopGame} from './online-coop-game.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&momentum=20261027';
+export function onlineReason(reason){return ['Host가 방을 나갔습니다.','방장이 방을 나갔습니다.'].includes(reason)?onlineCopy('방장이 방을 나갔습니다.','The host left the room.'):reason;}
+import {OnlineCoopGame} from './online-coop-game.js?v=09c75d146ae4289d';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');
@@ -22,7 +23,7 @@ export class OnlineSession {
    else if(m.type==='lobby')this.onLobby?.(m);
    else if(m.type==='start'){if(!this.started){this.started=true;this.onStart?.(this,m);}else if(m.resumed)this.send({type:'resync'});this.onStatus?.(m.resumed?onlineCopy('재접속 완료','Reconnected'):onlineCopy('온라인 협동 · 연결됨','Online co-op · connected'));}
    else if(m.type==='error'){this.onStatus?.(m.message);this.closed=true;socket.close();}
-   else if(m.type==='ended'){this.finish(m.reason);}
+   else if(m.type==='ended'){this.finish(onlineReason(m.reason));}
    else {if(m.type==='peer')this.onStatus?.(m.connected?onlineCopy('동료 재접속 완료','Teammate reconnected'):onlineCopy('동료 연결 끊김 · 재접속 대기 30초','Teammate disconnected · reconnect window: 30s'));this.onGameMessage?.(m);}
   };
   socket.onclose=()=>{

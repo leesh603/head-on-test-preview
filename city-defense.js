@@ -1,4 +1,4 @@
-import {aaMuzzle,configureAA} from './air-threat-profiles.js';
+import {aaMuzzle,configureAA} from './air-threat-profiles.js?v=09c75d146ae4289d';
 // Ordinary city only. Co-op calls this once for the shared world, not per pilot.
 export const CITY_DEFENSE=Object.freeze({lockTime:1.2,beamHalf:.16,beamRange:520,warning:.65,reload:2.7,speed:250});
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));

@@ -1,9 +1,9 @@
-import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js';
-import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js';
-import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
-import {RecordedBattleMusic} from './music-recordings.js?v=lowhp1';
-export {musicContextForGame} from './music-context.js?v=situations1';
+import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js?v=09c75d146ae4289d';
+import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js?v=09c75d146ae4289d';
+import {SituationPolicy} from './music-situation-policy.js?v=09c75d146ae4289d';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=09c75d146ae4289d';
+import {RecordedBattleMusic} from './music-recordings.js?v=09c75d146ae4289d';
+export {musicContextForGame} from './music-context.js?v=09c75d146ae4289d';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.
@@ -19,7 +19,7 @@ const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge',
 const BOSS_TRACKS={
  'final-kaiserkrone':'kaiserkrone','final-leviathan':'leviathan','berlin-drachen':'net',
  'supermarine-nighthawk':'bomber','siemens-schuckert-r-viii':'bomber',
- 'paris-gun':'railgun',lincomparable:'railgun',
+ 'bruno-railway-gun':'railgun',lincomparable:'railgun',
  'paris-geschuetz':'fortress','french-counter-battery':'bomber',
  'sms-stuttgart':'naval','hms-zubian':'naval',
  'a7v-flak':'landship','mark-v-cruiser':'landship',

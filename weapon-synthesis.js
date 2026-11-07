@@ -1,10 +1,10 @@
 // Equipment is interpreted from the current fit, never from acquisition order.
 // Delayed launches contain data only; ammunition is charged at actual emission.
-import {ammunitionGasRadius} from './heavy-ammunition.js';
-import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js';
-import {bishopGlovesInterval} from './equipment-flight-balance.js';
-import {combatImpactResult} from './combat-impact-result.js';
-import {igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js';
+import {ammunitionGasRadius} from './heavy-ammunition.js?v=09c75d146ae4289d';
+import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js?v=09c75d146ae4289d';
+import {bishopGlovesInterval} from './equipment-flight-balance.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
+import {igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js?v=09c75d146ae4289d';
 const world=p=>p.combatWorld?.()||p.world||p;
 const alive=p=>p.hp>0&&p.status!=='downed';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
@@ -66,7 +66,13 @@ function cannonGroup(p,indices,total,{heading,power=1,volleyToken=primaryVolleyT
   if(p.upgrades?.rankinShell&&!(p.synthesisReady_shrapnel>0)&&(!p.upgrades.fieryGrapnel||p.wwiGrapnelCooldown>0&&!(world(p).bullets||[]).some(r=>r.fieryGrapnel&&r.life>0&&r.ownerId===(p.id||'p1')))){b.synthesisPayload.shrapnel=true;p.synthesisReady_shrapnel=3.2;}
   push(p,b);p.ammo[0]--;p.roundsFired++;fired++;p.preparePilotPrimaryRound?.(b,volleyToken);b.pierce=false;
  }
- if(fired){p.muzzleFlash=.2;p.synthesisMuzzleAngle=base;world(p).shake=Math.max(world(p).shake||0,6);p.cannonMuzzleSmoke?.('cow');p.event?.('shot','');}
+ if(fired){
+  // The volley recoils visually once, regardless of shell count.
+  p.cannonRecoil129=.14;p.cannonKick129=3.5;p.cannonKind129='cow';
+  p.muzzleFlash=.11;p.synthesisMuzzleAngle=base;
+  const w=world(p);w.shake=Math.max(w.shake||0,1.25);
+  p.cannonMuzzleSmoke?.('cow');p.event?.('shot','cow37');
+ }
  if(p.ammo[0]<=0){p.synthesisPending=[];p.synthesisBurst=0;p.reload();}
  return fired;
 }
@@ -235,13 +241,13 @@ export function synthesisDescription(p,id,locale='ko',compact=false){
  const c=weaponComposition(p,id),en=locale==='en',dartEffect=c.explosive?(en?' Amatol adds up to 3 small impact explosions per 12-dart group, once per target.':' 아마톨은 화살 12발 묶음마다 최대 3회 소폭발을 일으키며, 같은 표적에는 한 번만 발동합니다.'):'';
  if(compact&&['cow37','quadLewis','flechettes','rearGunner','combinedProjectiles'].includes(id)){
   if(id==='flechettes'&&c.body==='dart-shell')return c.explosive?(en?'COW and Cooper release 12 darts; up to 3 small impact explosions per group.':'COW·쿠퍼에서 화살 12발이 퍼지며, 한 묶음에 최대 3회 소폭발합니다.'):(en?'COW shells and equipped Cooper bombs release 12 piercing darts each.':'COW 포탄과 보유한 쿠퍼 폭탄이 관통 화살 12발을 퍼뜨립니다.');
-  if(id==='cow37'&&c.body==='dart-shell')return en?'Replaces guns with an ammo-consuming cannon that releases 12 darts.':'기관총을 탄약을 소모하며 화살 12발을 퍼뜨리는 37mm 포로 바꿉니다.';
+  if(id==='cow37'&&c.body==='dart-shell')return en?'Replaces guns with an ammo-consuming cannon that releases 12 darts.':'기관총을 탄약을 소모하며 화살 12발을 퍼뜨리는 37 mm 포로 바꿉니다.';
   return EQUIPMENT_CHOICE_COPY[id][en?1:0];
  }
  switch(id){
  case 'cow37':return c.body==='dart-shell'
-  ?(en?'Replaces the machine guns with a 37mm cannon. Each shell consumes ammunition and releases 12 piercing darts.':'기관총을 37mm 포로 교체합니다. 포탄마다 탄약을 소모하며 관통 화살 12발을 퍼뜨립니다.')+dartEffect
-  :(en?'Replaces the machine guns with a non-piercing 37mm cannon. Shells explode on impact and consume ammunition when fired.':'기관총을 비관통 37mm 포로 교체합니다. 포탄은 명중하면 폭발하며 발사할 때마다 탄약을 소모합니다.');
+  ?(en?'Replaces the machine guns with a 37 mm cannon. Each shell consumes ammunition and releases 12 piercing darts.':'기관총을 37 mm 포로 교체합니다. 포탄마다 탄약을 소모하며 관통 화살 12발을 퍼뜨립니다.')+dartEffect
+  :(en?'Replaces the machine guns with a non-piercing 37 mm cannon. Shells explode on impact and consume ammunition when fired.':'기관총을 비관통 37 mm 포로 교체합니다. 포탄은 명중하면 폭발하며 발사할 때마다 탄약을 소모합니다.');
  case 'quadLewis':return en?'Adds three firing lanes to the primary weapon. Each fired round consumes ammunition.':'주무장 발사 갈래가 3개 늘어납니다. 발사한 탄환마다 탄약을 소모합니다.';
  case 'flechettes':return c.body==='dart-shell'
   ?(en?'COW shells release 12 piercing darts each, inheriting cannon growth. Equipped Cooper bombs also release darts with explosive growth.':'COW 포탄마다 포의 성장을 반영한 관통 화살 12발을 퍼뜨립니다. 쿠퍼 폭탄의 화살에는 폭발물 성장이 적용됩니다.')+dartEffect

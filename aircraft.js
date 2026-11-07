@@ -1,25 +1,26 @@
-import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
-import {configureLegendArt} from './legend-squadron-combat.js';
+import {trailPaletteFromPixels} from './ace-momentum.js?v=09c75d146ae4289d';
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=09c75d146ae4289d';
+import {configureLegendArt} from './legend-squadron-combat.js?v=09c75d146ae4289d';
 const SQUADRON_FLIGHT_ART=Object.freeze({jasta5_patrol:'squadron-aircraft/jasta5-albatros.webp',cigognes_cannon_paint:'squadron-aircraft/cigognes-spad12.webp',cigognes_escort_paint:'squadron-aircraft/cigognes-spad.webp',hat_ring_paint:'squadron-aircraft/hat-ring-spad.webp',jasta18_paint:'squadron-aircraft/jasta18-fokker.webp',lafayette_paint:'squadron-aircraft/lafayette-nieuport.webp',spa65_paint:'squadron-aircraft/spa65-spad.webp',sqn56_paint:'squadron-aircraft/sqn56-se5a.webp',jasta2_paint:'squadron-aircraft/jasta2-albatros.webp'});
 const SQUADRON_PAINT_ALIASES={spad12:'cigognes_cannon_paint',stork_spad:'cigognes_escort_paint',hatring_spad:'hat_ring_paint',jasta18_fokkerd7:'jasta18_paint',lafayette_nieuport17:'lafayette_paint',spad:'spa65_paint',se5a:'sqn56_paint',albatros_d5a:'jasta2_paint'};
 const squadronPaintReady=key=>hasPaintedAircraft(SQUADRON_PAINT_ALIASES[key]||key),loadSquadronPaint=key=>paintedReady(SQUADRON_PAINT_ALIASES[key]||key);
-import {configureExpansionArt} from './famous-squadron-expansion.js';
-import {configureCigognesArt} from './cigognes-cannon-patrol.js';
-import {configureHatRingArt} from './hat-ring-blockade.js';
-import {configureFamousWingArt} from './famous-wing-combat.js';
-import {fxReady as cigognesFxReady} from './fx-art.js?v=tame3';
-import {configureTransportArt} from './transport-convoy.js';
-import {configurePhotoReconArt} from './photo-recon-encounters.js';
-import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js';
-import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {clearCrewMatte} from './matte70.js?v=gal1';
-import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
-import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
-import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=crewbake1';
+import {configureExpansionArt} from './famous-squadron-expansion.js?v=09c75d146ae4289d';
+import {configureCigognesArt} from './cigognes-cannon-patrol.js?v=09c75d146ae4289d';
+import {configureHatRingArt} from './hat-ring-blockade.js?v=09c75d146ae4289d';
+import {configureFamousWingArt} from './famous-wing-combat.js?v=09c75d146ae4289d';
+import {fxReady as cigognesFxReady} from './fx-art.js?v=09c75d146ae4289d';
+import {configureTransportArt} from './transport-convoy.js?v=09c75d146ae4289d';
+import {configurePhotoReconArt} from './photo-recon-encounters.js?v=09c75d146ae4289d';
+import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js?v=09c75d146ae4289d';
+import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=09c75d146ae4289d';
+import {clearCrewMatte} from './matte70.js?v=09c75d146ae4289d';
+import {BANK_ART} from './aircraft-bank-art.js?v=09c75d146ae4289d';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=09c75d146ae4289d';
+import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=09c75d146ae4289d';
 // NPC crew is pre-composited offline (scripts/bake-npc-crew.mjs -> crew-baked/). The live
 // compositor and its 785 KB seat table load only for art the bake has not covered yet.
 const CREW_BAKE_MODE=typeof location!=='undefined'&&new URLSearchParams(location.search).get('crewbake')==='1';
-let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=crew-20261026');
+let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=09c75d146ae4289d');
 const crewNone=new Set(CREW_NONE),rimRepairs=new Set(AIRCRAFT_RIM_REPAIR_KEYS);
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
@@ -100,6 +101,9 @@ const PAINTED_KEYS=['fokker','fokker_standard','fokker_f1','albatros','camel','s
 const HANGAR_KEYS=['fokker','fokker_f1','fokker_standard','fokker_jacobs','baron_albatros','albatros','albatros_d2','eindecker','camel','sopwith','collishaw_sopwith','nieuport','nieuport_italian','nieuport24','baracca_nieuport','nungesser_nieuport24','luke_nieuport28','fokkerdv','udet_fokkerdv','spad','spad12','guynemer_spad','rickenbacker_spad','re7','fokkerd7','goering_fokkerd7','loewenhardt_fokkerd7','se5a','mccudden_se5a','ball_se5a','bristol_duo','halberstadt_duo','barker_snipe','brumowski_albatros','gontermann_fokker','wolff_albatros','berthold_pfalz'];
 // New D.I uses the same preloaded painted-sprite path as the D.II.
 const ALBATROS_D1_ART=['albatros_d1','prinz_friedrich_albatros_d1'];
+// These approved masters have no root or pre-baked counterpart. Keep raw crop/
+// outline rendering, but let readiness warm the exact file the decoder requests.
+const albatrosD1Source=key=>ALBATROS_D1_ART.includes(key)?`./mech/${key}.webp?v=albatros-d1-20261103`:null;
 PAINTED_KEYS.push(...ALBATROS_D1_ART);
 HANGAR_KEYS.push(...ALBATROS_D1_ART);
 // Crew compositing reads back two full sprite canvases and walks every pixel. A sortie can
@@ -153,7 +157,8 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
     oc.drawImage(img,art.x,art.y,art.w,art.h,0,0,288,320);
     if(key==='bomber-transfer-gotha'){const pixels=oc.getImageData(0,0,288,320);clearAircraftMatte(key,pixels.data,288,320);oc.putImageData(pixels,0,0);}
     // The rim (21 full-canvas blits) runs in an idle slot, not inside a combat frame.
-    const done=()=>{if(!(key.startsWith('bank_')&&!art.path.startsWith('asset-bank/outlined/'))){commitPainted(out);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)})};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
+    // This corrected night cell and both retained atlas cells already include their authored rim.
+    const done=()=>{if(!(key.startsWith('bank_')&&key!=='bank_livery_pup__night'&&!art.path.startsWith('asset-bank/outlined/'))){commitPainted(out);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)})};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
     done();return;
   }
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
@@ -162,8 +167,8 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
- const bakedArt=!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
- const base=new URL(PHOTO_RECON_ART[key]?`./${PHOTO_RECON_ART[key].path}`:bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=${AIRCRAFT_ART_REVISION}`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
+ const bakedArt=key==='salamander_trial'?'asset-bank/outlined/native/elite-patch/assets/salamander-squadron.webp':!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
+ const base=new URL(albatrosD1Source(key)||(PHOTO_RECON_ART[key]?`./${PHOTO_RECON_ART[key].path}`:bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=${AIRCRAFT_ART_REVISION}`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`),import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
@@ -205,10 +210,36 @@ export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 const paintedSource=key=>campaignSpriteAliases[key]||(key==='fokker_red'?'fokker':key==='fokker_voss'?'fokker_f1':key==='fokker'?'fokker_standard':key);
 // Exact same baked source as decodePainted; boot prioritization must not warm raw/foreign art.
 export function aircraftFlightSource(key){
- const source=paintedSource(key);if(SQUADRON_FLIGHT_ART[source])return new URL('./'+SQUADRON_FLIGHT_ART[source],import.meta.url).href;const mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
+ const source=paintedSource(key);if(albatrosD1Source(source))return new URL(albatrosD1Source(source),import.meta.url).href;if(SQUADRON_FLIGHT_ART[source])return new URL('./'+SQUADRON_FLIGHT_ART[source],import.meta.url).href;const mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
  if(!CREW_BAKE_MODE&&mech&&CREW_BAKED[source])return new URL(`./crew-baked/${CREW_BAKED[source]}`,import.meta.url).href;
+ // The D.I reward keeps an approved raw master and uses decodePainted's
+ // scan/crop path. Its preload URL must match that request as well.
+ if(source==='prinz_friedrich_albatros_d1')return new URL(`./${mech}${source}.webp?v=gal1&b=347`,import.meta.url).href;
  const path=PHOTO_RECON_ART[source]?.path||(SORTIE_FITS[source]?`sortie-aircraft/flight/${source}.webp`:AIRCRAFT_OUTLINE_ART[mech+source]);
  return path?new URL(`./${path}?v=${AIRCRAFT_ART_REVISION}`,import.meta.url).href:'';
+}
+// Cache by decoded image so repainting or evicting a sprite refreshes its colors.
+const trailPalettes=new WeakMap();
+let trailColorContext;
+export function aircraftTrailPalette(key){
+ const image=painted.get(paintedSource(key));
+ if(!image)return;
+ if(trailPalettes.has(image))return trailPalettes.get(image);
+ trailPalettes.set(image,undefined);
+ const sample=()=>{
+  try{
+   if(!trailColorContext){
+    const surface=document.createElement('canvas');
+    surface.width=surface.height=24;
+    trailColorContext=surface.getContext('2d',{willReadFrequently:true});
+   }
+   trailColorContext.clearRect(0,0,24,24);
+   trailColorContext.drawImage(image,0,0,24,24);
+   trailPalettes.set(image,trailPaletteFromPixels(trailColorContext.getImageData(0,0,24,24).data));
+  }catch{/* Leave the neutral trail available if artwork cannot be sampled. */}
+ };
+ if(typeof requestIdleCallback==='function')requestIdleCallback(sample,{timeout:250});
+ else setTimeout(sample,0);
 }
 export const paintedReady=key=>{const source=paintedSource(key);return painted.has(source)?Promise.resolve(true):loadPainted(source)};
 const squadronWarmAttempts=new Map();

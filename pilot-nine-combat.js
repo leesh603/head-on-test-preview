@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=09c75d146ae4289d';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -20,7 +20,16 @@ function rearBurst(p,target,strong=false){
  if(Math.abs(wrap(a-p.a-Math.PI))>Math.PI*.49||Math.abs(wrap(a-bearing(p,target)))>.18)return false;
  const count=Math.min(Math.max(strong?3:2,p.shots||1),p.ammo[1]);if(!p.unlimitedAmmo)p.ammo[1]-=Math.max(1,count-(p.freeVolleyShots||0));p.roundsFired+=count;
  for(let i=0;i<count;i++){const aa=a+(i-(count-1)/2)*.022;world(p).bullets.push(p.applySpecialRound({x,y,vx:Math.cos(aa)*550,vy:Math.sin(aa)*550,life:1.15,enemy:false,ownerId:p.id,gun:1,damage:p.damage*p.normalGunMultiplier()*(strong?1.45:1.1),hit:new Set(),pilotRear:true,pilotRearActive:strong,visualType:'normal'},null));}
- p.nineRearFlash=.1;p.nineRearAim=a;cue(p,'rearBurst',{x,y,a,life:.18,strong});p.event('shot','');return true;
+ p.nineRearFlash=.1;p.nineRearAim=a;
+ const shotFx={x,y,a,life:.18,strong};
+ if(p.pilot==='mckeever'&&strong){
+  // The painted observer station is just aft of centre on the Bristol.
+  // Transferred airframes already use their rear port for both positions.
+  shotFx.stationX=p.bomberTransfer?.rear===undefined?p.x+Math.cos(p.a)*3:x;
+  shotFx.stationY=p.bomberTransfer?.rear===undefined?p.y+Math.sin(p.a)*3:y;
+  shotFx.life=.28;
+ }
+ cue(p,'rearBurst',shotFx);p.event('shot','');return true;
 }
 export function recordNineDamage(p,damage){
  if(!(damage>0)||p.state!=='playing'||p.hp<=0||p.invuln>0)return;
@@ -28,7 +37,9 @@ export function recordNineDamage(p,damage){
   const held=(damage>=p.maxHp*.09?damage*.3:damage*.12)*(p.skillEnhanced&&p.skillTime>0?1.35:1);
   p.heldDamage=Math.min(p.maxHp,(p.heldDamage||0)+held);
   if(p.skillTime>0)p.ironActiveDamage=(p.ironActiveDamage||0)+held;
-  cue(p,'ironImpact',{life:.65,damage});
+  const source=p.damageSource,b=source?.bullet;
+  const a=Number.isFinite(b?.vx)&&Number.isFinite(b?.vy)?Math.atan2(b.vy,b.vx):p.a;
+  cue(p,'ironImpact',{life:.65,damage,a,x:source?.impactX??p.x,y:source?.impactY??p.y});
  }else if(p.pilot==='barker'){
   p.barkerDamageStage=Math.min(p.skillTime>0?5:3,(p.barkerDamageStage||0)+1);
   cue(p,'battleDamage',{life:.85,count:p.barkerDamageStage});
@@ -70,7 +81,7 @@ function advance(p,dt){
  }
  if(p.pilot==='berthold'&&p.skillTime>0){
   p.gustDisorient=0;p.cannonRecoil129=(p.cannonRecoil129||0)*.2;w.shake=Math.min(w.shake||0,2);
-  if(p.skillTime<=dt+.16&&!p.ironSalvoDone&&(p.ironActiveDamage||0)>=p.maxHp*(p.skillEnhanced?.09:.12)){
+  if(p.skillTime<=dt+.16&&!p.ironSalvoDone&&(p.ironActiveDamage||0)>=bertholdCounterThreshold(p)){
    p.ironSalvoDone=true;p.heldDamage=0;
    for(let i=-2;i<=2;i++){const a=p.a+i*.035;w.bullets.push({x:p.x+Math.cos(p.a)*25,y:p.y+Math.sin(p.a)*25,vx:Math.cos(a)*620,vy:Math.sin(a)*620,life:1.2,enemy:false,ownerId:p.id,damage:p.damage*(p.skillEnhanced?2:1.7),pierce:true,hit:new Set(),ironSalvo:true});}
    cue(p,'ironSalvo',{life:.38});p.muzzleFlash=.16;
@@ -161,3 +172,5 @@ export function installNineCoop(CoopGame){
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
  const revive=q.revive;q.revive=function(p,...args){const result=revive.call(this,p,...args);if(NINE_PILOTS.has(p.pilot)&&p.status==='alive'){for(const k of ['nineRearTarget','nineFrontTarget','whiteFocus','hawkerNext','jacobsPressureTarget'])p[k]=null;for(const k of ['heldDamage','ironActiveDamage','barkerDamageStage','barkerScarStage','fxOverheat','rearAcquire','nineRearFlash','hawkerLinkTime','jacobsPressure'])p[k]=0;p.nineRearAim=p.a+Math.PI;p.nineFrontAim=p.a;p.nineWasActive=false;p.udetRunStart=p.roundsFired;}return result;};
 }
+
+export function bertholdCounterThreshold(p){return p.maxHp*(p.skillEnhanced?.09:.12);}

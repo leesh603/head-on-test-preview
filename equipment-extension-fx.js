@@ -1,6 +1,6 @@
 // Three additional equipment signatures, painted assets only. Render clocks
 // remain simulation-owned; no particles, random numbers or gameplay mutation.
-import {EXTENSION_ATLAS,EXTENSION_FRAMES} from './equipment-extension-art-data.js';
+import {EXTENSION_ATLAS,EXTENSION_FRAMES} from './equipment-extension-art-data.js?v=09c75d146ae4289d';
 const finite=(v,f=0)=>Number.isFinite(v)?v:f;
 const clamp=(v)=>Math.max(0,Math.min(1,finite(v)));
 const alive=p=>p?.hp>0&&p.status!=='downed'&&!(p.heineckeEscape>0);

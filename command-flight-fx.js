@@ -1,6 +1,7 @@
 // Boelcke and Collishaw: observe real owned wingmen, guns and confirmed damage.
 // Render-only air wakes observe real positions; never create a projectile or target.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {drawCollishawAssault,clearCollishawAssault} from './collishaw-assault-fx.js?v=09c75d146ae4289d';
 export const COMMAND_PILOTS=new Set(['boelcke','collishaw']);
 export const COMMAND_PALETTES=Object.freeze({
  boelcke:Object.freeze({edge:'#80b7af',core:'#e2ddc5',smoke:'#778e8b',impact:'#e8c58c'}),
@@ -81,17 +82,19 @@ export function boelckeWakeSegments(p){
 function boelckePressure(c,p,tex){
  for(const v of boelckeWakeSegments(p))tex(c,'vaporTrail',v.x,v.y,v.length,v.width,v.a,v.opacity,'#f3eee0');
 }
-// Black Flight is the aircraft paint and crossing attack, not an oil-fire plume.
-function blackFlightSlipstream(at,time,slot,active){
- if(active)at('windStreak',-31,slot%2?-23:23,24,3,0,.13,COMMAND_PALETTES.collishaw.core);
+// Keep the wake on the two personal aircraft that execute the attack run.
+function blackFlightWing(w){
+ return w.permanent&&!w.aceWingman&&!w.weaponModFormation&&!w.tacticalWing&&!w.boelckePincer&&!w.orbit&&!w.carrierHidden&&(w.slot===0||w.slot===1);
 }
 function brass(at,flash,side,count){
  const age=Math.max(0,.09-flash);
  for(let i=0;i<count;i++)at('bulletBrass',13-age*(66+i*18)-i*3,side*(12+age*(75+i*20)+i*4),5.5,2.5,side*(.5+age*12+i*.8),.82*(1-age/.12),'#c69a61');
 }
 export function drawCommandWorld(c,p,tex,front=false){
+ if(p.pilot!=='collishaw'||!living(p))clearCollishawAssault(p);
  if(!living(p)){clearBoelckeWake(p);return;}const palette=COMMAND_PALETTES[p.pilot];if(!palette){clearBoelckeWake(p);return;}
- const active=p.skillTime>0,time=p.pilotSignatureState?.clock||0;
+ const active=p.skillTime>0;
+ if(p.pilot==='collishaw')drawCollishawAssault(c,p,commandWings(p),tex,front);
  if(!front&&p.pilot==='boelcke'){
   boelckePressure(c,p,tex);
   let count=0;
@@ -106,11 +109,13 @@ export function drawCommandWorld(c,p,tex,front=false){
  for(const w of commandWings(p)){
   const dx=w.x-p.x,dy=w.y-p.y,a=w.a,ca=Math.cos(a),sa=Math.sin(a),alpha=w.alpha===undefined?1:clamp(w.alpha);
   const at=(key,x,y,width,height,angle,opacity,color)=>tex(c,key,dx+ca*x-sa*y,dy+sa*x+ca*y,width,height,a+angle,opacity*alpha,color);
+  const blackFlight=active&&p.pilot==='collishaw'&&blackFlightWing(w);
   const side=(-Math.sin(p.a)*dx+Math.cos(p.a)*dy)<0?-1:1;
   if(front){
    if(!(w.muzzleFlash>0))continue;
+   if(blackFlight){brass(at,w.muzzleFlash,side,2);continue}
    const aim=w.fireHeading??w.muzzleAngle??a,fade=clamp(w.muzzleFlash/.06),collie=p.pilot==='collishaw';
-   tex(c,collie?'muzzleTwin':'muzzle',dx+Math.cos(aim)*32,dy+Math.sin(aim)*32,collie?19:25,collie?7:9,aim,.94*fade*alpha,collie?'#e5b777':palette.impact);
+   tex(c,collie?'muzzleTwin':'muzzle',dx+Math.cos(aim)*32,dy+Math.sin(aim)*32,blackFlight?37:collie?19:25,blackFlight?15:collie?7:9,aim,.94*fade*alpha,blackFlight?'#ffe2a6':collie?'#e5b777':palette.impact);
    if(collie)brass(at,w.muzzleFlash,side,active?2:1);
    else{
     tex(c,'gunSmoke',dx+Math.cos(aim)*18,dy+Math.sin(aim)*18,40,19,aim,.45*fade*alpha,'#c7c8b8');
@@ -118,8 +123,6 @@ export function drawCommandWorld(c,p,tex,front=false){
    }
    continue;
   }
-  if(Math.hypot(dx,dy)<28)continue;
-  if(p.pilot==='collishaw')blackFlightSlipstream(at,time,w.slot||0,active);
  }
 }
 export function drawCommandLocal(c,p,tex,front=false){

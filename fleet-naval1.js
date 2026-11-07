@@ -1,14 +1,15 @@
-import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=dover3';
-import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js';
-import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=gal1';
-import {drawShipWater,recordShipWake} from './naval-water.js?v=tame3&perf=1029';
-import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=tame3';
+import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
+import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=09c75d146ae4289d';
+import {fleetGunStations} from './naval-faction-atlas.js?v=09c75d146ae4289d';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=09c75d146ae4289d';
+import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles,guardFleetSubmarineMovement} from './naval-spacing.js?v=09c75d146ae4289d';
+import {drawShipWater,recordShipWake} from './naval-water.js?v=09c75d146ae4289d';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=09c75d146ae4289d';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {fx} from './fx-art.js?v=tame3';
+import {PLANES} from './engine.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
 
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
@@ -69,7 +70,7 @@ export function installFleet(Game){
   const aimLead=Math.atan2(ty-e.y,tx-e.x);
   for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9)){
    const gx=e.x+Math.cos(e.a)*along,gy=e.y+Math.sin(e.a)*along;
-   for(let i=0;i<t.salvo;i++){const h=aimLead+(i-(t.salvo-1)/2)*t.spread;this.bullets.push({x:gx,y:gy,vx:Math.cos(h)*t.shellSpeed,vy:Math.sin(h)*t.shellSpeed,life:4.4,enemy:true,heavy:true,naval:true,hazardRegion:e.hazardRegion??this.worldRegion(),damage:Math.round(13*(1+this.t/260))})}
+   for(let i=0;i<t.salvo;i++){const h=aimLead+(i-(t.salvo-1)/2)*t.spread;this.bullets.push({x:gx,y:gy,vx:Math.cos(h)*t.shellSpeed,vy:Math.sin(h)*t.shellSpeed,life:4.4,enemy:true,heavy:true,naval:true,hazardRegion:e.hazardRegion??this.worldRegion(),damage:Math.round(13*(1+combatDamageTime(this)/260))})}
    this.burst(gx,gy,'#ffd9a0',5);
   }
   e.gunAim=aim;e.muzzleFlash=.16;this.event('enemyShot','');
@@ -106,7 +107,7 @@ export function drawFleetLayer(c,game,{point}){
   const t=SHIP_TYPES[e.shipClass],[x,y]=point(e.x,e.y),h=t.drawnH*.9,w=h*.21;
   if(x<-h||x>cw+h||y<-h||y>ch+h)continue;
    drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
-   if(e.faction===playerFaction(game)){c.save();c.fillStyle='#b9d5c6';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('아군 '+t.name,x,y+h*.53);c.restore();}
+   if(e.faction===playerFaction(game)){c.save();c.fillStyle='#b9d5c6';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText(e.blockship!==undefined?e.name:'아군 '+t.name,x,y+h*.53);c.restore();}
  }
  for(const p of game.shipSinkPuffs||[]){const [x,y]=point(p.x,p.y);if(x<-p.h||x>cw+p.h||y<-p.h||y>ch+p.h)continue;
   drawSinkingShip(c,{key:p,x,y,yaw:p.ship.a+Math.PI/2,width:p.h*(p.ship.shipClass==='aa'?.24:.20),height:p.h,age:p.age,duration:FLEET_SINK_DURATION},k=>{
@@ -136,10 +137,12 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
    if(!e.movingShip||e.hp<=0||e.expired)continue;
    if(region===17){e.doverPreviousX=e.x;e.doverPreviousY=e.y;}
    if(!e.moored){
-    e.weave+=step*.22;const trafficCourse=steerShipClear(g,e,step,_obstacles),desired=region===17?doverShipCourse(g,e,trafficCourse):trafficCourse;const turn=Math.atan2(Math.sin(desired-e.a),Math.cos(desired-e.a));e.a+=Math.max(-.08*step,Math.min(.08*step,turn));e.driveVelocity=Math.min(e.sailingSpeed,e.driveVelocity+6*step);e.x+=Math.cos(e.a)*e.driveVelocity*step;e.y+=Math.sin(e.a)*e.driveVelocity*step;if(region===17&&!doverShipAtSea(g,e)){e.x=e.doverPreviousX;e.y=e.doverPreviousY;e.driveVelocity=0;}if(region===7&&g.navalRoute){const r=g.navalRoute,hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx,along=(e.x-r.x)*hx+(e.y-r.y)*hy,lat=(e.x-r.x)*nx+(e.y-r.y)*ny,bank=Math.max(80,(r.bankAt?.(along,Math.sign(lat)||1)??430)-90);if(Math.abs(lat)>bank){e.x-=nx*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);e.y-=ny*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);}if(along>=10400)e.expired=true;}
+    const submarinePrevious={x:e.x,y:e.y,a:e.a};
+    e.weave+=step*.22;const trafficCourse=steerShipClear(g,e,step,_obstacles),desired=region===17?doverShipCourse(g,e,trafficCourse):trafficCourse;const turn=Math.atan2(Math.sin(desired-e.a),Math.cos(desired-e.a));e.a+=Math.max(-.08*step,Math.min(.08*step,turn));e.driveVelocity=Math.min(e.sailingSpeed,e.driveVelocity+6*step);e.x+=Math.cos(e.a)*e.driveVelocity*step;e.y+=Math.sin(e.a)*e.driveVelocity*step;if(region===17&&!doverShipAtSea(g,e)){e.x=e.doverPreviousX;e.y=e.doverPreviousY;e.driveVelocity=0;}if(region===7&&g.navalRoute){const r=g.navalRoute,hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx,along=(e.x-r.x)*hx+(e.y-r.y)*hy,lat=(e.x-r.x)*nx+(e.y-r.y)*ny,bank=Math.max(80,(r.bankAt?.(along,Math.sign(lat)||1)??430)-90);if(Math.abs(lat)>bank){e.x-=nx*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);e.y-=ny*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);}if(along>=10400&&e.blockship===undefined)e.expired=true;}
     if(region===14&&g.gallipoliRoute){const r=g.gallipoliRoute,s=(e.x-r.x)*Math.cos(r.a)+(e.y-r.y)*Math.sin(r.a);if(s>2350){const n=-(e.x-r.x)*Math.sin(r.a)+(e.y-r.y)*Math.cos(r.a),pull=Math.min(1,step*2.4);e.x-=Math.cos(r.a)*(s-2350)*pull;e.y-=Math.sin(r.a)*(s-2350)*pull}}
+    guardFleetSubmarineMovement(g,e,submarinePrevious);
    }
-   if(Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;
+   if(e.blockship===undefined&&Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;// Zeebrugge blockships stay on their run (zeebrugge-raid.js)
   }
   // Ambient fleet cadence — the sea should regularly show real ships.
   if([1,7,16,17].includes(region)){
@@ -167,7 +170,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
   _fleetShipIter.length=0;for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);for(const e of _fleetShipIter)if(e.movingShip&&e.hp>0&&!e.expired)recordShipWake(e,step,SHIP_TYPES[e.shipClass].drawnH*.9);
   for(const e of g.friendlyShips||[]){e.life-=step;if(e.hp>0){e.fire-=step;if(e.fire<=0){e.fire=SHIP_TYPES[e.shipClass].interval;if(!fireSurfaceExchange(g,e,SHIP_TYPES[e.shipClass]))g._friendlyShipFire(e,SHIP_TYPES[e.shipClass]);}}}
   {const fs=g.friendlyShips||[];let w=0;for(let i=0;i<fs.length;i++){const e=fs[i];if(e.hp>0&&!e.expired&&e.life>0&&e.hazardRegion===region)fs[w++]=e}fs.length=w;g.friendlyShips=fs;}
-  {const ex=g.navalExchanges||[];let w=0;for(let i=0;i<ex.length;i++){const q=ex[i];q.age+=step;if(q.age<q.duration){ex[w++]=q;continue}const target=q.target;if(target.hp>0&&Math.hypot(target.x-q.x,target.y-q.y)<70){target.hp=Math.max(0,target.hp-q.damage);target.hitFlash=.24;g.combatBlast?.(q.x,q.y,40,'enemy','naval');if(target.hp<=0&&!target.movingShip)target.expired=true;}}ex.length=w;g.navalExchanges=ex;}
+  {const ex=g.navalExchanges||[];let w=0;for(let i=0;i<ex.length;i++){const q=ex[i];q.age+=step;if(q.age<q.duration){ex[w++]=q;continue}const target=q.target;if(target.hp>0&&Math.hypot(target.x-q.x,target.y-q.y)<70){target.hp=Math.max(0,target.hp-q.damage*(target.shellArmor??1));target.hitFlash=.24;g.combatBlast?.(q.x,q.y,40,'enemy','naval');if(target.hp<=0&&!target.movingShip)target.expired=true;}}ex.length=w;g.navalExchanges=ex;}
   {const ps=g.shipSinkPuffs||[];let w=0;for(let i=0;i<ps.length;i++){const p=ps[i];p.age+=step;if(p.age<FLEET_SINK_DURATION)ps[w++]=p}ps.length=w;g.shipSinkPuffs=ps;}
 }
 

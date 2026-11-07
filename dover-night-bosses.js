@@ -1,5 +1,5 @@
-import {doverCliffRoute} from './dover-patrol-chart.js?v=dover-north1';
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
 
 const freezeParts=parts=>Object.freeze(parts.map(Object.freeze));
 const freezePolys=polys=>Object.freeze(polys.map(poly=>Object.freeze(poly.map(point=>Object.freeze(point)))));
@@ -166,6 +166,17 @@ class DoverAircraft extends BaseBoss {
     const q=this.alignIntent;if(q&&q.target?.alive&&now<=q.until){const rx=q.target.x-this.x,ry=q.target.y-this.y;return Math.atan2(ry,rx)-q.offset;}
     if(q)this.alignIntent=null;return null;
   }
+  acquisitionClosure(target,distance,turn,speed){
+    // A moving target can sit ahead of the hull but behind its nose mount.
+    // Match its along-track speed at useful mount clearance instead of always
+    // closing on its centre, which locks the searchlight in its blocked aft arc.
+    const intent=this.alignIntent,part=this.parts.get(intent?.id),arc=DOVER_WEAPON_ARCS[intent?.id];
+    if(intent?.offset===0&&part&&arc&&Math.hypot(target?.vx||0,target?.vy||0)>80){
+      const clearance=Math.hypot(part.x,part.y)+arc.min*this.geometryScale+60;
+      return clamp((distance-clearance)*turn*.42,-speed*.8,speed*.82);
+    }
+    return Math.min(speed*.82,distance*turn*.42);
+  }
   refreshAcquisitionTargets(players,dt){
     this.avoidCooldown=Math.max(0,(this.avoidCooldown||0)-dt);this.avoidRemaining=Math.max(0,(this.avoidRemaining||0)-dt);if(!this.avoidRemaining)this.avoidTarget=null;
     // Host frames replace target snapshots. Retain the selected player ID, not
@@ -229,7 +240,11 @@ class DoverAircraft extends BaseBoss {
     const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,spanX=Math.max(240,bounds.right-bounds.left),spanY=Math.max(240,bounds.bottom-bounds.top);
     // Match camera acceleration before a fast turn can leave the bomber chasing
     // an obsolete viewport velocity throughout acquisition and recovery.
-    if(Number.isFinite(this.patrolCenterX)&&dt>0){const measuredX=clamp((cx-this.patrolCenterX)/dt,-600,600),measuredY=clamp((cy-this.patrolCenterY)/dt,-600,600),flowStep=600*dt;this.patrolFlowX+=clamp(measuredX-this.patrolFlowX,-flowStep,flowStep);this.patrolFlowY+=clamp(measuredY-this.patrolFlowY,-flowStep,flowStep);}this.patrolCenterX=cx;this.patrolCenterY=cy;
+    // Recovery must follow legitimate stacked cruise/finite pilot boosts above
+    // 600px/s. Retain acceleration-limited flow measurement, but do not clip its
+    // target velocity during return; position is still integrated by flight.
+    const recoveryFlight=(this.coreVulnerable&&this.phase!=='last-stand')||this.phase==='recovery-return'||this.phase==='sortie-return'||this.phase==='cannon-exit'||this.phase==='bomb-exit';
+    if(Number.isFinite(this.patrolCenterX)&&dt>0){const limit=recoveryFlight?Infinity:600,measuredX=clamp((cx-this.patrolCenterX)/dt,-limit,limit),measuredY=clamp((cy-this.patrolCenterY)/dt,-limit,limit),flowStep=600*dt;this.patrolFlowX+=clamp(measuredX-this.patrolFlowX,-flowStep,flowStep);this.patrolFlowY+=clamp(measuredY-this.patrolFlowY,-flowStep,flowStep);}this.patrolCenterX=cx;this.patrolCenterY=cy;
     // The patrol is an attack orbit around the playable airspace. Its centre
     // travels with the camera, while the aircraft adds only a modest relative
     // loop. This keeps the core in a useful firing window instead of making
@@ -254,7 +269,7 @@ class DoverAircraft extends BaseBoss {
     const correctionLimit=far?250:tightOrbit?190:105,ex=tx-this.x,ey=ty-this.y,correction=Math.min(correctionLimit,Math.hypot(ex,ey)*(far?.95:tightOrbit?.95:.48)),errorLength=Math.max(1,Math.hypot(ex,ey)),routeSpeed=far?orbitSpeed*.35:tightOrbit?orbitSpeed*.2:orbitSpeed;
     const desiredX=(missionRun?convoy.vx||0:this.patrolFlowX)+tangentX*routeSpeed+ex/errorLength*correction,desiredY=(missionRun?convoy.vy||0:this.patrolFlowY)+tangentY*routeSpeed+ey/errorLength*correction,routeGroundSpeed=Math.hypot(desiredX,desiredY);
     // Keep native acquisition aimed at the live pilot while regaining readable space.
-    let want=Number.isFinite(committedAngle)?committedAngle:Math.atan2(desiredY,desiredX),desiredSpeed=Number.isFinite(committedAngle)?Number.isFinite(committedSpeed)?committedSpeed:Math.max(speed,Math.abs(this.patrolFlowX*Math.cos(committedAngle)+this.patrolFlowY*Math.sin(committedAngle))+speed*.35):far&&flow<50?Math.min(speed,routeGroundSpeed):routeGroundSpeed;const regainView=!this.cannonReentry&&!Number.isFinite(committedAngle)&&!!this.alignIntent&&!this.coreInside(bounds,Math.min(spanX,spanY)*.2)&&!this.phase.startsWith('sortie-');if(regainView){turn=Math.max(turn,1.2);/* A translating viewport can invalidate the escape clearance. Returning to the live target must also cancel escape speed and restore bearing tracking. A stationary view retains the physical stand-off maneuver. */if(flow>0)this.avoidTarget=null;}const attackSteer=!Number.isFinite(committedAngle)&&(regainView?Math.atan2(this.alignIntent.target.y-this.y,this.alignIntent.target.x-this.x)-this.alignIntent.offset:this.steeringAngle());if(Number.isFinite(attackSteer)){want=attackSteer;const target=this.alignIntent?.target||this.avoidTarget,distance=target?Math.hypot(target.x-this.x,target.y-this.y):Infinity;/* Reduce the turn radius while acquiring a mount bearing; full cruise speed can orbit a target forever outside a narrow cannon arc. */desiredSpeed=Math.min(Math.max(desiredSpeed,36),Math.max(36,Math.max(0,(target?.vx||0)*Math.cos(want)+(target?.vy||0)*Math.sin(want))+Math.min(speed*.82,distance*turn*.42)));}if(this.avoidTarget&&Number.isFinite(attackSteer))desiredSpeed=Math.min(260,Math.max(speed*1.3,Math.hypot(this.alignIntent?.target?.vx||0,this.alignIntent?.target?.vy||0)+45));if(recoveryOrbit)desiredSpeed=far?Math.min(flow+180,Math.max(140,routeGroundSpeed)):Math.min(desiredSpeed,Math.max(48,flow+18));else if(attackOrbit)desiredSpeed=Math.min(desiredSpeed,Math.max(80,flow+35));if(far&&!recoveryOrbit&&!Number.isFinite(committedAngle)&&Math.abs(wrap(want-this.a))>.45)desiredSpeed=Math.min(desiredSpeed,Math.max(52,flow+28));
+    let want=Number.isFinite(committedAngle)?committedAngle:Math.atan2(desiredY,desiredX),desiredSpeed=Number.isFinite(committedAngle)?Number.isFinite(committedSpeed)?committedSpeed:Math.max(speed,Math.abs(this.patrolFlowX*Math.cos(committedAngle)+this.patrolFlowY*Math.sin(committedAngle))+speed*.35):far&&flow<50?Math.min(speed,routeGroundSpeed):routeGroundSpeed;const convoyAcquiring=missionRun&&this.alignIntent?.target?.id===convoy.id;/* A convoy mount must complete its physical stand-off even when the pilot camera is elsewhere. Camera recovery must not cancel the only turn that puts a close bomber ahead of the nose searchlight. */const regainView=!convoyAcquiring&&!this.cannonReentry&&!Number.isFinite(committedAngle)&&!!this.alignIntent&&!this.coreInside(bounds,Math.min(spanX,spanY)*.2)&&!this.phase.startsWith('sortie-');if(regainView){turn=Math.max(turn,1.2);/* A translating viewport can invalidate the escape clearance. Returning to the live target must also cancel escape speed and restore bearing tracking. A stationary view retains the physical stand-off maneuver. */if(flow>0)this.avoidTarget=null;}const attackSteer=!Number.isFinite(committedAngle)&&(regainView?Math.atan2(this.alignIntent.target.y-this.y,this.alignIntent.target.x-this.x)-this.alignIntent.offset:this.steeringAngle());if(Number.isFinite(attackSteer)){want=attackSteer;const target=this.alignIntent?.target||this.avoidTarget,distance=target?Math.hypot(target.x-this.x,target.y-this.y):Infinity;/* Reduce the turn radius while acquiring a mount bearing; full cruise speed can orbit a target forever outside a narrow cannon arc. */desiredSpeed=Math.min(Math.max(desiredSpeed,36),Math.max(36,Math.max(0,(target?.vx||0)*Math.cos(want)+(target?.vy||0)*Math.sin(want))+this.acquisitionClosure(target,distance,turn,speed)));}if(this.avoidTarget&&Number.isFinite(attackSteer))desiredSpeed=Math.min(260,Math.max(speed*1.3,Math.hypot(this.alignIntent?.target?.vx||0,this.alignIntent?.target?.vy||0)+45));if(recoveryOrbit)desiredSpeed=far?Math.min(flow+180,Math.max(140,routeGroundSpeed)):Math.min(desiredSpeed,Math.max(48,flow+18));else if(attackOrbit)desiredSpeed=Math.min(desiredSpeed,Math.max(80,flow+35));if(far&&!recoveryOrbit&&!Number.isFinite(committedAngle)&&Math.abs(wrap(want-this.a))>.45)desiredSpeed=Math.min(desiredSpeed,Math.max(52,flow+28));
     if(missionRun&&this.kind==='supermarine-nighthawk'&&!Number.isFinite(attackSteer))desiredSpeed=Math.max(desiredSpeed,215);
     if(worldBounds){const marginX=extent.x+36,marginY=extent.y+36,baseX=Number.isFinite(committedAngle)?Math.cos(want)*desiredSpeed:desiredX,baseY=Number.isFinite(committedAngle)?Math.sin(want)*desiredSpeed:desiredY;let wallX=0,wallY=0;if(this.x<worldBounds.left+marginX)wallX=180;if(this.x>worldBounds.right-marginX)wallX=-180;if(this.y<worldBounds.top+marginY)wallY=180;if(this.y>worldBounds.bottom-marginY)wallY=-180;if(wallX||wallY)want=Math.atan2(baseY+wallY,baseX+wallX);}
     this.asymmetryState+=clamp(asymmetry-this.asymmetryState,-.055*dt,.055*dt);this.hullYaw=this.asymmetryState;
@@ -270,7 +285,7 @@ class DoverAircraft extends BaseBoss {
     const wantedTurn=clamp(wrap(want-this.a)*(this.hidden&&this.phase==='sortie-return'?1.6:this.cannonReentry?1.4:.72)+bearingRate+(Number.isFinite(committedAngle)?0:this.asymmetryState),-turn,turn),turnAccel=Math.max(.08,turn*.9);
     this.turnVelocity+=clamp(wantedTurn-this.turnVelocity,-turnAccel*dt,turnAccel*dt);this.a=wrap(this.a+this.turnVelocity*dt);
     this.bank=clamp(this.turnVelocity/Math.max(.01,turn)*.78+this.asymmetryState*1.6,-1,1);
-    if(speed<=0)this.flightSpeed=0;else{if(!(this.flightSpeed>0))this.flightSpeed=speed;this.flightSpeed+=clamp(clamp(desiredSpeed,36,Math.max(285,flow+45))-this.flightSpeed,-52*dt,52*dt);}
+    if(speed<=0)this.flightSpeed=0;else{if(!(this.flightSpeed>0))this.flightSpeed=speed;this.flightSpeed+=clamp(clamp(desiredSpeed,36,Math.max(285,flow+(recoveryFlight&&flow>600?180:45)))-this.flightSpeed,-52*dt,52*dt);}
     this.x+=Math.cos(this.a)*this.flightSpeed*dt;this.y+=Math.sin(this.a)*this.flightSpeed*dt;
     this.velocityX=(this.x-oldX)/Math.max(.001,dt);this.velocityY=(this.y-oldY)/Math.max(.001,dt);
     if(!Number.isFinite(this.x+this.y+this.a+this.turnVelocity)){this.x=Number.isFinite(oldX)?oldX:cx;this.y=Number.isFinite(oldY)?oldY:cy;this.a=Number.isFinite(oldA)?oldA:-Math.PI/2;this.flightSpeed=Number.isFinite(oldFlightSpeed)?oldFlightSpeed:0;this.turnVelocity=0;this.bank=0;this.hullYaw=0;this.patrolPhase=null;this.patrolFlowX=this.patrolFlowY=0;}
@@ -292,7 +307,7 @@ class DoverAircraft extends BaseBoss {
   }
   updateSortie(dt,bounds,worldBounds,turn,asymmetry){
     this.phaseClock+=dt;const returning=this.phase==='sortie-return';
-    if(returning){const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,ex=cx-this.x,ey=cy-this.y,d=Math.max(1,Math.hypot(ex,ey)),closure=clamp(d*.72,175,240),vx=this.patrolFlowX+ex/d*closure,vy=this.patrolFlowY+ey/d*closure;this.sortieAngle=Math.atan2(vy,vx);this.sortieSpeed=clamp(Math.hypot(vx,vy),145,275);}
+    if(returning){const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,ex=cx-this.x,ey=cy-this.y,d=Math.max(1,Math.hypot(ex,ey)),closure=clamp(d*.72,175,240),vx=this.patrolFlowX+ex/d*closure,vy=this.patrolFlowY+ey/d*closure;this.sortieAngle=Math.atan2(vy,vx);this.sortieSpeed=clamp(Math.hypot(vx,vy),145,Math.hypot(this.patrolFlowX,this.patrolFlowY)>600?Math.hypot(this.patrolFlowX,this.patrolFlowY)+240:275);}
     const hiddenTurn=Math.max(turn,returning?3.6:.56),hiddenSpeed=this.hidden&&returning?Math.abs(wrap(this.sortieAngle-this.a))>.32?100:this.sortieSpeed:this.sortieSpeed;
     this.fly(dt,[],bounds,this.currentSpeed,hiddenTurn,asymmetry,this.sortieAngle,hiddenSpeed,worldBounds);
     if(this.phase==='sortie-depart'){
@@ -432,7 +447,9 @@ export class SupermarineNighthawk extends DoverAircraft {
     if(this.phase==='cannon-exit')this.holdBasic(.5);
     if(this.phase==='last-stand'){this.lastStand(dt,players);return;}
     if(this.phase==='hunt'){this.hunt(dt,players,isIlluminated);return;}
-    this.phaseClock+=dt;if(this.phase==='cannon'&&this.phaseClock>=1.9){if(this.coreInside(bounds))this.enterRecovery();else{this.phase='cannon-exit';this.phaseClock=0;this.coreVulnerable=false;this.command('phase-change',{phase:'cannon-exit'});}return;}
+    // Only visible flight spends the earned counter window; a camera turn
+    // can carry the core out again after its initial recovery entry.
+    if(this.phase!=='recovery'&&this.phase!=='sortie-recovery'||this.coreInside(bounds,0))this.phaseClock+=dt;if(this.phase==='cannon'&&this.phaseClock>=1.9){if(this.coreInside(bounds))this.enterRecovery();else{this.phase='cannon-exit';this.phaseClock=0;this.coreVulnerable=false;this.command('phase-change',{phase:'cannon-exit'});}return;}
     if(this.phase==='cannon-exit'&&(this.coreInside(bounds)||this.phaseClock>=6)){this.enterRecovery();return;}
     const recovering=this.phase==='recovery'||this.phase==='sortie-recovery',duration=this.phase==='sortie-recovery'?4.6:3.8;
     if(recovering&&this.phaseClock>=duration&&this.coreInside(bounds)){if(this.phase==='recovery'&&!this.sortieDone&&this.partAlive('bomb-rack')){this.beginSortie(bounds,chart);return;}this.sortieDone=true;this.attackCycle++;this.phase='hunt';this.phaseClock=0;this.beat=0;this.lightBombed=false;this.coreVulnerable=false;this.command('phase-change',{phase:'hunt'});}
@@ -531,7 +548,8 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     }
     if(this.phase==='last-stand'){this.lastStand(dt,players);return;}if(this.phase==='barrage'){if((this.combatTime||0)>=(this.basicHoldUntil||0))this.bombingCover(dt,players);this.barrage(dt,players,bounds);return;}
     if(this.phase==='bomb-approach'||this.phase==='bomb-run'){this.bombingCover(dt,players);this.bombRun(dt);return;}if(this.phase==='bomb-exit'){this.bombingCover(dt,players);this.bombExit(dt,bounds);return;}
-    this.phaseClock+=dt;const recovering=this.phase==='recovery'||this.phase==='sortie-recovery',duration=this.phase==='sortie-recovery'?4.6:4;
+    const recovering=this.phase==='recovery'||this.phase==='sortie-recovery',duration=this.phase==='sortie-recovery'?4.6:4;
+    if(!recovering||this.coreInside(bounds,0))this.phaseClock+=dt;
     if(recovering&&this.phaseClock>=duration&&this.coreInside(bounds)){if(this.phase==='recovery'&&!this.sortieDone&&this.countKinds('payload')){this.beginSortie(bounds,chart);return;}this.sortieDone=true;this.phase='barrage';this.phaseClock=0;this.beat=0;this.coreVulnerable=false;this.command('phase-change',{phase:'barrage'});}
   }
 }

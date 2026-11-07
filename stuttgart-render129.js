@@ -1,10 +1,11 @@
-import {drawAdriaticGun} from './adriatic-gun-art.js?v=20261022';
-import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
-import {drawBossRound} from './boss-rounds.js?v=tame3&ai=1018';
-import {impactMark} from './tactical-marks.js?v=tame3';
-import {HANGAR} from './stuttgart129.js?v=tame3&boss=20261020b';
-import {drawNavalWake} from './adriatic-boss-render.js?v=tame3&adriaticart=20261022';
-import {fx} from './fx-art.js?v=tame3';
+import {drawFlakAirburst} from './flak-airburst-art.js?v=09c75d146ae4289d';
+import {drawAdriaticGun} from './adriatic-gun-art.js?v=09c75d146ae4289d';
+import {drawPartFuelFire} from './explosion-profiles.js?v=09c75d146ae4289d';
+import {drawBossRound} from './boss-rounds.js?v=09c75d146ae4289d';
+import {impactMark} from './tactical-marks.js?v=09c75d146ae4289d';
+import {HANGAR} from './stuttgart129.js?v=09c75d146ae4289d';
+import {drawNavalWake} from './adriatic-boss-render.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
 export const SHIP_OUTLINE=[[.498,.007],[.504,.007],[.51,.026],[.538,.05],[.562,.08],[.60,.13],[.628,.161],[.661,.158],[.663,.165],[.642,.174],[.661,.206],[.674,.267],[.681,.343],[.697,.355],[.699,.403],[.683,.416],[.682,.441],[.724,.437],[.727,.444],[.698,.451],[.702,.482],[.688,.499],[.692,.537],[.700,.56],[.696,.61],[.695,.646],[.70,.66],[.695,.71],[.697,.74],[.69,.775],[.696,.81],[.685,.87],[.678,.90],[.663,.932],[.638,.955],[.613,.963],[.61,.974],[.57,.983],[.574,.991],[.565,.995],[.55,.986],[.455,.986],[.43,.995],[.42,.991],[.415,.98],[.358,.958],[.34,.94],[.321,.908],[.309,.873],[.303,.82],[.307,.775],[.298,.743],[.300,.709],[.306,.67],[.303,.628],[.304,.60],[.296,.575],[.300,.536],[.313,.511],[.302,.49],[.291,.475],[.289,.456],[.275,.443],[.28,.438],[.313,.445],[.315,.416],[.301,.401],[.301,.358],[.317,.348],[.326,.32],[.317,.294],[.326,.271],[.333,.23],[.341,.209],[.354,.18],[.339,.162],[.344,.156],[.365,.166],[.392,.131],[.436,.08],[.46,.05],[.489,.025]];
@@ -56,7 +57,8 @@ export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!
  visitRenderPool(b.effects,f=>{if(!visible(f.x,f.y,f.radius*3+32))return;const t=f.age/f.life;g.save();g.globalAlpha=1-t;g.translate(f.x,f.y);
  if(f.kind==='smoke'){fx(g,'smokeDark',0,0,f.radius*(1+t),f.radius*(1+t),0,.55);}
  else if(f.kind==='muzzle'&&fx(g,'muzzleHeavy',0,0,f.radius*3,f.radius*2,f.angle)){}
- else if(f.kind==='burst'&&fx(g,'shellBurst'+Math.min(3,Math.floor(t*4)),0,0,f.radius*2.5,f.radius*2.5)){}
+ else if(f.kind==='flakBurst'&&drawFlakAirburst(g,0,0,f.radius*2.5,t)){}
+ else if((f.kind==='burst'||f.kind==='flakBurst')&&fx(g,'shellBurst'+Math.min(3,Math.floor(t*4)),0,0,f.radius*2.5,f.radius*2.5)){}
  else if(f.kind==='wake'&&fx(g,'foamRing',0,0,f.radius*(1+t)*2,f.radius*(.5+t),f.angle)){}
  else if(f.kind==='muzzle'){g.rotate(f.angle);g.fillStyle='#ffdfa0';g.beginPath();g.moveTo(-3,-5);g.lineTo(28*(1-t),0);g.lineTo(-3,5);g.closePath();g.fill();}
  else if(f.kind==='debris'){g.rotate(f.age*4);g.fillStyle='#b49b6d';g.fillRect(-3,-2,7,4);}

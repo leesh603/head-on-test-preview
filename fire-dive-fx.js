@@ -1,9 +1,9 @@
 // Luke: actual burning fuel cells. Mannock: articulated real support aircraft.
 // No projectile, damage, spawn, random-number or flight-state writes.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
-import {drawGontermannPassive} from './pilot-passive-art.js';
-import {drawLafayetteWing} from './lufbery-circle-fx.js';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=09c75d146ae4289d';
+import {drawGontermannPassive} from './pilot-passive-art.js?v=09c75d146ae4289d';
+import {drawLafayetteWing} from './lufbery-circle-fx.js?v=09c75d146ae4289d';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const owner=p=>p.id??'p1';
 const living=p=>p?.hp>0&&p.status!=='downed'&&p.state==='playing';
@@ -59,11 +59,32 @@ export function lukeBurns(p){return p.pilot==='luke'?incendiaryBurns(p):[];}
 export function drawLukeFlame(c,x,y,a,height,age,alpha=1){
  return drawIncendiaryFire(c,x,y,a,height,age,alpha);
 }
+function drawLukeBurn(c,f,x,y,tex){
+ const growth=clamp(f.age/.42),fade=clamp(f.burn.time/.35),ca=Math.cos(f.a),sa=Math.sin(f.a);
+ const size=(f.large?78:54)*(.32+.68*growth),pulse=1+Math.sin(f.age*19)*.055;
+ // A short contact flash precedes the attached fuel fire. Neither the muzzle
+ // nor the player's present position is used as an ignition point.
+ if(f.age<.14)tex(c,'spark',x,y,18-f.age*38,12,f.a,.86*(1-f.age/.14)*fade);
+ drawLukeFlame(c,x,y,f.a,size*pulse,f.age,(.58+.34*growth)*fade);
+ // The second burning cell opens across the fabric after the first one has
+ // caught. Keep its root on the same local skin patch as the existing burn.
+ if(f.large&&f.age>.42){
+  const spread=clamp((f.age-.42)/.55),side=13*spread;
+  drawLukeFlame(c,x-sa*side,y+ca*side,f.a+.12,size*(.28+.37*spread),f.age+.17,.76*spread*fade);
+ }
+ // Neutral scorched smoke is pulled aft; it never becomes an opaque skin or
+ // a rotating emblem. The shared flame still supplies its own drifting wake.
+ if(f.age>.10){
+  const rise=clamp((f.age-.10)/.3),travel=7+growth*13;
+  tex(c,'gunSmoke',x+ca*travel,y+sa*travel,24+growth*19,15+growth*8,f.a,.25*rise*fade);
+ }
+}
 export function drawFireDiveWorld(c,p,tex,front=false,shift={x:0,y:0}){
  if(front)drawGontermannPassive(c,p,shift);
  for(const f of incendiaryBurns(p)){
   const x=f.x-p.x+shift.x,y=f.y-p.y+shift.y,growth=clamp(f.age/.32),fade=clamp(f.burn.time/.35),size=(f.large?78:54)*(.48+.52*growth),pulse=1+Math.sin(f.age*19)*.06;
   if(front){
+   if(p.pilot==='luke'){drawLukeBurn(c,f,x,y,tex);continue;}
    drawLukeFlame(c,x,y,f.a,size*pulse,f.age,.92*fade);
    if(f.large&&growth>.5)drawLukeFlame(c,x-Math.sin(f.a)*13,y+Math.cos(f.a)*13,f.a+.16,size*.65,f.age+.17,.76*fade);
   } // Smoke is already painted into the attached flame, sharing its root.
@@ -93,7 +114,7 @@ export function drawFireDiveCue(c,p,e,tex,front=false){
  if(!front)return true;
  const q=clamp(e.age/e.maxLife),a=e.a-p.a;
  if(e.kind==='lukeBeat'){
-  if(e.phase==='ignite')drawLukeFlame(c,0,0,a,19,e.age*1.5,.85*(1-q));
+  if(e.phase==='ignite')drawIncendiaryFire(c,0,0,a,19,e.age*1.5,.85*(1-q),'legacy');
   else tex(c,'muzzle',4,0,20,9,a,.86*(1-q));
  }else if(e.kind==='lukeFabricHit'){
   // A real fabric-cell puncture. The passive itself does not ignite a target.

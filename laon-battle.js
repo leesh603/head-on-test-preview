@@ -1,7 +1,8 @@
-import {ParisGeschuetz} from './laon-gun.js';
+import {ParisGeschuetz} from './laon-gun.js?v=09c75d146ae4289d';
+import {LAON_MISSION} from './laon-layout.js?v=09c75d146ae4289d';
 
 export const LAON_STAGE=19;
-export const LAON_MISSION=Object.freeze({seconds:180,shots:3,approach:900});
+export {LAON_MISSION};
 const players=g=>g.players||[g];
 const paused=g=>g.state!=='playing'||!!g.pendingLevelUps?.length||g.online&&g.host===false;
 const firstBody=g=>g.stageBoss?.stages.encounter?.bodies.values().next().value;
@@ -27,7 +28,7 @@ export function ensureLaonBattle(g){
   b.gun=new ParisGeschuetz({id:addon.runId+':laon-friendly:'+addon.serial++,faction:'central',friendly:true,...origin,tuning,rng:g.rng,emit:e=>handleLaonCue(g,e)});
   b.raid=firstBody(g);b.raid?.setGun?.(b.gun);
  }
- g.event?.('wave',role==='attack'?'파리포 저지 작전 · 180초 안에 핵심부를 파괴하세요':'파리포 방어 작전 · 프랑스 공습을 막고 3회 사격을 완료하세요');
+ g.event?.('wave',role==='attack'?`파리포 저지 작전 · ${LAON_MISSION.seconds}초 안에, ${LAON_MISSION.attackShotLimit}번째 포격 전에 포신이나 약실을 파괴하세요`:`파리포 방어 작전 · 프랑스 공습을 막고 ${LAON_MISSION.shots}회 사격을 완료하세요`);
  return b;
 }
 // Each raid aircraft is a real enemy target and consumes the same regular and
@@ -56,7 +57,7 @@ export function handleLaonCue(g,e){
  if(e.type==='laon-shot'){
   b.shotCount=b.gun?.shotCount??e.shotCount??b.shotCount+1;
   g.event?.('bossSound','railGunFire520');g.shake=Math.max(g.shake||0,b.discovered?2.4:.6);
-  g.event?.('wave',b.role==='attack'?'파리 피격 경보 · 누적 포격 '+b.shotCount+'회':'아군 파리포 발사 · '+b.shotCount+' / '+LAON_MISSION.shots);
+  g.event?.('wave',b.role==='attack'?'파리 포격 경보 · '+b.shotCount+' / '+LAON_MISSION.attackShotLimit:'아군 파리포 발사 · '+b.shotCount+' / '+LAON_MISSION.shots);
  }
  if(e.type==='laon-loading')g.event?.('bossSound','railBreech');
  if(e.type==='laon-phase'&&e.phase==='return')g.event?.('bossSound','trainBrake');
@@ -85,15 +86,15 @@ function settle(g,b,result){
  if(b.success){
   b.resultAge=0;b.exitReady=b.role==='attack';b.exitDelay=.34+(b.gun?.returnSeconds?.()??2.8)+.25;
   if(b.raid){b.raid.missionResolved=true;b.raid.bombs.length=0;b.raid.strikes.length=0;g.stageBoss?.hazards?.clear(g.stageBoss.stages.encounter?.id);}
-  g.event?.('wave',b.role==='attack'?'파리포 저지 성공 · 포격 영구 중단':'파리포 방어 성공 · 3회 포격 완료');
+  g.event?.('wave',b.role==='attack'?'파리포 저지 성공 · 포격 영구 중단':`파리포 방어 성공 · ${LAON_MISSION.shots}회 포격 완료`);
  }else{
   g.state='lost';g.score=g.priorityKills??((g.kills||0)*100+Math.floor(g.t||0)*10);
-  g.event?.('end',b.role==='attack'?'파리포 저지 실패 · 작전 제한시간 초과':'파리포 방어 실패 · 핵심부 파괴');
+  g.event?.('end',b.role==='attack'?(b.shotCount>=LAON_MISSION.attackShotLimit?'파리포 저지 실패 · 포격 한도 도달':'파리포 저지 실패 · 작전 제한시간 초과'):'파리포 방어 실패 · 핵심부 파괴');
  }
 }
 // Called AFTER the raid encounter update and BEFORE reconciliation. Released
 // ordnance resolves before the friendly gun fires; a same-frame lethal impact
-// therefore prevents the third shot. Destroying an airborne threat never adds a shot.
+// therefore prevents the last shot. Destroying an airborne threat never adds a shot.
 export function tickLaonBattle(g,dt,frame={}){
  const b=ensureLaonBattle(g);if(!b||paused(g)||!Number.isFinite(dt)||dt<=0)return b;
  dt=Math.min(.05,dt);
@@ -111,7 +112,7 @@ export function tickLaonBattle(g,dt,frame={}){
  if(b.role==='attack'){
   b.remaining=Math.max(0,LAON_MISSION.seconds-b.elapsed);
   if(b.gun?.dead)settle(g,b,'victory');
-  else if(b.remaining<=0)settle(g,b,'failure');
+  else if(b.remaining<=0||b.shotCount>=LAON_MISSION.attackShotLimit)settle(g,b,'failure');
  }else if(b.gun?.dead)settle(g,b,'failure');
  else if(b.shotCount>=LAON_MISSION.shots)settle(g,b,'victory');
  return b;
@@ -132,6 +133,6 @@ export function laonStatus(g,locale='ko'){
  const names=en?{loader:'Loader',ammo:'Ammo',recoil:'Recuperator'}:{loader:'장전',ammo:'탄약',recoil:'복좌'};
  const detail=ids.map(id=>{const p=gun?.parts?.get(id),s=p?.destroyed?2:p&&p.hp<p.maxHp*.55?1:0;return names[id]+':'+(en?['OK','DMG','LOST'][s]:states[s]);}).join(' · ');
  const phase=en?gun?.phase:({loading:'장전 중',ready:'발사 직전',recoil:'반동',return:'복좌',reload:'재장전',destroyed:'포격 중단'})[gun?.phase]||'';
- const front=b.role==='attack'?(en?'STOP THE GUN ':'저지 제한 ')+Math.ceil(b.remaining)+'s · '+(en?'PARIS HITS ':'파리 포격 ')+b.shotCount:(en?'DEFEND GUN ':'아군 포격 ')+b.shotCount+' / '+LAON_MISSION.shots;
+ const front=b.role==='attack'?(en?'STOP THE GUN ':'저지 제한 ')+Math.ceil(b.remaining)+'s · '+(en?'PARIS SHELLING ':'파리 포격 ')+b.shotCount+' / '+LAON_MISSION.attackShotLimit:(en?'DEFEND GUN ':'아군 포격 ')+b.shotCount+' / '+LAON_MISSION.shots;
  return front+' · '+phase+'\n'+detail;
 }

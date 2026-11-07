@@ -1,6 +1,6 @@
 // Ball's cloud deception and Barker's battle damage: presentation only.
 // Observe the completed combat layers; use their real shots, impacts and states.
-import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js?v=09c75d146ae4289d';
 
 export const SORTIE_PILOTS=new Set(['ball','barker']);
 export const SORTIE_FX_LIMITS=Object.freeze({wake:12,wakeLife:.48,sampleInterval:.045,shotInterval:.045});
@@ -71,12 +71,19 @@ export function installCloudSurvivalFx(Game){
 
 export function drawSortieWake(c,p,tex){
  const f=p.sortieFlightFx;if(!f)return;const palette=SORTIE_PALETTES[p.pilot],ball=p.pilot==='ball';
+ if(ball&&!alive(p))return;
+ let cloudWisps=0;
  for(let i=0;i<f.wake.length;i++){
   const v=f.wake[i],q=clamp((f.clock-v.at)/SORTIE_FX_LIMITS.wakeLife),ca=Math.cos(v.a),sa=Math.sin(v.a),dx=v.x-p.x,dy=v.y-p.y;
   if(ball){
    // Leave only a few detached wisps on the flown path. The decoy below carries
    // the cloud mass; the controlled airframe never wears a cloud membrane.
-   if(v.cloaked&&i%4===0)tex(c,'fx-cloud-wispy-1',dx-ca*(26+q*12),dy-sa*(26+q*12),62+q*20,22+q*8,v.a,.22*(1-q),palette.core);
+   // Use the recorded sample time, so removing the oldest sample never
+   // switches a surviving wisp on/off. Keep at most three on the flown path.
+   if(v.cloaked&&v.at%.18<.05&&cloudWisps<3){
+    cloudWisps++;const drift=26+q*27,side=Math.sin(v.at*19)*q*9;
+    tex(c,'fx-cloud-wispy-1',dx-ca*drift-sa*side,dy-sa*drift+ca*side,76+q*29,29+q*14,v.a,.37*(1-q)**1.5,palette.core);
+   }
   }else if(v.stage>0&&i%2===0){
    tex(c,'smokeDark',dx-ca*(23+q*22),dy-sa*(23+q*22),42+q*(22+v.stage*3),19+v.stage*2+q*14,v.a+Math.PI,(.23+v.stage*.025)*(1-q),palette.smoke);
    tex(c,'smokeTrail',dx-ca*(20+q*20)-sa*8,dy-sa*(20+q*20)+ca*8,53+q*18,10+v.stage,v.a,(.26+v.stage*.04)*(1-q),palette.edge);
@@ -84,11 +91,11 @@ export function drawSortieWake(c,p,tex){
  }
  // The cloud decoy is tied to the target the enemy AI actually follows.
  if(ball&&p.ballCloak>0&&p.ballGhost){
-  const g=p.ballGhost,fade=Math.min(1,p.ballCloak/.22),x=g.x-p.x,y=g.y-p.y;
+  const g=p.ballGhost,age=Math.max(0,p.pilotSignatureState?.activeAge||0),entry=clamp(age/.12),growth=clamp(age/.28),fade=entry*Math.min(1,p.ballCloak/.22),x=g.x-p.x,y=g.y-p.y;
   // Keep the painted cloud's natural broad proportions and the AI's true lure
   // position. No orbiting lobes, rotating wreath, or shadow of another aircraft.
-  tex(c,'fx-cloud-cumulus-1',x,y,112,65,g.a,.66*fade,palette.core);
-  tex(c,'fx-cloud-wispy-0',x-Math.cos(g.a)*31,y-Math.sin(g.a)*31,102,38,g.a,.38*fade,palette.core);
+  tex(c,'fx-cloud-cumulus-1',x,y,112+growth*14,65+growth*8,g.a,.76*fade,palette.core);
+  tex(c,'fx-cloud-wispy-0',x-Math.cos(g.a)*(26+growth*14),y-Math.sin(g.a)*(26+growth*14),105+growth*16,40+growth*6,g.a,.46*fade,palette.core);
  }
 }
 export function drawSortieLocal(c,p,tex,front=false){
@@ -109,9 +116,8 @@ export function drawSortieLocal(c,p,tex,front=false){
   }return;
  }
  if(ball){
-  // Lone flight alone needs no decoration. The short aft airflow only marks
-  // the actual two-second ambush window after concealment has ended.
-  if(!(p.ballCloak>0)&&p.ballAmbush>0&&ballLoneFx(p))for(const side of [-1,1])tex(c,'vaporTrail',-35,side*24,46,7,0,.40*Math.min(1,p.ballAmbush/.2),palette.core);
+  // The release point below carries the ambush transition. Leave the moving
+  // airframe clear instead of attaching another pair of generic wing ribbons.
  }else {
   const stage=Math.min(5,Math.max(p.barkerStacks||0,p.barkerDamageStage||0,p.barkerScarStage||0));
   if(stage>0)for(let i=0;i<2;i++){const phase=(t*(.9+stage*.1)+i*.5)%1;tex(c,'smokeDark',-25-phase*26,(i?1:-1)*(3+phase*4),37+phase*19,17+stage*2,Math.PI,(.26+stage*.025)*(1-phase*.6),palette.smoke);}
@@ -122,6 +128,13 @@ export function drawSortieCue(c,p,e,tex,front){
  const ball=p.pilot==='ball',palette=SORTIE_PALETTES[p.pilot],q=clamp(e.age/e.maxLife),fade=1-q,a=e.a-p.a;
  if(e.kind==='sortieBrass'){if(front)tex(c,'bulletBrass',-e.age*35,e.side*(7+e.age*62),6,2.5,a+e.age*14,.82*fade,palette.spark);return true;}
  if(e.kind==='cloudStrike'||e.kind==='survivalHit'){
+  if(ball&&e.kind==='cloudStrike'){
+   if(front){
+    const ca=Math.cos(a),sa=Math.sin(a),spread=1-Math.exp(-e.age*13);
+    tex(c,'ricochet',0,0,34+spread*12,19,a,.88*fade,palette.spark);
+    tex(c,'gunSmoke',-ca*spread*15,-sa*spread*15,26+spread*22,14+spread*9,a,.30*fade,palette.core);
+   }return true;
+  }
   if(front){tex(c,'ricochet',0,0,e.kind==='cloudStrike'?40:48,22,a,.90*fade,palette.core);tex(c,'gunSmoke',-q*13,0,28+q*22,18,a,.33*fade,ball?palette.edge:palette.smoke);
    if(!ball)for(let i=0;i<3;i++){const angle=a+(i-1)*.7;tex(c,'metalShard'+i,Math.cos(angle)*q*28,Math.sin(angle)*q*28,8,4,angle+q*3,.83*fade,palette.spark);}
   }return true;
@@ -129,7 +142,16 @@ export function drawSortieCue(c,p,e,tex,front){
  if(ball&&['cloudAmbush','ambushBreak'].includes(e.kind)){
   // Activation is already shown at the real AI lure. On emergence the cloud
   // separates once at the release point instead of following the aircraft.
-  if(!front&&e.kind==='ambushBreak')for(const side of [-1,1])tex(c,'fx-cloud-wispy-1',-8-q*22,side*(20+q*38),88+q*16,33+q*9,side*.20,.46*fade,palette.core);
+  if(!front&&e.kind==='ambushBreak'){
+   // e.x/e.y/e.a were captured when concealment ended. Rotate by the saved
+   // heading, so these shreds stay in the air as the player turns away.
+   const ca=Math.cos(a),sa=Math.sin(a),spread=1-Math.exp(-e.age*5);
+   for(const side of [-1,1]){
+    const x=-8-spread*33,y=side*(12+spread*31);
+    tex(c,'fx-cloud-wispy-1',x*ca-y*sa,x*sa+y*ca,94+spread*28,36+spread*10,a+side*spread*.16,.57*fade,palette.core);
+   }
+   tex(c,'fx-cloud-wispy-0',-ca*spread*22,-sa*spread*22,96+spread*24,36+spread*8,a,.32*fade*fade,palette.core);
+  }
   return true;
  }
  if(!ball&&e.kind==='lastStand'){

@@ -48,5 +48,9 @@ export function brunoSalvo(target,phase,shot,bounds,{blind=false,final=false,bro
   // fill the remaining dodge lane just to reach the nominal shot count.
   if(p){placed.push(p);chosen.set(i,p);}
  }
- return{target:{...target},points:[...chosen].sort((a,b)=>a[0]-b[0]).map(([,p])=>p),mode,blind,final,radius,warning,interval,duration:final?.22:.35};
+ const impacts=[...chosen].sort((a,b)=>a[0]-b[0]).map(([,p])=>p);
+ // The supplied final gun repeats its committed route once. Extra shells use
+ // the same safe footprint, after the first ripple, even on a narrow viewport.
+ const pointsOut=final&&!broken&&!starved&&impacts.length>1?[...impacts,...impacts.map(p=>({...p}))]:impacts;
+ return{target:{...target},points:pointsOut,mode,blind,final,radius,warning,interval,duration:final?.22:.35};
 }

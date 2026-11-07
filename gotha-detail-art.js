@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=tame3';
-import {gothaCrashPose} from './aircraft-crash.js';
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {gothaCrashPose} from './aircraft-crash.js?v=09c75d146ae4289d';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=09c75d146ae4289d';
 export const GOTHA_DETAIL_SOURCES=Object.freeze({
  hull:'./gotha-runtime-hull-20261031.webp?v=natural-flight20261031',
  parts:'./boss-alps-hardware-20261020.webp?v=muted1',guns:'./boss-mark1-guns-r3.webp'

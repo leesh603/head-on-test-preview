@@ -1,9 +1,10 @@
+import {reserveCombatFxSlot} from './explosion-profiles.js?v=09c75d146ae4289d';
 // Confirmed direct hits only. Collision volumes and basic weapon damage stay intact.
 // Coordinates below describe regions INSIDE the existing collision volume, not a
 // second hitbox. Aircraft can supply criticalLayout for exceptional arrangements.
 export const AIRCRAFT_CRITICAL_BALANCE=Object.freeze({
  attempt:.12,aceAttempt:.28,playerAttempt:.75,wingRecovery:.55,wingCooldown:1.2,
- aceOpeningProtection:12,pilotKill:.01,acePilotKill:.0015,mauserPilotKill:.08,mauserAcePilotKill:.02,flechettePilotKill:.24,flechetteAcePilotKill:.04,
+ aceOpeningProtection:12,pilotKill:.08,acePilotKill:.0015,mauserPilotKill:.08,mauserAcePilotKill:.02,flechettePilotKill:.24,flechetteAcePilotKill:.04,
  wing:Object.freeze({chance:.52,multiplier:1.25}),
  body:Object.freeze({chance:.28,multiplier:1.5}),
  engine:Object.freeze({chance:.55,multiplier:2.3}),
@@ -109,6 +110,16 @@ export function resolveAircraftCritical(world,e,b,damage,{player=false,impactX=b
  const ignite=region.part==='fuel'&&!player&&random()<profile.ignite;
  return{damage:dealt,critical:{part:region.part,pilotKill,ignite,player,x:impactX,y:impactY,anchorX:sampleX,anchorY:sampleY,a:Math.atan2(b.vy,b.vx),side:Math.sign(region.side)||1,multiplier:dealt/damage,baseDamage:damage}};
 }
+// Feedback survives particle eviction. A small serializable journal also reaches
+// online guests; expiry is simulation-time based so pausing does not consume it.
+export function pruneCriticalFeedback(world){
+ const list=world.criticalFeedback;if(!list)return [];
+ const time=world.t||0;let w=0;
+ for(const f of list)if(f.noticeExpires>time)list[w++]=f;
+ list.length=w;return list;
+}
+const feedbackPriority=f=>f.player?4:f.pilotKill?3:f.lethal?2:1;
+const criticalFx=f=>f.fxProfile==='aircraftCritical';
 export function applyAircraftCritical(world,e,b,result){
  const c=result?.critical;if(!c||world?.online&&!world.host)return false;
  if(result.applied)return false;result.applied=true;
@@ -127,14 +138,23 @@ export function applyAircraftCritical(world,e,b,result){
   const ca=Math.cos(e.a||0),sa=Math.sin(e.a||0),dx=anchorX-e.x,dy=anchorY-e.y;
   e.criticalFuelOrigin={forward:dx*ca+dy*sa,side:-dx*sa+dy*ca};
  }
- const list=world.combatFX??=[],limit=world.viewWidth<=720?8:14;
- let count=0;for(const f of list)if(f.fxProfile==='aircraftCritical'&&f.life>0)count++;
- if(count>=limit){const i=list.findIndex(f=>f.fxProfile==='aircraftCritical'&&!f.pilotKill);if(i>=0)list.splice(i,1);else return true;}
- if(list.length>=35){const i=list.findIndex(f=>f.fxProfile==='aircraftCritical'&&!f.pilotKill);if(i>=0)list.splice(i,1);else return true;}
+ const lethal=!c.player&&e.hp<=0;
+ if(lethal)e.lethalCritical=c.pilotKill?'pilot':c.ignite?'fire':c.part;
  const life=c.pilotKill?.65:c.player?.42:c.part==='fuel'?.9:.72;
+ const feedbackId='critical:'+(world.criticalFxSerial=(world.criticalFxSerial||0)+1);
+ const cue={fxProfile:'aircraftCritical',feedbackId,part:c.part,pilotKill:!!c.pilotKill,player:!!c.player,ignite:!!c.ignite,lethal,x:anchorX,y:anchorY,ownerId:b.ownerId??world.id,audioExpires:time+life,noticeExpires:time+(lethal?5:2.5)};
+ const journal=pruneCriticalFeedback(world);world.criticalFeedback=journal;
+ if(journal.length>=32){
+  let index=-1,lowest=Infinity;
+  for(let i=0;i<journal.length;i++){const priority=feedbackPriority(journal[i]);if(priority<=feedbackPriority(cue)&&priority<lowest){index=i;lowest=priority;}}
+  if(index>=0)journal.splice(index,1);
+ }
+ if(journal.length<32)journal.push(cue);
  const ca=Math.cos(e.a||0),sa=Math.sin(e.a||0),dx=anchorX-e.x,dy=anchorY-e.y;
+ const f={...c,lethal,x:anchorX,y:anchorY,airframeA:e.a||0,anchorForward:dx*ca+dy*sa,anchorSide:-dx*sa+dy*ca,fxProfile:'aircraftCritical',life,maxLife:life,ownerId:b.ownerId??world.id,feedbackId,audioExpires:cue.audioExpires,noticeExpires:cue.noticeExpires};
+ if(!reserveCombatFxSlot(world,f,criticalFx,world.viewWidth<=720?8:14))return true;
  e.criticalTargetKey??=(world.criticalTargetSerial=(world.criticalTargetSerial||0)+1);
- list.push({...c,x:anchorX,y:anchorY,airframeA:e.a||0,targetKey:e.criticalTargetKey,anchorForward:dx*ca+dy*sa,anchorSide:-dx*sa+dy*ca,fxProfile:'aircraftCritical',life,maxLife:life,ownerId:b.ownerId??world.id,feedbackId:'critical:'+(world.criticalFxSerial=(world.criticalFxSerial||0)+1)});
+ f.targetKey=e.criticalTargetKey;world.combatFX.push(f);
  return true;
 }
 export function tickAircraftCritical(e,dt){

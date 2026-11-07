@@ -1,6 +1,6 @@
-import {reserveFacilitySlot} from './ground-facility-missions.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery2';
+import {reserveFacilitySlot} from './ground-facility-missions.js?v=09c75d146ae4289d';
+import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
+import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=09c75d146ae4289d';
 // Two bounded, persistent combat groups. Aircraft always use the normal combat
 // simulation, including offscreen: no arrival respawns or second damage model.
 export const FRONT_TYPES = Object.freeze({
@@ -31,7 +31,8 @@ export function frontBrief(g,f,en=false){
 const effects={intercept:'후속 폭격 차단 · 다음 교전 아군 폭격',recon:'정찰 확보 · 보스 약점 노출',commander:'적 편대 붕괴 · 다음 교전 지휘 약화',escort:'폭격대 생환 · 다음 교전 폭격 지원',elite:'정예 차단 · 다음 교전 지휘 약화',support:'지원기 생환 · 보급 확보'};
 export function frontTarget(g,e){
  const f=e.ruralFront;if(!f||f.status!=='active')return null;
- if(e.frontRoute)return e.frontRoute;
+ // frontRoute is navigation-only; the engine already steers toward it separately.
+ // Weapon targeting must select a combatant, never a position without a pose.
  let target=f.patrols.find(alive),best=target?distance(e,target):Infinity;
  for(const p of players(g))if(distance(p,frontLocation(f))<650&&distance(e,p)<best){target=p;best=distance(e,p)}
  return target||{x:f.x+Math.cos((g.t||0)*.15)*220,y:f.y+Math.sin((g.t||0)*.15)*220,a:e.a};

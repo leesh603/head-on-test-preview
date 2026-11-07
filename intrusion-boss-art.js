@@ -1,8 +1,9 @@
-import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js';
-import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js';
-import {maritimeReveal} from './maritime-intrusion.js';
-import { intrusionLayout } from './intrusion-boss-layouts.js';
-export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js';
+import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js?v=09c75d146ae4289d';
+import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js?v=09c75d146ae4289d';
+import {submarineLayers} from './submarine-intrusion.js?v=09c75d146ae4289d';
+import {maritimeReveal} from './maritime-intrusion.js?v=09c75d146ae4289d';
+import { intrusionLayout } from './intrusion-boss-layouts.js?v=09c75d146ae4289d';
+export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js?v=09c75d146ae4289d';
 const banks=new Map();
 function browserLoader(src){return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error(`Intrusion texture failed: ${src}`));i.src=src;});}
 /** One decoded image per unique lossless texture. Reject failures; never draw a placeholder. */
@@ -12,6 +13,7 @@ export function prepareIntrusionArt(id,options={}){
  const entry={images:new Map(),ready:false,promise:null};banks.set(layout.id,entry);
  const paths=new Set(layout.parts.flatMap(p=>Object.values(p.states).filter(Boolean).map(s=>s.src)));
  for(const src of layout.extraAssets||[])paths.add(src);
+ if(layout.submarineArt)for(const key of ['surface','diving','periscope'])if(layout.submarineArt[key])paths.add(layout.submarineArt[key]);
  if(layout.profileArt)paths.add(layout.profileArt);
  if(layout.cutin)paths.add(layout.cutin);
  entry.promise=Promise.all([...paths].map(async src=>{const im=await(options.loadImage||browserLoader)((options.baseUrl||'')+src);if(banks.get(layout.id)===entry)entry.images.set(src,im);else im.close?.();})).then(()=>{if(banks.get(layout.id)===entry)entry.ready=true;return entry;}).catch(error=>{if(banks.get(layout.id)===entry)banks.delete(layout.id);throw error;});return entry.promise;
@@ -39,7 +41,9 @@ export function drawIntrusionBoss(ctx,encounter,point,scale){
  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  ctx.translate(point.x,point.y);ctx.rotate((encounter.a??-Math.PI/2)+Math.PI/2);ctx.scale(scale,scale);
  const t=encounter.visualTime??encounter.elapsed??encounter.age??0;
+ if(layout.submarineArt){const art=layout.submarineArt;for(const [key,alpha] of Object.entries(submarineLayers(encounter))){const image=bank.images.get(art[key]);if(alpha>0&&image){ctx.save();ctx.globalAlpha*=alpha;ctx.drawImage(image,-art.width/2,-art.height/2,art.width,art.height);ctx.restore();}}if(!art.separated){ctx.restore();return true;}}
  for(const p of layout.parts){
+  if(layout.submarineArt?.separated&&p.kind==='base')continue;
   if(p.dependencies.some(d=>intrusionPartState(encounter,d)==='destroyed'))continue;
   const state=intrusionPartState(encounter,p.group);
   // Missing state falls back only for non-destructible fixed base. Explicit null hides a module.
@@ -48,6 +52,14 @@ export function drawIntrusionBoss(ctx,encounter,point,scale){
   let delta=(p.kind==='barrel'||p.rotatesWithTurret)?(state==='destroyed'&&p.destroyedRotates===false?(encounter.destroyedTurretAngles?.[p.group]??encounter.turretAngles?.[p.group]??0):(encounter.turretAngles?.[p.group]??0)):0;
   delta=Math.max(-p.arc,Math.min(p.arc,delta));
   ctx.save();ctx.translate(spec.x,spec.y);ctx.rotate(p.angle+delta);
+  if(layout.submarineArt?.separated){
+   const layers=submarineLayers(encounter),visibility=layers.surface+layers.diving*.65;
+   if(p.kind==='submarine_periscope'){
+    const destroyed=state==='destroyed';ctx.globalAlpha*=destroyed?Math.min(1,visibility):1;
+    if(!destroyed){ctx.rotate(encounter.naval?.periscopeAngle||0);ctx.translate(0,-12*(layers.periscope||0));}
+   }else{ctx.globalAlpha*=Math.min(1,visibility);if(p.group==='deck_gun'&&state!=='destroyed')ctx.translate(0,(encounter.naval?.gunRecoil||0)*(layout.id==='m1'?24:12));}
+  }
+
   if(p.revealOnly)ctx.globalAlpha*=maritimeReveal(encounter);
   if(p.concealment){const reveal=maritimeReveal(encounter);ctx.globalAlpha*=1-reveal;ctx.translate((p.openOffset?.[0]||0)*reveal,(p.openOffset?.[1]||0)*reveal);}
   // Projected axial propeller: blade span contracts; it must not become an overhead rotor.

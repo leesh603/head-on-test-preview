@@ -1,4 +1,4 @@
-import {drawCityBalloonHull,drawCitySuspension,cityPartState} from './city-balloon-art.js?v=20261022';
+import {drawCityBalloonHull,drawCitySuspension,cityPartState} from './city-balloon-art.js?v=09c75d146ae4289d';
 // Registered in the original 768 x 512 illustration. Rendering and collision
 // share this transform: no viewport-space attack sprites or hidden beam walls.
 export const APRON={width:768,height:512,seam:216,bottom:448,centres:[143,384,645],edges:[0,305,464,768]};

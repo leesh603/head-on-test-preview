@@ -24,7 +24,7 @@ export const CAMPAIGN_DATA = {
       "machineGunDisplayName": "Spandau LMG 08/15",
       "separateLeftRightAmmo": true,
       "reloadKeyKnownFromCurrentHud": "R",
-      "evasionUiLabelFinal": "선회기동",
+      "evasionUiLabelFinal": "선회 기동",
       "missile": {
         "guided": false,
         "behavior": "straight_line_from_firing_heading"

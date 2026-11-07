@@ -1,7 +1,7 @@
-import {squadronDamage,squadronCannonDamage} from './squadron-elite-balance.js';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
+import {squadronDamage,squadronCannonDamage,squadronDurability} from './squadron-elite-balance.js?v=09c75d146ae4289d';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
 /** Cigognes-inspired cannon patrol. The mixed formation and attack script are game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js';
+import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
 export const CIGOGNES_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:26,reserve:8,speed:142,turn:.9,prepare:.4,lock:.45,reload:3.0,shots:3,damage:26});
 const B=CIGOGNES_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;
 const pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g;
@@ -32,13 +32,13 @@ export function spawnCigognesPatrol(g){
  try{for(let i=0;i<B.count;i++){
   const count=g.enemies.length,e=g.spawnEnemy?.('scout')||(g.enemies.length>count?g.enemies.at(-1):null);if(!e)break;
   for(const k of ['bankAircraft','bankHandlingBase','bankFireFactor','bankTurnFactor','formationLivery','directorSquad','directorFormation','frontRoute','eliteKind','personalityId','normalFormationFamily','formationLeader','isFormationCommander','directorSignals','dangerHeavy','dangerAimUntil','dangerAimAngle','airArrival','arrivalPending'])delete e[k];
-  const rank=Math.ceil(i/2),side=i===0?0:i%2?-1:1,back=rank*70,hp=Math.round((i?50:102)*Math.min(2,1+(g.t||0)/500)*(g.players?1.25:1));
-  Object.assign(e,{type:'scout',ace:false,cigognesRole:i?'escort':'cannon',cigognesGroup:group,cigognesSide:side,cigognesRank:rank,cigognesPhase:'entry',cigognesHeading:a,arrivalAuthored:true,missionTarget:true,battlefieldEventId:'cigognes:'+group,escortPlane:i?'stork_spad':'spad12',visualScale:i?1:1.06,name:i?'시고뉴 호위기':'시고뉴 37mm 기관포기',planeName:i?'SPAD':'SPAD XII',faction:'entente',hp,maxHp:hp,speed:B.speed,dogfightCruise:B.speed,personalityCruise:B.speed,cruiseSpeedCap:B.speed,energySpeed:1,fire:Infinity,hitRadius:20,contactRadius:17,x:v.x-dx*(distance+back)-dy*side*108,y:v.y-dy*(distance+back)+dx*side*108,a});created.push(e);
+  const rank=Math.ceil(i/2),side=i===0?0:i%2?-1:1,back=rank*70,hp=Math.round((i?50:102)*squadronDurability(g));
+  Object.assign(e,{type:'scout',ace:false,cigognesRole:i?'escort':'cannon',cigognesGroup:group,cigognesSide:side,cigognesRank:rank,cigognesPhase:'entry',cigognesHeading:a,arrivalAuthored:true,missionTarget:true,battlefieldEventId:'cigognes:'+group,escortPlane:i?'stork_spad':'spad12',visualScale:i?1:1.06,name:i?'시고뉴 호위기':'시고뉴 37 mm 기관포기',planeName:i?'SPAD':'SPAD XII',faction:'entente',hp,maxHp:hp,speed:B.speed,dogfightCruise:B.speed,personalityCruise:B.speed,cruiseSpeedCap:B.speed,energySpeed:1,fire:Infinity,hitRadius:20,contactRadius:17,x:v.x-dx*(distance+back)-dy*side*108,y:v.y-dy*(distance+back)+dx*side*108,a});created.push(e);
  }}finally{g.directorSpawning=prior}
  if(created.length!==B.count){g.enemies=g.enemies.filter(e=>!created.includes(e));return false;}
  g.cigognesSerial=group;g.cigognesPatrol={phase:'entry',groupId:group,stageKey:key(g),elapsed:0,age:0,shots:0,nextIn:B.interval,lastTime:g.t||0};announceSquadron(g,'cigognes',group);g.event?.('wave','시고뉴 기관포 편대 접근 · 한 발을 피하고 재장전 중 파고드세요');return created[0];
 }
-function phase(g,s,name){s.phase=name;s.age=0;if(name==='reload'){const lead=members(g).find(e=>e.cigognesRole==='cannon');s.reloadHeading=lead?.a??0;s.bankSide=s.shots%2?1:-1;}for(const e of members(g)){e.cigognesPhase=name;e.fire=e.cigognesRole==='escort'&&name==='aim'?.18:Infinity;}g.event?.('wave',name==='locked'?'37mm 조준 고정 · 옆으로 이탈':name==='reload'?'기관포 재장전 · 공격 기회':'기관포 재조준');}
+function phase(g,s,name){s.phase=name;s.age=0;if(name==='reload'){const lead=members(g).find(e=>e.cigognesRole==='cannon');s.reloadHeading=lead?.a??0;s.bankSide=s.shots%2?1:-1;}for(const e of members(g)){e.cigognesPhase=name;e.fire=e.cigognesRole==='escort'&&name==='aim'?.18:Infinity;}g.event?.('wave',name==='locked'?'37 mm 조준 고정 · 옆으로 이탈':name==='reload'?'기관포 재장전 · 공격 기회':'기관포 재조준');}
 export function tickCigognesPatrol(g,dt){
  if(!host(g)||!(dt>0)||g.mode==='campaign')return;let s=g.cigognesPatrol;
  if(g.state!=='playing'){if(s&&cigognesActive(g)&&['dead','lost','won'].includes(g.state))withdraw(g,'run-ended');return;}
@@ -56,7 +56,10 @@ export function tickCigognesPatrol(g,dt){
    if(leader.cigognesFiredCycle===s.shots){s.shots++;phase(g,s,'reload');}
    else phase(g,s,'turn');
   }
-  else if(s.phase==='reload'&&s.age>=B.reload){if(s.shots>=B.shots){withdraw(g,'departed');return;}phase(g,s,'turn');}
+  else if(s.phase==='reload'){
+   if(s.age>=B.reload){if(s.shots>=B.shots){withdraw(g,'departed');return;}phase(g,s,'turn');}
+   else if(s.age>=.65)for(const escort of es)if(escort.cigognesRole==='escort')fireCigognes(g,escort);
+  }
   else if(s.phase==='turn'){const p=pilot(g),a=Math.atan2(p.y-leader.y,p.x-leader.x);if(s.age>1.2&&visible(g,leader,-30)&&Math.abs(angle(a-leader.a))<.18){leader.cigognesHeading=leader.a;phase(g,s,'aim');}}
  }
  for(const e of es)if(e.cigognesPhase==='exit'&&!visible(g,e,110))g.enemies=g.enemies.filter(x=>x!==e);
@@ -88,12 +91,17 @@ export function fireCigognes(g,e){if(!e.cigognesRole)return false;e.fire=Infinit
  if(!host(g)||g.state!=='playing'||e.cigognesSilenced||!live(e)||!visible(g,e,-15)||g.sunStrikeContains?.(e)||(g.bullets?.length||0)>=180)return true;
  const p=g.enemyCombatTarget?.(e)||pilot(g);if(!p||p.hp<=0||p.fogHidden||p.kaiserFogTime>0||p.ballCloak>0||p.cloudConceal>0)return true;
  const s=g.cigognesPatrol,cannon=e.cigognesRole==='cannon';
- if(cannon?(s?.phase!=='locked'||s.age<B.lock||e.cigognesFiredCycle===s.shots):(!['aim','locked'].includes(s?.phase)||e.cigognesEscortCycle===s.shots||s['escortFlank'+e.cigognesSide]===s.shots))return true;
- const aim=cannon?s.lockedAim:e.a,delta=Math.abs(angle(Math.atan2(p.y-e.y,p.x-e.x)-e.a)),range=Math.hypot(p.x-e.x,p.y-e.y);
+ if(cannon?(s?.phase!=='locked'||s.age<B.lock||e.cigognesFiredCycle===s.shots):(!['aim','locked','reload'].includes(s?.phase)||s.phase==='reload'&&s.age<.65||e.cigognesEscortCycle===s.shots||s['escortFlank'+e.cigognesSide]===s.shots))return true;
+ const aim=cannon?s.lockedAim:e.a,range=Math.hypot(p.x-e.x,p.y-e.y);
+ const leadTime=Math.min(.9,range/320),pace=(p.speed||150)*(p.airframeSpeed??1);
+ const delta=Math.abs(angle(Math.atan2(p.y+Math.sin(p.a)*pace*leadTime-e.y,p.x+Math.cos(p.a)*pace*leadTime-e.x)-e.a));
  // Escorts only threaten their outward flank; the central lane remains open.
- if(!cannon&&(delta>.18||range>320||((p.x-e.x)*-Math.sin(e.a)+(p.y-e.y)*Math.cos(e.a))*e.cigognesSide<20))return true;
+ if(!cannon){
+  const lead=members(g).find(member=>member.cigognesRole==='cannon');
+  if(!lead||delta>.23||range>340||((p.x-lead.x)*-Math.sin(lead.a)+(p.y-lead.y)*Math.cos(lead.a))*e.cigognesSide<80)return true;
+ }
  if(cannon)e.cigognesFiredCycle=s.shots;else{e.cigognesEscortCycle=s.shots;s['escortFlank'+e.cigognesSide]=s.shots;}
- const speed=cannon?270:195;(g.bullets??=[]).push({x:e.x+Math.cos(aim)*27,y:e.y+Math.sin(aim)*27,vx:Math.cos(aim)*speed,vy:Math.sin(aim)*speed,life:cannon?2.2:1.6,enemy:true,sourceX:e.x,sourceY:e.y,cigognesGroup:e.cigognesGroup,cigognesCannon:cannon,collisionRadius:cannon?5:2,damage:cannon?squadronCannonDamage(g,B.damage):squadronDamage(g,9),visualType:'scout'});e.cigognesFlash=cannon?.38:.12;e.muzzleFlash=cannon?0:.12;e.gunAim=aim;g.event?.(cannon?'heavyShot':'enemyShot','');return true;
+ const speed=cannon?270:320;(g.bullets??=[]).push({x:e.x+Math.cos(aim)*27,y:e.y+Math.sin(aim)*27,vx:Math.cos(aim)*speed,vy:Math.sin(aim)*speed,life:cannon?2.2:1.6,enemy:true,sourceX:e.x,sourceY:e.y,cigognesGroup:e.cigognesGroup,cigognesCannon:cannon,collisionRadius:cannon?5:2,damage:cannon?squadronCannonDamage(g,B.damage):squadronDamage(g,9),visualType:'scout'});e.cigognesFlash=cannon?.38:.12;e.muzzleFlash=cannon?0:.12;e.gunAim=aim;g.event?.(cannon?'heavyShot':'enemyShot','');return true;
 }
 export function installCigognesPatrol(Game){const p=Game.prototype;if(Object.hasOwn(p,'__cigognesPatrol'))return;p.__cigognesPatrol=true;
  const steer=p.dogfightSteering;p.dogfightSteering=function(e,...args){return cigognesSteering(this,e)||steer.call(this,e,...args);};

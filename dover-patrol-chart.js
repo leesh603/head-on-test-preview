@@ -1,4 +1,4 @@
-import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=dover3';
+import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=09c75d146ae4289d';
 // One authored coast profile, mirrored continuously north and south.
 export const DOVER_MAP=Object.freeze({width:6144,height:9216,inset:320,coastInset:240,entryY:.47,entryOffshore:330});
 const charts=new WeakMap(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

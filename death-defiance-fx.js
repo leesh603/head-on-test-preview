@@ -1,6 +1,6 @@
 // Owner-local heraldry, counterfire and damaged rotary exhaust.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {nungesserCombatStatus} from './nungesser-combat.js';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {nungesserCombatStatus} from './nungesser-combat.js?v=09c75d146ae4289d';
 export const DEFIANCE_PILOTS=new Set(['nungesser','barker']);
 const INSTALLED=Symbol.for('headon.death-defiance-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -61,20 +61,31 @@ function heart(c,p,insignia,x,size,alpha){
   insignia(c,'blackHeart',0,0,size,time(p));
  }finally{c.restore();}
 }
-// Historical heart/coffin artwork floats behind the aircraft, below its sprite.
+// Historical heart/coffin artwork surrounds the aircraft beneath its sprite.
 export function nungesserHeraldryPose(p){
  if(p?.pilot!=='nungesser'||!visible(p)||!['playing','paused','upgrade'].includes(p.state))return null;
  const s=p.pilotSignatureState,n=s?.nungesser,remaining=Math.min(p.skillTime||0,n?.burstRemaining??p.skillTime??0);
  if(!(remaining>0))return null;
  const t=time(p)+(n?.replicaAge||0),age=Number.isFinite(s?.activationTime)?t-s.activationTime:s?.activeAge??.2;
- const fade=Math.min(1,Math.max(0,age)/.14,remaining/.2),rear=54+Math.sin(t*2.2)*3;
- return {x:-Math.cos(p.a)*rear,y:-Math.sin(p.a)*rear-3*Math.sin(t*1.7),size:112,alpha:.26*fade};
+ const fade=Math.min(1,Math.max(0,age)/.14,remaining/.2);
+ return {x:0,y:0,size:126+Math.sin(t*4)*4,alpha:.46*fade};
 }
 export function drawNungesserWorld(c,p,tex,front=false,insignia=()=>false){
  if(p.pilot!=='nungesser'||!visible(p)||!['playing','paused','upgrade'].includes(p.state))return;
  const n=p.pilotSignatureState?.nungesser;if(!n)return;const t=time(p)+(n.replicaAge||0);
  if(!front){
-  const pose=nungesserHeraldryPose(p);if(pose){c.save();try{c.globalCompositeOperation='source-over';c.globalAlpha*=pose.alpha;insignia(c,'blackHeart',pose.x,pose.y,pose.size,t);}finally{c.restore();}}
+  const pose=nungesserHeraldryPose(p);if(pose){c.save();try{c.globalCompositeOperation='source-over';const opacity=c.globalAlpha;
+    const tilt=Math.sin(t*2.4);
+    c.scale(1-.07*Math.abs(tilt),1);
+    c.globalAlpha=opacity*pose.alpha*.24;
+    c.filter='blur(3px)';
+    insignia(c,'blackHeart',tilt*4,5,pose.size+9,t);
+    c.globalAlpha=opacity*pose.alpha*.43;
+    c.filter='brightness(1.6) sepia(.38)';
+    insignia(c,'blackHeart',-tilt*2,-2,pose.size+3,t);
+    c.globalAlpha=opacity*pose.alpha;
+    c.filter='none';
+    insignia(c,'blackHeart',pose.x,pose.y,pose.size,t);}finally{c.restore();}}
   return;
  }
  for(const e of p.pilotSignatureState.effects||[]){if(e.ownerId!==owner(p)||e.life<=0||!['nungesserImpact','nungesserPressure'].includes(e.kind))continue;

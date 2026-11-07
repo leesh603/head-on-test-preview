@@ -1,5 +1,5 @@
 // Loewenhardt: presentation observes the existing frontal bonus and ascent.
-import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js?v=09c75d146ae4289d';
 export const LOEW_FX_PALETTE=Object.freeze({gold:'#e9bb48',ivory:'#fff1ba',ochre:'#b48236',smoke:'#c2b18f'});
 export const LOEW_FX_LIMITS=Object.freeze({wake:10,wakeLife:.42,sampleInterval:.045,shotInterval:.045});
 const clamp=n=>Math.max(0,Math.min(1,n));

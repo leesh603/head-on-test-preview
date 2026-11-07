@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {LAON_LAYOUT,LAON_CRITICAL_PARTS,laonPartState,sweptLaonEllipse} from './laon-layout.js';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {LAON_LAYOUT,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS,laonPartState,sweptLaonEllipse} from './laon-layout.js?v=09c75d146ae4289d';
 
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const PHASES=Object.freeze(['loading','ready','recoil','return','reload']);
@@ -21,9 +21,11 @@ export class ParisGeschuetz extends BaseBoss {
  suppressive(){}
  partState(id){return laonPartState(this.parts.get(id));}
  loadMultiplier(){return [1,1.45,2.25][this.partState('loader')]*[1,1.3,1.8][this.partState('ammo')];}
- returnSeconds(){return [2.8,4.6,8][this.partState('recoil')];}
- phaseSeconds(phase=this.phase){return phase==='loading'?10.5*this.loadMultiplier():phase==='ready'?1.5:phase==='recoil'?.34:phase==='return'?this.returnSeconds():phase==='reload'?8.86*this.loadMultiplier():Infinity;}
- cycleSeconds(){return 19.36*this.loadMultiplier()+1.5+this.returnSeconds()+.34;}
+ static normalReturnSeconds=2.3;
+ returnSeconds(){return [ParisGeschuetz.normalReturnSeconds,4.6,8][this.partState('recoil')];}
+ static reloadSeconds=LAON_NORMAL_CYCLE_SECONDS-10.5-1.5-.34-ParisGeschuetz.normalReturnSeconds;
+ phaseSeconds(phase=this.phase){return phase==='loading'?10.5*this.loadMultiplier():phase==='ready'?1.5:phase==='recoil'?.34:phase==='return'?this.returnSeconds():phase==='reload'?ParisGeschuetz.reloadSeconds*this.loadMultiplier():Infinity;}
+ cycleSeconds(){return (10.5+ParisGeschuetz.reloadSeconds)*this.loadMultiplier()+1.5+this.returnSeconds()+.34;}
  muzzle(){return{x:this.x,y:this.y+(LAON_LAYOUT.muzzle.y+this.recoil)*this.scale};}
  coreOffset(){return{x:0,y:(-20+this.recoil)*this.scale};}
  syncParts(){for(const p of this.parts.values()){p.x=p.localX;p.y=p.localY+(LAON_CRITICAL_PARTS.includes(p.id)?this.recoil*this.scale:0);}}

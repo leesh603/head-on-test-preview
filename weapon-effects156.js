@@ -1,17 +1,17 @@
-import {drawRIICollapseFx} from './rii-destruction-fx.js';
-import {drawV1500CollapseFx} from './v1500-destruction-fx.js';
-import {drawBishopBombImpact} from './bishop-sortie-fx.js';
-import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
-import {drawDetonationPresence} from './detonation-presence.js';
-import {weaponImpactKind} from './weapon-impact-profile.js';
-import {drawAircraftCritical} from './aircraft-critical-view.js';
-import {roleDraw} from './fx-role3.js?v=tame3&perf=1029&decode=1';
-import {drawProjectileTactic} from './gun-signatures.js';
-import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=fx5';
-import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
-import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
-import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=tame3&perf=1029';
+import {drawRIICollapseFx} from './rii-destruction-fx.js?v=09c75d146ae4289d';
+import {drawV1500CollapseFx} from './v1500-destruction-fx.js?v=09c75d146ae4289d';
+import {drawBishopBombImpact} from './bishop-sortie-fx.js?v=09c75d146ae4289d';
+import {drawArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
+import {drawDetonationPresence} from './detonation-presence.js?v=09c75d146ae4289d';
+import {weaponImpactKind} from './weapon-impact-profile.js?v=09c75d146ae4289d';
+import {drawAircraftCritical} from './aircraft-critical-view.js?v=09c75d146ae4289d';
+import {roleDraw} from './fx-role3.js?v=09c75d146ae4289d';
+import {drawProjectileTactic} from './gun-signatures.js?v=09c75d146ae4289d';
+import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=09c75d146ae4289d';
+import {drawGameIcon} from './icons.js?v=09c75d146ae4289d';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=09c75d146ae4289d';
+import {fxsBoom} from './fx-sample-preview.js?v=09c75d146ae4289d';
+import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=09c75d146ae4289d';
 
 export function grenadeVisualPose(g,out={}){
  const dx=g.targetX-g.startX,dy=g.targetY-g.startY;

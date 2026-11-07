@@ -367,7 +367,7 @@ html.ui423 body.lobby423pc.lobby-aces .lobby-aces-panel>*{flex-shrink:0}
    Empty loadout groups are hidden; Continue is the one parchment pill, the rest a hairline list. */
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4:has(+ .build-icons151 > .empty151:only-child),
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-icons151:has(> .empty151:only-child){display:none!important}
-html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalText{display:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalText{display:block!important;min-height:2.8em;max-height:2.8em;margin:0 0 14px!important;overflow:hidden;font:500 12px/1.4 var(--ui-font)!important;color:#c9c1af!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4:before,html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4:after{display:none!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151:not(.hidden){background:linear-gradient(90deg,#0b0a09f5 0%,#0b0a09e6 50%,#0b0a0980 100%)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;padding:0!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{background:none!important;box-shadow:none!important;border:0!important;border-radius:0!important;width:min(440px,100%)!important;max-width:440px!important;margin:0!important;padding:28px 26px 24px!important;max-height:100%!important;overflow:auto!important;display:flex!important;flex-direction:column!important;gap:0!important}
@@ -401,3 +401,14 @@ html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151 .astra-ability-copy b{white-space:nowrap!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151>.ho-skill-pop{position:absolute!important;z-index:20!important;top:calc(100% + 8px)!important;left:0!important;width:min(340px,100%)!important;margin:0!important;box-shadow:0 18px 44px #000c,inset 0 0 0 1px #e8e2d42e!important;background:linear-gradient(180deg,#24231f,#181715)!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151>.ho-skill-pop.astra-active{box-shadow:inset 3px 0 0 var(--ho-oxblood,#9c3320),0 18px 44px #000c,inset 0 0 0 1px #e8e2d42e!important}
+
+/* Break Korean UI copy at spaces, with a fallback for unusually long names. */
+html:lang(ko) :is(#modalTitle,#modalText,#skillDesc,#passive103,#airframeTip,#airframeGrowth,#campaignObjective,#navigationInstruction,#eventMissionObjective,#eventMissionMeta,.legendary-tip156,.cumulative151,.ho-skill-pop){
+ word-break:keep-all;
+ overflow-wrap:anywhere;
+}
+html:lang(ko) :is(#modalTitle,#eventMissionObjective){text-wrap:balance}
+html:lang(ko) :is(#modalText,#skillDesc,#passive103,#eventMissionMeta){text-wrap:pretty}
+
+/* Reserve result feedback space while a ranking request completes. */
+html.ui423 #soloRankingStatus{height:2.8em;margin:8px 0;overflow:hidden;font-size:12px;line-height:1.4;color:#c9c1af}

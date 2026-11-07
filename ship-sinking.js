@@ -38,9 +38,11 @@ function canvas2d(w,h){
  if(typeof document==='undefined')return null;
  const cv=document.createElement('canvas');if(!cv?.getContext?.('2d'))return null;cv.width=w;cv.height=h;return cv;
 }
-const hullCache=new Map();
+// A sinking hull's pixels should live only as long as its owning ship.
+const hullCache=new WeakMap(),unkeyedHullCache=new Map();
 function cachedHull(key,{x,y,yaw,bx,by,q},drawHull,now){
- let e=hullCache.get(key);
+ const cache=typeof key==='object'?hullCache:unkeyedHullCache;
+ let e=cache.get(key);
  if(!e){
   const lw=Math.max(8,Math.ceil(2*bx*q)),lh=Math.max(8,Math.ceil(2*by*q));
   const dry=canvas2d(lw,lh),wet=canvas2d(lw,lh);if(!dry||!wet)return null;
@@ -52,10 +54,12 @@ function cachedHull(key,{x,y,yaw,bx,by,q},drawHull,now){
   const u=wet.getContext('2d');u.drawImage(dry,0,0);u.globalCompositeOperation='source-atop';u.fillStyle='rgba(14,62,72,.88)';u.fillRect(0,0,lw,lh);
   u.globalCompositeOperation='destination-out';u.fillStyle='rgba(0,0,0,.4)';u.fillRect(0,0,lw,lh);
   g.globalCompositeOperation=u.globalCompositeOperation='source-over';
-  e={dry,wet,lw,lh};hullCache.set(key,e);
+  e={dry,wet,lw,lh};
+  if(cache===unkeyedHullCache&&cache.size>=6)cache.delete(cache.keys().next().value);
+  cache.set(key,e);
  }
  e.used=now;
- if(hullCache.size>6)for(const [k,v] of hullCache)if(now-v.used>1000)hullCache.delete(k);
+ if(cache===unkeyedHullCache)for(const [k,v] of cache)if(now-v.used>1000)cache.delete(k);
  return e;
 }
 function drawSurface(c,{x,y,yaw,w,h,age,phase,life}){

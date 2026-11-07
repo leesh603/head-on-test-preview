@@ -1,5 +1,6 @@
-import {aceEscortStation} from './enemy-ace-tactics.js';
-import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js';
+import {aceWingFlightTuning,noteAceWingTurn} from './ace-wingman-pilots.js?v=09c75d146ae4289d';
+import {aceEscortStation} from './enemy-ace-tactics.js?v=09c75d146ae4289d';
+import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js?v=09c75d146ae4289d';
 // Formation stations are steering goals, never positions to interpolate toward.
 // Shared by solo, co-op, ace escorts and authored pilot formations.
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
@@ -19,9 +20,10 @@ export function advanceEscortFlight(world,wing,dt){
 }
 export function advanceWingFlight(wing,owner,station,dt,options={}){
  if(!Number.isFinite(dt)||dt<=0||wing.carrierHidden)return false;
- const cruise=Math.max(80,options.cruiseSpeed??(owner.speed??170)*clamp(owner.airframeSpeed??1,.4,1.5));
+ const tuning=wing.aceWingman?aceWingFlightTuning(wing):null;
+ const cruise=Math.max(80,(options.cruiseSpeed??(owner.speed??170)*clamp(owner.airframeSpeed??1,.4,1.5))*(tuning?.speed??1));
  const handling=clamp(wing.personality?.highSpeedHandling??1,.75,1.25);
- const turn=clamp((options.turnRate??2.2)*handling,1.4,3.2);
+ const turn=clamp((options.turnRate??2.2)*handling*(tuning?.turn??1),1.4,3.2);
  const acceleration=cruise*.85*clamp(wing.personality?.acceleration??1,.75,1.25);
  const heading=Number.isFinite(station.a)?station.a:owner.a||0,ca=Math.cos(heading),sa=Math.sin(heading);
  const ceiling=Math.max(cruise,options.maxSpeed??cruise*1.65),lead=clamp(cruise*.65,50,170);
@@ -37,6 +39,7 @@ export function advanceWingFlight(wing,owner,station,dt,options={}){
   const desired=clamp(cruise+along*.65,cruise*.6,ceiling)*(Math.abs(error)>1.2?.85:1);
   wing.flightSpeed+=clamp(desired-wing.flightSpeed,-acceleration*step,acceleration*step);
   wing.a+=bank;
+  if(wing.aceWingman)noteAceWingTurn(wing,bank/step);
   wing.x+=Math.cos(wing.a)*wing.flightSpeed*step;
   wing.y+=Math.sin(wing.a)*wing.flightSpeed*step;
   remaining-=step;

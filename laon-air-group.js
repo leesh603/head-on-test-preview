@@ -1,5 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {sweptLaonEllipse} from './laon-layout.js';
+import {LAON_MISSION} from './laon-layout.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {sweptLaonEllipse} from './laon-layout.js?v=09c75d146ae4289d';
 
 export const FRENCH_AIR_GROUP=Object.freeze([
  {id:'observer',role:'observer',aircraft:'salmson_2a2',hp:.17,at:0,side:-1,radius:22},
@@ -127,10 +128,13 @@ export class FrenchCounterBatteryAirGroup extends BaseBoss {
   const q=this.point(p),targets=(ctx.players||[]).filter(t=>t.alive);if(!targets.length)return;
   const target=p.coverTarget||targets.reduce((a,b)=>Math.hypot(a.x-q.x,a.y-q.y)<Math.hypot(b.x-q.x,b.y-q.y)?a:b);
   if(Math.hypot(target.x-q.x,target.y-q.y)>570*this.scale)return;
-  p.fireClock=p.role==='escort'?2.8:4.8;p.flash=.12;
+  const finalCover=this.finalAttack&&p.role==='escort';
+  p.fireClock=p.role==='escort'?(finalCover?3.6:2.8):4.8;p.flash=.12;
   const a=Math.atan2(target.y-q.y,target.x-q.x),speed=this.t.bulletSpeed||220;
   this.command('muzzle',{...q,partId:p.id});
-  for(const turn of p.role==='escort'?[-.13,0,.13]:[0])this.command('hazard',{kind:'projectile',...q,vx:Math.cos(a+turn)*speed,vy:Math.sin(a+turn)*speed,radius:3,warning:.35,duration:2.8,
+  // Only the final bombing pass earns a two-row escort burst. The ordinary
+  // cadence and finite roster stay intact, and a lost escort removes both rows.
+  for(let row=0;row<(finalCover?2:1);row++)for(const turn of p.role==='escort'?[-.13,0,.13]:[0])this.command('hazard',{kind:'projectile',...q,vx:Math.cos(a+turn)*speed,vy:Math.sin(a+turn)*speed,radius:3,warning:finalCover?.7:.35,delay:row*.34,duration:2.8,
    damage:(this.t.damage||18)*(p.role==='escort'?.55:.35),visual:'staaken-mg',sourcePartId:p.id,tag:this.id+':'+p.id});
  }
  update(dt,ctx={}){
@@ -140,7 +144,7 @@ export class FrenchCounterBatteryAirGroup extends BaseBoss {
   if(gun.dead)return;
   const cap=clamp(Math.floor(ctx.laonAvailableSlots??6),0,6);
   for(const p of this.planes)if(!p.destroyed&&p.mode==='pending'&&this.clock>=p.at&&this.activeCount()<cap)this.activate(p,ctx);
-  if(!this.finalAttack&&(gun.shotCount||0)>=2){this.finalAttack=true;this.phase='final-attack';for(const p of this.living('bomber',true)){p.finalRun=true;if(p.mode==='regroup')this.planRun(p);}this.command('laon-final-air-attack',{remainingBombers:this.living('bomber').length});}
+  if(!this.finalAttack&&(gun.shotCount||0)>=LAON_MISSION.shots-1){this.finalAttack=true;this.phase='final-attack';for(const p of this.living('bomber',true)){p.finalRun=true;if(p.mode==='regroup')this.planRun(p);}this.command('laon-final-air-attack',{remainingBombers:this.living('bomber').length});}
   else if(!this.finalAttack&&this.living('bomber',true).length)this.phase='bombing-runs';
   for(const p of this.planes){
    if(!alive(p))continue;p.flash=Math.max(0,(p.flash||0)-dt);

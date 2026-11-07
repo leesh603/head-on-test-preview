@@ -1,4 +1,4 @@
-import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {bombFallPose} from './bomb-sprites.js?v=09c75d146ae4289d';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
@@ -27,6 +27,7 @@ const ALIAS = {
   shipBow: 'shipBow3',
   bomb: 'bombBody', grenade: 'grenadeBody', mine: 'mineBody', shell: 'shellHeavy'
 };
+const ATLAS_SOURCES = [];
 const rects = new Map();
 const contain = new Set();
 let atlas = null;
@@ -38,7 +39,7 @@ export const fxsReady = !FXS || typeof Image === 'undefined' ? Promise.resolve(f
     // synchronously inside a combat frame (a visible hitch).
     im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); res(true); });
     im.onerror = () => res(false);
-    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
+    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href; ATLAS_SOURCES.push(im.src);
   })).catch(() => false);
 
 const resolve = key => (rects.has(key) ? key : ALIAS[key]);
@@ -132,17 +133,26 @@ export function fxsRocketTrail(c, x, y, angle, bodyLen = 52) {
 
 // The body path also works while the FX atlas loads or sprite FX are disabled.
 const bombPose = {};
-export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p, releaseAngle) {
+export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p, releaseAngle, bishopBomb = false) {
   const pose = bombFallPose(sx, sy, tx, ty, p, releaseAngle, bombPose);
-  const e = Math.max(0, Math.min(1, p)) ** 2, decorated = fxsHas('bombShadow');
+  const progress = Math.max(0, Math.min(1, p)), e = progress ** 2, decorated = fxsHas('bombShadow');
   // The shadow follows the falling body; the separate aim ring owns the target.
   // Keeping it on the target made long drops appear detached from their bombs.
   if (decorated) fxsDraw(c, 'bombShadow', pose.x + 10 * (1 - e), pose.y + 14 * (1 - e), 22 + 18 * e, 11 + 9 * e, 0, 0.35 + 0.55 * e);
+  if (bishopBomb) {
+    const wake = Math.min(1, (progress - .10) / .16, (.97 - progress) / .18);
+    if (wake > 0) {
+      const length = (30 + 36 * progress) * pose.scale;
+      const offset = length / 2 + 8 * pose.scale;
+      fxsDraw(c, 'windStreak', pose.x - Math.cos(pose.angle) * offset,
+        pose.y - Math.sin(pose.angle) * offset, length, 22 * pose.scale, pose.angle, .94 * wake);
+    }
+  }
   c.save(); c.globalAlpha *= 0.98;
   drawBody(pose.x, pose.y, pose.scale, pose.angle, pose.pitch);
   c.restore();
   // aim ring tightens
-  if (decorated) { c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
+  if (decorated && !bishopBomb) { c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
   c.beginPath(); c.arc(tx, ty, 28 - 12 * e, 0, Math.PI * 2); c.stroke(); c.restore(); }
   return true;
 }
@@ -152,13 +162,13 @@ export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p, releaseAngle) {
 // continuously instead of stepping through four stills. Mine / naval blasts keep
 // their existing art on purpose.
 const BOOM = { atlas: null, rects: null, n: 20 };
-if (FXS && typeof Image !== 'undefined') {
-  fetch(new URL('./fx-sample/fx-boom.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
+const boomReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(false) :
+  fetch(new URL('./fx-sample/fx-boom.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
     const im = new Image();
-    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { BOOM.atlas = im; BOOM.rects = m.rects; BOOM.n = m.frames; });
-    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
-  }).catch(() => {});
-}
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { BOOM.atlas = im; BOOM.rects = m.rects; BOOM.n = m.frames; res(true); });
+    im.onerror = () => res(false);
+    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href; ATLAS_SOURCES.push(im.src);
+  })).catch(() => false);
 // Each blast is timed in real seconds, not in the engine's short lifetime:
 // fireball frames 0-7 play over `fire` s, the smoke frames stretch over the rest
 // and keep rising / thinning after the engine drops the combatFX entry.
@@ -170,11 +180,13 @@ const BOOM_FAMILY = {
   bossFinal: ['heavy', 3.1, 400], hydrogen: ['heavy', 3.2, 400], aircraftHeavy: ['heavy', 3.2, 320],
   aircraft: ['air', 3.8, 230], aircraftMedium: ['air', 3.6, 240], blast: ['air', 2.9, 210]
 };
+const BISHOP_BOOM = ['ground', 1.28, 144];
 //            fire s, total s, fragments, debris, ring, light, scorch
 const BOOM_TIME = {
   hit:    [.16, .75, 0, 0, 0, .5, 0],
   air:    [.26, 1.35, 4, 0, 0, .75, 0],
   ground: [.30, 1.7, 0, 7, 1, .8, 1],
+  bishop: [.18, 1.05, 0, 0, 0, .38, 0],
   heavy:  [.42, 2.1, 6, 5, 1, .7, 0]
 };
 const BOOM_TAIL = new Map();
@@ -191,7 +203,7 @@ function boomSprites() {
 }
 const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
 function drawBoom(c, r, x, y, age) {
-  const [fire, T, nFrag, nDeb, ring, light, scorch] = BOOM_TIME[r.fam], d0 = r.d, n = BOOM.n;
+  const [fire, T, nFrag, nDeb, ring, light, scorch] = BOOM_TIME[r.style ?? r.fam], d0 = r.d, n = BOOM.n;
   if (age >= T) return false;
   const s = age / T, fade = r.fam === 'hit' || r.fam === 'air' ? 1 : Math.min(1, (1 - s) / .4);
   // frame index: 0..7 over the fireball, 7..n-1 over the remaining time (ease-out so smoke lingers)
@@ -242,12 +254,14 @@ export function fxsBoomTail(c, list, toScreen, t) {
 }
 export function fxsBoom(c, f, x, y, radius = 0) {
   if (!FXS || !BOOM.atlas) return false;
-  const src = f.fxSource || f.kind || (f.killExplosion ? 'aircraft' : ''), spec = BOOM_FAMILY[src];
+  const src = f.fxSource || f.kind || (f.killExplosion ? 'aircraft' : '');
+  const bishop = src === 'bomb' && f.bishopBombFxOwner && Number.isFinite(f.bishopBombFxBearing);
+  const spec = bishop ? BISHOP_BOOM : BOOM_FAMILY[src];
   if (!spec) return false;
   boomSprites();
   const [fam, k, cap] = spec, rr = radius || f.radius || 60;
   let r = BOOM_TAIL.get(f);
-  if (!r) { r = { wx: f.x, wy: f.y, fam, d: Math.min(cap, Math.max(48, rr * k)), rot: (hash(f.x, f.y) - .5) * .5, ml: f.maxLife || .65 };
+  if (!r) { r = { wx: f.x, wy: f.y, fam, style: bishop ? 'bishop' : fam, d: Math.min(cap, Math.max(48, rr * k)), rot: (hash(f.x, f.y) - .5) * .5, ml: f.maxLife || .65 };
     if (BOOM_TAIL.size < 96) BOOM_TAIL.set(f, r); }
   const age = Math.max(0, Math.min(1, 1 - f.life / f.maxLife)) * r.ml;
   drawBoom(c, r, x, y, age);
@@ -258,13 +272,13 @@ export function fxsBoom(c, f, x, y, radius = 0) {
 // (tools/fx-sample/flame.py) over a scorched, fire-lit patch, with smoke and embers rising.
 // Zone radius / life / damage stay in the engine; this only replaces the single painted blob.
 const FLAME = { atlas: null, rects: null, n: 12, v: 3 };
-if (FXS && typeof Image !== 'undefined') {
-  fetch(new URL('./fx-sample/fx-flame.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
+const flameReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(false) :
+  fetch(new URL('./fx-sample/fx-flame.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
     const im = new Image();
-    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { FLAME.atlas = im; FLAME.rects = m.rects; FLAME.n = m.frames; FLAME.v = m.variants; });
-    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
-  }).catch(() => {});
-}
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { FLAME.atlas = im; FLAME.rects = m.rects; FLAME.n = m.frames; FLAME.v = m.variants; res(true); });
+    im.onerror = () => res(false);
+    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href; ATLAS_SOURCES.push(im.src);
+  })).catch(() => false);
 let ZONE_T = -1, ZONE_N = 0; // per-frame budget: only the first few fire zones get smoke / cross-fades
 // Layout depends on the zone, not the camera or animation clock. Weak keys
 // release it with the expired zone instead of retaining a battle-long cache.
@@ -376,4 +390,20 @@ export function fxsFlameDressing(c, h, span, halfAt, frame) {
   }
   c.restore();
   return true;
+}
+
+// Sortie warm-up. The three FX atlases are large (up to 2560x2048) and the browser
+// decodes (and on a GPU canvas uploads) an <img> on the first frame that draws it:
+// a long stall on the first gunfire / explosion / fire of the sortie. The sortie
+// raises their downloads, waits briefly for them under the launch veil, and draws
+// each once, nearly transparent, into the game canvas, which the first frame clears.
+export const fxsAtlasSources = () => ATLAS_SOURCES.slice();
+export const fxsAtlasesReady = () => Promise.all([fxsReady, boomReady, flameReady]);
+export function fxsWarm(c) {
+  if (!c) return 0; let n = 0; const a0 = c.globalAlpha;
+  for (const im of [atlas, BOOM.atlas, FLAME.atlas]) {
+    if (!im?.naturalWidth) continue;
+    c.globalAlpha = .01; c.drawImage(im, 0, 0, im.naturalWidth / 2, im.naturalHeight / 2); n++;
+  }
+  c.globalAlpha = a0; return n;
 }

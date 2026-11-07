@@ -2,28 +2,25 @@
 // Read real firing cues and rounds; never add a gun, projectile or target.
 const clamp=v=>Math.max(0,Math.min(1,v));
 const owner=p=>p.id??'p1';
-// Local presentation cache only; snapshots already carry actual rear bursts.
-// Keep powder at the observed muzzle, never attached to a following aircraft.
-const bursts=new WeakMap();
-function observeBurst(p,m,heading){
- const now=(p.combatWorld?.()||p).t;if(!Number.isFinite(now))return;
- let s=bursts.get(p);if(!s||s.owner!==owner(p)||now<s.time){s={owner:owner(p),time:now,flash:0,events:[]};bursts.set(p,s);}
- if(p.nineRearFlash>s.flash+.001){s.events.push({x:m.x,y:m.y,a:heading,at:now});if(s.events.length>3)s.events.shift();}
-}
+// Each burst stores the observer's world-space station at the instant of firing.
 function drawBurstPowder(c,p,tex){
- const s=bursts.get(p),now=(p.combatWorld?.()||p).t;if(!s)return;
- if(!(p.skillTime>0)||s.owner!==owner(p)||!Number.isFinite(now)||now<s.time){bursts.delete(p);return;}
- s.time=now;s.flash=p.nineRearFlash||0;
- s.events=s.events.filter(e=>now-e.at<.22);
- for(const e of s.events){
-  const age=now-e.at,q=age/.22,fade=(1-q)**1.3,ca=Math.cos(e.a),sa=Math.sin(e.a),pa=Math.cos(p.a),ps=Math.sin(p.a),a=e.a-p.a;
-  // The three real-shot powder wisps drift off the observer's port side.
-  for(let i=0;i<3;i++){
-   const t=age+i*.018,side=7+t*105,wx=e.x+ca*8+sa*side-t*35,wy=e.y+sa*8-ca*side,dx=wx-p.x,dy=wy-p.y;
-   tex(c,'gunSmoke',dx*pa+dy*ps,-dx*ps+dy*pa,24+t*60,12+t*40,a-.45,.43*fade*(1-i*.2));
-   const cx=e.x+sa*(7+t*145)-t*18-p.x,cy=e.y-ca*(7+t*145)-p.y;
-   tex(c,'bulletBrass',cx*pa+cy*ps,-cx*ps+cy*pa,7,2.6,a-1+t*15,.95*fade*(1-i*.14));
+ if(!(p.skillTime>0))return;
+ const effects=p.pilotSignatureState?.effects||[];
+ const pa=Math.cos(p.a),ps=Math.sin(p.a);
+ for(let i=effects.length-1,count=0;i>=0&&count<3;i--){
+  const e=effects[i],age=e.age;
+  if(e.kind!=='rearBurst'||!e.strong||e.ownerId!==owner(p)||!(e.life>0)||!(age>=.018&&age<.28)||![e.stationX,e.stationY,e.a].every(Number.isFinite))continue;
+  const q=age/.28,fade=(1-q)**1.25,a=e.a-p.a;
+  const dx=e.stationX-p.x,dy=e.stationY-p.y,x=dx*pa+dy*ps,y=-dx*ps+dy*pa,co=Math.cos(a),si=Math.sin(a);
+  // Two lobes of powder peel off the muzzle axis. Brass ejects to one side.
+  for(let j=0;j<2;j++){
+   const t=age-j*.035;if(t<.018)continue;
+   const f=clamp((t-.018)/.03)*fade,forward=7+t*26,side=(j?1:-1)*(3+t*(j?65:45));
+   tex(c,j?'gunSmoke':'mistPuff',x+co*forward-si*side,y+si*forward+co*side,23+t*57,15+t*29,a+(j?.24:-.26),(j?.64:.86)*f);
+   const back=4+t*21,port=6+t*102;
+   tex(c,'bulletBrass',x-co*back+si*port,y-si*back-co*port,7,3,a-.8+t*14,.94*f);
   }
+  count++;
  }
 }
 
@@ -35,11 +32,12 @@ function round(p,gun){
  }
 }
 export function drawMckeeverGuns(c,p,tex){
- if(p.pilot!=='mckeever'||!(p.hp>0)||p.status==='downed'||p.state!=='playing'||p.reloadTime>0){bursts.delete(p);return;}
+ if(p.pilot!=='mckeever'||!(p.hp>0)||p.status==='downed'||p.state!=='playing')return;
+ if(p.reloadTime>0){drawBurstPowder(c,p,tex);return;}
  for(const gun of [0,1]){
-  const b=round(p,gun);if(!b)continue;
   const flash=gun===1?p.nineRearFlash:p.muzzleFlash;
   if(!(flash>0))continue;
+  const b=round(p,gun);if(!b)continue;
   const age=Math.max(0,(gun===1?.1:.055)-flash),heading=Math.atan2(b.vy,b.vx),a=heading-p.a;
   // The Bristol observer is in the aft cockpit, not on the tailplane.
   // Heavy-aircraft transfers retain their existing mount coordinates.
@@ -54,8 +52,7 @@ export function drawMckeeverGuns(c,p,tex){
    const ca=Math.cos(a),sa=Math.sin(a);
    // The ordinary fixed forward flash stays unchanged. Only a real strong
    // observer burst gets this broad, brief flash at its existing mount.
-   tex(c,'muzzleRear',x+ca*7,y+sa*7,40,19,a,.98*fade);
-   observeBurst(p,m,heading);
+   tex(c,'muzzleRear',x+ca*7,y+sa*7,36,15,a,.98*fade);
    continue;
   }
   tex(c,gun===1?'muzzleRear':'muzzle',x+Math.cos(a)*7,y+Math.sin(a)*7,gun===1?31:27,gun===1?13:10,a,.95*fade);

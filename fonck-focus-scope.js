@@ -12,7 +12,13 @@ export function drawFonckFocusScope(c,p,point,t,sizeOf){
  if(!scope)return true; // No temporary geometry when artwork is unavailable.
  const [x,y]=point(e.x,e.y),ready=f>=.8,settle=Math.min(1,f/.8);
  const diameter=Math.max(60,Math.min(128,sizeOf(e)*3));
- const separation=(1-settle)*7,half=diameter/2;
+ let recoil=0;
+ const clock=p.pilotSignatureState?.clock;
+ if(ready&&Number.isFinite(clock)&&!(p.reloadTime>0))for(const shot of (p.fonckPrecisionFx?.muzzles||[]).slice(0,8)){
+  const age=clock-shot?.at;
+  if(shot?.precise&&age>=0&&age<.09)recoil=Math.max(recoil,Math.sin(Math.PI*age/.09)*1.8);
+ }
+ const separation=(1-settle)*7+recoil,half=diameter/2;
  // Four bitmap quadrants slide inward along the etched sight axes. At 80%
  // their crosshair becomes one aligned reticle; fire does not consume it.
  c.save();c.globalAlpha*=ready?.85:.30+.40*settle;

@@ -1,9 +1,9 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
-import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js?boss=20261020b';
-import {driveLandship} from './somme-landship-drive.js?v=tame3&somme=20261021';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
+import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
+import {driveLandship} from './somme-landship-drive.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=09c75d146ae4289d';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=09c75d146ae4289d';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){

@@ -1,3 +1,6 @@
+export const LAON_MISSION=Object.freeze({seconds:90,shots:6,attackShotLimit:6,approach:900});
+export const LAON_NORMAL_CYCLE_SECONDS=15;
+
 // North-facing source-art and collision contract. Origin is the concrete
 // emplacement centre, never the player's current camera position.
 export const LAON_LAYOUT=Object.freeze({

@@ -1,12 +1,13 @@
-import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=20261023';
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
-import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=20261021';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
-import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=gal1';
-import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {drawFlakAirburst} from './flak-airburst-art.js?v=09c75d146ae4289d';
+import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=09c75d146ae4289d';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=09c75d146ae4289d';
+import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {drawTracerBolt} from './projectiles.js?v=09c75d146ae4289d';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=09c75d146ae4289d';
+import {drawShellFlight} from './boss-rounds.js?v=09c75d146ae4289d';
+import {drawAADefense} from './aa-defense-art.js?v=09c75d146ae4289d';
+import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=09c75d146ae4289d';
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}
 export async function prepareSommeAssets(){await prepareSommeDetailArt();for(const key of Object.keys(SOMME_SHEETS)){if(sommeDetailReady()&&['schwaben-body','schwaben-support','mark1-hulls'].includes(key))continue;load(key);}const loaded=await Promise.all(Object.values(pending));prepareSommeTreads(images['mark1-hardware']);return loaded;}
@@ -65,7 +66,7 @@ export function drawSommeHazard(c,h){
  if(h.kind==='projectile'){drawTracerBolt(c,h.x,h.y,Math.atan2(h.vy,h.vx),'#f0a85e',22,5,.95);c.save();c.fillStyle='#ffe9c4';c.beginPath();c.arc(h.x,h.y,2,0,Math.PI*2);c.fill();c.restore();return true;}
  c.save();const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
  if(warning){warningRing(c,h.x,h.y,h.radius,q,h.raidHeavy);drawShellFlight(c,h,q,{arc:62,size:.85});}
- else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}
+ else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!(h.kind==='circle'&&h.visual==='somme-aa-shell'&&drawFlakAirburst(c,h.x,h.y,h.radius*2.35,age/Math.max(.01,h.duration)))&&!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}
  c.restore();return true;
 }
 

@@ -1,13 +1,13 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=tame3';
-import {ruralSamplePath} from './rural-audio.js';
+import {railAudioSamples} from './rail-audio.js?v=09c75d146ae4289d';
+import {ruralSamplePath} from './rural-audio.js?v=09c75d146ae4289d';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 let activeRegion=-1;
-const PRIORITY={artilleryFire:2,artilleryNavalFire:2,artilleryImpact:2,detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:2,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
-const INTERVAL={artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={missionStart:2,missionComplete:2,missionFailed:2,artilleryFire:2,artilleryNavalFire:2,artilleryImpact:2,detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:2,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
+const INTERVAL={missionStart:.35,missionComplete:.35,missionFailed:.35,artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
@@ -113,6 +113,9 @@ export function prepareSfx(plane,region){
  activeRegion=region;
  if(!ctx||muted||paused)return;
  loadFileCue('sfx/'+engineSampleKind(plane));
+ if(engineSampleKind(plane)==='engine-inline')loadFileCue('sfx/flight-engine-inline');
+ loadFileCue('sfx/flight-flyby');
+ loadFileCue('sfx/flight-bomb-impact');
  for(const key of ['mg','hit','kill',engineSampleKind(plane)]){const original='sfx/'+key;const name=ruralSamplePath(key,original,region);if(name!==original)loadFileCue(name);}
  for(const name of ['artillery-fire','artillery-impact','rail-fire','rail-impact'])loadFileCue('sfx/'+name);
  for(const name of ['hit-0','hit-1','hit-2','hit-3','hitmetal-0','hitmetal-1','flak-0','flak-1','flak-2','kill','mg-1','mg-2'])loadFileCue('sfx/'+name);
@@ -153,6 +156,11 @@ export function weaponImpactAudioProfile(input={}){
 }
 function weaponImpactSample(input){
  const p=weaponImpactAudioProfile(input);
+ const weapon=typeof input==='string'?input:input?.weapon;
+ if(['bomb','cooper','puw'].includes(weapon)&&cachedFile('sfx/flight-bomb-impact')){
+  fileSample('sfx/flight-bomb-impact',weapon==='puw'?.42:weapon==='cooper'?.32:.37,null,weapon==='puw'?.82:weapon==='cooper'?1.12:1);
+  return;
+ }
  bankSample(p.sample,p.level,()=>bankSample('hit',p.level*.7,()=>VOICES.flakSynth(),p.rate,{cut:p.cut,duration:Math.min(.18,p.duration)}),p.rate*(.98+Math.random()*.04),p);
  if(p.transient)bankSample(p.transient,p.transientLevel,null,p.transient==='flak'?1.15:1.1,{cut:p.cut,duration:.09});
 }
@@ -186,7 +194,7 @@ export function flightAudioProfile(p={}){
 }
 export function closePassAudioProfile(speed=350){const rush=Math.max(0,Math.min(1,(speed-150)/400));return {pitch:125+65*rush,duration:.4-.13*rush,level:.055+.025*rush,air:1150+1100*rush};}
 function engineLoop(p){
- const kind=engineSampleKind(p.plane),original='sfx/'+kind,name=ruralSamplePath(kind,original,activeRegion);
+ const kind=engineSampleKind(p.plane),original='sfx/'+kind,name=kind==='engine-inline'?'sfx/flight-engine-inline':ruralSamplePath(kind,original,activeRegion);
  const candidate=cachedFile(name),sampleName=candidate?name:original,buffer=candidate||cachedFile(original);
  if(!candidate)loadFileCue(name);
  if(!buffer){loadFileCue(original);return false}
@@ -195,7 +203,7 @@ function engineLoop(p){
   if(engine)try{clearTimeout(engine.idle);engine.gain.gain.setTargetAtTime(0,now,.08);engine.src.stop(now+.4)}catch{}
   if(!reserve())return false;
   const src=ctx.createBufferSource(),gain=ctx.createGain(),f=ctx.createBiquadFilter();
-  if(buffer.loopEndAt==null){const d=buffer.getChannelData(0);let e=d.length-1;while(e>0&&Math.abs(d[e])<.01)e--;buffer.loopEndAt=(e+1)/buffer.sampleRate}
+  if(buffer.loopEndAt==null){const d=buffer.getChannelData(0);let e=d.length-1;while(e>0&&Math.abs(d[e])<.01)e--;buffer.loopEndAt=sampleName==='sfx/flight-engine-inline'?buffer.duration:(e+1)/buffer.sampleRate}
   src.buffer=buffer;src.loop=true;src.loopStart=0;src.loopEnd=buffer.loopEndAt;f.type='lowpass';f.frequency.value=2400;gain.gain.value=0;
   src.connect(f);f.connect(gain);gain.connect(bus);src.start();
   engine={kind,sampleName,src,gain,f};track(src,f,gain);
@@ -284,7 +292,10 @@ const VOICES={
   criticalCockpit(){criticalSample('cockpit')},
   detonation(input){const heavy=input?.profile==='heavyShell'||input?.profile==='ammoCookoff';bankSample(heavy?'kill':'flak',heavy?.34:.28,()=>VOICES.flakSynth(),heavy?.82:1,{cut:heavy?4000:6200,duration:heavy?.43:.3});if(heavy)bankSample('flak',.10,null,1.12,{cut:6800,duration:.12})},
   whizz(){hiss(jit(3300),720,.14,.037,'bandpass',3,0,.018);tone(jit(850),310,.08,.007,'sine',1400)},
-   closePass(pass){const p=closePassAudioProfile(pass?.speed);tone(jit(p.pitch),47,p.duration,p.level,'sawtooth',680,0,.035);hiss(p.air,250,p.duration*.9,p.level,'bandpass',.65,0,.025)},
+   closePass(pass){
+    const p=closePassAudioProfile(pass?.speed);
+    fileSample('sfx/flight-flyby',p.level*2.4,()=>{tone(jit(p.pitch),47,p.duration,p.level,'sawtooth',680,0,.035);hiss(p.air,250,p.duration*.9,p.level,'bandpass',.65,0,.025)},.85+p.pitch/650);
+   },
   airframeBreak(){tone(jit(180),53,.18,.062,'triangle',700);hiss(jit(1800),420,.26,.057,'bandpass',.65);hiss(3200,1200,.05,.026,'highpass',.7,.035)},
   // Mechanical/material cues follow actual boss actions, not a generic beep.
   armorDrive(){tone(49,46,.3,.02,'sawtooth',170);for(let i=0;i<3;i++){hiss(760,350,.045,.016,'bandpass',.7,i*.09);tone(117,72,.07,.01,'triangle',310,i*.09)}},
@@ -318,11 +329,18 @@ const VOICES={
   // Brief propeller rush and mechanical rattle, below weapon volume.
   headOn(){hiss(320,950,.16,.045,'bandpass',.6);tone(92,140,.14,.035,'sawtooth',450);hiss(1400,420,.09,.022,'bandpass',1,.08)},
   // Player machine guns: a bright crack over a short mechanical body.
-  shot(input){const p=machineGunAudioProfile(input);bankSample('mg',p.level,()=>VOICES.shotSynth(),jit(p.rate),p)},
+  shot(input){
+    if(input?.cow37){bankSample('artillery-fire',.28,()=>VOICES.cowShotSynth(),jit(1.18),{cut:5600,duration:.12});return;}
+    const p=machineGunAudioProfile(input);bankSample('mg',p.level,()=>VOICES.shotSynth(),jit(p.rate),p);
+  },
+  cowShotSynth(){hiss(2100,320,.075,.08,'lowpass',.75);tone(jit(156),62,.09,.095,'triangle',720)},
   weaponImpact(input){weaponImpactSample(input)},
   shotSynth(){tone(jit(760),190,.05,.05,'square',2600);hiss(jit(3200),900,.04,.05,'bandpass',1);tone(jit(165),80,.03,.04,'square',900)},
   // Enemy guns: thinner, duller crack.
-  enemyShot(){bankSample('enemy',.09,()=>VOICES.enemyShotSynth(),jit(1))},
+  enemyShot(){bankSample('enemy',.078,()=>VOICES.enemyShotSynth(),.99+Math.random()*.02,{cut:6000,duration:.058})},
+  missionStart(){tone(440,440,.10,.042,'triangle',1500);tone(587,587,.18,.055,'triangle',1800,.09)},
+  missionComplete(){tone(392,392,.12,.045,'triangle',1600);tone(523,523,.13,.05,'triangle',1800,.10);tone(659,659,.27,.055,'triangle',2000,.20)},
+  missionFailed(){tone(392,392,.12,.043,'triangle',1250);tone(294,294,.25,.045,'triangle',1100,.11)},
   enemyShotSynth(){tone(jit(430),140,.06,.038,'sawtooth',1400);hiss(jit(1900),500,.05,.032,'bandpass',.8)},
   // Cannon-class fire: deep bark with air displacement.
   heavyShot(){tone(jit(190),60,.12,.09,'sawtooth',800);hiss(900,200,.1,.06,'lowpass',.5);tone(jit(60),40,.1,.06,'sine',300);tone(90,45,.14,.05,'sine',220,.04)},
@@ -414,7 +432,7 @@ export function sfx(name,arg){
   if(ctx.state==='closed')return;
   if(ctx.state!=='running'&&!resuming){try{resuming=Promise.resolve(ctx.resume()).catch(()=>{}).finally(()=>{resuming=null})}catch{}}
   const now=ctx.currentTime;
-  const voiceKey=arg?.tactical?'tactical:'+name:arg?.player&&name.startsWith('critical')?'player:'+name:name;
+  const voiceKey=name==='shot'&&arg?.cow37?'cow37':arg?.tactical?'tactical:'+name:arg?.player&&name.startsWith('critical')?'player:'+name:name;
   if(now-(lastVoices.get(voiceKey)??-Infinity)<Math.max(INTERVAL[name]||0,arg?.tactical?1.2:0))return;
   const critical=name.startsWith('critical'),criticalRank=arg?.player?4:name==='criticalPilot'?3:arg?.ignite?2:1;
   if(critical&&now-(lastVoices.get('critical-family')??-Infinity)<.12&&criticalRank<=(lastVoices.get('critical-rank')||0))return;

@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
-import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,canMoveMaanHull,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';
+import {impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
+import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,canMoveMaanHull,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=09c75d146ae4289d';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){
@@ -125,7 +125,7 @@ export class Wustenpanzer extends DesertHull {
  }
  startPressure(runaway,aim){
   const cooling=!this.gone('radiator');this.heavyPlan=null;this.pressureCycle={age:0,runaway,index:0,target:{...aim},axis:this.hullYaw,stage:'vent',cooling};
-  this.drivePause=runaway?6.5:cooling?2.8:2.2;this.tactic(runaway?'desert-runaway':cooling?'pressure-release':'radiator-failed');
+  this.drivePause=runaway?7.4:cooling?2.8:2.2;this.tactic(runaway?'desert-runaway':cooling?'pressure-release':'radiator-failed');
   const r=this.parts.get('radiator'),m={x:this.x+r.x,y:this.y+r.y};
   // The longitudinal lane between the two warned vents stays open.
   if(cooling)for(const side of [-1,1]){const v=rotateMaan(side*95,0,this.hullYaw);this.hazard('circle',{x:m.x+v.x,y:m.y+v.y,radius:58,warning:1.15,duration:1.6,tickInterval:.5,damage:this.t.damage*.5,visual:'wusten-steam',tag:this.id+':radiator'});}
@@ -135,14 +135,16 @@ export class Wustenpanzer extends DesertHull {
   if(!s.released&&s.age>=1.15){s.released=true;const r=this.parts.get('radiator');this.command('maan-vent',{x:this.x+r.x,y:this.y+r.y,black:!s.cooling||this.gone('engine')});}
   if(s.runaway&&s.age>=2.8){
    s.stage='barrage';
-   while(s.index<3&&s.age>=2.8+s.index*.48){
-    const i=s.index++,step=rotateMaan(0,(i-1)*78,s.axis??this.hullYaw),target={...s.target,x:s.target.x+step.x,y:s.target.y+step.y,vx:0,vy:0};
+   // A failing radiator earns one five-shot walking barrage, followed by a
+   // full cool-down after the last physical shell has resolved.
+   while(s.index<5&&s.age>=2.8+s.index*.34){
+    const i=s.index++,step=rotateMaan(0,(i-2)*78,s.axis??this.hullYaw),target={...s.target,x:s.target.x+step.x,y:s.target.y+step.y,vx:0,vy:0};
     if(!this.gone('heavy-gun'))this.heavyShot(target,true);
     else if(i<2&&!p.sandCover){const id=i?'sponson-right':'sponson-left',gun=this.parts.get(id);if(!gun.destroyed)this.aimed(gun,target,{side:i?1:-1,warning:1.25,visual:'wusten-impact'});}
    }
   }
-  if(s.age>=(s.runaway?6.5:s.cooling?2.8:2.2)){
-   this.pressureCycle=null;this.heat=s.cooling?.25:.64;this.serviceWindow=s.runaway?3.2:s.cooling?2.6:1.6;this.drivePause=this.serviceWindow;
+  if(s.age>=(s.runaway?7.4:s.cooling?2.8:2.2)){
+   this.pressureCycle=null;this.heat=s.cooling?.25:.64;this.serviceWindow=s.runaway?3.6:s.cooling?2.6:1.6;this.drivePause=this.serviceWindow;
    this.timers.set('heavy',s.cooling?2:4.2);this.tactic(s.cooling?'overheat-service':'emergency-cooldown');
   }
  }
@@ -190,10 +192,11 @@ export class SinaiLandship extends DesertHull {
  constructor(o){super(o,'sinai-landship');this.side=-1;this.salvo=null;this.escortAge=0;this.encirclement=null;this.finalCooldown=0;this.serviceWindow=0;this.timers.set('broadside',.25);}
  gunOrder(side){return [side,-side].flatMap(s=>['front','rear'].map(end=>({id:`sponson-${s<0?'left':'right'}-${end}`,side:s}))).filter(g=>!this.gone(g.id));}
  startEncirclement(aim,ctx,disrupted){
-  this.finalStarted=true;this.salvo=null;this.drivePause=6.3;
-  const lane={x:clamp(aim.x,ctx.bounds.left+65,ctx.bounds.right-65),y:aim.y,width:110,depth:260,remaining:6.3};
+  this.finalStarted=true;this.salvo=null;this.drivePause=7;
+  const lane={x:clamp(aim.x,ctx.bounds.left+65,ctx.bounds.right-65),y:aim.y,width:110,depth:260,remaining:7};
   this.duneLane=lane;this.escortOrder=disrupted?'withdraw':'flank';
-  this.encirclement={age:0,index:0,stage:'flank',disrupted,lane,guns:this.gunOrder(this.side).slice(0,disrupted?2:4)};
+  const guns=this.gunOrder(this.side).slice(0,disrupted?2:4);
+  this.encirclement={age:0,index:0,stage:'flank',disrupted,lane,guns:disrupted?guns:[...guns,...guns]};
   if(!disrupted)for(const car of this.encounter.bodies.values())if(car.leader===this&&!car.dead)car.timers.set('escort-gun',0);
   this.tactic(disrupted?'broken-encirclement':'desert-encirclement');
  }
@@ -201,7 +204,7 @@ export class SinaiLandship extends DesertHull {
   const s=this.encirclement;s.age+=dt;this.escortOrder=s.disrupted?'withdraw':'flank';
   if(s.age>=2.2){
    s.stage='barrage';const offset=Math.min(140,(ctx.bounds.right-ctx.bounds.left)*.3);
-   while(s.index<s.guns.length&&s.age>=2.2+s.index*(s.disrupted?.8:.55)){
+   while(s.index<s.guns.length&&s.age>=2.2+s.index*(s.disrupted?.8:.3)){
     const {id,side}=s.guns[s.index++],gun=this.parts.get(id);if(gun.destroyed)continue;
     const flank=rotateMaan(side,0,this.hullYaw).x<0?-1:1,x=clamp(s.lane.x+flank*offset,ctx.bounds.left+56,ctx.bounds.right-56);
     // Do not squeeze the promised 110px lane shut on a phone.
@@ -209,8 +212,8 @@ export class SinaiLandship extends DesertHull {
     this.aimed(gun,{x,y:s.lane.y+(s.index%2?-.5:.5)*130},{side,warning:1.7,visual:'sinai-impact',tag:this.id+':'+gun.id});
    }
   }
-  if(!s.disrupted&&!s.finishFired&&s.age>=4.25){s.finishFired=true;if(this.duneLane)this.duneLane.remaining=0;const order=s.guns.find(q=>!this.parts.get(q.id).destroyed);if(order){const gun=this.parts.get(order.id);impactPulse(this,{x:s.lane.x,y:s.lane.y,radius:100,warning:1.35,source:this.muzzle(gun,order.side),partId:gun.id,visual:'sinai-impact',tag:this.id+':'+gun.id});}}
-  if(s.age>=6.3){this.encirclement=null;this.duneLane=null;this.escortOrder='withdraw';this.serviceWindow=2.8;this.drivePause=2.8;this.finalCooldown=10;this.tactic('convoy-reload');}
+  if(!s.disrupted&&!s.finishFired&&s.age>=4.75){s.finishFired=true;if(this.duneLane)this.duneLane.remaining=0;const order=s.guns.find(q=>!this.parts.get(q.id).destroyed);if(order){const gun=this.parts.get(order.id);impactPulse(this,{x:s.lane.x,y:s.lane.y,radius:100,warning:1.35,source:this.muzzle(gun,order.side),partId:gun.id,visual:'sinai-impact',tag:this.id+':'+gun.id});}}
+  if(s.age>=7){this.encirclement=null;this.duneLane=null;this.escortOrder='withdraw';this.serviceWindow=3.2;this.drivePause=3.2;this.finalCooldown=10;this.tactic('convoy-reload');}
  }
  update(dt,ctx){
   if(this.arrival(dt,ctx))return;const p=this.target(ctx.players);if(!p)return;

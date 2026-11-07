@@ -1,7 +1,7 @@
 // Mechanical presentation belongs to the rural guns, never to the Cambrai carrier.
 // Recoil is local to the gun carriage: it cannot move fixed rails or detached wrecks.
 export const RAIL_GUN_RIGS=Object.freeze({
- 'paris-gun':Object.freeze({pivotY:25,gunHeight:235,gunWidth:57.87,anchor:.88,kick:21,returnSeconds:.25,bodyKick:3.2,traverse:.12}),
+ 'bruno-railway-gun':Object.freeze({pivotY:25,gunHeight:235,gunWidth:57.87,anchor:.88,kick:21,returnSeconds:.25,bodyKick:3.2,traverse:.12}),
  'lincomparable':Object.freeze({pivotY:-9,gunHeight:205,gunWidth:52.96,anchor:.91,kick:35,returnSeconds:.94,bodyKick:5.2,traverse:.08})
 });
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

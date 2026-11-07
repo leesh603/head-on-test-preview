@@ -1,6 +1,6 @@
-import {FixedPool} from './headon-stageboss-pool.js';
-import {netContact} from './london-apron369.js?v=tame3&cityart=20261022';
-import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=tame3';
+import {FixedPool} from './headon-stageboss-pool.js?v=09c75d146ae4289d';
+import {netContact} from './london-apron369.js?v=09c75d146ae4289d';
+import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=09c75d146ae4289d';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
@@ -103,6 +103,7 @@ export class BossHazards {
   }
   isIlluminated(player) {let found=false;this.pool.visit(h=>{if(h.kind==='searchlight'&&h.phase==='active'&&contains(h,player))found=true;});return found;}
   clear(encounterId) {this.pool.clear(h=>h.encounterId===encounterId);}
+  clearBody(encounterId,bossId) {this.pool.clear(h=>h.encounterId===encounterId&&h.bossId===bossId);}
   clearTagged(encounterId,tag,{pendingOnly=false}={}) {
     this.pool.clear(h=>h.encounterId===encounterId&&h.tag===tag&&(!pendingOnly||!(h.kind==='projectile'&&h.activated)));
   }

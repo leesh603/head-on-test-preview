@@ -2,7 +2,7 @@
 // This reads host simulation state and never consumes RNG or changes a deadline.
 const live=e=>e?.hp>0&&!e.expired&&!e.crashing&&!e.rivalEscaped;
 export function majorEncounterBlocked(g,kind){
- if(g.online&&!g.host)return true;
+ if(g.online&&!g.host||g.operationBattle)return true;
  const now=g.t||0,d=g.battleDirector;
  if(g.state!=='playing'||g.stageBoss?.stages?.phase==='boss'||g.stageCombatWindow?.ready||
     (g.battleRecoveryUntil||0)>now||(d?.fireResumeAt||0)>now||d?.pattern==='RECOVERY'&&d.endsAt>now)return true;

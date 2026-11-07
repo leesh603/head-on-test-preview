@@ -1,67 +1,200 @@
-import {NAVAL_BOSS_STATIONS} from './naval-faction-atlas.js?v=tame3';
-import {separateBossFleet} from './naval-spacing.js?v=gal1';
-import {recordShipWake} from './naval-water.js?v=tame3&perf=1029';
-import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {segmentDistance} from './alps-geometry117.js?v=tame3';
-export const JUTLAND_CYCLE=48;
-export const angleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
-export const turnToward=(a,b,rate,dt)=>a+Math.max(-rate*dt,Math.min(rate*dt,angleDelta(a,b)));
+import {recordShipWake} from './naval-water.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {segmentDistance} from './alps-geometry117.js?v=09c75d146ae4289d';
+
+export const JUTLAND_ENTRY_SECONDS=2.2;
+export const JUTLAND_HULL=Object.freeze({width:302,height:1050});
+const GUNS=['bow','aft'];
+const LANES={
+ bow:{side:1,delay:0,interval:.16,radius:58},
+ aft:{side:-1,delay:.4,interval:.32,radius:70}
+};
+const PARTS=[
+ {id:'bow',kind:'gun',localY:-270,radius:53,fraction:.16,row:0,size:112},
+ {id:'director',kind:'director',localY:-115,radius:48,fraction:.14},
+ {id:'aft',kind:'gun',localY:310,radius:53,fraction:.16,row:0,size:112}
+];
+const angleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
+const turnToward=(a,b,max)=>a+Math.max(-max,Math.min(max,angleDelta(a,b)));
 export const jutlandRotate=(x,y,a)=>({x:x*Math.cos(a)-y*Math.sin(a),y:x*Math.sin(a)+y*Math.cos(a)});
-const gun=(id,x,y,row=0)=>({id,localX:x,localY:y,row,kind:'gun',radius:row?25:37,fraction:.08,size:row?85:112});
-export const JUTLAND_PARTS=Object.freeze({
- battleship:[gun('bow-port',-64,-302),gun('bow-starboard',64,-302),gun('aft-port',-92,-54),gun('aft-starboard',92,-54),{id:'director',localX:0,localY:-235,row:3,kind:'director',radius:36,fraction:.1,size:98},{id:'boilers',localX:0,localY:-114,kind:'engine',radius:44,fraction:.12},{id:'seaplane-deck',localX:0,localY:145,kind:'launch',radius:36,fraction:.08}],
- cruiser:[gun('bow',0,-178,1),gun('aft',0,159,1),{id:'torpedo-port',localX:-38,localY:-42,row:2,kind:'torpedo',radius:22,fraction:.12,size:54},{id:'torpedo-starboard',localX:38,localY:-42,row:2,kind:'torpedo',radius:22,fraction:.12,size:54},{id:'boilers',localX:0,localY:-20,kind:'engine',radius:33,fraction:.15}],
- observer:[{id:'gondola',localX:0,localY:100,kind:'observer',radius:35,fraction:.5}]
-});
-export function jutlandMuzzle(b,p){return{x:b.x+p.x+Math.cos(p.angle)*(p.kind==='torpedo'?50:p.row===1?85:128),y:b.y+p.y+Math.sin(p.angle)*(p.kind==='torpedo'?50:p.row===1?85:128)};}
-export class JutlandVessel extends BaseBoss{
- constructor(o){o={...o,faction:o.faction||'central'};const mounts=NAVAL_BOSS_STATIONS[o.faction]?.[o.role]||{},width=o.role==='battleship'?254:137,height=o.role==='battleship'?940:610;const specs=JUTLAND_PARTS[o.role].map(p=>mounts[p.id]?{...p,localX:mounts[p.id][0]*width,localY:(mounts[p.id][1]-.5)*height}:p);super({...o,maxHp:o.tuning.maxHp,coreRadius:o.role==='observer'?40:65,parts:specs.map(p=>new BossPart({id:p.id,maxHp:o.tuning.maxHp*p.fraction,radius:p.radius,kind:p.kind}))});
- Object.assign(this,{t:o.tuning,faction:o.faction,role:o.role,slot:o.slot||0,fleet:o.fleet,jutlandBoss:true,jutlandAirship:o.role==='observer',kind:'jutland-'+o.role,ownsMotion129:true,hullYaw:0,entryAge:0,shotClock:0,launchClock:0,driveVelocity:0,weaponCursor:0,phaseSeen:'ranging',anchorX:o.x,anchorY:o.y,width:o.role==='battleship'?254:o.role==='cruiser'?137:143,height:o.role==='battleship'?940:o.role==='cruiser'?610:430});
- for(const spec of specs)Object.assign(this.parts.get(spec.id),spec,{angle:-Math.PI/2,recoil:0});this.updateParts();}
- command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
- updateParts(){for(const p of this.parts.values()){Object.assign(p,jutlandRotate(p.localX,p.localY,this.hullYaw));if(p.destroyed&&Number.isFinite(p.wreckHullAngle))p.angle=this.hullYaw+p.wreckHullAngle;}}
- locateHit(s){if(this.entryAge<5||this.dead)return null;const x0=(s.previousX??s.x)-this.x,y0=(s.previousY??s.y)-this.y,x1=s.x-this.x,y1=s.y-this.y,r=s.radius||0;
- for(const p of this.parts.values())if(!p.destroyed&&segmentDistance(p.x,p.y,x0,y0,x1,y1)<=p.radius+r)return{partId:p.id};
- const a=jutlandRotate(x0,y0,-this.hullYaw),b=jutlandRotate(x1,y1,-this.hullYaw);return segmentDistance(0,0,a.x/(this.width*.43+r),a.y/(this.height*.46+r),b.x/(this.width*.43+r),b.y/(this.height*.46+r))<=1?{partId:null}:null;}
- hitAt(s){const h=this.locateHit(s);return h?this.hit({...h,damage:s.damage}):{damage:0,miss:true};}
- hit(a){if(!Number.isFinite(a.damage)||a.damage<0)throw new Error('Invalid damage');if(this.dead||this.entryAge<5)return{damage:0,blocked:true};const r=super.hit(a);if(a.partId&&r.damage){this.hp=Math.max(0,this.hp-r.damage);if(this.hp<=0)this.finish();}if(this.dead)this.finishCleanup();return{...r,bodyDefeated:this.dead};}
- finish(){if(this.dead)return;this.hp=0;this.dead=true;this.phase='defeated';this.command('body-defeated');this.finishCleanup();}
- finishCleanup(){if(this.deathHandled)return;this.deathHandled=true;this.destroyedAt=this.fleet.clock;this.pending=null;for(const p of this.parts.values()){p.aimTarget=null;this.command('cancel-hazards',{tag:this.id+':'+p.id});}this.command('cancel-hazards',{tag:this.id+':recon'});this.checkObserverRetreat();}
- checkObserverRetreat(){const bodies=this.fleet.bodies;if(bodies?.filter(b=>!b.jutlandAirship).every(b=>b.dead)){const observer=bodies.find(b=>b.jutlandAirship);if(observer&&!observer.dead){observer.retreating=true;observer.finish();}}}
- cancelPending(){if(this.pending){const p=this.parts.get(this.pending.partId);if(p)p.aimTarget=null;}this.pending=null;}
- onPartDestroyed(p){p.wreckHullAngle=p.angle-this.hullYaw;this.command('cancel-hazards',{tag:this.id+':'+p.id});p.aimTarget=null;if(this.pending?.partId===p.id)this.cancelPending();const phase={director:'jutland-director-lost',observer:'jutland-observer-lost',launch:'jutland-recon-disabled',torpedo:'jutland-tubes-lost',engine:'jutland-boilers-lost'}[p.kind];if(phase)this.command('phase-change',{phase});if(p.kind==='launch'){this.command('cancel-hazards',{tag:this.id+':recon'});this.reconPending=null;}
-  const weapons=[...this.parts.values()].filter(q=>!q.destroyed&&(q.kind==='gun'||q.kind==='torpedo'));if(!this.jutlandAirship&&!weapons.length){this.cancelPending();this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.14);this.phase='jutland-disarmed';this.command('phase-change',{phase:this.phase});}}
- observed(){const b=this.fleet.bodies.find(b=>b.jutlandAirship);return b&&!b.dead&&!b.parts.get('gondola').destroyed;}
- coordinated(){const b=this.fleet.bodies.find(b=>b.role==='battleship');return b&&!b.dead&&!b.parts.get('director').destroyed;}
- updateFleet(dt){if(this.fleet.bodies.find(b=>!b.dead)!==this)return;const f=this.fleet;f.clock+=dt;
-  // Last salvo: below 35% of the fleet's hull the surviving guns fire faster
-  // and every salvo carries one more shell.
-  if(!f.lastSalvo){let hp=0,max=0;for(const b of f.bodies)if(!b.jutlandAirship){hp+=Math.max(0,b.hp);max+=b.maxHp;}if(max&&hp<=max*.35){f.lastSalvo=true;this.command('phase-change',{phase:'jutland-last-salvo'});}}
-  const age=Math.max(0,f.clock-5)%JUTLAND_CYCLE,phase=age<10?'ranging':age<18?'crossing-turn':age<25?'crossing-fire':age<34?'turn-away':'reform';if(phase!==f.phase){f.phase=phase;for(const b of f.bodies){b.cancelPending?.();b.phaseSeen=phase;b.shotClock=phase==='crossing-fire'?-Math.max(0,b.slot)*.85:phase==='turn-away'&&b.role==='cruiser'?-(b.slot-1)*1.05:0;}this.command('phase-change',{phase:'jutland-'+phase});}this.checkObserverRetreat();}
- move(dt,players){
-  const phase=this.fleet.phase,turn=phase==='crossing-turn'||phase==='crossing-fire'?Math.PI/2:phase==='turn-away'?Math.PI:0,edge=Math.abs(this.x-this.anchorX)>650||Math.abs(this.y-this.anchorY)>600;
- // Turn-away presents a surviving tube broadside to the actual target;
- // a fixed southward course can keep both narrow tube arcs empty all phase.
- const live=players?.filter(p=>p.alive)||[],pilot=phase==='turn-away'&&this.role==='cruiser'&&[...this.parts.values()].some(p=>p.kind==='torpedo'&&!p.destroyed)?live[this.slot%Math.max(1,live.length)]:null;
- let target=edge?Math.atan2(this.anchorY-this.y,this.anchorX-this.x)+Math.PI/2:turn;
- if(pilot){const bearing=Math.atan2(pilot.y-this.y,pilot.x-this.x),port=this.parts.get('torpedo-port'),starboard=this.parts.get('torpedo-starboard'),choices=[];if(!starboard.destroyed)choices.push(bearing);if(!port.destroyed)choices.push(bearing-Math.PI);target=choices.sort((a,b)=>Math.abs(angleDelta(this.hullYaw,a))-Math.abs(angleDelta(this.hullYaw,b)))[0];}
- this.hullYaw=turnToward(this.hullYaw,target,this.jutlandAirship?.32:this.role==='battleship'?.12:.16,dt);const speed=this.jutlandAirship?19:this.parts.get('boilers')?.destroyed?11:this.role==='battleship'?52:64;
- const desired=this.entryAge<5?0:speed;this.driveVelocity+=Math.max(-10*dt,Math.min(8*dt,desired-this.driveVelocity));this.x+=Math.sin(this.hullYaw)*this.driveVelocity*dt;this.y-=Math.cos(this.hullYaw)*this.driveVelocity*dt;this.updateParts();if(!this.jutlandAirship)recordShipWake(this,dt,this.height);}
- weaponAim(p,target){const raw=Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x);if(p.kind==='torpedo'){const center=this.hullYaw+(p.localX<0?Math.PI:0),delta=angleDelta(center,raw),arc=.38;return{angle:center+Math.max(-arc,Math.min(arc,delta)),reachable:Math.abs(delta)<=arc};}const center=this.hullYaw-Math.PI/2,delta=angleDelta(center,raw),arc=2.7;return{angle:center+Math.max(-arc,Math.min(arc,delta)),reachable:Math.abs(delta)<=arc};}
- plan(target,kind){const pool=[...this.parts.values()].filter(p=>!p.destroyed&&p.kind===(kind==='torpedo'?'torpedo':'gun')),weapons=pool.filter(p=>this.weaponAim(p,target).reachable);if(!weapons.length)return;const p=weapons[this.weaponCursor++%weapons.length],point={x:target.x,y:target.y};p.aimTarget=point;if(kind==='shell'&&this.fleet.phase==='crossing-fire')p.angle=this.weaponAim(p,point).angle;this.pending={partId:p.id,target:point,kind};
- if(kind==='shell'){const count=(this.fleet.phase==='crossing-fire'&&this.coordinated()?4:3)+(this.fleet.lastSalvo?1:0),lead=this.observed()?.55:0,tx=point.x+(target.vx||0)*lead,ty=point.y+(target.vy||0)*lead,m=jutlandMuzzle(this,p),length=Math.hypot(tx-m.x,ty-m.y)||1,nx=-(ty-m.y)/length,ny=(tx-m.x)/length;// Crossing fire is one fleet problem: the flagship holds the measured
- // center, while the two cruisers close opposite sides of that same line.
- // Preserve the physical gun lay, shot count, delays and warning/rest budget.
- // Losing a cruiser leaves its lane open; director loss removes coordination.
- const flagship=this.fleet.bodies.find(b=>b.role==='battleship'),crossing=this.fleet.phase==='crossing-fire'&&this.coordinated(),lane=crossing&&this.role==='cruiser'?(this.slot===1?-1:1):0,axis=flagship?.hullYaw??this.hullYaw;
- this.pending.shots=Array.from({length:count},(_,i)=>{const step=i-(count-1)/2,offset=lane*88,side=lane?lane*step:step;return {x:tx+nx*side*88+Math.cos(axis)*offset,y:ty+ny*side*88+Math.sin(axis)*offset,radius:this.role==='battleship'?64:48,warning:this.observed()?1.35:2.1,delay:i*.48,damage:this.t.damage,tag:this.id+':'+p.id};});}}
- fire(dt){const a=this.pending;if(!a)return;const p=this.parts.get(a.partId);if(!p||p.destroyed){this.cancelPending();return;}const traverse=this.weaponAim(p,a.target);if(!traverse.reachable){this.cancelPending();return;}p.angle=turnToward(p.angle,traverse.angle,p.kind==='torpedo'?1:.85,dt);if(Math.abs(angleDelta(p.angle,traverse.angle))>.065)return;const m=jutlandMuzzle(this,p);p.recoil=.22;p.aimTarget=null;this.command('muzzle',{...m,partId:p.id});
- if(a.kind==='shell'){for(const [i,shot]of a.shots.entries())this.command('hazard',{kind:'circle',duration:.23,once:true,visual:'jutland-shell',...shot,sourceX:m.x,sourceY:m.y,sourcePartId:p.id,raidHeavy:i===a.shots.length-1,radius:i===a.shots.length-1?100:shot.radius});}
- else{const direction=p.angle;this.command('hazard',{kind:'beam',x:m.x,y:m.y,angle:direction,length:1250,thickness:22,damage:0,warning:2,duration:.05,visual:'jutland-track',tag:this.id+':'+p.id,sourcePartId:p.id});this.command('hazard',{kind:'projectile',x:m.x,y:m.y,vx:Math.cos(direction)*170,vy:Math.sin(direction)*170,radius:13,damage:this.t.damage*1.15,warning:2,duration:7,once:true,visual:'jutland-torpedo',tag:this.id+':'+p.id,sourcePartId:p.id});}this.pending=null;this.shotClock=0;}
- recon(dt,players){if(this.role!=='battleship'||this.parts.get('seaplane-deck').destroyed)return;this.launchClock+=dt;if(this.reconPending){this.reconPending.age+=dt;const present=(this.formationStatus129?.()||[]).some(p=>p.role==='jutland-recon');if(this.reconPending.age>=2){if(present)this.command('hazard',{kind:'circle',x:this.reconPending.x,y:this.reconPending.y,radius:52,damage:this.t.damage*.65,warning:2.5,duration:.4,once:true,visual:'jutland-shell',tag:this.id+':recon'});this.reconPending=null;}}
- if(this.launchClock<19||(this.countMinions129?.()||0)>=2)return;const target=players.find(p=>p.alive);if(!target)return;this.launchClock=0;const p=this.parts.get('seaplane-deck'),m={x:this.x+p.x,y:this.y+p.y};this.command('phase-change',{phase:'jutland-recon-pass'});this.command('spawn-minion',{minion:'jutland-recon',plane:this.faction==='central'?'ff33':'macchi_m3',behavior:'attack-pass',formationRole:'jutland-recon',x:m.x,y:m.y,a:Math.atan2(target.y-m.y,target.x-m.x),passTargetX:target.x,passTargetY:target.y,hp:42,life:7,fire:Infinity});this.reconPending={age:0,x:target.x,y:target.y};}
- hurry(){if(!this.pending&&!this.jutlandAirship)this.shotClock=Math.max(this.shotClock,99);return 'salvo';}
- update(dt,{players}){if(this.dead)return;this.updateFleet(dt);this.entryAge=Math.min(5,this.entryAge+dt);this.move(dt,players);for(const p of this.parts.values())p.recoil=Math.max(0,p.recoil-dt);if(this.entryAge<5||this.jutlandAirship)return;this.recon(dt,players);const phase=this.fleet.phase;if(this.phaseSeen!==phase){this.cancelPending();this.phaseSeen=phase;}if(phase==='crossing-turn'){this.cancelPending();return;}const live=players.filter(p=>p.alive),target=live[this.slot%Math.max(1,live.length)];if(!target)return;this.shotClock+=dt*Math.min(1.5,this.t.patternMultiplier||1);const interval=phase==='turn-away'&&this.role==='cruiser'?2.2:phase==='crossing-fire'?1.65:5.8;if(!this.pending&&this.shotClock>=interval*(this.fleet.lastSalvo?.78:1))this.plan(target,phase==='turn-away'&&this.role==='cruiser'?'torpedo':'shell');this.fire(dt);}
+export function jutlandMuzzle(b,p){
+ return {x:b.x+p.x+Math.cos(p.angle)*128,y:b.y+p.y+Math.sin(p.angle)*128};
 }
-export function createJutlandEncounter(o){const fleet={clock:0,phase:'ranging',cursor:0,bodies:[]},specs=[['battleship',0,0,.5],['cruiser',-780,100,.2],['cruiser',780,-80,.2],['observer',380,-800,.1]];const bodies=specs.map(([role,dx,dy,fraction],slot)=>new JutlandVessel({...o,id:o.id+':'+slot,role,slot,fleet,tuning:{...o.tuning,maxHp:o.tuning.maxHp*fraction},x:o.x+dx,y:o.y+dy}));fleet.bodies=bodies;const fleetShips=bodies.filter(b=>b.jutlandBoss&&!b.jutlandAirship);const encounter=new BossEncounter({id:o.id,bossId:o.bossId,bodies}),update=encounter.update.bind(encounter);encounter.update=(dt,frame)=>{update(dt,frame);if(!frame.paused)separateBossFleet(fleetShips);};return encounter;}
+
+export class JutlandVessel extends BaseBoss{
+ constructor({id,x,y,tuning,faction='central',emit}){
+  super({id,x,y,maxHp:tuning.maxHp*.78,coreRadius:72,emit,
+   parts:PARTS.map(spec=>new BossPart({id:spec.id,maxHp:tuning.maxHp*.78*spec.fraction,radius:spec.radius,kind:spec.kind}))});
+  Object.assign(this,JUTLAND_HULL,{t:tuning,faction,role:'battleship',jutlandBoss:true,kind:'jutland-battleship',ownsMotion129:true,ownsLeadAim:true,
+   hullYaw:0,anchorX:x,anchorY:y,entryAge:0,driveVelocity:0,attackStep:'approach',attackTime:.85,volleyCount:0});
+  for(const spec of PARTS)Object.assign(this.parts.get(spec.id),spec,{localX:0,angle:-Math.PI/2,recoil:0});
+  this.updateParts();
+ }
+ command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
+ updateParts(){
+  for(const p of this.parts.values()){
+   Object.assign(p,jutlandRotate(p.localX,p.localY,this.hullYaw));
+   if(p.destroyed)p.angle=this.hullYaw+p.wreckHullAngle;
+  }
+ }
+ locateHit(s){
+  if(this.entryAge<JUTLAND_ENTRY_SECONDS||this.dead)return null;
+  const x0=(s.previousX??s.x)-this.x,y0=(s.previousY??s.y)-this.y,x1=s.x-this.x,y1=s.y-this.y,r=s.radius||0;
+  for(const p of this.parts.values())if(!p.destroyed&&segmentDistance(p.x,p.y,x0,y0,x1,y1)<=p.radius+r)return {partId:p.id};
+  const a=jutlandRotate(x0,y0,-this.hullYaw),b=jutlandRotate(x1,y1,-this.hullYaw);
+  const w=this.width*.47+r,h=this.height*.49+r;
+  return segmentDistance(0,0,a.x/w,a.y/h,b.x/w,b.y/h)<=1?{partId:null}:null;
+ }
+ hitAt(s){
+  const hit=this.locateHit(s);
+  return hit?this.hit({...hit,damage:s.damage}):{damage:0,miss:true};
+ }
+ hit(a){
+  if(!Number.isFinite(a.damage)||a.damage<0)throw new Error('Invalid damage');
+  if(this.entryAge<JUTLAND_ENTRY_SECONDS||this.dead)return {damage:0,blocked:true};
+  const result=super.hit(a);
+  if(a.partId&&result.damage)this.hp=Math.max(0,this.hp-result.damage);
+  if(this.hp<=0)this.finish();
+  return {...result,bodyDefeated:this.dead};
+ }
+ finish(){
+  this.hp=0;
+  if(!this.dead){this.dead=true;this.phase='defeated';this.command('body-defeated');}
+  if(this.deathHandled)return;
+  this.deathHandled=true;
+  this.pending=null;
+  for(const id of GUNS)this.command('cancel-hazards',{tag:this.id+':'+id});
+ }
+ onPartDestroyed(part){
+  part.wreckHullAngle=angleDelta(this.hullYaw,part.angle);
+  if(part.id==='director'){
+   if(this.attackStep==='disarmed')return;
+   for(const id of GUNS)this.command('cancel-hazards',{tag:this.id+':'+id,pendingOnly:true});
+   this.reload(4.2,'jutland-director-lost');
+   return;
+  }
+  this.command('cancel-hazards',{tag:this.id+':'+part.id,pendingOnly:true});
+  if(GUNS.every(id=>this.parts.get(id).destroyed)){
+   this.pending=null;this.attackStep='disarmed';this.hp=Math.min(this.hp,this.maxHp*.14);
+   this.command('phase-change',{phase:'jutland-disarmed'});
+  }else this.command('phase-change',{phase:'jutland-'+part.id+'-lost'});
+ }
+ counterWindow(){return this.attackStep==='reload'||this.attackStep==='disarmed'?1.6:super.counterWindow();}
+ reload(seconds,phase='jutland-reload'){
+  this.pending=null;this.attackStep='reload';this.attackTime=seconds;
+  this.command('phase-change',{phase});
+ }
+ hurry(){
+  if(this.attackStep==='approach')this.attackTime=Math.min(this.attackTime,.15);
+  return 'broadside';
+ }
+ move(dt){
+  const dx=this.anchorX-this.x,dy=this.anchorY-this.y;
+  const returning=Math.hypot(dx,dy)>490;
+  if(returning&&this.attackStep!=='turn'&&this.attackStep!=='aim')this.hullYaw=turnToward(this.hullYaw,Math.atan2(dy,dx)+Math.PI/2,.43*dt);
+  const desired=this.entryAge<JUTLAND_ENTRY_SECONDS?0:returning&&this.pending?0:this.attackStep==='turn'?25:39;
+  this.driveVelocity+=Math.max(-20*dt,Math.min(18*dt,desired-this.driveVelocity));
+  this.x+=Math.sin(this.hullYaw)*this.driveVelocity*dt;
+  this.y-=Math.cos(this.hullYaw)*this.driveVelocity*dt;
+  this.updateParts();
+  if(this.driveVelocity>1)recordShipWake(this,dt,this.height);
+ }
+ beginBroadside(target){
+  const bearing=Math.atan2(target.y-this.y,target.x-this.x);
+  const left=bearing-Math.PI/2,right=bearing+Math.PI/2;
+  const yaw=Math.abs(angleDelta(this.hullYaw,left))<Math.abs(angleDelta(this.hullYaw,right))?left:right;
+  this.pending={targetId:target.id,yaw};
+  this.attackStep='turn';this.attackTime=.95;
+  this.command('phase-change',{phase:'jutland-broadside-turn'});
+ }
+ lockBroadside(target){
+  const coordinated=!this.parts.get('director').destroyed,last=this.hp<=this.maxHp*.33;
+  const live=GUNS.filter(id=>!this.parts.get(id).destroyed);
+  const guns=coordinated?live:[live[this.volleyCount%live.length]];
+  const heading=jutlandRotate(0,-1,this.hullYaw);
+  const lead=coordinated?(last?2.2:2.45):.75;
+  const vx=target.vx||0,vy=target.vy||0,leadTime=Math.min(lead,540/(Math.hypot(vx,vy)||1));
+  const x=target.x+vx*leadTime,y=target.y+vy*leadTime;
+  const bias=this.volleyCount%2?48:-48,separation=last?126:102;
+  const lanes=guns.map(id=>{
+   const offset=LANES[id].side*separation+bias;
+   return {id,x:x+heading.x*offset,y:y+heading.y*offset};
+  });
+  const crescendo=coordinated&&this.volleyCount%3===1;
+  this.pending={lanes,heading,coordinated,last,crescendo};
+  this.attackStep='aim';this.attackTime=crescendo?1.2:.85;
+  this.command('phase-change',{phase:'jutland-aim-locked'});
+ }
+ layGuns(dt){
+  let aligned=true;
+  for(const {id,x,y} of this.pending.lanes){
+   const p=this.parts.get(id);if(p.destroyed)continue;
+   const aim=Math.atan2(y-this.y-p.y,x-this.x-p.x);
+   p.angle=turnToward(p.angle,aim,4.4*dt);
+   aligned&&=Math.abs(angleDelta(p.angle,aim))<.09;
+  }
+  return aligned;
+ }
+ fireBroadside(){
+  const {lanes,coordinated,last,crescendo}=this.pending;
+  const armed=lanes.filter(lane=>!this.parts.get(lane.id).destroyed);
+  if(!armed.length){this.reload(2.2);return;}
+  const slots=last&&coordinated?3:2,rounds=slots*(crescendo?3:1),warning=crescendo?2.15:coordinated?(last?1.6:1.8):2.1;
+  const lastImpact=Math.max(...armed.map(({id})=>coordinated?LANES[id].delay+(rounds-1)*LANES[id].interval:.3));
+  this.pending={...this.pending,lanes:armed,rounds,slots,warning,elapsed:0};
+  this.attackStep='fall';this.attackTime=warning+lastImpact+.34;
+  this.volleyCount++;
+  this.command('phase-change',{phase:coordinated?(last?'jutland-last-salvo':'jutland-broadside-fire'):'jutland-blind-salvo'});
+  this.fireReadyLanes();
+ }
+ fireReadyLanes(){
+  const {lanes,heading,coordinated,last,rounds,slots,warning,elapsed}=this.pending;
+  for(const lane of lanes){
+   const spec=LANES[lane.id],p=this.parts.get(lane.id);
+   if(lane.fired||p.destroyed||coordinated&&elapsed+1e-8<spec.delay)continue;
+   lane.fired=true;
+   const m=jutlandMuzzle(this,p);p.recoil=.22;
+   this.command('muzzle',{...m,partId:p.id});
+   for(let i=0;i<rounds;i++){
+    // Three ripples reuse the locked impact slots; the escape lane never shrinks.
+    const offset=(i%slots-(slots-1)/2)*52,heavy=coordinated&&i===rounds-1;
+    const delay=i*(coordinated?spec.interval:.3);
+    this.command('hazard',{kind:'circle',visual:'jutland-shell',x:lane.x+heading.x*offset,y:lane.y+heading.y*offset,
+     sourceX:m.x,sourceY:m.y,sourcePartId:p.id,tag:this.id+':'+p.id,once:true,warning,delay,
+     duration:.23,radius:heavy?spec.radius+(last?10:0):43,damage:this.t.damage*(coordinated?1:.7),raidHeavy:heavy});
+   }
+  }
+  if(lanes.every(lane=>lane.fired||this.parts.get(lane.id).destroyed))this.pending=null;
+ }
+ update(dt,{players=[]}){
+  this.entryAge=Math.min(JUTLAND_ENTRY_SECONDS,this.entryAge+dt);
+  for(const p of this.parts.values())p.recoil=Math.max(0,p.recoil-dt);
+  if(this.attackStep==='turn')this.hullYaw=turnToward(this.hullYaw,this.pending.yaw,.58*dt);
+  this.move(dt);
+  if(this.entryAge<JUTLAND_ENTRY_SECONDS||this.attackStep==='disarmed')return;
+  this.attackTime-=dt;
+  if(this.attackStep==='fall'){
+   if(this.pending){this.pending.elapsed+=dt;this.fireReadyLanes();}
+   if(this.attackTime<=0)this.reload(3.6);
+   return;
+  }
+  if(this.attackStep==='aim'){
+   const aligned=this.layGuns(dt);
+   if(this.attackTime<=0&&aligned)this.fireBroadside();
+   return;
+  }
+  if(this.attackTime>0)return;
+  const live=players.filter(p=>p.alive),target=live.find(p=>p.id===this.pending?.targetId)||live[this.volleyCount%live.length];
+  if(!target){if(this.pending)this.reload(.8);return;}
+  if(this.attackStep==='turn'){
+   if(Math.abs(angleDelta(this.hullYaw,this.pending.yaw))>.05)return;
+   this.lockBroadside(target);
+  }else this.beginBroadside(target);
+ }
+}
+
+export function createJutlandEncounter(o){
+ const flagship=new JutlandVessel({...o,id:o.id+':0'});
+ return new BossEncounter({id:o.id,bossId:o.bossId,bodies:[flagship]});
+}
 

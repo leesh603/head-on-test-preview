@@ -1,7 +1,7 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=09c75d146ae4289d';
+import {impactMark,aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
+import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=09c75d146ae4289d';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=09c75d146ae4289d';
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({

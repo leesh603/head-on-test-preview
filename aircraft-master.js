@@ -1,4 +1,4 @@
-import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS,pilotAircraftChoices} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS,pilotAircraftChoices} from './pilot-aircraft.js?v=09c75d146ae4289d';
 // Identity and display metadata only. No art paths, render geometry or combat values.
 // Catalog presence does NOT register a fit, unlock a sortie or activate a pilot.
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.
@@ -200,6 +200,11 @@ for(const [id,fit] of Object.entries(SORTIE_FITS))if(!identityRows.some(r=>r[0]=
  identityRows.push([id,fit.name,faction,null,fit.base,id,['sortie']]);
 }
 
+const liveryLabels=Object.freeze({
+  baron_albatros_d5_redwings:['적색 날개','Red wings'],
+  baron_albatros_d5_red:['전면 적색','All red'],
+});
+const ownerSuffix=(id,owner,index)=>owner?`(${owner[index]}${liveryLabels[id]?' · '+liveryLabels[id][index]:''})`:'';
 export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map(
   ([aircraftId, modelName, faction, exclusivePilotId, baseAirframeId, simulationId, tags]) => {
     const owner = exclusivePilotId ? ownerLabels[exclusivePilotId] : null;
@@ -207,8 +212,8 @@ export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map
       aircraftId, modelName, faction, exclusivePilotId, baseAirframeId, simulationId,
       category: owner ? 'exclusive' : 'basic',
       tags: Object.freeze(tags),
-      displayNameKo: modelName + (owner ? `(${owner[0]})` : ''),
-      displayNameEn: modelName + (owner ? `(${owner[1]})` : ''),
+      displayNameKo: modelName + ownerSuffix(aircraftId,owner,0),
+      displayNameEn: modelName + ownerSuffix(aircraftId,owner,1),
     })];
   }
 )));
@@ -248,7 +253,7 @@ export function getAircraftDisplayName(id, pilotId = null, locale = 'ko', fallba
   const dedicatedOwner = candidates.length === 1 && (Object.hasOwn(SORTIE_FITS, id) || meta.modelName.includes(' · ')) ? candidates[0][0] : null;
   const owner = ownerLabels[meta.exclusivePilotId || selectedOwner || dedicatedOwner];
   const model = meta.modelName.split(' · ')[0];
-  return owner ? model + `(${owner[locale === 'en' ? 1 : 0]})`
+  return owner ? model + ownerSuffix(meta.aircraftId,owner,locale === 'en' ? 1 : 0)
     : (locale === 'en' ? meta.displayNameEn : meta.displayNameKo);
 }
 

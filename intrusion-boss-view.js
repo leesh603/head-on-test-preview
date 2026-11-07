@@ -1,13 +1,16 @@
-import {giantArrivalShadowPose} from './giant-intrusion-arrival.js';
-import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
+import {giantArrivalShadowPose} from './giant-intrusion-arrival.js?v=09c75d146ae4289d';
+import {isNewSubmarine} from './submarine-intrusion.js?v=09c75d146ae4289d';
+import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js?v=09c75d146ae4289d';
 
-import {isMaritimeIntrusion,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js';
-import {drawShipWater} from './naval-water.js?v=tame3&perf=1029';
-import {fx} from './fx-art.js';
-import {getLocale} from './i18n.js';
+import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js?v=09c75d146ae4289d';
+import {drawShipWater,drawTorpedo} from './naval-water.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {getLocale} from './i18n.js?v=09c75d146ae4289d';
 
 export {intrusionArtReady};
 export const INTRUSION_COPY=Object.freeze({
+ uboat:{ko:'U-35',en:'U-35',tactic:'갑판포를 피하고 어뢰 발사관을 파괴하세요.',tacticEn:'Evade guns; break torpedo tubes.'},
+ m1:{ko:'HMS M1',en:'HMS M1',tactic:'주포 예고를 피하고 재장전 중 공격하세요.',tacticEn:'Dodge shells; attack on reload.'},
  'linke-hofmann-r-ii':{ko:'링케호프만 R.II',en:'Linke-Hofmann R.II',tactic:'후방 기총을 피하고 구동부를 끊어라',tacticEn:'Evade the rear guns, break the shared drive'},
  'handley-page-v1500':{ko:'핸들리 페이지 V/1500',en:'Handley Page V/1500',tactic:'폭격 항로를 벗어나 앞뒤 엔진을 끊어라',tacticEn:'Leave the bomb lane, disable the tandem engines'},
  dreadnought:{ko:'드레드노트',en:'Dreadnought',tactic:'대공포를 끊고 포격 사이로 진입하라',tacticEn:'Silence the AA, evade the heavy guns'},
@@ -37,7 +40,7 @@ export function intrusionHudModel(g,locale='ko'){
  const en=locale==='en',parts=Object.values(e.parts||{}).filter(p=>p.kind!=='core');
  return {name:en?copy.en:copy.ko,tactic:isMaritimeIntrusion(e)?maritimeTactic(e,locale):(en?copy.tacticEn:copy.tactic),hp:Math.max(0,e.hp),maxHp:e.maxHp,
  remaining:Math.ceil(Math.max(0,45-(e.activeAge||0))),broken:parts.filter(p=>p.hp<=0).length,total:parts.length,
- phase:e.phase,phaseLabel:({warning:en?'INCOMING':'접근 중',entering:en?'INCOMING':'진입 중',retreating:en?'WITHDRAWING':'이탈 중',destroyed:isMaritimeIntrusion(e)?(en?'SUNK':'격침'):(en?'DESTROYED':'격추')})[e.phase]||(e.profileId==='nachtwal'&&e.naval&&e.naval.phase!=='surfaced'?(en?'TRACK THE WAKE':'항적 추적'):null)};
+ phase:e.phase,phaseLabel:({warning:en?'INCOMING':'접근 중',entering:en?'INCOMING':'진입 중',retreating:en?'WITHDRAWING':'이탈 중',destroyed:isMaritimeIntrusion(e)?(en?'SUNK':'격침'):(en?'DESTROYED':'격추')})[e.phase]||(isSubmarine(e)&&e.naval&&e.naval.phase!=='surfaced'?(en?'TRACK THE WAKE':'항적 추적'):null)};
 }
 /** Poll on simulation time, not wall time: pause/reconnect cannot replay or consume an arrival. */
 export function intrusionCutinModel(g,seen,locale='ko'){
@@ -55,7 +58,7 @@ function drawMaritimeWater(c,e,point,z){
  const map=(x,y)=>{const p=point(x,y);return[p.x,p.y];};
  const trail=(n.wakeTrail||[]).slice().reverse().map(p=>({...p,x:p.x-Math.sin(p.a+Math.PI/2)*waterHeight*e.scale*.43,y:p.y+Math.cos(p.a+Math.PI/2)*waterHeight*e.scale*.43}));
  drawShipWater(c,{...e,waterTime:n.clock||e.age,wakeTrail:trail,driveVelocity:Math.max(0,e.driveVelocity||0)},w,h,map);
- if(e.profileId==='nachtwal'&&['diving','submerged','surfacing'].includes(n.phase)){
+ if(isSubmarine(e)&&['diving','submerged','surfacing'].includes(n.phase)){
   // Bubbles follow the actual moving submarine; destination foam previews emergence.
   const p=point(e.x,e.y),pulse=1+.08*Math.sin((n.clock||0)*7);
   fx(c,'foamRing',p.x,p.y,w*.9*pulse,w*1.4*pulse,0,.55);
@@ -65,7 +68,16 @@ function drawMaritimeWater(c,e,point,z){
 }
 /** The control tower is baked into the original hull: damage is an explicit FX-only cue. */
 function drawMaritimeDamage(c,e,point,z){
- if(e.profileId!=='nachtwal'||!(e.parts?.dive_control?.hp<=0))return;
+ if(isNewSubmarine(e)){
+  if(e.naval?.phase!=='surfaced')return;
+  const a=e.a+Math.PI/2,cs=Math.cos(a),sn=Math.sin(a);
+  for(const t of profileLayout(e.profileId).targets){const part=e.parts?.[t.id];if(t.id==='core'||!part||part.hp>part.maxHp*.5)continue;
+   const p=point(e.x+e.scale*(t.x*cs-t.y*sn),e.y+e.scale*(t.x*sn+t.y*cs)),w=Math.max(8,t.rx*2*e.scale*z);
+   fx(c,'fire',p.x,p.y,w*.65,w,0,.85);fx(c,'smokeDark',p.x,p.y-w*.6,w,w*1.7,-.12,.7);
+  }return;
+ }
+
+ if(!isSubmarine(e)||!(e.parts?.dive_control?.hp<=0))return;
  const target=profileLayout(e.profileId).targets.find(p=>p.id==='dive_control');if(!target)return;
  const a=e.a+Math.PI/2,cs=Math.cos(a),sn=Math.sin(a);
  const p=point(e.x+e.scale*(target.x*cs-target.y*sn),e.y+e.scale*(target.x*sn+target.y*cs));
@@ -77,7 +89,7 @@ function drawMaritimeDamage(c,e,point,z){
 export function maritimeEdgeGuide(g,W,H){
  const e=g?.intrusionBoss;
  if(!intrusionVisible(g)||!isMaritimeIntrusion(e)||!['entering','active'].includes(e.phase)||!(W>0&&H>0))return null;
- const target=e.profileId==='nachtwal'&&['diving','submerged','surfacing'].includes(e.naval?.phase)&&e.naval.destination?e.naval.destination:e;
+ const target=isSubmarine(e)&&['diving','submerged','surfacing'].includes(e.naval?.phase)&&e.naval.destination?e.naval.destination:e;
  const z=g.camera?.zoom||1,dx=(target.x-g.x)*z,dy=(target.y-g.y)*z;
  if(!Number.isFinite(dx)||!Number.isFinite(dy))return null;
  if(Math.abs(dx)<=W/2+24&&Math.abs(dy)<=H/2+24)return null;
@@ -105,8 +117,9 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
  if(layer!=='hazards'&&intrusionArtReady(e.profileId)){
   c.save();
   const maritime=isMaritimeIntrusion(e);
-  if(maritime&&e.phase!=='warning')drawMaritimeWater(c,e,point,z);
+  if(maritime&&(e.phase!=='warning'||isNewSubmarine(e)&&e.contactPlaced))drawMaritimeWater(c,e,point,z);
   if(e.phase==='warning'&&maritime){
+   if(isNewSubmarine(e)&&e.contactPlaced)drawIntrusionBoss(c,e,point(e.x,e.y),e.scale*z);
    // A sea contact approaches at the waterline; never use the aircraft flyover shadow.
    // Cut-in/HUD warns first; the world contact is placed once at entry, not teleported visibly.
   }else if(e.phase==='warning'&&['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId)){
@@ -116,8 +129,8 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
    c.globalAlpha=.2;c.filter='brightness(0)';
    drawIntrusionBoss(c,{...e,a:Math.PI/2},{x:W*.5,y:-H*.15+Math.min(1,e.phaseAge/4)*H*.9},e.scale*z);
   }else{
-   if(maritime){c.globalAlpha=maritimeOpacity(e);if(e.phase==='entering')c.globalAlpha*=Math.min(1,e.phaseAge/1.2);if(e.phase==='retreating')c.globalAlpha*=Math.max(0,1-e.phaseAge/3);}
-   if(e.phase==='destroyed')c.globalAlpha*=['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId)?Math.max(0,Math.min(1,((e.profileId==='linke-hofmann-r-ii'?2.65:2.9)-e.phaseAge)/.35)):Math.max(0,1-e.phaseAge/(maritime?1:3));
+   if(maritime){c.globalAlpha=maritimeOpacity(e);if(e.phase==='entering'&&!isNewSubmarine(e))c.globalAlpha*=Math.min(1,e.phaseAge/1.2);if(e.phase==='retreating')c.globalAlpha*=Math.max(0,1-e.phaseAge/3);}
+   if(e.phase==='destroyed')c.globalAlpha*=Math.max(0,1-e.phaseAge/(maritime?1:3));
    const position=point(e.x,e.y);
    if(!maritime){
     // Use the same subtle ground-shadow cue as ordinary aircraft, with the exact
@@ -133,6 +146,7 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
   c.restore();
  }
  if(layer==='bodies')return;
+ for(const q of e.naval?.torpedoes||[]){const p=point(q.x,q.y);if(q.age<q.warning){fx(c,'foamRing',p.x,p.y,30*z,30*z,0,.7);continue;}c.save();c.translate(p.x,p.y);c.scale(z*.45,z*.45);drawTorpedo(c,{...q,x:0,y:0});c.restore();}
  drawMaritimeGuide(c,g,W,H);
  c.save();c.lineWidth=1.5;c.strokeStyle='#ffdba4';c.fillStyle='#d56a4f';
  for(const h of e.hazards||[]){const p=point(h.x,h.y),r=h.radius*z,q=Math.min(1,h.age/Math.max(.01,h.warning));

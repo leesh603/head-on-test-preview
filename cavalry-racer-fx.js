@@ -1,8 +1,8 @@
 // Baracca: one dark charge body. Rickenbacker: cowl glints and real radial guns.
 // Presentation observers only; projectile bodies and every combat rule stay intact.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {headOnTarget} from './engagement-feedback.js?v=tame3';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {headOnTarget} from './engagement-feedback.js?v=09c75d146ae4289d';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=09c75d146ae4289d';
 export const CAVALRY_RACER_PILOTS=new Set(['baracca','rickenbacker']);
 const INSTALLED=Symbol.for('headon.cavalry-racer-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

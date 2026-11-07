@@ -1,28 +1,29 @@
-import {drawHuffzkyRearCue} from './huffzky-rear-fx.js';
-import {drawGontermannPhaseCue} from './gontermann-phase-fx.js';
-import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue,drawNungesserWorld,drawBarkerDamageWake} from './death-defiance-fx.js?v=deathdefiance1';
-import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=pressurelink1';
-import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=crew20261024';
-import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=firedive1';
-import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=escortfx1';
-import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=cavalryracer1';
-import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
-import {COMMAND_PILOTS,drawCommandWorld,drawCommandLocal,drawCommandCue} from './command-flight-fx.js?v=commandfx2';
-import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js';
-import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js';
-import {METAL_PILOTS,drawMetalWake,drawMetalLocal,drawMetalGuns,drawMetalCue} from './metal-pilot-fx.js';
-import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilot-cloud-survival-fx.js';
-import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
-import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
-import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
-import {drawImmelmannEnergy,drawImmelmannWake} from './immelmann-energy-fx.js';
-import {drawMckeeverGuns} from './mckeever-crossfire-fx.js';
-import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
+import {drawHuffzkyRearCue} from './huffzky-rear-fx.js?v=09c75d146ae4289d';
+import {drawBaraccaHeraldry} from './baracca-heraldry-fx.js?v=09c75d146ae4289d';
+import {drawGontermannPhaseCue} from './gontermann-phase-fx.js?v=09c75d146ae4289d';
+import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue,drawNungesserWorld,drawBarkerDamageWake} from './death-defiance-fx.js?v=09c75d146ae4289d';
+import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=09c75d146ae4289d';
+import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=09c75d146ae4289d';
+import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=09c75d146ae4289d';
+import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=09c75d146ae4289d';
+import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=09c75d146ae4289d';
+import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=09c75d146ae4289d';
+import {COMMAND_PILOTS,drawCommandWorld,drawCommandLocal,drawCommandCue} from './command-flight-fx.js?v=09c75d146ae4289d';
+import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js?v=09c75d146ae4289d';
+import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js?v=09c75d146ae4289d';
+import {METAL_PILOTS,drawMetalWake,drawMetalLocal,drawMetalGuns,drawMetalCue} from './metal-pilot-fx.js?v=09c75d146ae4289d';
+import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilot-cloud-survival-fx.js?v=09c75d146ae4289d';
+import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js?v=09c75d146ae4289d';
+import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js?v=09c75d146ae4289d';
+import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js?v=09c75d146ae4289d';
+import {drawImmelmannEnergy,drawImmelmannWake} from './immelmann-energy-fx.js?v=09c75d146ae4289d';
+import {drawMckeeverGuns} from './mckeever-crossfire-fx.js?v=09c75d146ae4289d';
+import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=09c75d146ae4289d';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
-import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {signatureWingPositions} from './pilot-signature-geometry.js';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {bishopFlightHeight} from './engine.js?v=09c75d146ae4289d';
+import {signatureWingPositions} from './pilot-signature-geometry.js?v=09c75d146ae4289d';
+import {drawTracerBolt} from './projectiles.js?v=09c75d146ae4289d';
 const TAU=Math.PI*2;
 const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
@@ -121,7 +122,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
    case 'deathDeflect':{c.rotate(e.a-p.a);for(const side of [-1,1])texture(c,'smokeDark',-9+time*18,side*(9+time*31),30+time*25,17,side*.4,.38*(1-q));texture(c,'fireSmall',time*11,0,12*(1-q)+5,14,0,.8*(1-q));texture(c,'spark',time*18,5-time*14,14,8,time,.75*(1-q));break;}
    case 'fogTear':{c.rotate(e.a-p.a);for(const side of [-1,1])texture(c,'smokeDark',0,side*(6+Math.sin(q*Math.PI)*17),31,14,side*.25,.24*(1-q));break;}
    case 'deathRelease':for(let i=0;i<7;i++){const a=i*TAU/7,r=18+q*70;texture(c,'smokeDark',Math.cos(a)*r,Math.sin(a)*r,49+q*18,31+q*15,a,.32*(1-q));texture(c,'fireSmall',Math.cos(a)*r*.65,Math.sin(a)*r*.65,7,9,a,.5*(1-q));}break;
-   
+
    case 'deathKnight':
     for(const side of [-1,1])texture(c,'smokeDark',-8,side*(27*(1-q)),74-q*12,38+q*16,Math.PI+side*q*.4,.58*(1-q));
     if(time<.16)for(const side of [-1,1])texture(c,'fireSmall',-15,side*23,5,9,0,.5*(1-time/.16));break;
@@ -359,7 +360,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
     if(p.pilot==='lothar')drawLotharGuns(c,p,lotharTexture);
     if(p.pilot==='immelmann')drawImmelmannEnergy(c,p,lotharTexture,true);
 
-    if(p.pilot==='baracca'&&(p.chargeTime>0||p.prancingHorseFlash160>0||s.effects.some(e=>e.kind==='cavalryHeadOn'))){
+    if(p.pilot==='baracca'&&!drawBaraccaHeraldry(c,p,insignia)&&p.prancingHorseFlash160>0){
      c.save();c.rotate(Math.PI/2);c.globalAlpha*=.82;insignia(c,'baraccaHorse',0,5,16,s.clock);c.restore();
     }
    }

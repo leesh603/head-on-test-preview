@@ -1,4 +1,4 @@
-import {JUTLAND_RECTS} from './jutland-atlas.js?v=tame3';
+import {JUTLAND_RECTS} from './jutland-atlas.js?v=09c75d146ae4289d';
 
 // Measured turntable centers and barrel joints in the original 1254px sheet.
 // Damage columns are registered to the same deck station, never rescaled to fit.

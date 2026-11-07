@@ -78,14 +78,14 @@ export const PILOT_IDENTITY_COPY={
  ["정밀의 에이스","필살의 일제사격","같은 적을 안정적으로 조준하면 이동 방향을 앞서 겨냥합니다.","짧게 준비한 뒤 한 방향으로 강력한 관통 일제사격을 가합니다.","같은 적을 기수 정면에 안정적으로 조준하면 이동 방향을 앞서 겨냥합니다. 발사된 탄은 휘지 않습니다.","짧게 준비한 뒤 한 방향으로 강력한 관통 점사를 한 차례 가합니다. 탄약이 필요하며 재장전 중에는 사용할 수 없습니다."],
  ["Precision Ace","Decisive Volley","Steady aim on one enemy leads its movement.","Prepare briefly, then fire a powerful piercing volley along a fixed heading.","Keep an enemy steadily in front of the nose to lead its movement. Rounds never home after firing.","After a brief preparation, fire one powerful piercing volley along a fixed heading. Requires ammunition and cannot be used while reloading."]),
  collishaw:entry(
- ["블랙 플라이트","삼연 강습","검은 삼엽기 윙맨이 서로 다른 적을 견제합니다.","지원기 두 대가 발동 방향에 종대로 진입해 시간차로 사격합니다.","검은 삼엽기 윙맨 2기가 서로 다른 적을 압박합니다.","6초간 지원기 두 대가 발동 방향의 같은 사선에 종대로 진입해 시간차로 사격한 뒤 호위 대형으로 복귀합니다. 본기는 직접 조종하며 무적 효과는 없습니다."],
- ["Black Flight","Threefold Assault","Black Flight wingmen pressure separate enemies.","Two wingmen enter a column along the activation heading and fire in sequence.","Two permanent Black Flight wingmen pressure separate enemies.","For 6 seconds, two wingmen enter the same attack lane along the activation heading, fire in sequence, then return to escort formation. You retain control of your aircraft, without invulnerability."]),
+ ["블랙 플라이트","삼연 강습","검은 삼엽기 윙맨이 서로 다른 적을 견제합니다.","두 호위기가 같은 표적을 두 차례 교차 강습하며 각각 3점사를 가합니다.","검은 삼엽기 윙맨 2기가 서로 다른 적을 압박합니다.","6초간 두 호위기가 같은 표적에 시간차로 진입해 각각 3점사를 가하고, 선회하여 한 차례 더 공격한 뒤 복귀합니다. 표적이 격추되면 다른 적을 찾습니다. 본기는 직접 조종하며 무적 효과는 없습니다."],
+ ["Black Flight","Threefold Assault","Black Flight wingmen pressure separate enemies.","Two wingmen cross-attack one target twice, firing a three-round burst on each pass.","Two permanent Black Flight wingmen pressure separate enemies.","For 6 seconds, two wingmen attack one target in sequence with three-round bursts, bank around for a second attack, then rejoin. They acquire another enemy if the target is destroyed. You retain control, without invulnerability."]),
  baracca:entry(
  ["바라카의 말","카발리노 람판테","적과 정면으로 교전하면 기관총 피해가 증가합니다.","잠시 무적 상태로 돌진하며 경로상의 적에게 피해를 줍니다.","적과 정면으로 맞붙으면 기관총 피해가 증가합니다.","잠시 무적이 되어 정면으로 돌격하고 경로상의 적에게 피해를 줍니다."],
  ["Baracca's Horse","Cavallino Rampante","Head-on engagements increase machine-gun damage.","Charge while briefly invulnerable, damaging enemies in your path.","Deal more machine-gun damage in a head-on engagement.","Charge straight ahead, briefly invulnerable, damaging enemies in your path."]),
  guynemer:entry(
- ["모퇴르 카농","황새의 포화","주기적으로 전방에 강력한 관통 기관포를 발사합니다.","여러 방향으로 르 프리외르 로켓을 발사합니다.","4초마다 전방으로 강력한 관통 기관포를 발사합니다.","3초간 르 프리외르 로켓을 여러 방향으로 쏟아냅니다."],
- ["Moteur-Canon","Stork Barrage","Periodically fire a powerful piercing cannon round ahead.","Fire Le Prieur rockets in multiple directions.","Fire a powerful piercing cannon round ahead every 4 seconds.","Unleash Le Prieur rockets in multiple directions for 3 seconds."]),
+ ["모퇴르 카농","황새의 포화","주기적으로 전방에 강력한 관통 기관포를 발사합니다.","양날개에서 교대로 르 프리외르 로켓을 발사합니다.","4초마다 전방으로 강력한 관통 기관포를 발사합니다.","3초간 양날개에서 3발씩 교대로 발사해, 로켓 6발 포화를 총 8회 퍼붓습니다."],
+ ["Moteur-Canon","Stork Barrage","Periodically fire a powerful piercing cannon round ahead.","Alternate three Le Prieur rockets from each wing.","Fire a powerful piercing cannon round ahead every 4 seconds.","For 3 seconds, alternate three rockets from each wing for eight six-rocket waves."]),
  bishop:entry(
  ["근접 사냥","게릴라 나이트","적에게 가까울수록 기관총 피해가 증가합니다.","화면 밖으로 상승한 뒤 재진입하며 폭탄을 투하합니다.","적에게 가까이 접근할수록 기관총 피해가 증가합니다.","화면 밖으로 상승 후 재진입하며 폭탄 8발을 투하합니다."],
  ["Close Hunter","Guerrilla Night","Closing on enemies increases machine-gun damage.","Climb off-screen, then return and drop bombs.","Machine-gun damage increases as you close on an enemy.","Rise off-screen and re-enter with eight bombs."]),
@@ -125,3 +125,4 @@ export function pilotPopoverDescription(id,kind,locale='ko'){
  const copy=pilotIdentityCopy(id,locale);if(!copy)return '';
  return copy[kind+(id==='friedrich_karl'||id==='robinson'?'Detail':'Short')]||'';
 }
+
