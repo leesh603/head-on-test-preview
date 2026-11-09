@@ -1,8 +1,8 @@
-import {shellMarch} from './boss-raid-strikes.js?v=09c75d146ae4289d';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=09c75d146ae4289d';
-import {CITY_FLAK_SCALE,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=09c75d146ae4289d';
+import {shellMarch} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
+import {CITY_FLAK_SCALE,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=qf1023';
 export const CITY_FLAK_PARTS=Object.freeze([
  {id:'siege',x:-73,y:-75,radius:34,fraction:.16},
  {id:'ears',x:74,y:-75,radius:32,fraction:.10},

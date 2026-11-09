@@ -1,9 +1,9 @@
 // Two owner-local capital unlocks. All damage still uses the host's existing
 // projectile/part/death pipeline; an accepted volley, not a collision, advances it.
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {isReplacementPrimary,replacementPrimaryVolley} from './pilot-primary.js?v=09c75d146ae4289d';
-import {equipmentTargets,igniteSharedBurn,wwiProjectileDamageMultiplier} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {momentumDamage} from './ace-momentum.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js';
+import {isReplacementPrimary,replacementPrimaryVolley} from './pilot-primary.js';
+import {equipmentTargets,igniteSharedBurn,wwiProjectileDamageMultiplier} from './wwi-equipment.js';
+import {momentumDamage} from './ace-momentum.js';
 
 export const CAPITAL_PILOT_BALANCE=Object.freeze({
  karl:Object.freeze({markSeconds:7,medalMarkSeconds:9,focusCredit:.28,medalFocusCredit:.20,focusVolleys:2,hitGap:2.2,gunBonus:.08,supportBonus:.15,bossGunBonus:.04,bossSupportBonus:.08,medalGunBonus:.12,medalSupportBonus:.22,medalBossGunBonus:.06,medalBossSupportBonus:.12,activeSeconds:5,enhancedSeconds:6,cooldown:23,salvos:3,salvoCredit:.36,salvoGap:.65,salvoDelay:.45,salvoRadius:88,salvoDamage:70,salvoCap:210,bossSalvoCap:110,bossHealthFraction:.025,enhancedPower:1.25,enhancedBossPower:1.12,enhancedRadius:1.15}),

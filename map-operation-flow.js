@@ -3,7 +3,7 @@
 // Battlefield Event outcomes and pending effects, the trench barrage timer, the
 // harbor reload disruption, the capital defense flag, reconnaissance intel and
 // the encounter's own breath window. Nothing here spawns, scores or saves.
-import {mapCombatProfile,MAP_COMBAT_TYPES as T} from './map-combat-roles.js?v=09c75d146ae4289d';
+import {mapCombatProfile,MAP_COMBAT_TYPES as T} from './map-combat-roles.js';
 
 export const MAP_OPERATION_BALANCE=Object.freeze({
  followUpDelay:8,spotterEscorts:2,openingAt:2.5,breathShort:4,breathLong:6,intelBonus:1.35,

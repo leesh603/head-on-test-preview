@@ -1,7 +1,7 @@
-import {pilotUnlockDirectHit} from './pilot-unlocks.js?v=09c75d146ae4289d';
+import {pilotUnlockDirectHit} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 // Host-authoritative direct-hit mechanics. No new damage or reward pipeline.
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 
 export const NAVARRE_FROMMHERZ_BALANCE=Object.freeze({zoneSeconds:6,zoneRadius:250,slowSeconds:2.2,slowMultiplier:.65,aceSlowMultiplier:.85,outnumberRadius:420,suppressionSeconds:5,suppressionRate:1.4,landingHpFraction:.2,instructorRadius:400,instructorTargetSeconds:2,instructorLeadSeconds:.4,instructorFocus:.65});
 const states=new WeakMap(),rounds=new WeakMap(),slows=new WeakMap();

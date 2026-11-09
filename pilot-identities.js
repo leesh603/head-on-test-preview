@@ -1,13 +1,15 @@
-import {ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=09c75d146ae4289d';
-import {installPilotFeedback} from './pilot-feedback.js?v=09c75d146ae4289d';
-import {wwiWingTarget} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {wingmanBossPass} from './engagement-flow174.js?v=09c75d146ae4289d';
-import {advanceWingFlight} from './wingman-flight.js?v=09c75d146ae4289d';
-import {headOnTarget} from './engagement-feedback.js?v=09c75d146ae4289d';
-import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js?v=09c75d146ae4289d';
-import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
-import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js?v=09c75d146ae4289d';
+import {ammunitionVisualScale} from './heavy-ammunition.js';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {installPilotFeedback} from './pilot-feedback.js';
+import {wwiWingTarget} from './wwi-equipment.js';
+import {wingmanBossPass} from './engagement-flow174.js?v=gal1&airbattle=20261025&afc=1&td4=20261026';
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {headOnTarget} from './engagement-feedback.js?v=tame3';
+import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js';
+import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js';
+import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js';
+import {secretWingGun} from './secret-weapon-combat.js';
+import {prepareSynthesisBomb} from './weapon-synthesis.js';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -172,7 +174,10 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='collishaw'&&collishawJetstream(this)){
    const interval=.58*this.fighterSupplyInterval(a)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*1.25);
    const jet=advanceCollishawJetstream(this,a,dt,interval);
-   if(jet){if(jet.shoot){a.muzzleFlash=.09;a.fireHeading=jet.heading;this.identityShot(jet.heading,this.supportPower(5)*(this.wingmanDamageMult||1)*this.fighterSupplyDamage(a),{ally:true,speed:470,collishawJetstream:true,jetstreamSlot:jet.index},a);}return true;}
+   if(jet){if(jet.shoot){a.muzzleFlash=.09;a.fireHeading=jet.heading;const damage=this.supportPower(5)*(this.wingmanDamageMult||1)*this.fighterSupplyDamage(a),target=collishawJetstream(this)?.target;
+    const profile=target?secretWingGun(this,a,target,jet.heading,damage,prepareSynthesisBomb):null;
+    this.identityShot(jet.heading,damage*(profile?.damage||1),{ally:true,speed:470,collishawJetstream:true,jetstreamSlot:jet.index,...(profile?.pierce?{pierce:true}:{}),...(profile?.ignite?{synthesisPayload:{incendiary:true}}:{})},a);
+   }return true;}
   }
   const s=this.identityState(),active=this.skillTime>0,targets=this.enemies.filter(alive),slot=a.slot||0,signal=wwiWingTarget(this,a);let e=null;
   if(this.pilot==='goering'){if(!alive(s.commandTarget))s.commandTarget=this.identityTarget();e=active?s.commandTarget:null}
@@ -187,7 +192,11 @@ export function installPilotIdentities(Game,PILOTS){
   a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);a.muzzleFlash=Math.max(0,(a.muzzleFlash||0)-dt);const bossPass=!signal&&this.pilot==='boelcke'&&wingmanBossPass(this.combatWorld(),this,a,e,home,dt,{active,boelcke:true});if(!bossPass)advanceWingFlight(a,this,target,dt,{maxSpeed:active?330:250,turnRate:active?2.8:2.2});if(bossPass&&a.engagementTarget)e=a.engagementTarget;
   a.fire-=dt;const heading=signal?Math.atan2(e.y-a.y,e.x-a.x):a.a;
   const bossAim=bossPass&&e?.stageBossBody?this.tacticalWingAim(a,e):null,bossReady=!bossPass||bossAim&&(a.engagementState==='INTERCEPT'||a.engagementState==='PASS')&&Math.abs(delta(Math.atan2(bossAim.y-a.y,bossAim.x-a.x),a.a))<.28;
-  if(e&&bossReady&&distance(e,a)<650&&a.fire<=0&&(!signal||Math.abs(delta(heading,a.a))<.5)){a.fire=.58*this.fighterSupplyInterval(a)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*(active?(this.pilot==='goering'?1.6:1.25):1));const rear=Math.abs(delta(Math.atan2(a.y-e.y,a.x-e.x),e.a||0))>Math.PI*.72;const bonus=active&&this.pilot==='goering'?1.65:active&&this.pilot==='boelcke'&&rear?1.5:1;a.muzzleFlash=.09;a.fireHeading=heading;this.identityShot(heading,this.supportPower(5)*(this.wingmanDamageMult||1)*bonus*this.fighterSupplyDamage(a),{ally:true,speed:470},a)}
+  if(e&&bossReady&&distance(e,a)<650&&a.fire<=0&&(!signal||Math.abs(delta(heading,a.a))<.5)){a.fire=.58*this.fighterSupplyInterval(a)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*(active?(this.pilot==='goering'?1.6:1.25):1));const rear=Math.abs(delta(Math.atan2(a.y-e.y,a.x-e.x),e.a||0))>Math.PI*.72;const bonus=active&&this.pilot==='goering'?1.65:active&&this.pilot==='boelcke'&&rear?1.5:1;a.muzzleFlash=.09;a.fireHeading=heading;
+   const damage=this.supportPower(5)*(this.wingmanDamageMult||1)*bonus*this.fighterSupplyDamage(a),profile=secretWingGun(this,a,signal?.target||e,heading,damage,prepareSynthesisBomb);
+   if(profile)a.fire/=profile.cadence;
+   this.identityShot(heading,damage*(profile?.damage||1),{ally:true,speed:470,...(profile?.pierce?{pierce:true}:{}),...(profile?.ignite?{synthesisPayload:{incendiary:true}}:{})},a);
+  }
   return true;
  };
  const oldTickWorld=Game.prototype.tickRevisionWorld;

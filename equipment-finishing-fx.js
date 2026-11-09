@@ -1,5 +1,5 @@
 // Painted equipment marks and bailout cloth; no procedural substitute on load failure.
-import {FINISHING_ATLAS,FINISHING_FRAMES} from './equipment-finishing-art-data.js?v=09c75d146ae4289d';
+import {FINISHING_ATLAS,FINISHING_FRAMES} from './equipment-finishing-art-data.js';
 let atlas=null;
 export const equipmentFinishingArtReady=new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}

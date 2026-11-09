@@ -1,5 +1,5 @@
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {drawAircraftCrash,enemyCrashVisual} from './aircraft-crash.js?v=09c75d146ae4289d';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
+import {drawAircraftCrash,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
 export function doverMissionCard(g,en=false){
  const m=g?.doverMission;if(!m||g.stageBoss?.stages.stageIndex!==17)return null;
  const c=m.config,escort=m.faction==='central';

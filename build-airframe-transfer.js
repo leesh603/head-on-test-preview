@@ -1,7 +1,7 @@
-import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js?v=09c75d146ae4289d';
+import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
 // Three mutually exclusive, sortie-only fits. Pilot and chosen aircraft IDs stay intact.
 export const AIRFRAME_TRANSFER_IDS=Object.freeze(['bomberTransfer','mgTransfer','airshipTransfer']);
-import {BUILD_TRANSFER_DESCRIPTIONS} from './airframe-doctrines.js?v=09c75d146ae4289d';
+import {BUILD_TRANSFER_DESCRIPTIONS} from './airframe-doctrines.js';
 export {BUILD_TRANSFER_DESCRIPTIONS};
 export const BUILD_TRANSFER=Object.freeze({
  mgTransfer:Object.freeze({

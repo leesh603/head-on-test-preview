@@ -1,8 +1,8 @@
-import {hitIntrusionAt} from './intrusion-bosses.js?v=09c75d146ae4289d';
-import {momentumDamage} from './ace-momentum.js?v=09c75d146ae4289d';
-import {pilotUnlockRun} from './pilot-unlocks.js?v=09c75d146ae4289d';
-import {signatureCue} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {advanceWingFlight} from './wingman-flight.js?v=09c75d146ae4289d';
+import {hitIntrusionAt} from './intrusion-bosses.js';
+import {momentumDamage} from './ace-momentum.js';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {signatureCue} from './pilot-signature-state.js';
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 // Personal pilot state is advanced per living pilot; persistent damage is advanced once per world.
 const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';

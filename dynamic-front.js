@@ -1,4 +1,4 @@
-import {MAP_COMBAT_TYPES as T,mapCombatProfileForStage} from './map-combat-roles.js?v=09c75d146ae4289d';
+import {MAP_COMBAT_TYPES as T,mapCombatProfileForStage} from './map-combat-roles.js';
 export const FRONT_LENGTH=10;
 // Saves from the opt-in twelve-map front have no length field. Finish that
 // already-started route; continueFront creates the new ten-map format.

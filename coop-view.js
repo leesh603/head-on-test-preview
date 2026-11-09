@@ -1,49 +1,54 @@
-import {drawDoverConvoy} from './dover-breakthrough-view.js?v=09c75d146ae4289d';
-import {renderLegacySquadrons} from './legacy-squadron-adapter.js?v=09c75d146ae4289d';
-import {drawExpansionObjectives} from './expansion-objective-view.js?v=09c75d146ae4289d';
-import {drawRevisionDecoys} from './voss-decoy-fx.js?v=09c75d146ae4289d';
-import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js?v=09c75d146ae4289d';
-import {drawGroundFacilities} from './ground-facility-view.js?v=09c75d146ae4289d';
-import {drawNavarreFrommherz} from './navarre-frommherz-view.js?v=09c75d146ae4289d';
-import {drawCapitalPilots} from './capital-pilots-view.js?v=09c75d146ae4289d';
-import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js?v=09c75d146ae4289d';
-import {drawAirThreat} from './air-threat-art.js?v=09c75d146ae4289d';
-import {drawProjectileTactic} from './gun-signatures.js?v=09c75d146ae4289d';
+import {drawSpecialOperationTrain} from './special-operation-view.js';
+import {drawDoverConvoy} from './dover-breakthrough-view.js';
+import {renderLegacySquadrons} from './legacy-squadron-adapter.js';
+import {drawExpansionObjectives} from './expansion-objective-view.js';
+import {drawRevisionDecoys} from './voss-decoy-fx.js';
+import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js';
+import {drawGroundFacilities} from './ground-facility-view.js';
+import {drawNavarreFrommherz} from './navarre-frommherz-view.js';
+import {drawCapitalPilots} from './capital-pilots-view.js';
+import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js';
+import {drawWingDurability} from './wingman-durability.js';
+import {drawAirThreat} from './air-threat-art.js';
+import {drawProjectileTactic} from './gun-signatures.js';
 const _combatMount={x:0,y:0};
-import {drawEnemyDanger} from './enemy-danger-view.js?v=09c75d146ae4289d';
-import {defianceAirframePose} from './death-defiance-fx.js?v=09c75d146ae4289d';
-import {pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=09c75d146ae4289d';
-import {drawMannockWing} from './fire-dive-fx.js?v=09c75d146ae4289d';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=09c75d146ae4289d';
-import {impactMark} from './tactical-marks.js?v=09c75d146ae4289d';
-import {getLocale} from './i18n.js?v=09c75d146ae4289d';
-import {unitNameEN} from './event-text-en.js?v=09c75d146ae4289d';
-import {drawRegionalBug} from './regional-boss-view352.js?v=09c75d146ae4289d';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=09c75d146ae4289d';
-import {drawGasCloud196} from './gas-cloud196.js?v=09c75d146ae4289d';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=09c75d146ae4289d';
-import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=09c75d146ae4289d';
-import {fx,fxReady,fxTint} from './fx-art.js?v=09c75d146ae4289d';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=09c75d146ae4289d';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=09c75d146ae4289d';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=09c75d146ae4289d';
-import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=09c75d146ae4289d';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=09c75d146ae4289d';
-import {drawStageBoss} from './stageboss-view.js?v=09c75d146ae4289d';
-import {bombSprite} from './bomb-sprites.js?v=09c75d146ae4289d';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=role1';
+import {defianceAirframePose} from './death-defiance-fx.js?v=deathdefiance1';
+import {pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=pressurelink1';
+import {drawMannockWing} from './fire-dive-fx.js?v=firedive1';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {impactMark} from './tactical-marks.js?v=tame3';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2&mapop=20261103';
+import {drawRegionalBug} from './regional-boss-view352.js?v=outline1&ai=1018&harbor=20261021';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=tame3';
+import {drawGasCloud196} from './gas-cloud196.js?v=tame3';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
+import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
+import {fx,fxReady,fxTint} from './fx-art.js?v=tame3';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
+import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&perf=1029&card=1&zb=20261103&perf=20261106&naval=20261106';
+import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz','friedrich_karl','robinson']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=09c75d146ae4289d';
-import {enemyAircraftKey} from './enemy-aircraft-art.js?v=09c75d146ae4289d';
-import {drawEquipment} from './equipment.js?v=09c75d146ae4289d';
-import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=09c75d146ae4289d';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=09c75d146ae4289d';
-import {drawSpecialAmmoIcon} from './icons.js?v=09c75d146ae4289d';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=09c75d146ae4289d';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=09c75d146ae4289d';
-import {drawTacticalCombatCue} from './tactical-combat-view.js?v=09c75d146ae4289d';
+import {secretBomberAirframe} from './secret-weapon-fx.js';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
+import {enemyAircraftKey} from './enemy-aircraft-art.js';
+import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
+import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
+import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=descent20261022&motion=20261022';
+import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 
 
 // Every combat layer uses the same world transform; rendering never edits the session.
@@ -51,7 +56,7 @@ const xpGem=null;
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer,deferHostile=false,deferHealPickups=false}){
  // Start guest decode on the replicated offscreen arrival, before visibility culling.
  if(g.squadronArrival?.unitId)warmSquadronAircraft(g.squadronArrival.unitId);
- const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();if(finalArenaVisible(g))drawFinalArenaBoss(c,g,W,H);else drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
+ const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawSpecialOperationTrain(c,g,W,H);if(finalArenaVisible(g))drawFinalArenaBoss(c,g,W,H);else drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
  drawDoverConvoy(c,g,{drawFieldArt,fieldArtImg,fx,en:getLocale()==='en'});
  renderLegacySquadrons(c,g,(x,y)=>[x,y]);
  groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
@@ -93,7 +98,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
   else if(e.bossMinion&&(e.callSign||e.callSignKo)){c.font='600 11px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';const w=Math.ceil(_tw(c,(getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign))))+14;c.fillStyle='rgba(18,13,11,.86)';c.fillRect(Math.round(e.x-w/2),Math.round(e.y-56),w,17);c.strokeStyle='#743d35';c.lineWidth=1;c.strokeRect(Math.round(e.x-w/2)+.5,Math.round(e.y-56)+.5,w-1,16);c.fillStyle='#f0d7a4';c.fillText((getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign)),Math.round(e.x),Math.round(e.y-48))}
  }
  drawCombatFeedback(c,g,(x,y)=>[x,y],{fx,planeSprite});
- for(const a of g.allies){if(a.carrierHidden)continue;const owner=g.player(a.ownerId);if(owner&&!a.aceWingman&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,collishawWingArt(owner,a,a.aceWingman?aircraftKey(a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane),(a.aceWingman?1:.78)*(a.carrierScale??1));if(owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
+ for(const a of g.allies){if(a.carrierHidden)continue;drawWingDurability(c,a,a.x,a.y,z);const owner=g.player(a.ownerId);if(a.secretBomber){drawFriendlyBomber(c,{...a,airframe:secretBomberAirframe(PLANES[owner?.plane]?.faction)});continue;}if(owner&&!a.aceWingman&&!a.secretAce&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,collishawWingArt(owner,a,(a.aceWingman||a.secretAce)?aircraftKey(a.secretAce?PILOT_AIRCRAFT[a.acePilot]?.defaultAircraft||a.plane:a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane),(a.aceWingman?1:.78)*(a.carrierScale??1));if(a.life>0&&owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
  const blackFlightLabels=[];for(const p of g.players)drawCollishawWingNames(c,p,g.allies,undefined,getLocale(),z,{left:g.x-W/(2*z)+6/z,top:g.y-H/(2*z)+18/z,right:g.x+W/(2*z)-6/z,bottom:g.y+H/(2*z)-6/z},blackFlightLabels);
  for(const patrol of g.patrols){const scale=patrol.renderScale||.9,key=aircraftKey(patrol.plane,false,patrol.acePilot);if(patrol.crashing){drawAircraftCrash(c,patrol,patrol.x,patrol.y,t,fx);sprite(patrol,key,scale*enemyCrashScale(patrol));continue;}if(patrol.hp<=0)continue;sprite(patrol,key,scale);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34*scale/.9,32*patrol.hp/patrol.maxHp,3)}
  drawExpansionObjectives(c,g,W,H,{locale:getLocale(),worldToScreen:(x,y)=>[x,y],visible:(x,y,r)=>!cl(x,y,r)});
@@ -105,7 +110,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
    if(p.pilot==='gontermann'){const heavy=[];for(const e of g.enemies||[]){if(!(e.hp>0&&(e.heavyBomber||e.zeppelin||e.boss||e.ace||e.big||e.stageBossBody||e.navalVessel||e.fieldUnit||e.type==='boss')&&(e.x-p.x)**2+(e.y-p.y)**2<700*700))continue;heavy.push(e);if(heavy.length>=4)break}if(heavy.length){c.save();heavy.forEach((e,i)=>{const r=(e.r||18)+13+Math.sin(t*6+i)*3;if(p.pilot==='luke'){c.globalAlpha=.85;c.strokeStyle='#ffb43c';c.lineWidth=2;c.save();c.translate(e.x,e.y);c.rotate(t*1.5);c.beginPath();c.moveTo(0,-r);c.lineTo(r,0);c.lineTo(0,r);c.lineTo(-r,0);c.closePath();c.stroke();c.restore()}else{c.globalAlpha=.8;for(let j=0;j<3;j++){const ga=t*2+j*2.1;c.fillStyle=j%2?'#ff8a3c':'#ffce6a';c.beginPath();c.arc(e.x+Math.cos(ga)*r*.7,e.y+Math.sin(ga)*r*.7,2.4,0,Math.PI*2);c.fill()}}});c.restore()}}
    for(const ship of p.airshipFleet||[])if(ship.age>=0&&ship.age<6)drawZeppelin(c,ship.x,ship.y,ship.a,ship.scale||.825,false,'central')}
  for(const b of g.friendlyBombers){if(cl(b.x,b.y,240))continue;drawFriendlyBomber(c,b)}
- for(const b of g.friendlyBombs){if(b.cooperBomb)continue;if(cl(b.x,b.y,80))continue;const scale=b.ammunitionScale||1;if(b.steelCoreFlight){if(b.grenade)drawGrenade(c,b,b.x,b.y);else bombSprite(c,b.sprite||'cooper',b.x,b.y,40*scale,b.releaseAngle);continue;}const f=1-b.life/b.maxLife;fxsBombFall(c,(X,Y,k,a,pitch)=>(drawProjectileTactic(c,b,X,Y,a),bombSprite(c,b.sprite||'cooper',X,Y,40*k*scale,a,1,pitch)||fx(c,'bomb',X,Y,28*k*pitch*scale,13*k*scale,a)),b.sx,b.sy,b.x,b.y,f,b.releaseAngle,b.bishopBomb);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
+ for(const b of g.friendlyBombs){if(b.cooperBomb||b.secretWeapon==='sn1650')continue;if(cl(b.x,b.y,80))continue;const scale=b.ammunitionScale||1;if(b.steelCoreFlight){if(b.grenade)drawGrenade(c,b,b.x,b.y);else bombSprite(c,b.sprite||'cooper',b.x,b.y,40*scale,b.releaseAngle);continue;}const f=1-b.life/b.maxLife;fxsBombFall(c,(X,Y,k,a,pitch)=>(drawProjectileTactic(c,b,X,Y,a),bombSprite(c,b.sprite||'cooper',X,Y,40*k*scale,a,1,pitch)||fx(c,'bomb',X,Y,28*k*pitch*scale,13*k*scale,a)),b.sx,b.sy,b.x,b.y,f,b.releaseAngle,b.bishopBomb);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
  for(const b of g.bullets){if(b.fieryGrapnel||b.flechette)continue;if(b.life<=0||cl(b.x,b.y,80))continue;if(b.enemy){continue}else if(b.rocket){if(!drawFlightRocket(c,b,b.x,b.y))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48*(b.ammunitionScale||1))}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(drawPilotGunTracer(c,b,b.x,b.y)){}else{drawFriendlyGunTracer(c,b,b.x,b.y,g.gunUpgradeBonus);}}
  for(const zone of g.bombZones){if(cl(zone.x,zone.y,zone.radius+20))continue;const progress=1-zone.delay/zone.maxDelay;impactMark(c,zone.x,zone.y,zone.radius,progress);fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,zone.sprite||'puw',X,Y,44*k,a,1,pitch)||fx(c,'bomb',X,Y,31*k*pitch,14*k,a),zone.sx,zone.sy,zone.x,zone.y,progress,zone.releaseAngle);}
  for(const fxf of g.combatFX){if(cl(fxf.x,fxf.y,(fxf.radius||60)*2.6+80))continue;if(drawTacticalCombatCue(c,fxf,fxf.x,fxf.y,fx,g))continue;const f=1-fxf.life/fxf.maxLife;if(fxf.amatol){drawAmatolBlast(c,fxf,fxf.x,fxf.y);continue}if(fxf.grenade){drawGrenadeBlast(c,fxf,fxf.x,fxf.y);continue}if(!drawFxExplosion(c,fxf,fxf.x,fxf.y))fx(c,'smokeDark',fxf.x,fxf.y,fxf.radius*(1+f)*2.2,fxf.radius*(1+f)*2.2,0,Math.min(1,fxf.life*3))}

@@ -1,6 +1,6 @@
 // Real rear-gun records only. Never alter aiming, aircraft motion or bullets.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {combatImpactResult} from './combat-impact-result.js';
 const INSTALLED=Symbol.for('headon.huffzky-rear-fx.v1');
 const owner=p=>p.id??'p1',live=p=>p.pilot==='huffzky'&&p.state==='playing'&&p.hp>0&&p.status!=='downed';
 const rear=(p,b)=>b?.pilotRear&&b.gun===1&&(b.ownerId??'p1')===owner(p)&&!['enemy','ally','formation','patrol','rocket','motorCannon','cow37','mauserRound','blast','actualExplosion','identityDot','identityChain'].some(k=>b[k]);

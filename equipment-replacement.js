@@ -1,5 +1,6 @@
-import {resetBishopGloves} from './equipment-flight-balance.js?v=09c75d146ae4289d';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=09c75d146ae4289d';
+import {resetBishopGloves} from './equipment-flight-balance.js';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
+import {applySecretPomFit,hasSecretWeapon,removeSecretWeapon} from './secret-weapons.js';
 /** Rebuild only upgrade-owned contributions. Never replay combat or mutate a live world. */
 const clone=v=>JSON.parse(JSON.stringify(v));
 export function beginEquipmentLedger(p){
@@ -18,6 +19,7 @@ export function equipmentModel(p,Game,removed){
  const ledger=p.equipmentLedger,m=Object.create(Game.prototype);Object.assign(m,clone(ledger.baseline));
  Object.assign(m,{_equipmentReplay:true,state:'upgrade',rng:()=>.5,events:[],allies:[],bullets:[],enemies:[],friendlyBombs:[],friendlyBombers:[],formationWings:[],divingSquadron:[],airshipFleet:[],event(){},checkLevel(){},burst(){},smoke(){}});
  for(const e of ledger.history)if(e.active!==false&&e.id!==removed){m.state='upgrade';if(e.kind==='airframe'){if(!m.acquireAirframeTransfer(e.id))throw new Error('Airframe replay failed: '+e.id);m.upgrades[e.id]=1;}else if(!m.upgrade(e.id,e.rarity))throw new Error('Equipment replay failed: '+e.id);}
+ if(removed!=='cow37'&&hasSecretWeapon(p,'vickersPomPom'))applySecretPomFit(m);
  return m;
 }
 export function removeEquipment(p,id,Game,PLANES){
@@ -54,6 +56,7 @@ export function removeEquipment(p,id,Game,PLANES){
  if(prefix)for(const key of Object.keys(p))if(key.startsWith(prefix))delete p[key];
  for(const key of TIMERS[id]||[])delete p[key];
  delete p.upgrades[id];if(p.upgradeRarities)delete p.upgradeRarities[id];
+ removeSecretWeapon(p,id);
  for(const e of p.equipmentLedger.history)if(e.id===id&&e.rarity==='legendary')e.active=false;
  p.synthesisPending=[];p.synthesisGunPending=[];p.synthesisActivePending=[];p.synthesisBurst=0;p.synthesisSignature=null;p.synthesisAttachments=[];
  p._buildRankAt=undefined;return true;

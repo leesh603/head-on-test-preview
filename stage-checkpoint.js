@@ -1,14 +1,15 @@
-import {createFront,frontLength} from './dynamic-front.js?v=09c75d146ae4289d';
+import {createFront,frontLength} from './dynamic-front.js';
 // Solo checkpoints contain entry-time pilot/build data, never a live battlefield.
-import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=09c75d146ae4289d';
-import {pilotUnlockRun} from './pilot-unlocks.js?v=09c75d146ae4289d';
-import {STAGES} from './headon-stageboss-patterns.js?v=09c75d146ae4289d';
-import {SPECIAL_OPERATIONS,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=09c75d146ae4289d';
+import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=pandemonium394r2';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {STAGES} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103';
+import {SPECIAL_OPERATIONS,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=tension20261107';
+import {reconcileSecretWeapons} from './secret-weapons.js';
 export const STAGE_CHECKPOINT_KEY='headon.stage-checkpoint.v1';
 const STAGE_PHASES=['explore','final-arena','front-complete','operation-offer','operation-active'];
 const VERSION=1,MAX_BYTES=512*1024,cache=new WeakMap();
 const unsafe=new Set(['__proto__','prototype','constructor','g','p','world','book','target','leader','members','_netCarrierFocus','_netCarrierGuard']);
-const objects=new Set(['weapon','ammo','upgrades','upgradeRarities','weaponMods','weaponModSelections','weaponModCounts','buildIdentities','equipmentLedger','bomberTransfer','pilotIdentity','pilotSignatureState','specialAmmoQueue','allies','formationWings','bossDeck','aceSortie','rivalAce','pilotChallengeRecord']);
+const objects=new Set(['weapon','ammo','upgrades','upgradeRarities','weaponMods','weaponModSelections','weaponModCounts','buildIdentities','equipmentLedger','secretWeaponState','bomberTransfer','pilotIdentity','pilotSignatureState','specialAmmoQueue','allies','formationWings','bossDeck','aceSortie','rivalAce','pilotChallengeRecord']);
 const recordObjects=new Set(['clears','missions','missionTypes','routeClears','routeOrder','sessionAwards','low','recoveries','packet','rapid','escortKinds']);
 const excluded=new Set(['state','mode','online','testMode','region','stageStartTime','stageStartDistance','zeroDistrict','finalArenaVisible','checkpointSaved']);
 const scalar=v=>v===null||['string','number','boolean'].includes(typeof v);
@@ -91,6 +92,7 @@ export function restoreStageCheckpoint(g,s){
   // optional pilot/build fields before restoring the saved computed values.
   for(const[k,v]of Object.entries(g))if(!unsafe.has(k)&&!excluded.has(k)&&!k.startsWith('_')&&(scalar(v)||objects.has(k))&&!Object.hasOwn(s.player,k))delete g[k];
   restoreFields(g,s.player,objects);
+  if(!g.secretWeaponState)reconcileSecretWeapons(g,{announce:false});
   g.synthesisPending=[];g.synthesisGunPending=[];g.synthesisActivePending=[];g.synthesisAttachments=[];g.synthesisZones=[];g.synthesisBurst=0;g.synthesisSignature=null;
   if(g.aceSortie){g.aceSortie.active=new Map();g.aceSortie.pending=[];}
   if(g.rivalAce){g.rivalAce.active=null;if(g.rivalAce.phase!=='DEFEATED'){g.rivalAce.phase='ESCAPED';g.rivalAce.returnAt=g.t+5;}}

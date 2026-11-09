@@ -1,5 +1,5 @@
-import {REGIONAL_ART} from './regional-boss-art-data352.js?v=09c75d146ae4289d';
-import {drawRailTrack} from './rail-render129.js?v=09c75d146ae4289d';
+import {REGIONAL_ART} from './regional-boss-art-data352.js?v=tame3';
+import {drawRailTrack} from './rail-render129.js?v=gal1';
 
 const load = file => {
  if (typeof Image === 'undefined') return null;
@@ -41,7 +41,8 @@ export function drawSpecialOperationTrain(ctx, game, width, height) {
 
 export function drawOperationTargets(ctx, game, width, height, en = false) {
  const battle = game?.operationBattle || game?.operationSnapshot?.battle;
- if (!battle) return;
+ const mission=game?.online&&!game.host?game.mapMissionSnapshot:game?.mapMission;
+ if (!battle&&!mission) return;
  const zoom = game.mode === 'coop2' ? game.camera?.zoom || 1 : 1;
  ctx.save();
  ctx.textAlign = 'center';
@@ -49,20 +50,28 @@ export function drawOperationTargets(ctx, game, width, height, en = false) {
  ctx.font = '600 11px system-ui, sans-serif';
  ctx.lineWidth = 3;
  ctx.strokeStyle = 'rgba(20,17,13,.85)';
- function label(entity, text, color, guide = false) {
+ const guidePositions=[];
+ function label(entity, text, color, guide = false, missionGuide = false) {
   let x = width / 2 + (entity.x - game.x) * zoom, y = height / 2 + (entity.y - game.y) * zoom - 25;
-  if (x < 50 || x > width - 50 || y < 42 || y > height - 42) {
+  const side=missionGuide?Math.min(width/2,Math.max(68,ctx.measureText(text).width/2+16)):50,top=missionGuide?Math.min(155,height*.22):42,bottom=height-(missionGuide?105:42);
+  if (x < side || x > width - side || y < top || y > bottom) {
    if (!guide) return;
-   const horizontal = x < 50 ? '‹ ' : x > width - 50 ? ' ›' : '';
-   text = horizontal === '‹ ' ? horizontal + text : text + (horizontal || (y < 42 ? ' ↑' : ' ↓'));
-   x = Math.max(50, Math.min(width - 50, x));
-   y = Math.max(42, Math.min(height - 42, y));
+   const horizontal = x < side ? '‹ ' : x > width - side ? ' ›' : '';
+   text = horizontal === '‹ ' ? horizontal + text : text + (horizontal || (y < top ? ' ↑' : ' ↓'));
+   x = Math.max(side, Math.min(width - side, x));
+   y = Math.max(top, Math.min(bottom, y));
   }
+  if(missionGuide){const direction=y>height/2?-1:1;for(let i=0;i<6&&guidePositions.some(p=>Math.abs(p.x-x)<side*2&&Math.abs(p.y-y)<18);i++)y=Math.max(top,Math.min(bottom,y+direction*20));guidePositions.push({x,y});}
   ctx.fillStyle = color;
   ctx.strokeText(text, x, y);
   ctx.fillText(text, x, y);
  }
  const friendly = '#dbecc2', danger = '#ffc19d';
+ if(mission?.status==='active')for(const point of (mission.guides||[]).slice(0,6)){
+  const distance=Math.round(Math.hypot(point.x-game.x,point.y-game.y)/10)*10;
+  label(point,(point.label?.[en?1:0]||'')+' · '+distance+'m',point.kind==='exit'?'#ffe6a8':point.kind==='ally'?friendly:danger,true,true);
+ }
+ if(!battle){ctx.restore();return;}
  const patrols = (game.patrols || []).filter(patrol => patrol.operationTarget && patrol.hp > 0 && patrol.life !== 0);
  let nearest;
  for (const patrol of patrols) {

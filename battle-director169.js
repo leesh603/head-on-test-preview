@@ -1,12 +1,12 @@
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-import {facilityPlan} from './ground-facility-missions.js?v=09c75d146ae4289d';
-import {transportConvoyActive} from './transport-convoy.js?v=09c75d146ae4289d';
-import {photoReconActive} from './photo-recon-encounters.js?v=09c75d146ae4289d';
-import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
-import {momentumCombatTarget} from './ace-momentum.js?v=09c75d146ae4289d';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=09c75d146ae4289d';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=09c75d146ae4289d';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=09c75d146ae4289d';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {facilityPlan} from './ground-facility-missions.js';
+import {transportConvoyActive} from './transport-convoy.js';
+import {photoReconActive} from './photo-recon-encounters.js';
+import {intrusionActive} from './intrusion-bosses.js';
+import {momentumCombatTarget} from './ace-momentum.js';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261108';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
 
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',

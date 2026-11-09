@@ -1,5 +1,5 @@
-import {medalActiveDescription} from './medal-active-copy.js?v=09c75d146ae4289d';
-import {PASSIVE_MEDAL_ID,passiveMedalDescription,passiveMedalFaction,passiveMedalName} from './passive-medal-copy.js?v=09c75d146ae4289d';
+import {medalActiveDescription} from './medal-active-copy.js';
+import {PASSIVE_MEDAL_ID,passiveMedalDescription,passiveMedalFaction,passiveMedalName} from './passive-medal-copy.js';
 // Read-only presentation. Ownership, not a selected pilot or preview, enables this copy.
 export function ownedMedalActivePresentation(owner,id,base,locale='ko',faction='central'){
  const owned=!!owner?.upgrades?.ironCross&&!!owner.skillEnhanced;

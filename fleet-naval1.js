@@ -1,15 +1,15 @@
-import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
-import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {fleetGunStations} from './naval-faction-atlas.js?v=09c75d146ae4289d';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=09c75d146ae4289d';
-import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles,guardFleetSubmarineMovement} from './naval-spacing.js?v=09c75d146ae4289d';
-import {drawShipWater,recordShipWake} from './naval-water.js?v=09c75d146ae4289d';
-import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=09c75d146ae4289d';
+import {combatDamageTime} from './front-performance.js';
+import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=dover3';
+import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js';
+import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles,guardFleetSubmarineMovement} from './naval-spacing.js?v=pandemonium394r2';
+import {drawShipWater,recordShipWake} from './naval-water.js?v=tame3&perf=1029';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=tame3';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=09c75d146ae4289d';
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108';
+import {fx} from './fx-art.js?v=tame3';
 
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
@@ -21,7 +21,7 @@ export function installFleet(Game){
  const P=Game.prototype;
  P.spawnMovingFleet=function(faction){
   const region=this.worldRegion();
-  if(![1,7,16,17].includes(region)||this.enemies.length>60)return null;
+  if(![1,7,14,16,17].includes(region)||this.enemies.length>60)return null;
   const friendly=faction===playerFaction(this),list=friendly?(this.friendlyShips??=[]):this.enemies;const live=list.filter(e=>e.navalVessel&&e.hp>0).length;
   if(live>=(friendly?2:4))return null;
   const playerSide=(typeof PLANES==='object'&&this.plane&&PLANES[this.plane])?PLANES[this.plane].faction:'entente';
@@ -116,7 +116,7 @@ export function drawFleetLayer(c,game,{point}){
 
 const playerFaction=g=>g.teamFaction??PLANES[g.plane]?.faction??'entente';
 export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
-  const step=Math.min(.04,Math.max(0,dt)),region=g.worldRegion();if(g.navalRegion!==undefined&&g.navalRegion!==region){g.friendlyShips=[];g.navalExchanges=[];g.shipSinkPuffs=[];}g.navalRegion=region;if(![1,7,16,17].includes(region)){g.friendlyShips=[];g.navalExchanges=[];}
+  const step=Math.min(.04,Math.max(0,dt)),region=g.worldRegion();if(g.navalRegion!==undefined&&g.navalRegion!==region){g.friendlyShips=(g.friendlyShips||[]).filter(e=>e.mapMissionId&&e.hazardRegion===region);g.navalExchanges=[];g.shipSinkPuffs=[];}g.navalRegion=region;if(![1,7,14,16,17].includes(region)){g.friendlyShips=[];g.navalExchanges=[];}
   const _fleetShipIter=[];for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);
   const _obstacles=shipObstacles(g);
   for(const e of _fleetShipIter){
@@ -142,7 +142,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
     if(region===14&&g.gallipoliRoute){const r=g.gallipoliRoute,s=(e.x-r.x)*Math.cos(r.a)+(e.y-r.y)*Math.sin(r.a);if(s>2350){const n=-(e.x-r.x)*Math.sin(r.a)+(e.y-r.y)*Math.cos(r.a),pull=Math.min(1,step*2.4);e.x-=Math.cos(r.a)*(s-2350)*pull;e.y-=Math.sin(r.a)*(s-2350)*pull}}
     guardFleetSubmarineMovement(g,e,submarinePrevious);
    }
-   if(e.blockship===undefined&&Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;// Zeebrugge blockships stay on their run (zeebrugge-raid.js)
+   if(e.blockship===undefined&&!e.mapMissionId&&Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;// Mission ships finish their authored route before retirement.
   }
   // Ambient fleet cadence — the sea should regularly show real ships.
   if([1,7,16,17].includes(region)){
@@ -176,7 +176,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
 
 export function fireSurfaceExchange(g,e,t){
  const targets=e.faction===playerFaction(g)?g.enemies:(g.friendlyShips||[]);let target=null,distance=1100;
- for(const foe of targets){if(!foe.movingShip||foe.hp<=0||foe.faction===e.faction)continue;const d=Math.hypot(foe.x-e.x,foe.y-e.y);if(d<distance){distance=d;target=foe;}}
+ for(const foe of targets){if(!foe.movingShip||foe.hp<=0||foe.expired||foe.faction===e.faction)continue;const d=Math.hypot(foe.x-e.x,foe.y-e.y);if(d<distance){distance=d;target=foe;}}
  if(!target)return false;g.navalExchanges??=[];if(g.navalExchanges.length>=24)return true;
  const duration=Math.max(.9,distance/330),x=target.x+Math.cos(target.a)*(target.driveVelocity||0)*duration,y=target.y+Math.sin(target.a)*(target.driveVelocity||0)*duration;
  for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9).slice(0,2)){if(g.navalExchanges.length>=24)break;const sx=e.x+Math.cos(e.a)*along,sy=e.y+Math.sin(e.a)*along;g.navalExchanges.push({sx,sy,x,y,age:0,duration,target,damage:18,faction:e.faction});}e.gunAim=Math.atan2(y-e.y,x-e.x);e.muzzleFlash=.16;g.event('enemyShot','');return true;

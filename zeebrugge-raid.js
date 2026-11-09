@@ -1,7 +1,8 @@
 // Zeebrugge (catalogue 7): the blockship operation against the armored crane
 // harbor fortress (the 1918 raid). The fortress is always the enemy (catalogue
-// faction 'neutral'), so on both sides three blockships of the pilot's own navy
-// steam down the harbor channel for the canal mouth beside it.
+// faction 'neutral'). Standalone encounters retain their original friendly
+// convoy; a required map mission assigns the British blockships to the Entente
+// and lets Central pilots stop them before they reach the canal.
 //  - On the way the enemy patrol fleet shoots at them (the existing surface
 //    exchange); once the fortress engages, its live harbor guns shell them.
 //  - Each blockship scuttled in the canal cuts one fortress function through
@@ -34,15 +35,17 @@ export function zeebruggeCanal(g){const r=g?.navalRoute;return r?routePoint(r,Z.
 const fortress=g=>{const enc=g.stageBoss?.stages.phase==='boss'?g.stageBoss.stages.encounter:null;return enc&&[...enc.bodies?.values?.()||[]].find(b=>b.kind==='armored-harbor-fortress'&&!b.dead);};
 
 function launch(g,op,route){
- const faction=own(g),names=Z.names[faction]||Z.names.entente;
+ const faction=op.mapMissionId?'entente':own(g),names=Z.names[faction]||Z.names.entente;
  for(const [i,[ko,en]] of names.entries()){
   const p=routePoint(route,Z.startS-i*Z.spacing,Z.lane+(i%2?90:-60));
   const e={type:'ship',shipClass:'aa',faction,name:ko,blockshipEn:en,blockship:i,x:p.x,y:p.y,a:route.a,course:route.a,weave:i*2.1,speed:0,sailingSpeed:Z.speed,driveVelocity:0,stationary:true,surface:true,navalVessel:true,movingShip:true,hitRadius:44,hullLength:380*.45,hullWidth:380*.12,hp:Z.hp,maxHp:Z.hp,shellArmor:Z.shellArmor,fire:3+i,ace:false,life:Infinity,hazardRegion:7,xpValue:0};
-  (g.friendlyShips??=[]).push(e);op.ships.push(e);
+  if(op.mapMissionId)Object.assign(e,{mapMissionId:op.mapMissionId,missionTarget:true,wobble:0});
+  (faction===own(g)?(g.friendlyShips??=[]):(g.enemies??=[])).push(e);op.ships.push(e);
  }
 }
 
 function cutFortress(g,op){
+ if(op.defending)return;
  const count=Math.min(op.scuttled,CUTS.length),body=fortress(g),preview=g.navalRoute?.fortressPreview;
  if(!body&&preview)for(let i=op.previewCut;i<count;i++){
   const part=preview.parts.find(p=>p.id===CUTS[i][0]);if(part){part.hp=0;part.destroyed=true;}
@@ -57,6 +60,7 @@ function cutFortress(g,op){
 
 // Once engaged, each live harbor gun shells the nearest blockship in range.
 function shellConvoy(g,op,dt){
+ if(op.defending)return;
  const body=fortress(g);if(!body)return;
  for(const part of body.parts.values()){
   if(part.kind!=='harbor-gun'||part.destroyed)continue;
@@ -65,8 +69,14 @@ function shellConvoy(g,op,dt){
   op.gunClock.set(part.id,Z.gunInterval);
   const gx=body.x+part.x,gy=body.y+part.y,target=op.ships.filter(s=>!s.blockshipResolved&&live(s)&&Math.hypot(s.x-gx,s.y-gy)<Z.gunRange).sort((a,b)=>Math.hypot(a.x-gx,a.y-gy)-Math.hypot(b.x-gx,b.y-gy))[0];
   if(!target)continue;
-  target.hp=Math.max(0,target.hp-Z.gunDamage);target.hitFlash=.24;
-  g.combatBlast?.(target.x+((op.gunClock.size*37)%60-30),target.y+((op.gunClock.size*53)%80-40),46,'enemy','shell');
+  if(op.mapMissionId){
+   const duration=Math.max(.9,Math.hypot(target.x-gx,target.y-gy)/330),speed=target.driveVelocity||0;
+   const shots=g.navalExchanges??=[];
+   if(shots.length<24)shots.push({sx:gx,sy:gy,x:target.x+Math.cos(target.a)*speed*duration,y:target.y+Math.sin(target.a)*speed*duration,age:0,duration,target,damage:Z.gunDamage,faction:'central',mapMissionId:op.mapMissionId});
+  }else{
+   target.hp=Math.max(0,target.hp-Z.gunDamage);target.hitFlash=.24;
+   g.combatBlast?.(target.x+((op.gunClock.size*37)%60-30),target.y+((op.gunClock.size*53)%80-40),46,'enemy','shell');
+  }
   if(!op.shelledWarned){op.shelledWarned=true;g.event?.('flak','요새 포대가 폐색선을 포격 · 포좌를 먼저 제압하세요');}
  }
 }
@@ -77,9 +87,10 @@ export function tickZeebruggeRaid(g,dt){
  const phase=g.stageBoss?.stages.phase,route=g.navalRoute;
  if(!g.zeebruggeRaid){
   if(phase!=='explore'||!route)return;
-  const op=g.zeebruggeRaid={ships:[],scuttled:0,sunk:0,cut:0,previewCut:0,gunClock:new Map(),done:false,approachWarned:false};
+  const mission=g.mapMission?.region===7&&g.mapMission.status==='active'?g.mapMission:null;
+  const op=g.zeebruggeRaid={ships:[],scuttled:0,sunk:0,cut:0,previewCut:0,gunClock:new Map(),done:false,approachWarned:false,...(mission?{mapMissionId:mission.id,defending:mission.faction==='central'}:{})};
   launch(g,op,route);
-  g.event?.('wave','폐색 작전 · 폐색선 3척을 운하 입구까지 호위하세요 · 자침할 때마다 요새 기능이 끊깁니다');
+  g.event?.('wave',op.defending?'항만 방어 · 영국 폐색선 2척을 운하 진입 전에 저지하세요':'폐색 작전 · 폐색선 3척을 운하 입구까지 호위하세요 · 자침할 때마다 요새 기능이 끊깁니다');
  }
  const op=g.zeebruggeRaid,canal=zeebruggeCanal(g);if(!canal)return;
  for(const e of op.ships){
@@ -96,7 +107,7 @@ export function tickZeebruggeRaid(g,dt){
    // Scuttled in the canal mouth: the hull sinks where it stops.
    e.blockshipResolved='scuttled';op.scuttled++;e.hp=0;e.driveVelocity=0;
    g.combatBlast?.(e.x,e.y,70,'friendly','shipSink');
-   g.event?.('wave',`${e.name} 자침 · 진입로 확보 · ${CUTS[op.scuttled-1][1]}`);
+   g.event?.('wave',op.defending?`${e.name} 운하 자침 · 항만 봉쇄 ${op.scuttled}/2`:`${e.name} 자침 · 진입로 확보 · ${CUTS[op.scuttled-1][1]}`);
   }
  }
  cutFortress(g,op);shellConvoy(g,op,dt);
@@ -108,6 +119,7 @@ export function tickZeebruggeRaid(g,dt){
 
 export function zeebruggeMissionCard(g,en=false){
  const op=g?.zeebruggeRaid;if(!op||region(g)!==7||op.done)return null;
+ if(op.mapMissionId)return null;// The map objective HUD owns managed raid progress.
  const canal=zeebruggeCanal(g);if(!canal)return null;
  const lead=op.ships.filter(s=>!s.blockshipResolved&&live(s)).sort((a,b)=>Math.hypot(a.x-canal.x,a.y-canal.y)-Math.hypot(b.x-canal.x,b.y-canal.y))[0];
  const km=lead?(Math.hypot(lead.x-canal.x,lead.y-canal.y)/1000).toFixed(1):'0';

@@ -1,6 +1,6 @@
-import {wwiWingTarget,wwiBossAimPoint} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {advanceWingFlight} from './wingman-flight.js?v=09c75d146ae4289d';
-import {tacticalAimPoint} from './tactical-combat.js?v=09c75d146ae4289d';
+import {wwiWingTarget,wwiBossAimPoint} from './wwi-equipment.js';
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {tacticalAimPoint} from './tactical-combat.js?v=arras-tactics20261024&td4=20261026';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
 // formations continue through their existing support poses.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
@@ -57,7 +57,7 @@ function prepareModWing(world,owner,wing,home,now){
  const attacking=!guard&&(!!order||elapsed<(mode==='elite'?2.1:mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack));
  let assignedTarget=order?.target||plan.target;
  // Reinforcements divide approach lanes; elite wings share the priority target.
- if(mode==='reinforcement'&&!order){let best=Infinity;for(const e of wingTargets(world)){if(!eligibleModTarget(owner,e,520)||!offensiveWingTarget(e))continue;let assigned=0;for(const other of world.allies||[])if(other!==wing&&other.ownerId===wing.ownerId&&other.engagementTarget===e)assigned++;const score=distance(e,wing)+assigned*260;if(score<best){best=score;assignedTarget=e;}}}
+ if(mode==='reinforcement'&&!order){let best=Infinity;for(const e of wingTargets(world)){if(!eligibleModTarget(owner,e,520)||!offensiveWingTarget(e))continue;let assigned=0;for(const other of world.allies||[])if(other!==wing&&other.life>0&&other.ownerId===wing.ownerId&&other.engagementTarget===e)assigned++;const score=distance(e,wing)+assigned*260;if(score<best){best=score;assignedTarget=e;}}}
  wing.tacticalCrossfire=!!order?.cross;wing.tacticalBreakthrough=!!order?.breakthrough;wing.tacticalWing=['reinforcement','elite','escort'].includes(mode);
  wing.weaponModFormation=mode;wing.weaponModGuard=guard;wing._netWeaponWingGuardTarget=null;
  let state=wing.engagementState||'HOME';
@@ -164,7 +164,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
   let dx=wx-wing.x,dy=wy-wing.y;const gap=Math.hypot(dx,dy)||1;dx/=gap;dy/=gap;
   const ox=wing.x-owner.x,oy=wing.y-owner.y,u=(ox*ca+oy*sa)/(fit.hullLength+65),v=(-ox*sa+oy*ca)/(fit.hullWidth+65),h=Math.hypot(u,v);
   if(h<1.4){const push=(1.4-h)*3.5;dx+=(-sa*(v||side)+ca*u*.35)*push;dy+=(ca*(v||side)+sa*u*.35)*push}
-  for(const other of world.allies||[]){if(other===wing||other.carrierHidden||other.ownerId!==wing.ownerId)continue;const x=wing.x-other.x,y=wing.y-other.y,d=Math.hypot(x,y);if(d>0&&d<72){dx+=x/d*(72-d)/42;dy+=y/d*(72-d)/42}}
+  for(const other of world.allies||[]){if(other===wing||other.life<=0||other.carrierHidden||other.ownerId!==wing.ownerId)continue;const x=wing.x-other.x,y=wing.y-other.y,d=Math.hypot(x,y);if(d>0&&d<72){dx+=x/d*(72-d)/42;dy+=y/d*(72-d)/42}}
   const goal=Math.atan2(dy,dx),error=angleDiff(goal,wing.a);wing.a+=clamp(error,-dt*2.4,dt*2.4);
   const speed=state==='INTERCEPT'||state==='PASS'?165:clamp((owner.speed||75)+gap*.55,100,185),bankSlow=Math.max(.48,1-Math.abs(error)*.2);
   wing.x+=Math.cos(wing.a)*speed*bankSlow*dt;wing.y+=Math.sin(wing.a)*speed*bankSlow*dt;

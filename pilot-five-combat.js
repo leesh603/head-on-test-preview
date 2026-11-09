@@ -1,8 +1,10 @@
 // Five authored attacks on the existing shot/impact/wing hooks. No new input or FX renderer.
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=09c75d146ae4289d';
-import {wwiWingTarget,analyzedEquipmentTarget,equipmentBurn,equipmentTargets,wwiBurnPoint} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {advanceWingFlight} from './wingman-flight.js?v=09c75d146ae4289d';
-import {isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {wwiWingTarget,analyzedEquipmentTarget,equipmentBurn,equipmentTargets,wwiBurnPoint} from './wwi-equipment.js';
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {isReplacementPrimary} from './pilot-primary.js';
+import {secretWingGun} from './secret-weapon-combat.js';
+import {prepareSynthesisBomb} from './weapon-synthesis.js';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -108,7 +110,10 @@ function updateLafayette(p,a,dt){
  if(!threat){let best=620;for(const e of w.enemies||[]){if(!live(e)||e.surface)continue;const range=distance(a,e);if(range<best&&Math.abs(wrap(bearing(a,e)-a.a))<.45){threat=e;best=range;}}}
  if(threat&&a.fire<=0&&distance(a,threat)<620&&Math.abs(wrap(bearing(a,threat)-a.a))<.5){
   const heading=lead(a,threat,470),coop=!!p.world,supply=!!(a.permanent&&p.upgrades?.fighterSupply),mannock=(w.players||[p]).some(x=>x.pilot==='mannock'&&x.hp>0);a.fire=(coop?.42:.58)*p.fighterSupplyInterval(a)/((1+(p.commandRateBonus||0))*(mannock?1.15:1));a.muzzleFlash=.09;a.fireHeading=heading;
-  p.identityShot(heading,p.supportPower(coop?7.44:5)*(p.wingmanDamageMult||1)*p.fighterSupplyDamage(a),{ally:true,ownerId:owner(p),speed:470,fiveLafayetteRound:true},a);
+  const damage=p.supportPower(coop?7.44:5)*(p.wingmanDamageMult||1)*p.fighterSupplyDamage(a);
+  const profile=secretWingGun(p,a,signal?.target||threat,heading,damage,prepareSynthesisBomb);
+  if(profile)a.fire/=profile.cadence;
+  p.identityShot(heading,damage*(profile?.damage||1),{ally:true,ownerId:owner(p),speed:470,fiveLafayetteRound:true,...(profile?.pierce?{pierce:true}:{}),...(profile?.ignite?{synthesisPayload:{incendiary:true}}:{})},a);
  }
  return true;
 }

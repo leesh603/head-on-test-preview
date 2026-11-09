@@ -35,7 +35,9 @@ export function frontMissionResult(game){
  const ledger=observeFrontMissions(game)||stages?.front?.missions;
  const count=(ledger?.completed||0)+(ledger?.failed||0);
  let mission=count?ledger.lastOutcome:null,missionRate=count?ledger.completed/count:null;
- if(stage===19&&game.laonBattle?.resolved){
+ if(game.mapMission?.region===stage&&game.mapMission.resolved){
+  mission=Number(game.mapMission.success);missionRate=mission;
+ }else if(stage===19&&game.laonBattle?.resolved){
   mission=Number(game.laonBattle.success);missionRate=mission;
  }else if(stage===17&&game.doverMission?.resolved){
   const m=game.doverMission,central=m.faction==='central';

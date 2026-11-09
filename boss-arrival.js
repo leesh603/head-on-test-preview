@@ -1,8 +1,8 @@
-import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js?v=09c75d146ae4289d';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=09c75d146ae4289d';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=09c75d146ae4289d';
-import {verdunFortExtents} from './verdun-fortresses.js?v=09c75d146ae4289d';
-import {sommeExtents} from './somme-boss-layout.js?v=09c75d146ae4289d';
+import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
+import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {sommeExtents} from './somme-boss-layout.js?v=tame3&somme=20261021';
 // Preserve authored railway, buried-weapon and formation approaches.
 const authored=new Set(['bruno-railway-gun','lincomparable','livens-flame-projector','minenwerfer-battery','mark4-wedge','treffas-wagen','fliegerzug','jasta11-circus','naval10-black-flight','london-apron-raid','sinai-landship','wustenpanzer']);
 const installed=new Set(['armored-harbor-fortress','gallipoli-fortress']);
@@ -58,10 +58,10 @@ function formationArrival(encounter,bodies,frame){
  const fx=Math.cos(heading),fy=Math.sin(heading),rx=fy,ry=-fx;
  // A single bounded prediction, never a camera lock or a moving arrival target.
  const cx=(player?.x||0)+vx*3.25,cy=(player?.y||0)+vy*3.25;
- const lateral=o400?108:125,trail=o400?150:240,flightGap=560;
+ const lateral=o400?134:125,trail=o400?235:240,flightGap=560;
  for(const b of bodies){
-  const group=o400?0:Math.floor(b.slot/3),slot=b.slot%3;
-  // Lead + two trailing wings; subsequent Gotha flights follow the same lane.
+  const group=Math.floor(b.slot/3),slot=b.slot%3;
+  // Lead + two trailing wings; later flights follow the same lane.
   const side=slot===0?0:slot===1?-lateral:lateral,forward=140-(slot===0?0:trail)-group*flightGap;
   b.x=cx+rx*side+fx*forward;b.y=cy+ry*side+fy*forward;
   b.a=heading;b.arrivalFlightGuard=true;b.rotateMounts?.();

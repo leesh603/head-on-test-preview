@@ -18,7 +18,7 @@ test('A7V destroyed port cancels a warned volley and disappears from rotating sh
 for(const kind of ['a7v-flak','mark-v-cruiser'])test(kind+': registered hull ribbons follow drive phase and stop drawing destroyed belts',()=>{
  const f=setup(kind),b=f.b,calls=[],ctx=new Proxy({},{get:(_,k)=>(...args)=>calls.push([k,...args])});
  const hull={naturalWidth:640},pitch=TREAD_PROFILES[b.kind].pitch*.4;
- const makeCanvas=()=>({getContext:()=>({drawImage(){}})});
+ const makeCanvas=()=>({getContext:()=>({drawImage(){},fillRect(){},createLinearGradient(){return{addColorStop(){}}}})});
  const cache=prepareArmorTreads(hull,b.kind,makeCanvas);
  assert.equal(prepareArmorTreads(hull,b.kind,()=>{throw Error('cache rebuilt')}),cache);
  assert.equal(treadFrame(pitch/TREAD_FRAMES*1.1,b.kind),1);

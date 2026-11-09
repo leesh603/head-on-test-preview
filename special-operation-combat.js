@@ -1,6 +1,6 @@
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js?v=09c75d146ae4289d';
-import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION} from './special-operations.js?v=09c75d146ae4289d';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js';
+import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION} from './special-operations.js?v=tension20261107';
 
 const live = entity => entity && entity.hp > 0 && !entity.expired && !entity.crashing && entity.life !== 0;
 const pilots = game => game.players || [game];

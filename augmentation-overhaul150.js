@@ -1,20 +1,21 @@
-import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js?v=09c75d146ae4289d';
-import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=09c75d146ae4289d';
-import {EQUIPMENT_COPY} from './equipment-copy.js?v=09c75d146ae4289d';
-import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=09c75d146ae4289d';
-import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js?v=09c75d146ae4289d';
-import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js?v=09c75d146ae4289d';
-import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=09c75d146ae4289d';
-import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js?v=09c75d146ae4289d';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=09c75d146ae4289d';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {fighterAim} from './dogfight-pass165.js?v=09c75d146ae4289d';
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=09c75d146ae4289d';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=09c75d146ae4289d';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=09c75d146ae4289d';
-import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=09c75d146ae4289d';
+import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js';
+import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js';
+import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
+import {EQUIPMENT_COPY} from './equipment-copy.js';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
+import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
+import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
+import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {reconcileSecretWeapons} from './secret-weapons.js';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
+import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -316,6 +317,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   // A newly earned doctrine is a free, deferrable choice after this upgrade.
   // Co-op queues the same prompt through its existing authoritative item flow.
   recordEquipmentUpgrade(this,id,rarity);
+  reconcileSecretWeapons(this);
   if(this._equipmentReplay||this._capturedEquipmentGrant===id)return true;
   if(id==='passiveMedal')this.event?.('ally',passiveMedalName(PILOTS[this.pilot]?.faction)+' · 강화 적용됨');
   if(!u.legendary&&this.pilot==='mccudden'&&this.lastChoices?.length===4)this.passiveMedalEvent?.('engineering',{serial:this.choiceDraftSerial??this.level});

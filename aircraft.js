@@ -1,26 +1,26 @@
-import {trailPaletteFromPixels} from './ace-momentum.js?v=09c75d146ae4289d';
-import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=09c75d146ae4289d';
-import {configureLegendArt} from './legend-squadron-combat.js?v=09c75d146ae4289d';
+import {trailPaletteFromPixels} from './ace-momentum.js';
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
+import {configureLegendArt} from './legend-squadron-combat.js';
 const SQUADRON_FLIGHT_ART=Object.freeze({jasta5_patrol:'squadron-aircraft/jasta5-albatros.webp',cigognes_cannon_paint:'squadron-aircraft/cigognes-spad12.webp',cigognes_escort_paint:'squadron-aircraft/cigognes-spad.webp',hat_ring_paint:'squadron-aircraft/hat-ring-spad.webp',jasta18_paint:'squadron-aircraft/jasta18-fokker.webp',lafayette_paint:'squadron-aircraft/lafayette-nieuport.webp',spa65_paint:'squadron-aircraft/spa65-spad.webp',sqn56_paint:'squadron-aircraft/sqn56-se5a.webp',jasta2_paint:'squadron-aircraft/jasta2-albatros.webp'});
 const SQUADRON_PAINT_ALIASES={spad12:'cigognes_cannon_paint',stork_spad:'cigognes_escort_paint',hatring_spad:'hat_ring_paint',jasta18_fokkerd7:'jasta18_paint',lafayette_nieuport17:'lafayette_paint',spad:'spa65_paint',se5a:'sqn56_paint',albatros_d5a:'jasta2_paint'};
 const squadronPaintReady=key=>hasPaintedAircraft(SQUADRON_PAINT_ALIASES[key]||key),loadSquadronPaint=key=>paintedReady(SQUADRON_PAINT_ALIASES[key]||key);
-import {configureExpansionArt} from './famous-squadron-expansion.js?v=09c75d146ae4289d';
-import {configureCigognesArt} from './cigognes-cannon-patrol.js?v=09c75d146ae4289d';
-import {configureHatRingArt} from './hat-ring-blockade.js?v=09c75d146ae4289d';
-import {configureFamousWingArt} from './famous-wing-combat.js?v=09c75d146ae4289d';
-import {fxReady as cigognesFxReady} from './fx-art.js?v=09c75d146ae4289d';
-import {configureTransportArt} from './transport-convoy.js?v=09c75d146ae4289d';
-import {configurePhotoReconArt} from './photo-recon-encounters.js?v=09c75d146ae4289d';
-import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js?v=09c75d146ae4289d';
-import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {clearCrewMatte} from './matte70.js?v=09c75d146ae4289d';
-import {BANK_ART} from './aircraft-bank-art.js?v=09c75d146ae4289d';
-import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=09c75d146ae4289d';
-import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=09c75d146ae4289d';
+import {configureExpansionArt} from './famous-squadron-expansion.js';
+import {configureCigognesArt} from './cigognes-cannon-patrol.js';
+import {configureHatRingArt} from './hat-ring-blockade.js?v=snap20261107&elite=20261109';
+import {configureFamousWingArt} from './famous-wing-combat.js';
+import {fxReady as cigognesFxReady} from './fx-art.js?v=tame3';
+import {configureTransportArt} from './transport-convoy.js';
+import {configurePhotoReconArt} from './photo-recon-encounters.js';
+import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js';
+import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {clearCrewMatte} from './matte70.js?v=gal1';
+import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
+import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=crewbake1';
 // NPC crew is pre-composited offline (scripts/bake-npc-crew.mjs -> crew-baked/). The live
 // compositor and its 785 KB seat table load only for art the bake has not covered yet.
 const CREW_BAKE_MODE=typeof location!=='undefined'&&new URLSearchParams(location.search).get('crewbake')==='1';
-let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=09c75d146ae4289d');
+let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=crew-20261026');
 const crewNone=new Set(CREW_NONE),rimRepairs=new Set(AIRCRAFT_RIM_REPAIR_KEYS);
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
@@ -100,6 +100,7 @@ const spriteScale=key=>WINGSPAN_M[key]==null?1:Math.min(1.18,Math.max(.8,(WINGSP
 const PAINTED_KEYS=['fokker','fokker_standard','fokker_f1','albatros','camel','sopwith','nieuport','nieuport_italian','spad12','fokkerdv','re7','fokkerd7','eindecker','se5a','bristol_duo','halberstadt_duo','baron_albatros','albatros_d2','nieuport24','pfalz_d3a','airco_dh2','spad','be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d5a','fokker_jacobs','goering_fokkerd7','collishaw_sopwith','guynemer_spad','udet_fokkerdv','baracca_nieuport','berthold_pfalz','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','rickenbacker_spad','voss_dr1','udet_fokkerd7','nungesser_nieuport','ball_se5a','barker_snipe','luke_nieuport28','brumowski_albatros','gontermann_fokker','hansa_brandenburg_cc','lohner_l','macchi_m3','macchi_m5','wolff_albatros','loewenhardt_fokkerd7','mccudden_se5a','nungesser_nieuport24','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon','staaken','handley-page','jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','jasta11a_albatros','jasta11b_albatros','jasta11c_albatros','jasta11d_albatros','lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','jasta27_fokkerd7','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','gotha_night','staaken_dark','brown_camel','mcelroy_camel','dazzle_camel','lufbery_nieuport17','dorme_nieuport','meulemeester_nieuport','eagle_nieuport28','coppens_hanriot','madon_spad','tarascon_spad','boyau_spad','hatring_spad','springs_se5a','proctor_se5a','checker_se5a','ruffo_sva5','pierozzi_macchi','udet_albatros','loerzer_albatros','frommherz_albatros','kirschstein_albatros','boelcke_albatros','woollett_camel','collett_camel','naval10_camel','belgian_camel','fonck_spad','thieffry_spad','italian_spad','deullin_spad','mannock_se5a','sqn85_se5a','collishaw_se5a','stork_nieuport','bishop_nieuport','navarre_nieuport','camo_nieuport','zebra_se5a','berthold_albatros','mueller_albatros','schoder_albatros','buttner_albatros','wolff2_albatros','nonal_camel','maclaren_camel','barker_camel','germain_spad','audemars_spad','carli_spad','belgium_spad','bishop_se5a','dallas_se5a','beauchamp_se5a','guynemer_nieuport','heurteaux_nieuport','carli_nieuport','schleich_albatros'];
 const HANGAR_KEYS=['fokker','fokker_f1','fokker_standard','fokker_jacobs','baron_albatros','albatros','albatros_d2','eindecker','camel','sopwith','collishaw_sopwith','nieuport','nieuport_italian','nieuport24','baracca_nieuport','nungesser_nieuport24','luke_nieuport28','fokkerdv','udet_fokkerdv','spad','spad12','guynemer_spad','rickenbacker_spad','re7','fokkerd7','goering_fokkerd7','loewenhardt_fokkerd7','se5a','mccudden_se5a','ball_se5a','bristol_duo','halberstadt_duo','barker_snipe','brumowski_albatros','gontermann_fokker','wolff_albatros','berthold_pfalz'];
 // New D.I uses the same preloaded painted-sprite path as the D.II.
+const paintedRevision=key=>key==='robinson_be2c'?'robinson-ink-20261109':AIRCRAFT_ART_REVISION;
 const ALBATROS_D1_ART=['albatros_d1','prinz_friedrich_albatros_d1'];
 // These approved masters have no root or pre-baked counterpart. Keep raw crop/
 // outline rendering, but let readiness warm the exact file the decoder requests.
@@ -168,7 +169,7 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
  const bakedArt=key==='salamander_trial'?'asset-bank/outlined/native/elite-patch/assets/salamander-squadron.webp':!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
- const base=new URL(albatrosD1Source(key)||(PHOTO_RECON_ART[key]?`./${PHOTO_RECON_ART[key].path}`:bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=${AIRCRAFT_ART_REVISION}`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`),import.meta.url).href;
+ const base=new URL(albatrosD1Source(key)||(PHOTO_RECON_ART[key]?`./${PHOTO_RECON_ART[key].path}`:bakedArt?`./${bakedArt}?v=${paintedRevision(key)}`:stock?`./${stockArt.path}?v=${AIRCRAFT_ART_REVISION}`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`),import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
@@ -216,7 +217,7 @@ export function aircraftFlightSource(key){
  // scan/crop path. Its preload URL must match that request as well.
  if(source==='prinz_friedrich_albatros_d1')return new URL(`./${mech}${source}.webp?v=gal1&b=347`,import.meta.url).href;
  const path=PHOTO_RECON_ART[source]?.path||(SORTIE_FITS[source]?`sortie-aircraft/flight/${source}.webp`:AIRCRAFT_OUTLINE_ART[mech+source]);
- return path?new URL(`./${path}?v=${AIRCRAFT_ART_REVISION}`,import.meta.url).href:'';
+ return path?new URL(`./${path}?v=${paintedRevision(source)}`,import.meta.url).href:'';
 }
 // Cache by decoded image so repainting or evicting a sprite refreshes its colors.
 const trailPalettes=new WeakMap();

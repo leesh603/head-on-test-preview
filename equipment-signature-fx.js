@@ -1,8 +1,8 @@
 // Render-only signatures made exclusively from authored raster artwork.
 // Missing art draws nothing: never substitute temporary geometry. Simulation
 // owns every clock/position; this module does not mutate it or consume RNG.
-import {SIGNATURE_FRAMES,SIGNATURE_ATLAS} from './equipment-signature-art-data.js?v=09c75d146ae4289d';
-import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=09c75d146ae4289d';
+import {SIGNATURE_FRAMES,SIGNATURE_ATLAS} from './equipment-signature-art-data.js';
+import {WWI_FRAMES} from './wwi-equipment-art-data.js';
 const clamp=(n,lo=0,hi=1)=>Math.max(lo,Math.min(hi,Number.isFinite(n)?n:lo));
 const finite=(n,f=0)=>Number.isFinite(n)?n:f;
 const alive=p=>!!p&&p.hp>0&&p.status!=='downed'&&!(p.heineckeEscape>0);

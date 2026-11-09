@@ -1,36 +1,36 @@
-import {bomberWingContact,recordBomberWingHit} from './bomber-wing-damage.js?v=09c75d146ae4289d';
-import {O400Raider} from './o400-squadron.js?v=09c75d146ae4289d';
-import {updateGothaCombat} from './gotha-squadron-combat.js?v=09c75d146ae4289d';
-import {createCapitalBoss} from './capital-bosses.js?v=09c75d146ae4289d';
-import {ParisGeschuetz} from './laon-gun.js?v=09c75d146ae4289d';
-import {FrenchCounterBatteryAirGroup} from './laon-air-group.js?v=09c75d146ae4289d';
-import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=09c75d146ae4289d';
-import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js?v=09c75d146ae4289d';
-import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
-import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=09c75d146ae4289d';
-import {GallipoliFortress} from './gallipoli-boss.js?v=09c75d146ae4289d';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=09c75d146ae4289d';
-import {RuralRailBoss} from './rural-rail-combat.js?v=09c75d146ae4289d';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=09c75d146ae4289d';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=09c75d146ae4289d';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=09c75d146ae4289d';
-import {createJutlandEncounter} from './jutland-boss.js?v=09c75d146ae4289d';
+import {bomberWingContact,recordBomberWingHit} from './bomber-wing-damage.js';
+import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
+import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031&orbit=20261107';
+import {createCapitalBoss} from './capital-bosses.js';
+import {ParisGeschuetz} from './laon-gun.js';
+import {FrenchCounterBatteryAirGroup} from './laon-air-group.js';
+import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
+import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
+import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=gal1-r3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {RuralRailBoss} from './rural-rail-combat.js?v=gal1&rail=44&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
+import {createJutlandEncounter} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=09c75d146ae4289d';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
-import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=09c75d146ae4289d';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=09c75d146ae4289d';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=09c75d146ae4289d';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=09c75d146ae4289d';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=09c75d146ae4289d';
-import {apronPose} from './london-apron369.js?v=09c75d146ae4289d';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=09c75d146ae4289d';
-import {FlakTowerNet} from './city-flak-combat.js?v=09c75d146ae4289d';
+import {sommeScale} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=tame3';
+import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=gal1&ai=1018';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {apronPose} from './london-apron369.js?v=tame3&cityart=20261022';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FlakTowerNet} from './city-flak-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=09c75d146ae4289d';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -1991,7 +1991,11 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
    }));
    return new BossEncounter({id,bossId,bodies});
   }
-  if(bossId==='o400-squadron'){const t={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new O400Raider({id:id+':o400:'+slot,slot,tuning:t,x,y,emit,faction:faction||'entente'}))});}
+  if(bossId==='o400-squadron'){
+   const count=9,t={...tuning,maxHp:tuning.maxHp/count,partHp:tuning.partHp/count,geometryScale:1};
+   const bodies=Array.from({length:count},(_,slot)=>new O400Raider({id:id+':o400:'+slot,slot,tuning:t,x,y,emit,faction:faction||'entente'}));
+   return new BossEncounter({id,bossId,bodies});
+  }
   if(bossId==='gotha-squadron'){
    const flightTuning={...tuning,maxHp:tuning.maxHp/9,partHp:tuning.partHp/9,geometryScale:1},bodies=[];
    for(let slot=0;slot<9;slot++){

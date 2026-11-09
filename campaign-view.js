@@ -1,12 +1,12 @@
-import {PLANES} from './engine.js?v=09c75d146ae4289d';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=09c75d146ae4289d';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=09c75d146ae4289d';
-import {SPRITE_ALIASES} from './campaign.js?v=09c75d146ae4289d';
-import {drawEquipment} from './equipment.js?v=09c75d146ae4289d';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
+import {SPRITE_ALIASES} from './campaign.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=09c75d146ae4289d';
-import {missionNavigation,navigationScreenPoint} from './navigation.js?v=09c75d146ae4289d';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
+import {missionNavigation,navigationScreenPoint} from './navigation.js?v=gal1';
 const _ptShare=[0,0],_twCache=new Map();
 const _tw=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=_twCache.get(k);if(w===undefined){w=c.measureText(txt).width;_twCache.set(k,w)}return w};
 export function drawCampaign(c,g,W,H){

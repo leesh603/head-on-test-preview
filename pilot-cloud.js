@@ -1,7 +1,7 @@
-import {cleanPilotUnlocks,mergePilotUnlocks} from './pilot-unlocks.js?v=09c75d146ae4289d';
+import {cleanPilotUnlocks,mergePilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 const pilotUnlockRecords={clean:cleanPilotUnlocks,merge:mergePilotUnlocks};
 // Optional account-backed copies of service records. Never stores passwords.
-import {PILOT_AIRCRAFT, AIRCRAFT_SELECTION_KEY, pilotAircraftChoices} from './pilot-aircraft.js?v=09c75d146ae4289d';
+import {PILOT_AIRCRAFT, AIRCRAFT_SELECTION_KEY, pilotAircraftChoices} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 
 const own=(o,k)=>Object.hasOwn(o,k),plain=o=>!!o&&typeof o==='object'&&!Array.isArray(o),safe=k=>!['__proto__','prototype','constructor'].includes(k);
 const number=n=>Number.isInteger(n)&&n>=0&&n<=1e9;

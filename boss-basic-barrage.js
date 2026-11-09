@@ -1,10 +1,10 @@
-import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=09c75d146ae4289d';
-import {alpsMuzzle} from './alps-bomber-layout.js?v=09c75d146ae4289d';
-import {harborGunMuzzle} from './harbor-crane-layout.js?v=09c75d146ae4289d';
-import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=09c75d146ae4289d';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=09c75d146ae4289d';
-import {BOSS_LOADOUTS} from './boss-ordnance-loadouts.js?v=09c75d146ae4289d';
-import {bossCounterActive} from './boss-feedback.js?v=09c75d146ae4289d';
+import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
+import {harborGunMuzzle} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
+import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {BOSS_LOADOUTS} from './boss-ordnance-loadouts.js';
+import {bossCounterActive} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
 
 // Ordinary fire is separate from the raid controller. Only authored weapons
 // fire; destroying one removes its lane. No new HP or difficulty multipliers.

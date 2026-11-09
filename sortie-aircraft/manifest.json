@@ -606,14 +606,14 @@
   },
   "robinson_be2c": {
     "source": "mech/robinson_be2c.webp",
-    "sourceSha256": "b695f0c3abdf66bd719a4d5315628a6ab7cfc0eaa1ae2460684168de810df2d0",
+    "sourceSha256": "67ee8c05384cbd538498feaa6709f54827d06414293f1a7bddc02db5856a0dbc",
     "newArt": true,
     "flightSize": [
       288,
       320
     ],
-    "flightBytes": 13510,
-    "sha256": "e5fd3add1051c5588089b148740d6b0efbfdcc9a07cfa6911e8fd40f4aaac2c9",
+    "flightBytes": 22392,
+    "sha256": "e18862a9ee5cf02c5797497a7c66524efd678b53418057fcaeb572dac7d81e88",
     "pivot": [
       144,
       152
@@ -624,7 +624,7 @@
       720,
       646
     ],
-    "nativeHangarPixels": true
+    "nativeHangarPixels": true,
+    "artRevision": "robinson-ink-20261109"
   }
 }
-

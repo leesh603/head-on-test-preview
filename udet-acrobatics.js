@@ -1,7 +1,7 @@
 // Udet owns his graze/roll/counter loop. Host collision remains authoritative.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=09c75d146ae4289d';
-import {isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {isReplacementPrimary} from './pilot-primary.js';
 
 export const UDET_ACROBAT_BALANCE=Object.freeze({inner:14,outer:30,stacks:3,buffSeconds:6,grazeInterval:.22,damagePerStack:.08,turnPerStack:.08,rollSeconds:.42,counterSeconds:2.4,rollSpeed:.72,rollTurn:1.5,counterTurn:1.6,counterRatePerStack:.15,cooldown:18,wake:12,wakeLife:.44});
 const privateStates=new WeakMap();

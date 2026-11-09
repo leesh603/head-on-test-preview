@@ -1,11 +1,11 @@
-import {giantArrivalShadowPose} from './giant-intrusion-arrival.js?v=09c75d146ae4289d';
-import {isNewSubmarine} from './submarine-intrusion.js?v=09c75d146ae4289d';
-import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js?v=09c75d146ae4289d';
+import {giantArrivalShadowPose} from './giant-intrusion-arrival.js';
+import {isNewSubmarine} from './submarine-intrusion.js';
+import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
 
-import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js?v=09c75d146ae4289d';
-import {drawShipWater,drawTorpedo} from './naval-water.js?v=09c75d146ae4289d';
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
-import {getLocale} from './i18n.js?v=09c75d146ae4289d';
+import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js';
+import {drawShipWater,drawTorpedo} from './naval-water.js?v=tame3&perf=1029';
+import {fx} from './fx-art.js?v=tame3';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export {intrusionArtReady};
 export const INTRUSION_COPY=Object.freeze({

@@ -15,3 +15,20 @@ export function giantArrivalShadowPose(e){
  const t=Math.max(0,Math.min(1,s.age/4));
  return{x:s.x+Math.cos(s.a)*s.distance*t,y:s.y+Math.sin(s.a)*s.distance*t,a:s.a,alpha:.2*Math.min(1,t*8,(1-t)*8)};
 }
+
+// Keep the authored straight entry until the pilot breaks its approach line.
+// The replacement leg still integrates nose-first and retains a stand-off gap.
+export function followTurningArrival(body,entry,pilot,v,dt,plannedSpeed,gap){
+ const heading=Math.atan2(v.y,v.x);
+ const delta=heading-entry.a;
+ entry.tracking ||= Math.hypot(v.x,v.y)>30&&Math.abs(Math.atan2(Math.sin(delta),Math.cos(delta)))>.55;
+ if(!entry.tracking)return false;
+ const dx=pilot.x+v.x*.32-body.x,dy=pilot.y+v.y*.32-body.y;
+ const distance=Math.hypot(dx,dy),error=Math.atan2(dy,dx)-body.a;
+ const turn=Math.atan2(Math.sin(error),Math.cos(error));
+ body.a+=Math.max(-2.2*dt,Math.min(2.2*dt,turn));
+ const speed=Math.min(Math.max(80,plannedSpeed),Math.max(0,distance-gap)*2);
+ body.worldVx=Math.cos(body.a)*speed;body.worldVy=Math.sin(body.a)*speed;
+ body.x+=body.worldVx*dt;body.y+=body.worldVy*dt;
+ return true;
+}

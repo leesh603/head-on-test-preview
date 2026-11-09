@@ -1,11 +1,12 @@
-import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js?v=09c75d146ae4289d';
-import {tagBishopBombImpact} from './bishop-sortie-fx.js?v=09c75d146ae4289d';
-import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js?v=09c75d146ae4289d';
-import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js?v=09c75d146ae4289d';
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=09c75d146ae4289d';
+import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js';
+import {tagBishopBombImpact} from './bishop-sortie-fx.js';
+import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
+import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
-import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js?v=09c75d146ae4289d';
-import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
+import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
+import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js';
+import {secretBombImpact} from './secret-weapon-combat.js';
 export {BOMBER_TRANSFER_DESCRIPTION};
 export const BOMBER_TRANSFER=Object.freeze({
  entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3.5,hpCap:520,speed:.76,turn:.62,period:4.8,count:5,spacing:56,interval:.18,radius:96,damage:145,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),
@@ -77,13 +78,16 @@ export function detonateFriendlyBomb(w,b){
  b.friendlyBombDetonated=true;
  const previous=w.combatFX?.at(-1),before=w.bullets?.length||0;
  const damage=b.steelCoreBomb?b.damage*HEAVY_AMMUNITION.bombDamageFraction:b.damage;
- p.queueExplosionDamage(b.x,b.y,b.radius,damage,{fxSource:b.grenade?'grenade':'bomb',grenade:!!b.grenade,bomberSalvo:b.bomberSalvo,pilotSupport:!!b.pilotSupport});
+ // A single S.N. blast keeps one damage budget per boss even when its proxies overlap.
+ const bomberSalvo=b.secretWeapon==='sn1650'?{bossDamage:new Map(),bossCap:damage}:b.bomberSalvo;
+ p.queueExplosionDamage(b.x,b.y,b.radius,damage,{fxSource:b.grenade?'grenade':'bomb',grenade:!!b.grenade,bomberSalvo,pilotSupport:!!b.pilotSupport});
  const blast=w.bullets?.length>before?w.bullets.at(-1):null;
  if(blast&&b.steelCoreBomb)blast.steelCoreBlast=true;
  if(blast&&b.ordnanceProfile){blast.ordnanceProfile=b.ordnanceProfile;blast.target=b.contactTarget;}
  inheritSynthesisBlast(p,b,blast);
  const effect=w.combatFX?.at(-1);if(effect&&effect!==previous){tagBishopBombImpact(p,b,effect);effect.impactWeapon=b.cooperBomb||b.sprite==='cooper'?'cooper':b.sprite==='puw'?'puw':'bomb';if(Number.isFinite(b.releaseAngle))effect.direction=b.releaseAngle;else if(Math.hypot(b.vx||0,b.vy||0)>0)effect.direction=Math.atan2(b.vy,b.vx);}
  detonateSynthesisPayload(p,b);
+ secretBombImpact(p,b);
 }
 
 const bombOwner=(world,bomb)=>world.players?world.players.find(p=>p.id===bomb.ownerId):world;
@@ -113,6 +117,7 @@ function bombContact(world,owner,bomb,exclude){
 }
 
 export function startSteelBomb(world,owner,bomb,target){
+ if(bomb.secretWeapon==='sn1650'||bomb.secretWeapon==='explosiveArmor')return false;
  if(!owner?.upgrades?.steelCore||bomb.enemy||bomb.actualExplosion||bomb.synthesisChild||bomb.secondaryExplosion||bomb.steelCoreBomb||bomb.ownerId!=null&&bomb.ownerId!==(owner.id||'p1'))return false;
  const heading=Math.hypot(bomb.vx||0,bomb.vy||0)>0?Math.atan2(bomb.vy,bomb.vx):bomb.releaseAngle??owner.a??0;
  if(!target){bomb.previousX=bomb.x;bomb.previousY=bomb.y;target=bombContact(world,owner,bomb,null);}

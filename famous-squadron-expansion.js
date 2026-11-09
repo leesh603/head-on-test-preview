@@ -1,8 +1,9 @@
-import {squadronDamage,squadronCourierDamage,squadronHp} from './squadron-elite-balance.js?v=09c75d146ae4289d';
+import {squadronDamage,squadronCourierDamage,squadronHp} from './squadron-elite-balance.js';
 /** Historical squadron identities; pursuit/escort choreography is game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js?v=09c75d146ae4289d';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
+import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
 export const EXPANSION_BALANCE=Object.freeze({duration:24,jasta5:{plane:'jasta5_patrol',count:5,faction:'central',hp:70},spa65:{plane:'spad',count:5,faction:'entente',hp:62},courierPlane:'dfw_cv',courierHp:80,warning:.65,acquire:.42,breakAngle:.35,quiet:1.25,maxBursts:7,maxBreaks:3});
 // 20261107 Jasta 5 stays in the fight: seven passes (was four), departs after a
 // third broken lock (was two).
@@ -26,7 +27,7 @@ export function configureExpansionArt(hooks){art=hooks;pending.clear();retry.cle
 function ready(id){if(typeof Image==='undefined')return true;if(art?.ready?.(id))return true;if(art&&!pending.has(id)&&Date.now()>=(retry.get(id)||0)){pending.add(id);Promise.resolve().then(()=>art.load(id)).then(()=>{if(!art.ready?.(id))retry.set(id,Date.now()+30000)}).catch(()=>retry.set(id,Date.now()+30000)).finally(()=>pending.delete(id));}return false;}
 function blocked(g){return g.stageBoss?.stages?.phase!=='explore'||g.stageCombatWindow?.ready||['active','pending','dispatching'].includes(g.photoReconDirector?.phase)||g.battlefieldEvents?.current?.status==='active'||['warning','entering','active','retreating'].includes(g.intrusionBoss?.phase)||g.eliteEnemies?.active||g.londonBattle||g.parisBattle||g.verdunBattle||(g.battleRecoveryUntil||0)>(g.t||0)||(g.bossPresentationAfter||0)>(g.t||0)||(g.enemies||[]).some(e=>live(e)&&(e.bossPilot||e.type==='boss'||e.stageBossBody));}
 function bank(e,es){e.expansionPhase='exit';e.expansionPreparing=false;e.expansionWarningLeft=0;const cx=es.reduce((n,q)=>n+q.x,0)/es.length,cy=es.reduce((n,q)=>n+q.y,0)/es.length,cross=-(e.x-cx)*Math.sin(e.a)+(e.y-cy)*Math.cos(e.a);e.expansionHeading=e.a+(Math.abs(cross)>15?Math.sign(cross)*.55:0);e.missionTarget=false;e.fire=Infinity;setSpeed(e,80);}
-export function withdrawExpansionWing(g,reason='priority'){if(!host(g)||!g.expansionWing)return;g.expansionWing.phase='exit';g.expansionWing.outcome=reason;const es=members(g);for(const e of es)bank(e,es);const c=courier(g);if(live(c)){c.expansionPhase='exit';c.expansionHeading=c.a+.55;c.speed=80;c.fire=Infinity;}}
+export function withdrawExpansionWing(g,reason='priority'){if(!host(g)||!g.expansionWing)return;g.expansionWing.phase='exit';g.expansionWing.outcome=reason;releaseEliteHunt(g,members(g),reason);const es=members(g);for(const e of es)bank(e,es);const c=courier(g);if(live(c)){c.expansionPhase='exit';c.expansionHeading=c.a+.55;c.speed=80;c.fire=Infinity;}}
 /** Admission only: may warm artwork, never creates combat entities or consumes RNG. */
 export function canSpawnExpansionWing(g,id){const profile=B[id],own=g.stageBoss?.stages?.teamFaction||g.teamFaction,p=pilot(g);if(!profile||!host(g)||g.state!=='playing'||!(p.hp>0)||(g.players?.length&&!g.players.some(p=>p.hp>0&&p.status!=='downed'))||!['central','entente'].includes(own)||own===profile.faction||g.mode==='campaign'||g.historicalMode||g.stage?.historicalAnchorDate||blocked(g)||!canAdmitSquadron(g,id)||!ready(profile.plane)||(id==='spa65'&&!ready(B.courierPlane))||(g.stageCombatWindow?.remaining??Infinity)<B.duration+8)return false;
  const es=(g.enemies||[]).filter(live);if(es.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)).length+profile.count>(g.regularEnemyLimit?.()??12)||es.length+profile.count>(g.enemyCapacity?.()??65)-1)return false;

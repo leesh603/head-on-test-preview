@@ -1,9 +1,8 @@
-import {applyTerrainAtmosphere} from './alps-terrain117.js?v=09c75d146ae4289d';
 // One coordinate scale for the painted city, the camera and river concealment.
 // Native art is cached without shrinking it; neighbouring tiles only translate.
 export const CAPITAL_TERRAIN_SIZE=2560;
 export const CAPITAL_TERRAIN_SOURCES=Object.freeze({
- 11:'./terrain-capital-london-20261031.webp',
+ 11:'./terrain-capital-london-20261031.webp?art=combat-scale-20261109',
  18:'./terrain-capital-berlin-20261031.webp'
 });
 const baseColor=region=>region===11?'#232a36':'#45514d';
@@ -35,10 +34,11 @@ export class CapitalTerrainRenderer{
   entry.ready=new Promise(resolve=>{
    image.onload=()=>Promise.resolve(image.decode?.()).catch(()=>{}).then(()=>{
     if(!image.naturalWidth){resolve(false);return;}
+    // London's colour and joined edges are authored in the WebP. Keep one
+    // decoded surface instead of copying the larger texture to a canvas.
+    if(region===11){entry.tile=image;resolve(true);return;}
     const tile=this.canvasFactory(image.naturalWidth,image.naturalHeight),g=tile.getContext('2d');
-    if(region===11)g.filter='saturate(.73) contrast(.83) brightness(1.04)';
-    g.drawImage(image,0,0);g.filter='none';joinTerrainEdges(tile,region===11?18:4);
-    if(region===11&&typeof g.save==='function')applyTerrainAtmosphere(g,'london',tile.width,tile.height);
+    g.drawImage(image,0,0);joinTerrainEdges(tile,4);
     entry.tile=tile;resolve(true);
    });
    image.onerror=()=>resolve(false);

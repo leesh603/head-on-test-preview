@@ -1,10 +1,10 @@
-import {FIRE_DIVE_PILOTS} from './fire-dive-fx.js?v=09c75d146ae4289d';
-import {installEscortCommandFx,ESCORT_PILOTS} from './escort-command-fx.js?v=09c75d146ae4289d';
-import {installCavalryRacerFx,CAVALRY_RACER_PILOTS} from './cavalry-racer-fx.js?v=09c75d146ae4289d';
-import {installOrdnancePilotFx,ORDNANCE_PILOTS} from './ordnance-pilot-fx.js?v=09c75d146ae4289d';
-import {installCommandFlightFx,COMMAND_PILOTS} from './command-flight-fx.js?v=09c75d146ae4289d';
+import {FIRE_DIVE_PILOTS} from './fire-dive-fx.js?v=firedive1';
+import {installEscortCommandFx,ESCORT_PILOTS} from './escort-command-fx.js?v=escortfx1';
+import {installCavalryRacerFx,CAVALRY_RACER_PILOTS} from './cavalry-racer-fx.js?v=cavalryracer1';
+import {installOrdnancePilotFx,ORDNANCE_PILOTS} from './ordnance-pilot-fx.js?v=ordnancefx1';
+import {installCommandFlightFx,COMMAND_PILOTS} from './command-flight-fx.js?v=commandfx2';
 // Install after the engine's final pilot layer. Existing working attacks stay intact.
-import {PILOT_SIGNATURES,signatureState,advancePilotSignature,activatePilotSignature,signatureCue,pilotSignatureReaction,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {PILOT_SIGNATURES,signatureState,advancePilotSignature,activatePilotSignature,signatureCue,pilotSignatureReaction,signatureInterval} from './pilot-signature-state.js';
 const WRAPPED=Symbol.for('headon.pilot-signatures.v1');
 const own=p=>p.id??'p1';
 export function installPilotSignatures(Game){

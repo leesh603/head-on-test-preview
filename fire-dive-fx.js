@@ -1,9 +1,9 @@
 // Luke: actual burning fuel cells. Mannock: articulated real support aircraft.
 // No projectile, damage, spawn, random-number or flight-state writes.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=09c75d146ae4289d';
-import {drawGontermannPassive} from './pilot-passive-art.js?v=09c75d146ae4289d';
-import {drawLafayetteWing} from './lufbery-circle-fx.js?v=09c75d146ae4289d';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
+import {drawGontermannPassive} from './pilot-passive-art.js';
+import {drawLafayetteWing} from './lufbery-circle-fx.js';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const owner=p=>p.id??'p1';
 const living=p=>p?.hp>0&&p.status!=='downed'&&p.state==='playing';

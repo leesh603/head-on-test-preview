@@ -1,16 +1,16 @@
-import {portraitThumbnailSource} from './portraits.js?v=09c75d146ae4289d';
+import {portraitThumbnailSource} from './portraits.js?v=crew20261024&opt=1';
 /* Phone lobby (420). Presentation only: the key art and logo own the screen,
    the selected aircraft is named under them, then mode tabs, the sortie
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=09c75d146ae4289d';
-import {hangarArt, hangarArtLayout} from './hangar-art.js?v=09c75d146ae4289d';
+import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
+import {hangarArt, hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=09c75d146ae4289d';
-import {aircraftFeelRatings} from './aircraft-feel174.js?v=09c75d146ae4289d';
-import {t} from './i18n.js?v=09c75d146ae4289d';
-import {waitForLobbyIcons} from './lobby-assets-ready.js?v=09c75d146ae4289d';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108';
+import {aircraftFeelRatings} from './aircraft-feel174.js?v=gal1';
+import {t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {waitForLobbyIcons} from './lobby-assets-ready.js?v=lobbygate2';
 const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';

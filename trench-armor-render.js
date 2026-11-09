@@ -1,5 +1,5 @@
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=09c75d146ae4289d';
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {fx} from './fx-art.js?v=tame3';
 // Sample the actual hull's steel plates, not a separately scaled generic belt.
 // Coordinates are in the authored 640px hull. Rails and track ends stay fixed.
 export const TREAD_PROFILES=Object.freeze({
@@ -25,7 +25,8 @@ function trackCenter(points,y){
 // Build once at native art resolution; live rendering is two cached blits.
 export function prepareArmorTreads(hull,kind,makeCanvas=()=>typeof OffscreenCanvas==='function'?new OffscreenCanvas(1,1):document.createElement('canvas'),profile=TREAD_PROFILES[kind]){
  if(!hull?.naturalWidth)return null;
- let cached=treadCache.get(hull);if(cached)return cached;
+ let profiles=treadCache.get(hull);if(!profiles){profiles=new Map();treadCache.set(hull,profiles);}
+ let cached=profiles.get(profile);if(cached)return cached;
  cached={};
  for(const side of ['left','right']){
   const points=profile[side],width=profile.halfWidth*2;
@@ -40,13 +41,27 @@ export function prepareArmorTreads(hull,kind,makeCanvas=()=>typeof OffscreenCanv
    ctx.drawImage(hull,sourceX,profile.sourceY+phase,width,1,
     frame*stripWidth+trackCenter(points,y)-profile.halfWidth-minX,y,width,1);
   }
+  // The moving faces must join the painted rails and end caps rather than
+  // stamp a hard rectangular cut over them. Keep this mask fixed in hull
+  // coordinates for every phase, including reverse and counter-rotation.
+  const mask=makeCanvas();mask.width=native.width;mask.height=native.height;
+  const mc=mask.getContext('2d'),edge=3/width;
+  for(let frame=0;frame<TREAD_FRAMES;frame++)for(const [start,end]of profile.segments)for(let y=start;y<end;y++){
+   const x=frame*stripWidth+trackCenter(points,y)-profile.halfWidth-minX;
+   const fade=Math.min(1,(y-start)/12,(end-1-y)/12),alpha=fade*fade*(3-2*fade);
+   const g=mc.createLinearGradient(x,0,x+width,0);
+   g.addColorStop(0,'transparent');g.addColorStop(edge,`rgba(255,255,255,${alpha})`);
+   g.addColorStop(1-edge,`rgba(255,255,255,${alpha})`);g.addColorStop(1,'transparent');
+   mc.fillStyle=g;mc.fillRect(x,y,width,1);
+  }
+  ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);
   const frameWidth=Math.ceil(stripWidth*.4),atlas=makeCanvas();atlas.width=frameWidth*TREAD_FRAMES;atlas.height=256;
   const target=atlas.getContext('2d');
   for(let frame=0;frame<TREAD_FRAMES;frame++)target.drawImage(native,frame*stripWidth,0,stripWidth,640,frame*frameWidth,0,frameWidth,256);
   // Retain only narrow ribbons (~1.2 MiB for both bosses), not full-hull atlases.
   cached[side]={image:atlas,x:minX*.4-128,width:stripWidth*.4,frameWidth};
  }
- treadCache.set(hull,cached);return cached;
+ profiles.set(profile,cached);return cached;
 }
 export function drawArmorGround(c,b,wire,crossing){
  for(const p of b.trackMarks||[]){c.save();c.translate(p.x-b.x,p.y-b.y);c.rotate(p.yaw);c.globalAlpha*=Math.max(0,1-p.age/9)*.24;c.fillStyle='#29241a';c.fillRect(-p.width/2,-p.length/2,p.width,p.length);c.fillStyle='#6d5740';c.fillRect(-p.width/2,-p.length/2,p.width,2);c.restore();}

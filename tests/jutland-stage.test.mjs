@@ -1,17 +1,142 @@
-import test from 'node:test';import assert from 'node:assert/strict';
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import {fixture,step} from './stageboss-fixture94.mjs';
 import {createJutlandRoute,jutlandPoint,tickJutlandRoute} from '../jutland-route.js';
-import {jutlandRotate} from '../jutland-boss.js';
-const battle=(team='entente')=>{const f=fixture({stageIndex:16,teamFaction:team});f.e=f.addon.startBoss({x:400,y:0});f.b=[...f.e.bodies.values()][0];return f;};
-const hazards=f=>f.addon.hazards.pool.records.filter(h=>h.active);
-test('Jutland selects opposing four-body fleet and conserves native HP budget',()=>{for(const team of ['central','entente']){const f=battle(team);assert.equal(f.e.bossId,'jutland-grand-fleet');assert.equal(f.e.bodies.size,4);assert.equal(f.e.maxHpBudget,1000);for(const b of f.e.bodies.values())assert.notEqual(b.faction,team);assert.deepEqual([...f.e.bodies.values()].map(b=>b.role),['battleship','cruiser','cruiser','observer']);}});
-test('Entry immunity ends after five seconds and part damage counts once toward hull HP',()=>{const f=battle();assert.equal(f.b.hit({damage:100}).damage,0);step(f,5.1);const p=f.b.parts.get('bow-port'),hp=f.b.hp;assert.equal(f.b.hit({partId:p.id,damage:10}).damage,10);assert.equal(f.b.hp,hp-10);assert.equal(p.hp,p.maxHp-10);assert.throws(()=>f.b.hit({damage:NaN}));});
-test('Ships turn at a bounded rate and mounts follow rotated swept hull collision',()=>{const f=battle();step(f,16);const old=f.b.hullYaw,x=f.b.x,y=f.b.y;step(f,.05);assert(Math.abs(f.b.hullYaw-old)<=.27*.051);assert(Math.hypot(f.b.x-x,f.b.y-y)<=64*.051);step(f,4);const p=f.b.parts.get('bow-port'),v=jutlandRotate(p.localX,p.localY,f.b.hullYaw);assert(Math.abs(p.x-v.x)<1e-8);assert.equal(f.b.locateHit({x:f.b.x+p.x,y:f.b.y+p.y,radius:1}).partId,p.id);assert.equal(f.b.locateHit({x:f.b.x+1500,y:f.b.y}),null);const a=jutlandRotate(0,-600,f.b.hullYaw),b=jutlandRotate(0,600,f.b.hullYaw);assert(f.b.locateHit({previousX:f.b.x+a.x,previousY:f.b.y+a.y,x:f.b.x+b.x,y:f.b.y+b.y}));});
-test('Fleet cycles through crossing and turn-away doctrine with bounded recon',()=>{const f=battle();step(f,53);const phases=f.log.cues.filter(e=>e.type==='phase-change').map(e=>e.phase);for(const p of ['crossing-turn','crossing-fire','turn-away','reform'])assert(phases.includes('jutland-'+p));assert(f.addon.hazards.serial>0);assert(f.log.minions.every(m=>m.behavior==='attack-pass'&&m.fire===Infinity));assert(f.log.minions.length<=2);});
-test('Director and observer destruction reduce coordination without protecting the hull',()=>{const f=battle();step(f,5.1);assert(f.b.coordinated());assert(f.b.observed());f.b.hit({partId:'director',damage:999});assert(!f.b.coordinated());const observer=[...f.e.bodies.values()].at(-1);observer.hit({partId:'gondola',damage:999});assert(!f.b.observed());assert(!observer.dead);assert(f.b.hit({damage:1}).damage>0);});
-test('Destroyed tubes cancel warned torpedoes and cannot launch again',()=>{const f=battle();step(f,5.1);const c=[...f.e.bodies.values()][1];c.fleet.phase='turn-away';c.plan(f.frame.players[0],'torpedo');const p=c.parts.get(c.pending.partId);p.angle=Math.atan2(c.pending.target.y-c.y-p.y,c.pending.target.x-c.x-p.x);c.fire(.05);assert(hazards(f).some(h=>h.visual==='jutland-torpedo'));c.hit({partId:p.id,damage:999});assert(!hazards(f).some(h=>h.tag===c.id+':'+p.id));c.hit({partId:[...c.parts.values()].find(q=>q.kind==='torpedo'&&!q.destroyed).id,damage:999});c.plan(f.frame.players[0],'torpedo');assert.equal(c.pending,null);});
-test('Recon plane loss prevents correction and launch deck loss disables further sorties',()=>{const f=battle();step(f,24.1);assert.equal(f.log.minions.length,1);f.log.minions.length=0;const n=f.addon.hazards.serial;f.b.formationStatus129=()=>[];f.b.recon(2.1,f.frame.players);assert.equal(f.addon.hazards.serial,n);f.b.hit({partId:'seaplane-deck',damage:999});step(f,60);assert.equal(f.log.minions.length,0);});
-test('Vessels die independently in any order; observer retreats and rewards bank once',()=>{for(const order of [[0,1,2],[2,0,1]]){const f=battle();step(f,5.1);const ships=[...f.e.bodies.values()].slice(0,3);ships[order[0]].hit({damage:1e9});step(f,.1);assert(!f.e.completed);for(const i of order.slice(1))ships[i].hit({damage:1e9});assert(f.e.completed);assert([...f.e.bodies.values()].at(-1).retreating);step(f,5,{advance:true});assert.equal(f.log.clears.length,1);assert.equal(f.log.cleanup.length,1);assert.equal(hazards(f).length,0);}});
-test('Pause freezes positions, doctrine, recon and hazards',()=>{const f=battle();step(f,21);const state=()=>[f.b.x,f.b.y,f.b.hullYaw,f.b.fleet.clock,f.b.launchClock,f.addon.hazards.serial],before=state();f.frame.paused=true;step(f,20);assert.deepEqual(state(),before);});
-test('World anchored North Sea route is wide in coop and ignores distance gained by circling',()=>{const g={x:10,y:20,a:-Math.PI/2,stageBoss:{stages:{stageIndex:16,phase:'explore'}},event(){}};g.jutlandRoute=createJutlandRoute(g);g.distance=1e9;tickJutlandRoute(g);assert.equal(g.jutlandRoute.maxForward,0);g.players=[g,{...jutlandPoint(g.jutlandRoute,12300,-7000)}];tickJutlandRoute(g);assert(Math.abs(g.players[1].x-g.jutlandRoute.x+3600)<1e-8);assert.equal(g.jutlandRoute.maxForward,12300);g.stageBoss.stages.stageIndex=0;tickJutlandRoute(g);assert.equal(g.jutlandRoute,null);});
-test('Surviving recon adds one frozen correction marker instead of a homing volley',()=>{const f=battle();step(f,24.1);f.b.formationStatus129=()=>[{role:'jutland-recon'}];const point={...f.b.reconPending},serial=f.addon.hazards.serial;f.frame.players[0].x+=500;f.b.recon(2.1,f.frame.players);assert.equal(f.addon.hazards.serial,serial+1);const h=hazards(f).find(h=>h.tag===f.b.id+':recon');assert.equal(h.x,point.x);assert.equal(h.y,point.y);assert.equal(h.warning,2.5);assert.equal(h.vx,0);});
+import {JUTLAND_ENTRY_SECONDS,jutlandRotate} from '../jutland-boss.js';
+
+function battle(team='entente'){
+ const f=fixture({stageIndex:16,teamFaction:team});
+ f.e=f.addon.startBoss({x:400,y:0});f.b=f.e.bodies.values().next().value;
+ return f;
+}
+const hazards=f=>f.addon.hazards.pool.records.filter(h=>h.active&&h.visual==='jutland-shell');
+
+test('Jutland fields only one enemy flagship with a shorter total durability budget',()=>{
+ for(const team of ['central','entente']){
+  const f=battle(team);
+  assert.equal(f.e.bossId,'jutland-grand-fleet');assert.equal(f.e.bodies.size,1);assert.equal(f.e.maxHpBudget,780);
+  assert.notEqual(f.b.faction,team);assert.deepEqual([...f.b.parts.keys()],['bow','director','aft']);
+ }
+});
+
+test('rotated weakpoint coordinates and swept hull collision remain authoritative',()=>{
+ const f=battle();
+ assert.equal(f.b.hit({damage:100}).damage,0);
+ step(f,JUTLAND_ENTRY_SECONDS+.2);
+ const p=f.b.parts.get('bow'),hp=f.b.hp,v=jutlandRotate(p.localX,p.localY,f.b.hullYaw);
+ assert(Math.abs(p.x-v.x)<1e-8);
+ assert.equal(f.b.locateHit({x:f.b.x+p.x,y:f.b.y+p.y,radius:1}).partId,p.id);
+ assert.equal(f.b.locateHit({x:f.b.x+1500,y:f.b.y}),null);
+ assert.equal(f.b.hit({partId:p.id,damage:10}).damage,10);
+ assert.equal(f.b.hp,hp-10);assert.equal(p.hp,p.maxHp-10);
+ assert.throws(()=>f.b.hit({damage:NaN}));
+});
+
+test('a physical broadside warns bounded impacts, opens a counter window, and never spawns aircraft',()=>{
+ const f=battle();
+ for(let n=0;n<320&&!hazards(f).length;n++)step(f,.05);
+ step(f,.45);
+ assert.equal(hazards(f).length,4);
+ assert(hazards(f).every(h=>h.warning===1.8));
+ assert.equal(f.b.attackStep,'fall');
+ step(f,3.1);assert.equal(f.b.attackStep,'reload');assert(f.b.counterWindow()>1);
+ step(f,60);assert.equal(f.log.minions.length,0);
+ assert(f.log.cues.some(e=>e.phase==='jutland-broadside-turn'));
+});
+
+test('destroying the director cancels waiting impacts and disabling both guns ends native fire',()=>{
+ const f=battle();
+ for(let n=0;n<320&&!hazards(f).length;n++)step(f,.05);
+ assert(hazards(f).length>0);
+ f.b.hit({partId:'director',damage:1e6});assert.equal(hazards(f).length,0);
+ assert.equal(f.b.attackTime,4.2);
+ for(const id of ['bow','aft'])f.b.hit({partId:id,damage:1e6});
+ assert.equal(f.b.attackStep,'disarmed');
+ step(f,35);assert.equal(hazards(f).length,0);
+});
+
+function advanceTo(f,phase,move=()=>{}){
+ for(let n=0;n<320&&f.b.attackStep!==phase;n++){move();step(f,.05);}
+ assert.equal(f.b.attackStep,phase);
+}
+const shotsFrom=(f,id)=>hazards(f).filter(h=>h.sourcePartId===id);
+function assertLaneCenter(shots,lane){
+ assert(shots.length>0);
+ for(const axis of ['x','y']){
+  const center=shots.reduce((sum,h)=>sum+h[axis],0)/shots.length;
+  assert(Math.abs(center-lane[axis])<1e-7,'the frozen lane center is kept for '+lane.id);
+ }
+}
+
+test('the production host keeps authored lane centers and timings against a moving pilot',()=>{
+ const f=battle(),p=f.frame.players[0];
+ p.vx=62;p.vy=0;f.frame.players.length=1;
+ const move=()=>{p.x+=p.vx*.05;};
+ advanceTo(f,'aim',move);
+ const locked=structuredClone(f.b.pending.lanes);
+ assert.equal(locked.length,2);
+ advanceTo(f,'fall',move);
+ assert.equal(shotsFrom(f,'bow').length,2);
+ assert.equal(shotsFrom(f,'aft').length,0);
+ for(let n=0;n<7;n++){move();step(f,.05);}
+ assert.equal(shotsFrom(f,'aft').length,0);
+ move();step(f,.05);
+ assert.equal(shotsFrom(f,'aft').length,2);
+ assert(f.b.parts.get('aft').recoil>0&&f.b.parts.get('bow').recoil===0);
+ for(const lane of locked)assertLaneCenter(shotsFrom(f,lane.id),lane);
+ assert(Math.max(...shotsFrom(f,'bow').map(h=>h.radius))<Math.max(...shotsFrom(f,'aft').map(h=>h.radius)));
+ advanceTo(f,'reload',move);
+ assert(f.log.damage.length>0,'a pilot keeping their course can be hit by the committed broadside');
+});
+
+for(const [lost,live] of [['bow','aft'],['aft','bow']])test('losing '+lost+' frees only its lane during aim and impact warning',()=>{
+ const aiming=battle();advanceTo(aiming,'aim');
+ const keptLane=aiming.b.pending.lanes.find(l=>l.id===live);
+ aiming.b.hit({partId:lost,damage:1e6});advanceTo(aiming,'fall');
+ step(aiming,.45);
+ assert.equal(shotsFrom(aiming,lost).length,0);
+ assertLaneCenter(shotsFrom(aiming,live),keptLane);
+ const warning=battle();advanceTo(warning,'fall');
+ step(warning,.45);
+ const original=shotsFrom(warning,live).map(h=>[h.x,h.y,h.delay]);
+ warning.b.hit({partId:lost,damage:1e6});
+ assert.equal(shotsFrom(warning,lost).length,0);
+ assert.deepEqual(shotsFrom(warning,live).map(h=>[h.x,h.y,h.delay]),original);
+ assert(warning.log.cues.some(e=>e.phase==='jutland-'+lost+'-lost'));
+});
+
+test('the stern gun can be stopped after the bow gun has fired',()=>{
+ const f=battle();advanceTo(f,'fall');
+ assert.equal(shotsFrom(f,'bow').length,2);
+ f.b.hit({partId:'aft',damage:1e6});
+ step(f,.6);
+ assert.equal(shotsFrom(f,'bow').length,2);assert.equal(shotsFrom(f,'aft').length,0);
+ assert.equal(f.b.parts.get('aft').recoil,0);
+});
+
+test('the last salvo extends both authored lanes to three rounds each without overlapping another volley',()=>{
+ const f=battle();f.b.hp=f.b.maxHp*.32;advanceTo(f,'fall');
+ step(f,.45);
+ assert.equal(shotsFrom(f,'bow').length,3);
+ assert.equal(shotsFrom(f,'aft').length,3);
+ assert(f.log.cues.some(e=>e.phase==='jutland-last-salvo'));
+ let peak=0;
+ for(let n=0;n<230;n++){peak=Math.max(peak,hazards(f).length);step(f,.05);}
+ assert.equal(peak,6);
+});
+
+test('pause freezes the flagship, then sinking resolves rewards and hazards once',()=>{
+ const f=battle();step(f,7);
+ const state=()=>[f.b.x,f.b.y,f.b.hullYaw,f.b.attackTime,f.addon.hazards.serial],before=state();
+ f.frame.paused=true;step(f,4);assert.deepEqual(state(),before);
+ f.frame.paused=false;f.b.hit({damage:1e9});assert(f.e.completed);
+ step(f,5,{advance:true});assert.equal(f.log.clears.length,1);assert.equal(f.log.cleanup.length,1);assert.equal(hazards(f).length,0);
+});
+
+test('the North Sea route is world-anchored and ignores circling mileage',()=>{
+ const g={x:10,y:20,a:-Math.PI/2,stageBoss:{stages:{stageIndex:16,phase:'explore'}},event(){}};
+ g.jutlandRoute=createJutlandRoute(g);g.distance=1e9;tickJutlandRoute(g);assert.equal(g.jutlandRoute.maxForward,0);
+ g.players=[g,{...jutlandPoint(g.jutlandRoute,6000,-7000)}];tickJutlandRoute(g);
+ assert(Math.abs(g.players[1].x-g.jutlandRoute.x+3600)<1e-8);assert.equal(g.jutlandRoute.maxForward,6000);
+ g.stageBoss.stages.stageIndex=0;tickJutlandRoute(g);assert.equal(g.jutlandRoute,null);
+});

@@ -1,13 +1,13 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=09c75d146ae4289d';
-import {ruralSamplePath} from './rural-audio.js?v=09c75d146ae4289d';
+import {railAudioSamples} from './rail-audio.js?v=tame3';
+import {ruralSamplePath} from './rural-audio.js';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 let activeRegion=-1;
 const PRIORITY={missionStart:2,missionComplete:2,missionFailed:2,artilleryFire:2,artilleryNavalFire:2,artilleryImpact:2,detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:2,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
-const INTERVAL={missionStart:.35,missionComplete:.35,missionFailed:.35,artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const INTERVAL={secretArmorImpact:.12,secretWingSkill:.2,secretBomber:.22,missionStart:.35,missionComplete:.35,missionFailed:.35,artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
@@ -265,6 +265,21 @@ function updateWind(world){
  clearTimeout(wind.idle);const w=wind;w.idle=setTimeout(()=>{try{w.gain.gain.setTargetAtTime(0,ctx.currentTime,.1);w.src.stop(ctx.currentTime+.4)}catch{}},450);
 }
 const VOICES={
+  // Secret weapon voices are original Web Audio synthesis. No sampled source.
+  secretEvolve(){tone(187,74,.12,.065,'triangle',800);for(const [i,f] of [294,440,587].entries())tone(f,f,.23,.037,'triangle',2400,.08+i*.07);hiss(2700,1100,.09,.04)},
+  secretRotary(){tone(58,143,.15,.044,'sawtooth',700);for(let i=0;i<4;i++)hiss(4100,1160,.046,.044,'bandpass',.85,.024+i*.026)},
+  secretPom(){tone(131,37,.21,.15,'sine',800);hiss(1400,460,.14,.12,'lowpass');tone(610,300,.065,.034,'triangle',1200,.08)},
+  secretHeavyApproach(){tone(125,80,.95,.047,'sawtooth',420,0,.21);tone(2050,520,.67,.063,'sine',2400,1.62,.2);hiss(2900,1150,.52,.045,'bandpass',.7,1.84)},
+  secretHeavyImpact(){tone(68,23,1.08,.18,'sine',185);hiss(1800,165,.88,.18,'lowpass',.4);hiss(4000,1100,.45,.06,'bandpass',.8,.22)},
+  secretSteelRain(){for(let i=0;i<7;i++){tone(2140+i*127,940+i*83,.11,.027,'triangle',3400,i*.057);hiss(6200,2200,.08,.033,'bandpass',1.2,i*.057+.02)}},
+  secretGas(){hiss(3300,420,.85,.093,'bandpass',.7,0,.08);tone(172,70,.36,.05,'sawtooth',490,.12)},
+  secretChain(){for(let i=0;i<3;i++){hiss(4600,1100,.14,.066,'bandpass',1.3,i*.077);tone(560-i*65,190,.14,.039,'triangle',1600,i*.077)}},
+  secretWake(){hiss(2000,550,.39,.074,'bandpass',.55,0,.04);tone(83,52,.32,.064,'sawtooth',440,0,.035)},
+  secretRam(){hiss(4700,330,.23,.14,'bandpass',.7);tone(91,29,.26,.1,'triangle',300);tone(690,130,.13,.033,'square',950,.035)},
+  secretArmor(){for(let i=0;i<3;i++){tone(170,79,.07,.058,'triangle',700,i*.055);hiss(2600,730,.067,.048,'bandpass',1,i*.055)}},
+  secretArmorImpact(){tone(116,48,.13,.059,'triangle',550);hiss(1550,380,.15,.056,'lowpass')},
+  secretWingSkill(){tone(352,392,.16,.048,'triangle',1000);tone(525,508,.22,.039,'sawtooth',1400,.08)},
+  secretBomber(){tone(51,68,.45,.064,'sawtooth',350,0,.08);tone(54,62,.41,.045,'triangle',340,0,.07);hiss(1850,650,.22,.048,'bandpass',.6,.18)},
   trainApproach(){railSample('trainApproach',.68)},
   trainRoll(){railSample('trainRoll',.28)},
   trainBrake(){railSample('trainBrake',.34)},

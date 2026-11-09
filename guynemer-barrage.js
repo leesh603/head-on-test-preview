@@ -1,6 +1,6 @@
 // Alternate the real underwing launches. Counts, fan, payload and equipment
 // preparation remain with the existing salvo; no decorative projectiles.
-import {signatureState} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {signatureState} from './pilot-signature-state.js';
 const pending=new WeakMap();
 export const GUYNEMER_BARRAGE=Object.freeze({wingDelay:.08,waveDelay:.36});
 export function tickGuynemerBarrage(p,dt,emit,{longRange=p.longRange}={}){

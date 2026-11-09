@@ -3,7 +3,8 @@ export const DOGFIGHT_PASS_STATES=Object.freeze({
 });
 
 export const DOGFIGHT_PASS_BALANCE=Object.freeze({
- attackPassDuration:.34,commitDuration:1.05,disengageDuration:1.05,repositionDuration:1.15,reengageDuration:.55,approachCooldown:.6
+ attackPassDuration:.34,commitDuration:1.05,disengageDuration:1.05,repositionDuration:1.15,reengageDuration:.55,approachCooldown:.6,
+ breakRange:210,breakMiss:44,breakAngle:1.1,breakTurn:1
 });
 
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
@@ -69,7 +70,18 @@ export function fireFighterBurst(game,e){
  return true;
 }
 
-function setState(e,state,duration=0){e.combatPassState=state;e.combatPassTimer=duration;}
+const BREAK_STATES=new Set([DOGFIGHT_PASS_STATES.ATTACK_PASS,DOGFIGHT_PASS_STATES.COMMIT,DOGFIGHT_PASS_STATES.DISENGAGE]);
+// Predicted closest approach of a straight attack line to the pilot it is fighting.
+function passCollision(game,e,contact,distance){
+ if(e.combatPassBreak||!BREAK_STATES.has(e.combatPassState))return false;
+ if(!(contact===game||game.players?.includes?.(contact))||distance>DOGFIGHT_PASS_BALANCE.breakRange)return false;
+ const pv=contact.speed||0,pa=contact.a??0,ev=e.speed||0,rx=e.x-contact.x,ry=e.y-contact.y;
+ const vx=Math.cos(e.a)*ev-Math.cos(pa)*pv,vy=Math.sin(e.a)*ev-Math.sin(pa)*pv,vv=vx*vx+vy*vy;
+ const t=vv>1?-(rx*vx+ry*vy)/vv:0;if(t<=0)return false;
+ return Math.hypot(rx+vx*t,ry+vy*t)<DOGFIGHT_PASS_BALANCE.breakMiss;
+}
+
+function setState(e,state,duration=0){if(!BREAK_STATES.has(state))e.combatPassBreak=false;e.combatPassState=state;e.combatPassTimer=duration;}
 function clearState(e){
  for(const key of ['combatPassState','combatPassTimer','combatPassHeading','combatPassWaypoint','combatPassSide','combatPassCooldown'])delete e[key];
 }
@@ -159,6 +171,12 @@ export function installDogfightPass(Game,angleDiff){
    }
   }
 
+  // 20261108: the attack line was frozen straight through the pilot, so most
+  // passes ended in a head-on ram. Once the guns are inside breakRange and the
+  // line would pass within breakMiss, the fighter breaks to its pass side.
+  if(passCollision(this,e,contact,distance)){e.combatPassHeading=e.a+(e.combatPassSide||1)*DOGFIGHT_PASS_BALANCE.breakAngle;e.combatPassBreak=true;}
+  if(e.combatPassBreak&&BREAK_STATES.has(e.combatPassState))
+   return{delta:angleDiff(e.combatPassHeading,e.a),turn:baseTurn*DOGFIGHT_PASS_BALANCE.breakTurn};
   if((this.patrols||[]).includes(contact)&&[DOGFIGHT_PASS_STATES.ATTACK_PASS,DOGFIGHT_PASS_STATES.COMMIT].includes(e.combatPassState))
    return{delta:angleDiff(fighterAim(this,e,contact),e.a),turn:baseTurn*.85};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.ATTACK_PASS)

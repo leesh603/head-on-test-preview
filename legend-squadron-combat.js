@@ -1,7 +1,8 @@
 /** Historical units; top-view encounter choreography is gameplay interpretation. */
-import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=09c75d146ae4289d';
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
+import {squadronDamage,squadronDurability} from './squadron-elite-balance.js';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
+import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
 export const LEGEND_BALANCE=Object.freeze({sqn56:{plane:'se5a',faction:'entente',count:5,hp:66},jasta2:{plane:'albatros_d5a',faction:'central',count:5,hp:72},duration:24,commandWarning:.65,commandSpacing:.18,commandCycles:5,coverPasses:4,recovery:1.8});
 // 20261107: Jasta 2 issues five command volleys (was three) before departing.
 const B=LEGEND_BALANCE,angle=a=>Math.atan2(Math.sin(a),Math.cos(a)),live=e=>e&&e.hp>0&&!e.crashing&&!e.expired,host=g=>!g.online||g.host;
@@ -35,7 +36,7 @@ export function configureLegendArt(hooks){art=hooks;pending.clear();failed.clear
 function ready(id){if(typeof Image==='undefined')return true;if(art?.ready?.(id))return true;if(art&&!pending.has(id)&&Date.now()>=(failed.get(id)||0)){pending.add(id);Promise.resolve().then(()=>art.load(id)).then(()=>{if(!art.ready?.(id))failed.set(id,Date.now()+30000)}).catch(()=>failed.set(id,Date.now()+30000)).finally(()=>pending.delete(id));}return false;}
 function blocked(g){return g.stageBoss?.stages?.phase!=='explore'||g.stageCombatWindow?.ready||['active','pending','dispatching'].includes(g.photoReconDirector?.phase)||g.battlefieldEvents?.current?.status==='active'||['warning','entering','active','retreating'].includes(g.intrusionBoss?.phase)||g.eliteEnemies?.active||g.londonBattle||g.parisBattle||g.verdunBattle||(g.battleRecoveryUntil||0)>(g.t||0)||(g.bossPresentationAfter||0)>(g.t||0)||(g.enemies||[]).some(e=>live(e)&&(e.bossPilot||e.type==='boss'||e.stageBossBody));}
 function retreat(e,g){if(e.legendWingPhase==='exit')return;e.legendWingPhase='exit';e.legendWingPreparing=false;e.legendWingWarningLeft=0;e.legendWingHeading=e.a+(e.legendWingSlot%2?-.55:.55);e.fire=Infinity;e.missionTarget=false;speed(e,pace(g)+120);}
-export function withdrawLegendWing(g,reason='priority'){if(!host(g)||!g.legendWing)return;g.legendWing.phase='exit';g.legendWing.outcome=reason;for(const e of members(g))retreat(e,g);}
+export function withdrawLegendWing(g,reason='priority'){if(!host(g)||!g.legendWing)return;g.legendWing.phase='exit';g.legendWing.outcome=reason;releaseEliteHunt(g,members(g),reason);for(const e of members(g))retreat(e,g);}
 /** Admission only: may warm artwork, never creates combat entities or consumes RNG. */
 export function canSpawnLegendWing(g,id){
  const profile=B[id],p=pilot(g),own=g.stageBoss?.stages?.teamFaction||g.teamFaction;
