@@ -34,9 +34,31 @@
   }
   return active.delete(img);
  };
- let relaxed=false,loads=0;
+ let relaxed=false,loads=0,pumpScheduled=false;
+ const diagnostic=typeof location!=='undefined'&&new URL(location.href||document.baseURI).searchParams.get('perf')==='1';
+ const timings=diagnostic?{imageLoads:0,imageErrors:0,imageLoadMs:0,imageLoadMaxMs:0,imageQueueMs:0,imageQueueMaxMs:0,imageDecodes:0,imageDecodeErrors:0,imageDecodeMs:0,imageDecodeMaxMs:0}:null;
+ // Many image setters can run in the same task. A single queued pump sees
+ // their final priorities; later microtasks would only rescan a full queue.
+ function schedulePump(){
+  if(pumpScheduled)return;
+  pumpScheduled=true;
+  queueMicrotask(()=>{pumpScheduled=false;pump()});
+ }
  const go=(img,immediateUrl)=>{const h=held.get(img);held.delete(img);active.set(img,h.rank);
-  const end=()=>{loads++;detach(img);pump()};
+  const started=timings?performance.now():0;
+  if(timings){
+   const queued=started-h.queuedAt;timings.imageQueueMs+=queued;
+   timings.imageQueueMaxMs=Math.max(timings.imageQueueMaxMs,queued);
+  }
+  const end=event=>{
+   loads++;
+   if(timings){
+    if(event.type==='load')timings.imageLoads++;else timings.imageErrors++;
+    const elapsed=performance.now()-started;timings.imageLoadMs+=elapsed;
+    timings.imageLoadMaxMs=Math.max(timings.imageLoadMaxMs,elapsed);
+   }
+   detach(img);pump();
+  };
   listeners.set(img,end);
   img.addEventListener('load',end);img.addEventListener('error',end);src.set.call(img,immediateUrl??h.url);
   wake(img)};
@@ -47,7 +69,7 @@
   entry.needed=true;
   const nextRank=waitingRank(entry);
   if(entry.rank===nextRank)return;
-  entry.rank=nextRank;queueMicrotask(pump);
+  entry.rank=nextRank;schedulePump();
  };
  const needActive=()=>{for(const rank of active.values())if(rank===NEED)return true;return false};
  function pump(){
@@ -80,7 +102,7 @@
   if(typeof location!=='undefined'&&location.hostname==='raw.githack.com'&&new URLSearchParams(location.search).get('headonTest')==='1')this.crossOrigin='anonymous';
   if(v===''){
    // Atlas release cancels stale work instead of enqueuing the document URL.
-   held.delete(this);detach(this);this.removeAttribute('src');wake(this);queueMicrotask(pump);return;
+   held.delete(this);detach(this);this.removeAttribute('src');wake(this);schedulePump();return;
   }
   const url=abs(v),queued=held.get(this);
   // Roster updates often assign the same URL. Restarting it loses a download
@@ -91,22 +113,36 @@
    return;
   }
   if(!queued&&src.get.call(this)===url&&(active.has(this)||this.naturalWidth>0))return;
-  if(detach(this))queueMicrotask(pump);// a re-set aborts the load in flight
-  if(pass.test(url)){held.delete(this);src.set.call(this,v);wake(this);queueMicrotask(pump);return}
-  const entry={url,n:serial++,scopedRank,needed:open};entry.rank=waitingRank(entry);held.set(this,entry);
+  if(detach(this))schedulePump();// a re-set aborts the load in flight
+  if(pass.test(url)){held.delete(this);src.set.call(this,v);wake(this);schedulePump();return}
+  const entry={url,n:serial++,scopedRank,needed:open};if(timings)entry.queuedAt=performance.now();entry.rank=waitingRank(entry);held.set(this,entry);
   // Once released, preserve a native synchronous assignment when a download
   // slot is free and no older request is waiting; it still counts toward LIMIT.
-  if(open&&held.size===1&&active.size<LIMIT)go(this,v);else queueMicrotask(pump);
+  if(open&&held.size===1&&active.size<LIMIT)go(this,v);else schedulePump();
  }});
  Object.defineProperty(P,'complete',{configurable:true,enumerable:complete.enumerable,get(){if(held.has(this)){need(this);return false}return complete.get.call(this)}});
  const natural=Object.getOwnPropertyDescriptor(P,'naturalWidth');
  if(natural?.get)Object.defineProperty(P,'naturalWidth',{configurable:true,enumerable:natural.enumerable,get(){if(held.has(this)){need(this);return 0}return natural.get.call(this)}});
  // Every decode() caller waits (several modules may decode the same held image).
- if(decode)P.decode=function(){if(!held.has(this))return decode.call(this);return new Promise(r=>{const w=waiting.get(this)||[];w.push(r);waiting.set(this,w)}).then(()=>decode.call(this))};
+ function decodeImage(image){
+  if(!timings)return decode.call(image);
+  const started=performance.now();
+  const finish=ok=>{
+   if(ok)timings.imageDecodes++;else timings.imageDecodeErrors++;
+   const elapsed=performance.now()-started;timings.imageDecodeMs+=elapsed;
+   timings.imageDecodeMaxMs=Math.max(timings.imageDecodeMaxMs,elapsed);
+  };
+  return decode.call(image).then(value=>{finish(true);return value},error=>{finish(false);throw error});
+ }
+ if(decode)P.decode=function(){
+  if(!held.has(this))return decodeImage(this);
+  return new Promise(r=>{const w=waiting.get(this)||[];w.push(r);waiting.set(this,w)}).then(()=>decodeImage(this));
+ };
  window.HEADON_GATE={
   get open(){return open},
   // Finished image loads so far: world-anchored terrain buffers repaint when art arrives.
   get loads(){return loads},
+  performanceSnapshot:()=>timings?{...timings,imagesPending:held.size,imagesInFlight:active.size}:null,
   // rank(url) → 0 now, 1 soon, 2 later. Re-ranks everything still waiting.
   setRank(fn){rank=fn;for(const h of held.values())h.rank=waitingRank(h);pump()},
   // Move these URLs to the front (a pilot the player just picked).

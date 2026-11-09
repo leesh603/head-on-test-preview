@@ -1,8 +1,8 @@
 // Installed last so medal behavior observes the final pilot-specific overrides.
 // No shared special/formation/duo damage multiplier: every bonus has an owner,
 // an activation and a finite attack or a target-specific accepted-hit gate.
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 const runs=new WeakMap();let serial=0;
 const world=p=>p.combatWorld?.()||p.world||p;
 const owner=p=>p.id??'p1';

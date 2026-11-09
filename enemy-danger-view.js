@@ -1,5 +1,5 @@
-import {aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
-import {fxImage,fxTint} from './fx-art.js?v=09c75d146ae4289d';
+import {aimLine} from './tactical-marks.js?v=tame3';
+import {fxImage,fxTint} from './fx-art.js?v=tame3';
 const SIGNAL_COLORS={attack:'#ef957d',regroup:'#a9d18d',defend:'#f2ead1'},signalSprites=new Map();
 function paintSignal(ctx,key,color,x,y,w,h,a,alpha){
  const im=fxImage(key);if(!im||typeof document==='undefined')return fxTint(ctx,key,color,x,y,w,h,a,alpha);

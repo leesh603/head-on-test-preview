@@ -1,15 +1,15 @@
-import {initializeRII,stepRIIMotion,stepRIICombat,beginRIIDestruction,stepRIIDestruction,locateRIIIntrusionHit} from './rii-intrusion.js?v=09c75d146ae4289d';
-import {stepGiantArrivalShadow} from './giant-intrusion-arrival.js?v=09c75d146ae4289d';
-import {initializeV1500,stepV1500Motion,stepV1500Combat,beginV1500Destruction,stepV1500Destruction} from './handley-page-v1500.js?v=09c75d146ae4289d';
-import {majorEncounterBlocked} from './encounter-admission.js?v=09c75d146ae4289d';
-import {hullOverlap} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
-import {submarineObstacles,guardSubmarineMovement} from './naval-spacing.js?v=09c75d146ae4289d';
+import {initializeRII,stepRIIMotion,stepRIICombat,beginRIIDestruction,stepRIIDestruction,locateRIIIntrusionHit} from './rii-intrusion.js';
+import {stepGiantArrivalShadow} from './giant-intrusion-arrival.js';
+import {initializeV1500,stepV1500Motion,stepV1500Combat,beginV1500Destruction,stepV1500Destruction} from './handley-page-v1500.js';
+import {majorEncounterBlocked} from './encounter-admission.js';
+import {hullOverlap} from './adriatic-boss-layout.js?v=tame3';
+import {submarineObstacles,guardSubmarineMovement} from './naval-spacing.js?v=pandemonium394r2';
 /** Host-authoritative optional encounters. No stage advancement or regular-boss rewards. */
-import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact} from './submarine-intrusion.js?v=09c75d146ae4289d';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
-import { intrusionLayout, ownHullClear } from './intrusion-boss-layouts.js?v=09c75d146ae4289d';
-import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js?v=09c75d146ae4289d';
-import {enqueueIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=09c75d146ae4289d';
+import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact} from './submarine-intrusion.js';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import { intrusionLayout, ownHullClear } from './intrusion-boss-layouts.js';
+import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js';
+import {enqueueIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
 export const intrusionProfiles = Object.freeze({
  ...MARITIME_PROFILES,
  bastion:{id:'bastion',name:'바스티옹',faction:'entente',mode:'armored-loiter',enabled:true,stages:[0,2,3,4,5,12],detail:'장갑을 벗겨 기낭을 노려라',independentBarrels:false,artStatus:'user-supplied whole turrets; no independent barrels; damaged barrels cease fire; destroyed turrets removed without wreck imagery'},
@@ -50,7 +50,7 @@ function breakPart(g,e,id,broken){const p=e.parts[id];if(!p||p.state==='destroye
 export function hitIntrusionAt(g,hit){const e=g.intrusionBoss,located=hit.partId&&e&&maritimeAttackable(e)&&['entering','active'].includes(e.phase)&&e.parts[hit.partId]?.hp>0&&intrusionPartExposed(e,hit.partId)?{partId:hit.partId,encounterId:e.encounterId}:locateIntrusionHit(g,hit);if(!located)return{damage:0,actualDamage:0,broken:[]};if(hit.hitKey!=null&&e.hitKeys.includes(String(hit.hitKey)))return{damage:0,actualDamage:0,broken:[]};const exposed=e.profileId==='twin-fortress'&&located.partId==='core'&&Object.values(e.parts).filter(p=>p.kind==='turret_body'&&p.hp<=0).length>=2;const damage=Math.max(0,finite(hit.damage))*(exposed?1.3:1)*(e.profileId==='bastion'&&located.partId==='core'?bastionArmorMultiplier(e):1)*maritimeDamageMultiplier(e,located.partId);if(!damage)return{damage:0,actualDamage:0,broken:[]};revealMaritimeDecoy(e);if(hit.hitKey!=null)e.hitKeys.push(String(hit.hitKey));const p=e.parts[located.partId],actual=Math.min(p.hp,damage),broken=[];p.hp-=actual;(e.flash||={})[located.partId]=.12;p.state=p.hp<=0?'damaged':p.hp<=p.maxHp*.5?'damaged':'intact';if(located.partId==='core')e.hp=p.hp;else e.hp=Math.max(0,e.hp-actual*.2);if(p.hp<=0)breakPart(g,e,located.partId,broken);if(isNewSubmarine(e)&&Object.entries(e.parts).filter(([id])=>id!=='core').every(([,part])=>part.hp<=0))e.hp=0;e.parts.core.hp=e.hp;if(e.hp<=0){e.phase='destroyed';e.phaseAge=0;clean(g,e);if(e.profileId==='handley-page-v1500')beginV1500Destruction(g,e);if(e.profileId==='linke-hofmann-r-ii')beginRIIDestruction(g,e);if(!giant(e)&&g.combatBlast){const{L,S}=hull(e);for(let i=0;i<5;i++){const k=i/4-.5;g.combatBlast(e.x+Math.cos(e.a)*L*k*.8+Math.cos(e.a+Math.PI/2)*S*.18*(i%2?1:-1),e.y+Math.sin(e.a)*L*k*.8+Math.sin(e.a+Math.PI/2)*S*.18*(i%2?1:-1),70+i*8,'enemy','structure');}}if(!e.rewarded.final){e.rewarded.final=true;if(giant(e))e.pendingFinalEquipment=true;else enqueueIntrusionEquipmentReward(g,e.encounterId);g.kills=finite(g.kills)+1;const owner=g.players?.find(p=>p.id===hit.ownerId);if(owner)owner.kills=finite(owner.kills)+1;emit(g,{type:'intrusionDestroyed',bossId:e.profileId,encounterId:e.encounterId});}}return{...located,damage:actual,actualDamage:actual,broken};}
 function blocked(g,c){return c.blocked||g.pendingLevelUps?.length||g._aceCombatActive?.size||g.eliteEnemies?.active||g.battlefieldMission?.status==='active'||g.ruralFronts?.active||g.stageBoss?.encounter?.active;}
 function start(g,id,c){const profile=intrusionProfiles[id];if(!profile?.enabled)return null;const d=director(g),layout=intrusionLayout(id),w=Math.max(180,finite(c.width,800)),h=Math.max(240,finite(c.height,600)),maxHp=Math.round(finite(c.regularBossHp,2100*(1+finite(g.t)/150)*(1+1.2*finite(c.loopIndex)+.35*finite(c.loopIndex)**2))*(profile.hpRatio??(['loiter','armored-loiter'].includes(profile.mode)?.65:.55))),budget=Math.min(36,12+finite(c.stageIndex)*2+finite(c.loopIndex)*4),parts={};let weight=layout.targets.filter(t=>t.id!=='core'&&t.kind!=='decal').reduce((n,t)=>n+(t.kind==='wing'?2:1),0),assigned=0,cumulative=0;for(const t of layout.targets){if(t.kind==='decal')continue;const hp=t.id==='core'?maxHp:Math.round(maxHp*(t.kind==='wing'?.17:t.kind==='engine'?.065:.085));if(t.id!=='core')cumulative+=(t.kind==='wing'?2:1)/weight;const allocation=t.id==='core'?0:Math.round(budget*.6*cumulative)-assigned;if(t.id!=='core')assigned+=allocation;parts[t.id]={kind:t.kind,hp,maxHp:hp,state:'intact',reward:allocation};}
- const e={profileId:id,bossId:id,encounterId:`${g.runId||'run'}/intrusion/${++d.serial}`,phase:'reserved',phaseAge:0,age:0,activeAge:0,stageIndex:c.stageIndex,loopIndex:c.loopIndex||0,x:finite(g.x),y:finite(g.y)-h*(isMaritimeIntrusion(id)?.18:.7),a:-Math.PI/2,scale:isNewSubmarine(id)?Math.min(id==='m1'?400:320,h*.62)/layout.height:isMaritimeIntrusion(id)?Math.min((w-80)/layout.width,h*.66/layout.height):Math.min((w-128)/Math.max(layout.width,layout.height),h*.62/(['pass','s-pass','diagonal-broadside'].includes(profile.mode)?Math.max(layout.width,layout.height):layout.height)),width:w,height:h,maxHp,hp:maxHp,parts,turretAngles:{},hazards:[],shotCues:[],hitKeys:[],rewarded:{},finalReward:Math.round(budget*.6),attackClock:1.2,volley:0,route:null};g.intrusionBoss=e;if(id==='handley-page-v1500'){e.scale=Math.min(w*.78,620)/1774;initializeV1500(e);}if(id==='linke-hofmann-r-ii'){e.scale=Math.min(w*.78,620)/1800;initializeRII(e);}d.used=true;
+ const e={profileId:id,bossId:id,encounterId:`${g.runId||'run'}/intrusion/${++d.serial}`,phase:'reserved',phaseAge:0,age:0,activeAge:0,stageIndex:c.stageIndex,loopIndex:c.loopIndex||0,x:finite(g.x),y:finite(g.y)-h*(isMaritimeIntrusion(id)?.18:.7),a:-Math.PI/2,scale:isNewSubmarine(id)?Math.min(id==='m1'?400:320,h*.62)/layout.height:isMaritimeIntrusion(id)?Math.min((w-80)/layout.width,h*.66/layout.height):Math.min((w-128)/Math.max(layout.width,layout.height),h*.62/(['pass','s-pass','diagonal-broadside'].includes(profile.mode)?Math.max(layout.width,layout.height):layout.height)),width:w,height:h,maxHp,hp:maxHp,parts,turretAngles:{},hazards:[],shotCues:[],hitKeys:[],rewarded:{},finalReward:Math.round(budget*.6),attackClock:isMaritimeIntrusion(id)||id==='citadel'?1.2:.2,volley:0,route:null};g.intrusionBoss=e;if(id==='handley-page-v1500'){e.scale=Math.min(w*.78,620)/1774;initializeV1500(e);}if(id==='linke-hofmann-r-ii'){e.scale=Math.min(w*.78,620)/1800;initializeRII(e);}d.used=true;
  // Reject a known crowded contact before its name/HUD/cutin is announced.
  // The normal entering-time check still handles traffic arriving during warning.
  if(isMaritimeIntrusion(e)){
@@ -65,6 +65,14 @@ function visible(g,e,p){return Math.abs(p.x-finite(g.x))<e.width*.48&&Math.abs(p
 function intrusionVelocity(p){
  const heading=finite(p.a,-Math.PI/2),speed=finite(p.baseSpeed,p.speed||0)*finite(p.pilotFlightFraction,1);
  return {vx:finite(p.vx,Math.cos(heading)*speed),vy:finite(p.vy,Math.sin(heading)*speed)};
+}
+function citadelTurnImpact(g,e,p,warning){
+ const {vx,vy}=intrusionVelocity(p),speed=Math.hypot(vx,vy),turn=e.citadelTurn||0;
+ if(speed<10||Math.abs(turn)<.05)return predictBombImpact(g,e,p,warning);
+ const heading=Math.atan2(vy,vx);
+ const at=t=>({x:p.x+speed*(Math.sin(heading+turn*t)-Math.sin(heading))/turn,y:p.y+speed*(Math.cos(heading)-Math.cos(heading+turn*t))/turn});
+ const impact=at(warning),approach=at(warning-.65);
+ return visible(g,e,{x:impact.x-approach.x+p.x,y:impact.y-approach.y+p.y})?impact:null;
 }
 function predictBombImpact(g,e,p,warning,lateral=0,forward=0){
  const heading=finite(p.a,-Math.PI/2),{vx,vy}=intrusionVelocity(p);
@@ -116,12 +124,12 @@ function queueAttack(g,e){
  let queued=0;
  for(const {gun,barrelIndex,muzzle,wp,a,suppression=false,telegraphLength} of eligible){
   if(grouped&&group(gun)!==chosen)continue;
-  e.shotCues.push({...wp,localMuzzle:muzzle,barrelIndex,localAngle:a,a:a+e.a+Math.PI/2,partId:gun.id,age:0,telegraphLength,aimMode:suppression?'lane':'target',warning:suppression?1.4:e.profileId==='bastion'?1.2:1,damage:16,speed:310,rounds:e.profileId==='bastion'?4:3,done:false});queued++;
+  e.shotCues.push({...wp,localMuzzle:muzzle,barrelIndex,localAngle:a,a:a+e.a+Math.PI/2,partId:gun.id,age:0,telegraphLength,aimMode:suppression?'lane':'target',warning:e.profileId==='citadel'?(suppression?1.4:1):suppression?1.05:.85,damage:16,speed:310,rounds:e.profileId==='bastion'?4:3,done:false});queued++;
  }
  if(e.profileId==='citadel'&&e.movementPhase==='broadside'&&visible(g,e,p)){
   // The suppression salvo belongs to the surviving broadside battery.
   const battery=l.targets.find(t=>t.muzzle&&Math.sign(t.x)===chosen&&intrusionPartCanFire(e,t.id));
-  const impact=predictBombImpact(g,e,p,2);
+  const impact=citadelTurnImpact(g,e,p,2);
   if(battery&&impact){e.hazards.push({kind:'bomb',sourcePartId:battery.id,...impact,radius:29,age:0,warning:2,damage:19,done:false});queued++;}
  }
  if(e.profileId!=='twin-fortress'&&e.profileId!=='citadel'&&e.profileId!=='bastion'&&(e.profileId!=='armed-svyatogor'||svyatogorPower(e)>0)&&visible(g,e,e)){
@@ -159,6 +167,18 @@ function aimAirGuns(g,e,dt){
  }
 }
 function combat(g,e,dt){
+ if(e.profileId==='citadel'){
+  const ps=alive(g),p=ps[e.volley%ps.length]||g,v=intrusionVelocity(p);
+  const heading=Math.atan2(v.vy,v.vx),pilotId=p.id??null;
+  if(e.citadelPilotId!==pilotId){e.citadelHeading=heading;e.citadelTurn=0;e.citadelPilotId=pilotId;}
+  const change=heading-finite(e.citadelHeading,heading);
+  const turn=clamp(Math.atan2(Math.sin(change),Math.cos(change))/dt,-1.5,1.5);
+  e.citadelTurn=finite(e.citadelTurn)+(turn-finite(e.citadelTurn))*Math.min(1,dt*8);
+  e.citadelHeading=heading;
+  const broadside=e.movementPhase==='broadside';
+  if(broadside&&!e.broadsideReady&&!e.shotCues.some(q=>!q.done))e.attackClock=Math.min(.25,e.attackClock);
+  e.broadsideReady=broadside;
+ }
  aimAirGuns(g,e,dt);
  aimMaritimeGuns(g,e,intrusionLayout(e.profileId),dt,{alive,local,world:intrusionWorldPoint,clear:ownBodyClear,predictImpact:predictBombImpact,canFire:intrusionPartCanFire});
  for(const q of e.shotCues){
@@ -166,8 +186,8 @@ function combat(g,e,dt){
   if(!intrusionPartCanFire(e,q.partId)){q.done=true;q.age=last+.2;continue;}
   if(q.localMuzzle){Object.assign(q,intrusionWorldPoint(e,q.localMuzzle));q.a=q.localAngle+e.a+Math.PI/2;}
   q.age+=dt;
-  if((q.fired||0)>=count||q.age<q.warning+(q.fired||0)*.14)continue;
-  q.fired=(q.fired||0)+1;q.done=true;
+  if((q.attempted||0)>=count||q.age<q.warning+(q.attempted||0)*.14)continue;
+  q.attempted=(q.attempted||0)+1;
   if(!visible(g,e,q)||!ownBodyClear(e,q.partId,q.localMuzzle,q.localAngle))continue;
   let fired=false;
   for(const offset of q.offsets||[0]){
@@ -175,7 +195,7 @@ function combat(g,e,dt){
    (g.bullets||=[]).push({x:q.x,y:q.y,vx:Math.cos(q.a+offset)*(q.speed||270),vy:Math.sin(q.a+offset)*(q.speed||270),life:2.5,enemy:true,visualType:'boss',damage:q.damage,intrusionEncounterId:e.encounterId,encounterId:e.encounterId,sourceBossId:e.profileId,sourcePartId:q.partId});
    fired=true;
   }
-  if(fired){if(e.firingCourse)e.firingCourse.discharged=true;queueArtilleryMuzzle(g,{x:q.x,y:q.y,angle:q.a,scale:.55,heavy:true});}
+  if(fired){q.fired=(q.fired||0)+1;q.done=true;if(e.firingCourse)e.firingCourse.discharged=true;queueArtilleryMuzzle(g,{x:q.x,y:q.y,angle:q.a,scale:.55,heavy:true});}
  }
  e.shotCues=e.shotCues.filter(q=>q.age<q.warning+((q.rounds||1)-1)*.14+.2);
  for(const b of e.hazards){if(b.sourcePartId&&!intrusionPartCanFire(e,b.sourcePartId)){b.done=true;b.age=b.warning+.35;continue;}b.age+=dt;if(!b.done&&b.age>=b.warning){b.done=true;if(isNewSubmarine(e)&&b.localMuzzle){e.naval.gunRecoil=1;const m=intrusionWorldPoint(e,b.localMuzzle);queueArtilleryMuzzle(g,{x:m.x,y:m.y,angle:e.a+(b.localAngle+Math.PI/2),scale:e.profileId==='m1'?1.1:.65,heavy:true});}for(const p of alive(g))if(Math.hypot(p.x-b.x,p.y-b.y)<b.radius+finite(p.r,12)){if(g.players)g.hitPlayer?.(p,b.damage);else g.hit?.(b.damage);}g.combatBlast?.(b.x,b.y,b.radius,'enemy','structure');}}e.hazards=e.hazards.filter(b=>b.age<b.warning+.35);e.attackClock-=dt;if(e.attackClock<=0){const queued=queueAttack(g,e);e.attackClock=!queued?.25:isMaritimeIntrusion(e)?maritimeAttackInterval(e):e.profileId==='armed-svyatogor'?(svyatogorPower(e)===2?4.2:svyatogorPower(e)===1?5.2:6.2):e.profileId==='bastion'?3.6:e.profileId==='twin-fortress'?3.8:e.profileId==='goliath'?3.2:e.profileId==='citadel'?(e.movementPhase==='broadside'?2.8:5):4.2;}}
@@ -329,7 +349,7 @@ function firingCourseSafe(g,e){
  const dx=e.x+vx*look-(finite(g.x)+ax*look),dy=e.y+vy*look-(finite(g.y)+ay*look);
  const a=course.a+Math.PI/2,c=Math.abs(Math.cos(a)),s=Math.abs(Math.sin(a));
  if(Math.abs(dx)>e.width*.5+(c*S+s*L)*.5||Math.abs(dy)>e.height*.5+(s*S+c*L)*.5)return false;
- if(Math.hypot(dx,dy)>Math.hypot(e.width,e.height)*.72)return false;
+
  return !alive(g).some(p=>{
   const from={x:p.x-e.x,y:p.y-e.y},to={x:from.x+(finite(p.vx,ax)-vx)*look,y:from.y+(finite(p.vy,ay)-vy)*look};
   const envelope={x:0,y:0,rx:S/2+finite(p.r,12),ry:L/2+finite(p.r,12),angle:a};
@@ -365,15 +385,16 @@ function move(g,e,dt){
  anchor.x+=anchor.vx*dt;anchor.y+=anchor.vy*dt;
  // Warning is hidden; placement happens only once on the first entering step.
  if(e.phase==='reserved'||e.phase==='warning')return;
- if(e.phase==='entering'){stepAirArrival(e,dt,anchor);return;}
+ if(e.phase==='entering'){stepAirArrival(e,dt,anchor);aimAirGuns(g,e,dt);return;}
  // A telegraphed pass is a real straight flight leg, not a frozen sprite
  // or a world-angle ray detached from the six-degree Bastion barrel artwork.
  if(e.phase==='active'&&e.firingCourse?.remaining>0&&!firingCourseSafe(g,e)){
-  e.firingCourse.remaining=0;e.shotCues=e.shotCues.filter(q=>(q.fired||0)>=(q.rounds||1));
-  e.attackClock=Math.max(.6,e.attackClock);
+  if(!e.firingCourse.discharged)e.attackClock=Math.min(.25,e.attackClock);
+  e.firingCourse.remaining=0;e.shotCues=e.shotCues.filter(q=>(q.attempted||0)>=(q.rounds||1));
  }
  if(e.phase==='active'&&e.firingCourse?.remaining>0){
   const course=e.firingCourse;course.remaining=Math.max(0,course.remaining-dt);
+  if(!course.remaining&&!course.discharged)e.attackClock=Math.min(.25,e.attackClock);
   if(e.profileId==='citadel'){
    const engines=Object.values(e.parts).filter(p=>p.kind==='engine');
    e.routeAge=finite(e.routeAge)+dt*(1-.24*engines.filter(p=>p.hp<=0).length/Math.max(1,engines.length));
@@ -386,11 +407,15 @@ function move(g,e,dt){
   smokeDamaged(g,e,dt);return;
  }
  routeMove(g,e,dt,anchor.x,anchor.y);
+ const routeHeading=e.a;
  e.worldVx=(e.x-oldX)/dt;e.worldVy=(e.y-oldY)/dt;e.a=oldA;
  if(['entering','active'].includes(e.phase)&&Math.hypot(e.worldVx,e.worldVy)>8){
   const mode=intrusionProfiles[e.profileId].mode;
   const baseRate=['loiter','armored-loiter'].includes(mode)?.8:mode==='transmission-sweep'?.85:1;
-  const bearing=Math.atan2(e.worldVy,e.worldVx);
+  const velocityBearing=Math.atan2(e.worldVy,e.worldVx);
+  const routeError=Math.atan2(Math.sin(routeHeading-velocityBearing),Math.cos(routeHeading-velocityBearing));
+  // Keep each route's bank when it agrees with actual travel.
+  const bearing=velocityBearing+(e.profileId==='citadel'?0:clamp(routeError,-.18,.18));
   const error=Math.atan2(Math.sin(bearing-e.a),Math.cos(bearing-e.a));
   // Catch up during a player turn, then return smoothly to the heavy hull's
   // normal slew. Keep the existing route so turning cannot strand the boss.
@@ -417,8 +442,8 @@ if(g.online&&!g.host)return g.intrusionBoss;if(g.state&&g.state!=='playing'||g.p
   e.contactVelocity=v;e.contactSample={x:finite(p.x),y:finite(p.y)};
  }
  if(c.stageIndex!==e.stageIndex||c.phase&&c.phase!=='explore'){disposeIntrusion(g,'stage-priority');return e;}if((!jutland&&c.ready)||remaining<=retire||blocked(g,c))retreat(g,e,'priority');let left=Math.min(dt,1);while(left>0){const step=Math.min(left,.05);let shouldCombat=false;left-=step;e.age+=step;e.phaseAge+=step;if(e.phase==='reserved'){e.phase='warning';e.phaseAge=0;const p=intrusionProfiles[e.profileId];emit(g,{type:'intrusionWarning',encounterId:e.encounterId,bossId:e.profileId,name:p.name,detail:p.detail});}else if(e.phase==='warning'&&isNewSubmarine(e)&&e.phaseAge>=2.8&&!e.contactPlaced){if(e.phaseAge>=8)disposeIntrusion(g,'sea-lane-blocked');else if(e.phaseAge>=(e.placementRetryAt||0)){e.placementRetryAt=e.phaseAge+.25;placeSubmarineContact(g,e,intrusionLayout(e.profileId),hullOverlap,submarineObstacles(g,e));}}else if(e.phase==='warning'&&e.phaseAge>=4){if(!c.artReady||c.artReady(e.profileId)){if(remaining<enter)disposeIntrusion(g,'window-shrunk');else{e.phase='entering';e.phaseAge=0;}}else if(e.phaseAge>=8)disposeIntrusion(g,'art-unavailable');}else if(e.phase==='entering'&&e.phaseAge>=(isNewSubmarine(e)?1.2:3)){if(remaining<engage)disposeIntrusion(g,'window-shrunk');else{e.phase='active';e.phaseAge=0;e.routeAge=0;if(isNewSubmarine(e)){e.naval.phase='surfaced';e.naval.phaseAge=0;}}}else if(e.phase==='active'){e.activeAge+=step;if(e.activeAge>=45)retreat(g,e,'timeout');else shouldCombat=true;}else if(e.phase==='retreating'&&e.phaseAge>=3||e.phase==='destroyed'&&e.phaseAge>=(e.profileId==='handley-page-v1500'?2.9:e.profileId==='linke-hofmann-r-ii'?2.65:1)){disposeIntrusion(g,e.reason||'destroyed');}move(g,e,step);
- // Visible maritime contacts can defend themselves during the initial flypast.
- if(isMaritimeIntrusion(e)&&e.phase==='entering'&&e.contactPlaced)shouldCombat=true;
+ // Visible naval mounts and V/1500 defensive guns can cover the initial flypast.
+ if(e.phase==='entering'&&(isMaritimeIntrusion(e)&&e.contactPlaced||e.profileId==='handley-page-v1500'))shouldCombat=true;
  if(shouldCombat){if(e.profileId==='handley-page-v1500')stepV1500Combat(g,e,step);else if(e.profileId==='linke-hofmann-r-ii'){stepRIICombat(g,e,step);if(e.riiSelfDestruct&&e.hp>0)hitIntrusionAt(g,{partId:'core',damage:e.hp,hitKey:'rii-drive-collapse'});}else combat(g,e,step);}}return e;}
 export const updateIntrusions=stepIntrusion;
 

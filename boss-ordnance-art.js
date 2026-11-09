@@ -1,4 +1,4 @@
-import {drawOrdnance} from './ordnance-art.js?v=09c75d146ae4289d';
+import {drawOrdnance} from './ordnance-art.js?v=tame3&perf=1029';
 // Painted WWI ordnance for hostile boss rounds (nose right). The painted body
 // is untouched (no ink rim); a soft crimson under-glow, slightly toward the
 // tail, is baked in so hostile rounds still read on sea, snow and dirt.

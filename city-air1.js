@@ -1,9 +1,9 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=09c75d146ae4289d';
-import {impactMark,aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
-import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=09c75d146ae4289d';
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=09c75d146ae4289d';
-// Region 4 searchlight network + ground fire net; region 5 wind streams.
-// Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
+// City and Berlin ground units; region 5 wind streams.
 export const CITY_BALANCE=Object.freeze({
  lightHp:130,lightR:40,pitHp:95,pitR:38,lockTime:1.2,lockDecay:1.6,illumTail:2.5,
  beamRange:520,beamHalf:.16,sweepRate:.5,fireGap:.9,patternTime:3.6,burstSpeed:250,
@@ -93,6 +93,11 @@ export function drawCityAirLayer(c,game,{point}){
   if(e.cityShot){const [tx,ty]=point(e.cityShot.x,e.cityShot.y);aimLine(c,x,y,tx,ty,{chevron:false});impactMark(c,tx,ty,24,.6);}
   drawGroundEnemy(c,e,x,y,s);
   c.fillStyle='#24332b';c.fillRect(x-16,y+s*.5,32,3);c.fillStyle='#de9b73';c.fillRect(x-16,y+s*.5,32*e.hp/e.maxHp,3);
+ }
+ for(const e of game.cityDefense||[]){
+  const [x,y]=point(e.x,e.y),s=e.facSize;if(e.destroyed||!visible(x,y,s*2))continue;
+  drawGroundEnemy(c,e,x,y,s);
+  c.save();c.font='bold 11px system-ui';c.textAlign='center';c.fillStyle='#b9e0ce';c.fillText(getLocale()==='en'?'ALLIED AA':'아군 방공포',x,y+s*.54);c.restore();
  }
 };
 

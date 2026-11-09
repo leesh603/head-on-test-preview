@@ -1,5 +1,5 @@
-import {majorEncounterBlocked} from './encounter-admission.js?v=09c75d146ae4289d';
-import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=09c75d146ae4289d';
+import {majorEncounterBlocked} from './encounter-admission.js';
+import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery2';
 
 export const RIVAL_ACE_PHASES=Object.freeze({
  FIRST_ENCOUNTER:'FIRST_ENCOUNTER',ESCAPED:'ESCAPED',RETURNED:'RETURNED',FINAL_DUEL:'FINAL_DUEL',DEFEATED:'DEFEATED'

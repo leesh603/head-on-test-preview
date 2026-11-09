@@ -4,7 +4,7 @@
 //  - City air-raid defense: three districts with their landmarks.
 //  - Laon, Entente: Paris under the Paris Gun's shells.
 //  - Laon, Central: the Paris Gun on its rail mount, breaking part by part.
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=tame3';
 
 const LANDMARKS={entente:{west:'spire',docks:'dome',east:'clock'},central:{west:'twin',docks:'dome',east:'tower'},
  paris:[[.16,'notredame'],[.47,'eiffel'],[.8,'sacre']]};
@@ -100,7 +100,7 @@ function label(c,h,x,text,color,align='left',alpha=1){
  c.fillStyle=color;c.fillText(text,x,3);const width=c.measureText(text+' ').width;c.globalAlpha=1;c.shadowBlur=0;c.textAlign='left';return width;
 }
 
-// City air-raid defense (city-air-raid.js): three districts.
+// City air-raid defense districts.
 export function drawCityRaidStrip(c,districts,w,h,time,locale='ko',side='entente',inboundBy={}){
  c.clearRect(0,0,w,h);if(!districts?.length)return false;
  const en=locale==='en',pw=w/districts.length;
@@ -111,7 +111,7 @@ export function drawCityRaidStrip(c,districts,w,h,time,locale='ko',side='entente
   hitFlash(c,d,d.hp,time,x0,pw,h);
   const name=en?d.en.split(' ')[0]:d.name.split(' ')[0],nw=label(c,h,x0+5,name,'#bdb3a0');
   label(c,h,x0+5+nw,ruined?(en?'ruined':'붕괴'):Math.ceil(frac*100)+'%',ruined?'#e0806a':frac*3<=1?'#f0a35a':'#e6dcc6');
-  const inbound=inboundBy?.[d.id]||0;if(inbound&&!ruined)label(c,h,x0+pw-5,(en?'Bombers ':'폭격기 ')+inbound,'#ff8a66','right',.7+.3*Math.sin(time*6));
+  const inbound=inboundBy?.[d.id]||0;if(inbound&&!ruined)label(c,h,x0+pw-5,(pw<95?'×':en?'Bombers ':'폭격기 ')+inbound,'#ff8a66','right',.7+.3*Math.sin(time*6));
   if(i){c.fillStyle='rgba(120,100,70,.35)';c.fillRect(Math.round(x0),3,1,h-6);}
  }
  return true;

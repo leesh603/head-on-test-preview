@@ -1,4 +1,4 @@
-import {CAPORETTO_MAP} from './caporetto-map-profile.js?v=09c75d146ae4289d';
+import {CAPORETTO_MAP} from './caporetto-map-profile.js';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const positive=(v,label)=>{if(!Number.isFinite(v)||v<=0)throw new RangeError(label);return v;};
 export function caporettoCamera(center,width,height,{map=CAPORETTO_MAP,zoom=1}={}){

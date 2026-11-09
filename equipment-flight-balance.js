@@ -1,5 +1,5 @@
-import {wimperisTarget} from './flight-equipment.js?v=09c75d146ae4289d';
-import {HEAVY_AMMUNITION} from './heavy-ammunition.js?v=09c75d146ae4289d';
+import {wimperisTarget} from './flight-equipment.js';
+import {HEAVY_AMMUNITION} from './heavy-ammunition.js';
 // Shared equipment-only modifiers. Pilot bursts remain in their authored paths.
 export function equipmentCruiseMultiplier(p){
  const mercedes=p.upgrades?.mercedesEngine?1+(1.55/1.2-1)*(p.mercedesOutput160||0):1;

@@ -1,6 +1,6 @@
 // Owner-local heraldry, counterfire and damaged rotary exhaust.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {nungesserCombatStatus} from './nungesser-combat.js?v=09c75d146ae4289d';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {nungesserCombatStatus} from './nungesser-combat.js';
 export const DEFIANCE_PILOTS=new Set(['nungesser','barker']);
 const INSTALLED=Symbol.for('headon.death-defiance-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

@@ -1,10 +1,11 @@
 /** R.II intrusion adapter. Native rear-quarter guns / external racks, plain network state. */
-import {LinkeHofmannRII,RII_LAYOUT,RII_WEAPON_ARCS} from './linke-hofmann-rii.js?v=09c75d146ae4289d';
-import {drawRIIBoss,drawRIIReleasedBombs} from './linke-hofmann-rii-render.js?v=09c75d146ae4289d';
-import {riiCollapseSites,riiCollapsePulse,queueRIICollapseFx} from './rii-destruction-fx.js?v=09c75d146ae4289d';
-import {pushExplosionFx} from './explosion-profiles.js?v=09c75d146ae4289d';
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
+import {followTurningArrival} from './giant-intrusion-arrival.js';
+import {LinkeHofmannRII,RII_LAYOUT,RII_WEAPON_ARCS} from './linke-hofmann-rii.js';
+import {drawRIIBoss,drawRIIReleasedBombs} from './linke-hofmann-rii-render.js';
+import {riiCollapseSites,riiCollapsePulse,queueRIICollapseFx} from './rii-destruction-fx.js';
+import {pushExplosionFx} from './explosion-profiles.js?v=fx5';
+import {fx} from './fx-art.js?v=tame3';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 export const RII_DESTRUCTION_TIME=2.65;
 const cache=new WeakMap(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const fields=['phase','phaseClock','cycle','dropIndex','dropClock','visualBombs','visualBombSerial','bombHeading','finishClock','rackAmmo','gunCadence','nextGun','turretStates','flightSpeed','rpm','propellerPhase','crash','defeatAge','defeatProgress','dead'];
@@ -30,11 +31,22 @@ export function stepRIIMotion(g,e,dt){
   if(!e.riiEntry){const p=players(g)[0]||g,a=e.shadowPass?.a??finite(p.a,-Math.PI/2),speed=Math.max(82,Math.hypot(e.riiPlayerMotion.vx,e.riiPlayerMotion.vy)),margin=Math.hypot(e.width||390,e.height||844)*.5+RII_LAYOUT.width*e.scale*.5+40;// Cross one quarter off the pilot’s track so an intact rear gun can bear.
    const wingOffset=Math.min(96,e.width*.25);
    e.riiEntry={x:finite(p.x)-Math.cos(a)*margin+Math.sin(a)*wingOffset,y:finite(p.y)-Math.sin(a)*margin-Math.cos(a)*wingOffset,a,age:0,distance:margin+140+speed*3,speed};}
-  const q=e.riiEntry;q.age=Math.min(3,q.age+dt);const t=q.age/3,d=(-2*t*t*t+3*t*t)*q.distance+(t*t*t-t*t)*q.speed*3;b.x=q.x+Math.cos(q.a)*d;b.y=q.y+Math.sin(q.a)*d;for(const s of Object.values(b.turretStates))s.angle+=q.a-b.a;b.a=q.a;b.flightSpeed=q.speed;b.updateArrival(dt);b.rotateParts();save(e,b);return;
+  const q=e.riiEntry,oldHeading=b.a;q.age=Math.min(3,q.age+dt);
+  const t=q.age/3,d=(-2*t*t*t+3*t*t)*q.distance+(t*t*t-t*t)*q.speed*3;
+  const speed=(6*t-6*t*t)*q.distance/3+(3*t*t-2*t)*q.speed,p=players(g)[0]||g;
+  if(followTurningArrival(b,q,p,velocity(p),dt,speed,RII_LAYOUT.height*e.scale*.5+62)){
+   b.flightSpeed=Math.hypot(b.worldVx,b.worldVy);
+  }else{
+   b.x=q.x+Math.cos(q.a)*d;b.y=q.y+Math.sin(q.a)*d;b.a=q.a;b.flightSpeed=q.speed;
+  }
+  for(const s of Object.values(b.turretStates))s.angle+=b.a-oldHeading;
+  b.updateArrival(dt);b.rotateParts();save(e,b);return;
  }
  if(e.phase!=='active'&&e.phase!=='retreating')return;
  const p=players(g)[0]||g,v=e.riiPlayerMotion,ps=Math.hypot(v.vx,v.vy),lead={x:finite(p.x)+(ps>10?v.vx/ps:Math.cos(b.a))*200,y:finite(p.y)+(ps>10?v.vy/ps:Math.sin(b.a))*200},distance=Math.hypot(lead.x-b.x,lead.y-b.y);
- const actualDistance=Math.hypot(finite(p.x)-b.x,finite(p.y)-b.y);const preferredGun=b.cycle%2?'gun-left':'gun-right';
+ const actualDistance=Math.hypot(finite(p.x)-b.x,finite(p.y)-b.y);
+ // If the opening rear-gun pass never found a target, bring the bomb run forward.
+ if(b.phase==='defence'&&!e.volley&&b.phaseClock>=2.6)b.hurry();const preferredGun=b.cycle%2?'gun-left':'gun-right';
  const guardGun=b.alivePart(preferredGun)?preferredGun:Object.keys(RII_WEAPON_ARCS).find(id=>b.alivePart(id));
  if(b.phase!=='defence'||!guardGun||actualDistance>470)e.riiGuardLeg=false;else if(actualDistance<390)e.riiGuardLeg=true;
  const guarding=!!e.riiGuardLeg;

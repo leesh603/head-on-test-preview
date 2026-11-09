@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "stageRegistered": false,
+  "nativeTerrain": [
+    887,
+    1774
+  ],
+  "worldScale": 1.5,
+  "files": [
+    {
+      "path": "hut.webp",
+      "size": [
+        768,
+        512
+      ],
+      "bytes": 126638,
+      "sha256": "431d8147fad33ad31715789e41f79b97b28777d7274efa9dbd9db6531edf627b"
+    },
+    {
+      "path": "props.webp",
+      "size": [
+        1086,
+        362
+      ],
+      "bytes": 244438,
+      "sha256": "ecf10eb6d4651f1bbb1e252c99fa1122f14496c1ca7cf40dc3dd6111dfd3da71"
+    },
+    {
+      "path": "terrain.webp",
+      "size": [
+        887,
+        1774
+      ],
+      "bytes": 935340,
+      "sha256": "fe5927cf4422986a9c9c652d0087163528264116670a9d2f3185c748ba9d2711"
+    }
+  ]
+}

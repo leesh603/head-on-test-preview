@@ -1,5 +1,5 @@
 // Reuse the authored etched brass sight; no extra HUD, particles or render RNG.
-import {SIGNATURE_ATLAS,SIGNATURE_FRAMES} from './equipment-signature-art-data.js?v=09c75d146ae4289d';
+import {SIGNATURE_ATLAS,SIGNATURE_FRAMES} from './equipment-signature-art-data.js';
 let atlas;
 export const hytheCameraArtReady=new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}

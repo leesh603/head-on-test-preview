@@ -52,7 +52,7 @@ function instruction(){const auto=$('mode').value==='auto';$('instructions').tex
 $('mode').onchange=instruction;instruction();
 async function readBuild(){
  try{
-  const response=await fetch(testHost?'mobile-performance-600-build.json':'release-provenance.json',{cache:'no-store'});
+  const response=await fetch(testHost?'test-build.json':'release-provenance.json',{cache:'no-store'});
   if(!response.ok)return null;
   const data=await response.json(),sha=testHost?data.sha:data.mainSha;
   return /^[a-f0-9]{40}$/.test(sha)?sha:null;
@@ -87,7 +87,7 @@ $('start').onclick=()=>{
  const sizing=qa?$('qaViewport').value:'actual';frame.style.width=sizing==='mobile'?'390px':sizing==='pc'?'1280px':'100%';frame.style.height=sizing==='mobile'?'844px':sizing==='pc'?'800px':'calc(100dvh - 52px)';
  const began=performance.now();let sourceSha=null;
  void readBuild().then(value=>{sourceSha=value});
- frame.src='mobile-performance-600-game.html?perf=1';readTicks=0;
+ frame.src='index.html?perf=1';readTicks=0;
  try{localStorage.setItem(pairKey+'-device',$('device').value)}catch{}
  loading=setInterval(()=>{
   try{const w=frame.contentWindow,d=frame.contentDocument;

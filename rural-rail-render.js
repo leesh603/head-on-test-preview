@@ -1,10 +1,10 @@
-import {fx,fxTint} from './fx-art.js?v=09c75d146ae4289d';
-import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
-import {getLocale} from './i18n.js?v=09c75d146ae4289d';
-import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=09c75d146ae4289d';
-import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH} from './rural-rail-layout.js?v=09c75d146ae4289d';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=09c75d146ae4289d';
-import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js?v=09c75d146ae4289d';
+import {fx,fxTint} from './fx-art.js?v=tame3';
+import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=tame3';
+import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH} from './rural-rail-layout.js?v=tame3';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=tame3';
+import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js';
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
  c.save();c.imageSmoothingEnabled=true;

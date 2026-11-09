@@ -1,4 +1,4 @@
-import {drawFonckFocusScope} from './fonck-focus-scope.js?v=09c75d146ae4289d';
+import {drawFonckFocusScope} from './fonck-focus-scope.js';
 // Visual-only views of authoritative pilot states. No game mutations or extra shots.
 const clamp=n=>Math.max(0,Math.min(1,n));
 export function createPilotReadability(fx){

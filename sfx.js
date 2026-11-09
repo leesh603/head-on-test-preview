@@ -1,6 +1,6 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=09c75d146ae4289d';
-import {ruralSamplePath} from './rural-audio.js?v=09c75d146ae4289d';
+import {railAudioSamples} from './rail-audio.js?v=tame3';
+import {ruralSamplePath} from './rural-audio.js';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();

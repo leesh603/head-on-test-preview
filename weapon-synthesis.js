@@ -1,10 +1,10 @@
 // Equipment is interpreted from the current fit, never from acquisition order.
 // Delayed launches contain data only; ammunition is charged at actual emission.
-import {ammunitionGasRadius} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js?v=09c75d146ae4289d';
-import {bishopGlovesInterval} from './equipment-flight-balance.js?v=09c75d146ae4289d';
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js?v=09c75d146ae4289d';
+import {ammunitionGasRadius} from './heavy-ammunition.js';
+import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js';
+import {bishopGlovesInterval} from './equipment-flight-balance.js';
+import {combatImpactResult} from './combat-impact-result.js';
+import {igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js';
 const world=p=>p.combatWorld?.()||p.world||p;
 const alive=p=>p.hp>0&&p.status!=='downed';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));

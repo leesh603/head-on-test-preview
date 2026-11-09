@@ -1,5 +1,5 @@
-import {resetBishopGloves} from './equipment-flight-balance.js?v=09c75d146ae4289d';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=09c75d146ae4289d';
+import {resetBishopGloves} from './equipment-flight-balance.js';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
 /** Rebuild only upgrade-owned contributions. Never replay combat or mutate a live world. */
 const clone=v=>JSON.parse(JSON.stringify(v));
 export function beginEquipmentLedger(p){

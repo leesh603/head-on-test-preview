@@ -1,4 +1,4 @@
-import{createFortress,updateFortress,localToWorld,worldToLocal,fireFortress,damageFortress,gunMuzzle}from'./fortress-mechanics.js?v=09c75d146ae4289d';
+import{createFortress,updateFortress,localToWorld,worldToLocal,fireFortress,damageFortress,gunMuzzle}from'./fortress-mechanics.js';
 export const SYSTEM_GEOMETRY=Object.freeze({flameReach:64.08,craneReach:Math.hypot(163,490)*.272,craneNeutral:-.32113818460178545,mortarSlots:[[900,440],[840,502],[902,550]],mortarMuzzle:[.8,-51.2]});
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 export const FORTRESS_ZONES=Object.freeze([

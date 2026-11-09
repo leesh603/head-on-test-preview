@@ -1524,18 +1524,40 @@
     "viewerRepositoryPath": "source-art/asset-bank-archive/index.html",
     "policy": "All statuses are retained. Source archive is not a runtime preload or spawn list. Objects remain outside dist.",
     "counts": {
-      "libraryFilesRecovered": 289,
-      "originalObjects": 288,
-      "originalBytes": 999276722,
-      "uniqueArchiveBytes": 868321098,
-      "zipMembersIndexed": 2955,
+      "libraryFilesRecovered": 344,
+      "originalObjects": 345,
+      "originalBytes": 1318946098,
+      "uniqueArchiveBytes": 1117585097,
+      "zipMembersIndexed": 3277,
       "repositoryAssetsRegistered": 4683,
       "metadataOnly": 1,
-      "remoteVerifiedFileRecords": 290,
-      "splitOriginals": 24,
-      "remoteStoredBinaryBlobs": 213,
-      "originalFileRecords": 290
+      "remoteVerifiedFileRecords": 347,
+      "splitOriginals": 39,
+      "remoteStoredBinaryBlobs": 253,
+      "originalFileRecords": 347
     },
-    "backupStatus": "remote-verified-recovered-originals"
+    "backupStatus": "remote-verified-recovered-originals",
+    "externalLibraryRegistrations": [
+      {
+        "id": "koloss-style-v3-20261029",
+        "name": "KOLOSS 정상·파괴 v3 및 구버전",
+        "manifest": "source-art/asset-bank-archive/batches/koloss-style-v3-20261029/library-registration.json",
+        "sourcePackageLibraryId": "libfile_9e19379e1d24819194b36329dfae71ea",
+        "previewLibraryId": "libfile_4bada865ce248191a0291973b7aec8ca",
+        "status": "Library보존·GitHub메타데이터만등록",
+        "githubOriginalBytesBackedUp": false,
+        "runtimeEligible": false
+      },
+      {
+        "id": "moving-fortress-snapshot-20261029",
+        "name": "이동요새 봉인·개방 v2 현행 승인 스냅샷",
+        "manifest": "source-art/asset-bank-archive/batches/moving-fortress-snapshot-20261029/library-registration.json",
+        "previewLibraryId": "libfile_1569484858988191b902da03849968e7",
+        "status": "Library보존·GitHub메타데이터만등록",
+        "githubOriginalBytesBackedUp": false,
+        "runtimeEligible": false,
+        "immutableSnapshot": true
+      }
+    ]
   }
 }

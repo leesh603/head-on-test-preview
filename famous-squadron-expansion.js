@@ -1,8 +1,8 @@
-import {squadronDamage,squadronCourierDamage,squadronHp} from './squadron-elite-balance.js?v=09c75d146ae4289d';
+import {squadronDamage,squadronCourierDamage,squadronHp} from './squadron-elite-balance.js';
 /** Historical squadron identities; pursuit/escort choreography is game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js?v=09c75d146ae4289d';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
 export const EXPANSION_BALANCE=Object.freeze({duration:24,jasta5:{plane:'jasta5_patrol',count:5,faction:'central',hp:70},spa65:{plane:'spad',count:5,faction:'entente',hp:62},courierPlane:'dfw_cv',courierHp:80,warning:.65,acquire:.42,breakAngle:.35,quiet:1.25,maxBursts:7,maxBreaks:3});
 // 20261107 Jasta 5 stays in the fight: seven passes (was four), departs after a
 // third broken lock (was two).

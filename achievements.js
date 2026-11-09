@@ -1,7 +1,7 @@
-import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=09c75d146ae4289d';
+import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 // Service record also retains per-pilot aircraft unlock progress.
-import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {frontLength} from './dynamic-front.js?v=09c75d146ae4289d';
+import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {frontLength} from './dynamic-front.js';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
 const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네메르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'눙게서',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
 const pilotLabelsEn={baron:'Manfred von Richthofen',voss:'Werner Voss',boelcke:'Oswald Boelcke',udet:'Ernst Udet',goering:'Hermann Göring',berthold:'Rudolf Berthold',wolff:'Kurt Wolff',loewenhardt:'Erich Loewenhardt',jacobs:'Josef Jacobs',brumowski:'Godwin Brumowski',lothar:'Lothar von Richthofen',sachsenberg:'Gotthard Sachsenberg',fonck:'René Fonck',collishaw:'Raymond Collishaw',baracca:'Francesco Baracca',guynemer:'Georges Guynemer',bishop:'Billy Bishop',mannock:'Mick Mannock',hawker:'Lanoe Hawker',mccudden:'James McCudden',nungesser:'Charles Nungesser',rickenbacker:'Eddie Rickenbacker',ball:'Albert Ball',barker:'Billy Barker'};

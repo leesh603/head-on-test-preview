@@ -1,6 +1,6 @@
-import {bishopGlovesInterval} from './equipment-flight-balance.js?v=09c75d146ae4289d';
-import {wimperisOrdnance} from './flight-equipment.js?v=09c75d146ae4289d';
-import {TACTICAL_DOCTRINES} from './tactical-doctrines.js?v=09c75d146ae4289d';
+import {bishopGlovesInterval} from './equipment-flight-balance.js';
+import {wimperisOrdnance} from './flight-equipment.js';
+import {TACTICAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Compatibility exports for firing and encyclopedia consumers; never upgrade cards.
 export const WEAPON_MODS=TACTICAL_DOCTRINES;
 export const WEAPON_MOD_BY_ID=Object.freeze(Object.fromEntries(WEAPON_MODS.map(mod=>[mod.id,mod])));

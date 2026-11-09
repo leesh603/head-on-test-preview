@@ -1,4 +1,4 @@
-import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
+import {combatDamageTime} from './front-performance.js';
 // New concept AIRFRAMES only. Paints and all legacy aircraft retain their chain.
 // Geometry follows planeSprite: 288x320 image, pivot(144,152), .54/2 world scale.
 const IDS=new Set(['01','02','03','04','09','10','13','14','17','18','21','22','25','26','29','30']);

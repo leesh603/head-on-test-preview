@@ -1,9 +1,9 @@
 /** Optional sea encounters. Fictional WWI-inspired designs, not historical ship replicas. */
-import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack} from './submarine-intrusion.js?v=09c75d146ae4289d';
+import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack} from './submarine-intrusion.js';
 export const isSubmarine=e=>isNewSubmarine(e)||(typeof e==='string'?e:e?.profileId)==='nachtwal';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
-import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
-import {surfaceTraffic,fleetHull} from './naval-spacing.js?v=09c75d146ae4289d';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
+import {surfaceTraffic,fleetHull} from './naval-spacing.js?v=pandemonium394r2';
 export const MARITIME_STAGES = Object.freeze([1,16]); // Adriatic sea and Jutland only.
 export const MARITIME_PROFILES = Object.freeze({
  dreadnought:{id:'dreadnought',name:'드레드노트',faction:'entente',mode:'naval-broadside',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.60,detail:'대공포를 끊고 포격 사이로 파고들어라',artStatus:'new independent fictional WWI naval design; separate rotating turret assemblies'},
@@ -75,8 +75,8 @@ export function placeMaritimeContact(g,e,layout,x,y,commit=true,heading=e.a){
  for(const b of g.stageBoss?.stages?.encounter?.bodies?.values?.()||[])if(!b.dead){const r=bossHullRect(b);if(r)obstacles.push(r);}
  const hull={w:layout.width*e.scale,h:layout.height*e.scale,yaw:heading+Math.PI/2};
  // Prefer a clear broadside flypast, then fall back to the center and wider contacts.
- // Seeadler's forward mounts need more separation on narrow viewports.
- const broadside=e.profileId==='seeadler'?Math.min(.42,164/e.width):.22;
+ // Seeadler and the decoy need a wider flypast for their broadside mounts.
+ const broadside=['seeadler','qship'].includes(e.profileId)?Math.min(.42,164/e.width):.22;
  const candidates=e.profileId==='nachtwal'?[0,-.22,.22,-.42,.42]:[broadside,-broadside,0,-.42,.42];
  for(const forward of [0,-.22,.22])for(const lateral of candidates){
   const dx=lateral*e.width,dy=forward*e.height;

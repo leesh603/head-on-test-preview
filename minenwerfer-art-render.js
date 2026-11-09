@@ -1,4 +1,4 @@
-import {MINEN_ART,MINEN_TUBES,minenAtlasFrame,minenRecoilOffset} from './minenwerfer-art-layout.js?v=09c75d146ae4289d';
+import {MINEN_ART,MINEN_TUBES,minenAtlasFrame,minenRecoilOffset} from './minenwerfer-art-layout.js';
 export function drawMinenInstallation(c,part,images,{scale=1,destroying=false}={}){
  const dead=destroying||part.destroyed;
  const authored=!!((images.states?.naturalWidth||images.states?.width)&&(images.barrels?.naturalWidth||images.barrels?.width));

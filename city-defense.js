@@ -1,10 +1,11 @@
-import {aaMuzzle,configureAA} from './air-threat-profiles.js?v=09c75d146ae4289d';
-// Ordinary city only. Co-op calls this once for the shared world, not per pilot.
+import {aaMuzzle,configureAA} from './air-threat-profiles.js';
+import {cityRaidBattle} from './city-air-raid.js?v=cityhud20261104';
+// Co-op calls this once for the shared world, not per pilot.
 export const CITY_DEFENSE=Object.freeze({lockTime:1.2,beamHalf:.16,beamRange:520,warning:.65,reload:2.7,speed:250});
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const pilots=g=>g.players?g.players.filter(p=>p.hp>0&&p.status==='alive'):[g];
 export function spawnCityDefense(g){
- const region=g.worldRegion();if(![4,18].includes(region)||g.enemies.some(e=>e.cityUnit&&!e.expired&&e.hp>0))return;
+ const region=g.worldRegion();if(region!==18||g.enemies.some(e=>e.cityUnit&&!e.expired&&e.hp>0))return;
  const a=g.a||0,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  if(region===18&&!g.berlinDefense)g.berlinDefense={suppressed:0,tracked:[]};
  const bx=g.x+hx*420,by=g.y+hy*420,serial=(g._citySerial||0)+1;g._citySerial=serial;
@@ -20,12 +21,37 @@ export function spawnCityDefense(g){
  }
  g._citySpawned=true;g.event('flak','도심 방공망 · 탐조등을 파괴하면 연결 포좌의 추적 사격이 멈춥니다');
 }
+function tickAlliedBatteries(g,dt){
+ const districts=cityRaidBattle(g)?.districts;
+ if(!districts?.length)return;
+ g.cityDefense??=districts.map((d,i)=>{
+  const e={x:d.x+56,y:d.y+45,a:0,faction:g.stageBoss?.stages.teamFaction||g.teamFaction,cityUnit:'pit',facSprite:'fx-city-aagun',facSize:88,fieldRegion:4,fireT:2+i*.6};
+  configureAA(g,e,e.facSize);return e;
+ });
+ const aircraft=g.enemies.filter(e=>e.hp>0&&!e.expired&&!e.crashing&&!e.surface&&!e.stationary&&(e.cityRaid&&!e.cityRaid.dropped||e.stageBossBody));
+ for(const [i,e] of g.cityDefense.entries()){
+  e.destroyed=districts[i].hp<=0;if(e.destroyed)continue;
+  e.fireT-=dt;e.muzzleFlash=Math.max(0,(e.muzzleFlash||0)-dt);
+  let target=null,range=720;
+  for(const q of aircraft){const d=Math.hypot(q.x-e.x,q.y-e.y);if(d<range){range=d;target=q;}}
+  if(!target)continue;
+  e.a=Math.atan2(target.y-e.y,target.x-e.x);e.gunAim=e.a;
+  if(e.fireT>0)continue;
+  e.fireT=6*(e.aaFireFactor||1);e.muzzleFlash=.14;
+  const {x,y}=aaMuzzle(e,e.facSize);
+  g.bullets.push({x,y,vx:Math.cos(e.a)*330,vy:Math.sin(e.a)*330,life:2.2,damage:8,enemy:false,ally:true,patrol:true,fireZone:true,visualType:'flak'});
+  g.burst?.(x,y,'#ffd9a0',4);
+ }
+}
 export function tickCityDefense(g,dt){
  if(g.state!=='playing'||dt<=0)return;
- if(g.worldRegion()!==18)g.berlinDefense=null;
+ const region=g.worldRegion();
+ if(region!==18)g.berlinDefense=null;
+ if(region===4){tickAlliedBatteries(g,dt);return;}
+ g.cityDefense=null;
  if(g.berlinDefense){for(const e of g.berlinDefense.tracked)if(e.hp<=0&&!e.expired&&!e.capitalCounted){e.capitalCounted=true;g.berlinDefense.suppressed++;}g.berlinDefense.tracked=g.berlinDefense.tracked.filter(e=>!e.expired&&!e.capitalCounted);}
  const step=Math.min(.04,dt),ps=pilots(g),B=CITY_DEFENSE;
- const active=[4,18].includes(g.worldRegion())&&(!g.stageBoss||g.stageBoss.stages.phase==='explore');
+ const active=region===18&&(!g.stageBoss||g.stageBoss.stages.phase==='explore');
  if(!active){
   for(const e of g.enemies||[])if(e.cityUnit){e.cityShot=null;e.lit?.clear();e.lockT=0;}
   for(const p of ps)p.illuminatedUntil=0;

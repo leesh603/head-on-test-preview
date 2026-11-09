@@ -1,5 +1,5 @@
-import {REGIONAL_ART} from './regional-boss-art-data352.js?v=09c75d146ae4289d';
-import {drawRailTrack} from './rail-render129.js?v=09c75d146ae4289d';
+import {REGIONAL_ART} from './regional-boss-art-data352.js?v=tame3';
+import {drawRailTrack} from './rail-render129.js?v=gal1';
 
 const load = file => {
  if (typeof Image === 'undefined') return null;

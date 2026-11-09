@@ -1,6 +1,6 @@
-import {aceWingFlightTuning,noteAceWingTurn} from './ace-wingman-pilots.js?v=09c75d146ae4289d';
-import {aceEscortStation} from './enemy-ace-tactics.js?v=09c75d146ae4289d';
-import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js?v=09c75d146ae4289d';
+import {aceWingFlightTuning,noteAceWingTurn} from './ace-wingman-pilots.js';
+import {aceEscortStation} from './enemy-ace-tactics.js';
+import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js';
 // Formation stations are steering goals, never positions to interpolate toward.
 // Shared by solo, co-op, ace escorts and authored pilot formations.
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));

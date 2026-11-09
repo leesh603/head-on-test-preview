@@ -1,7 +1,7 @@
 // Sortie-local tactical consequences. Uses the existing rounds, grenades,
 // escape repair and wing engagement loop; never changes a pilot's skill.
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js';
+import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js';
 export const TACTICAL_COMBAT_BALANCE=Object.freeze({reinforcements:2,wingCap:9,reinforcementDamage:.55,passEntry:.45,passWindow:.7,passExit:190,passCooldown:4,counterWindow:3,counterCooldown:8,repairCooldown:12,linkCooldown:4,bombCooldown:6,coverCooldown:7});
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
