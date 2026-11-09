@@ -91,7 +91,7 @@ $('start').onclick=()=>{
  try{localStorage.setItem(pairKey+'-device',$('device').value)}catch{}
  loading=setInterval(()=>{
   try{const w=frame.contentWindow,d=frame.contentDocument;
-   if(!w?.__HEADON_PERF__||(auto?!w.__HEADON_TEST__?.performanceScenarioStart:!d?.body?.classList.contains('hangar-shown'))){if(performance.now()-began>90000)throw Error('게임 준비 시간이 초과되었습니다. 새로고침한 뒤 다시 시도해 주세요.');return;}
+   if(!w?.__HEADON_PERF__||!d?.body?.classList.contains('hangar-shown')||(auto&&!w.__HEADON_TEST__?.performanceScenarioStart)){if(performance.now()-began>90000)throw Error('게임 준비 시간이 초과되었습니다. 새로고침한 뒤 다시 시도해 주세요.');return;}
    clearInterval(loading);loading=null;api=w.__HEADON_PERF__;gameApi=w.__HEADON_TEST__;
    if(auto&&!gameApi?.performanceScenarioStart)throw Error('이 주소에서는 자동 진단 비행을 사용할 수 없습니다. 직접 플레이를 선택해 주세요.');
    const scenario=auto?gameApi.performanceScenarioStart({seed:1918,stageSeconds:targetMs/4000}):null;
