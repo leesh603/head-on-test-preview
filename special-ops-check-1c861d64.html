@@ -29,6 +29,7 @@ async function run(mobile){
   for(const [id,map,win] of [['prototype',4,true],['cargo',8,true],['squadron',2,true],['ace',6,true],['prototype',4,false]]){
    api.start({region:0,pilot:'baron',invincible:true,freeze:true,seed:1918});
    const game=api.debug(), addon=game.stageBoss, stages=addon.stages;
+   game.specialOperations=true;stages.operationsEnabled=true;
    for(let i=0;i<6&&stages.phase!=='operation-offer';i++){
     stages.phase='clear-pending';stages.encounter={id:'qa-operation-approach-'+i,completed:true};
     const next=stages.advance(false,{frontResult:addon.hooks.onFrontStageCleared});
