@@ -67,9 +67,9 @@ function cannonGroup(p,indices,total,{heading,power=1,volleyToken=primaryVolleyT
   push(p,b);p.ammo[0]--;p.roundsFired++;fired++;p.preparePilotPrimaryRound?.(b,volleyToken);b.pierce=false;
  }
  if(fired){
-  // A single visual kick reflects how many shells actually left the barrel.
-  p.cannonRecoil129=.14;p.cannonKick129=Math.min(5,3.5+(fired-1)*.5);p.cannonKind129='cow';
-  p.muzzleFlash=.11;p.synthesisMuzzleAngle=base;
+  // Keep one bounded kick; the muzzle flash lasts slightly longer for a real multi-shell volley.
+  p.cannonRecoil129=.14;p.cannonKick129=3.5;p.cannonKind129='cow';
+  p.muzzleFlash=.11+Math.min(.02,(fired-1)*.006);p.synthesisMuzzleAngle=base;
   const w=world(p);w.shake=Math.max(w.shake||0,1.25);
   p.cannonMuzzleSmoke?.('cow');p.event?.('shot','cow37');
  }
