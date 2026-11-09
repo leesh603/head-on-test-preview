@@ -1,5 +1,5 @@
 import {ParisGeschuetz} from './laon-gun.js?v=09c75d146ae4289d';
-import {LAON_MISSION} from './laon-layout.js?v=09c75d146ae4289d';
+import {LAON_MISSION,LAON_CRITICAL_PARTS} from './laon-layout.js?v=09c75d146ae4289d';
 
 export const LAON_STAGE=19;
 export {LAON_MISSION};
@@ -48,7 +48,7 @@ export function discoverLaonBattle(g){
  // See an actual section of the installation, or register a real hit.
  const seen=players(g).some(p=>p.hp>0&&p.status!=='downed'&&Math.abs(p.x-b.origin.x)<w*.5+175&&p.y+h*.5>b.origin.y-335&&p.y-h*.5<b.origin.y+90);
  const hit=b.gun.hp<b.gun.maxHp||[...b.gun.parts.values()].some(p=>p.hp<p.maxHp);
- if(seen||hit){b.discovered=true;b.gun.discovered=true;g.event?.('wave',b.role==='attack'?'라온 포대 발견 · 탄약고와 장전 설비가 약점입니다':'아군 파리포 확인 · 접근하는 폭격기를 요격하세요');}
+ if(seen||hit){b.discovered=true;b.gun.discovered=true;g.event?.('wave',b.role==='attack'?'라온 포대 발견 · 포신 또는 약실 파괴 시 임무 완료. 장전기·탄약은 포격 지연':'아군 파리포 확인 · 접근하는 폭격기를 요격하세요');}
 }
 export function handleLaonCue(g,e){
  const b=g.laonBattle;if(!b)return false;
@@ -74,7 +74,7 @@ export function handleLaonCue(g,e){
  if(e.type==='laon-counterbattery-warning')g.event?.('wave','프랑스 대포대 사격 경고 · 관측기를 격추하세요');
  if(e.type==='laon-part-destroyed'||e.type==='part-destroyed'){
   const names={loader:'장전 설비',ammo:'탄약 적재장',recoil:'복좌 장치',barrel:'포신',breech:'약실'};
-  if(names[e.partId])g.event?.('wave',names[e.partId]+' 파괴 · '+(e.partId==='barrel'||e.partId==='breech'?'포격 영구 중단':'포격 준비 지연'));
+  if(names[e.partId])g.event?.('wave',names[e.partId]+' 파괴 · '+(LAON_CRITICAL_PARTS.includes(e.partId)?'포격 영구 중단':'포격 준비 지연'));
  }
  // Authored art draws the muzzle, moving ordnance, smoke and persistent debris.
  // A bounded cue history crosses the network with the mission snapshot.
@@ -134,5 +134,5 @@ export function laonStatus(g,locale='ko'){
  const detail=ids.map(id=>{const p=gun?.parts?.get(id),s=p?.destroyed?2:p&&p.hp<p.maxHp*.55?1:0;return names[id]+':'+(en?['OK','DMG','LOST'][s]:states[s]);}).join(' · ');
  const phase=en?gun?.phase:({loading:'장전 중',ready:'발사 직전',recoil:'반동',return:'복좌',reload:'재장전',destroyed:'포격 중단'})[gun?.phase]||'';
  const front=b.role==='attack'?(en?'STOP THE GUN ':'저지 제한 ')+Math.ceil(b.remaining)+'s · '+(en?'PARIS SHELLING ':'파리 포격 ')+b.shotCount+' / '+LAON_MISSION.attackShotLimit:(en?'DEFEND GUN ':'아군 포격 ')+b.shotCount+' / '+LAON_MISSION.shots;
- return front+' · '+phase+'\n'+detail;
+ return front+' · '+phase+'\n'+(b.role==='attack'?(en?'Destroy barrel or breech to win. Delay firing: ':'포신 또는 약실 파괴 시 승리. 포격 지연 부위: '):'')+detail;
 }

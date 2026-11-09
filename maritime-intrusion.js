@@ -103,6 +103,10 @@ export function stepMaritimeMotion(e,dt){
  else if(isSubmarine(e)){
   const timing=isNewSubmarine(e)?submarineTimings(e):{exposed:8.5,diving:1.1,submerged:2.8,surfacing:1.2};
   const control=e.parts.dive_control;
+  if(e.profileId==='m1'&&n.phase==='surfaced'&&e.hazards.some(h=>!h.done)){
+   // Keep the firing line reserved by the visible splash warning.
+   heading=e.a;speed=n.speed/submarineDrive(e).speed;
+  }
   if(control?.hp<=0&&['diving','submerged'].includes(n.phase))changePhase(e,'surfacing');
   if(n.phase==='surfaced'&&n.phaseAge>=timing.exposed&&!(control?.hp<=0)){
    n.cycle++;n.travelAngle=e.a+(n.cycle%2?1:-1)*.35;

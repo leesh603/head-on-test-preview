@@ -1575,7 +1575,7 @@ class FormationAceBoss extends PatternBoss {
     this.entryAge+=dt;this.entryDeaths??=new Set();const defenders=ctx.defenders||[],onScreen=defenders.filter(p=>p.alive&&this.visible(p,ctx.bounds));
     if(!this.entryRoster&&onScreen.length){this.entryRoster=onScreen.map(p=>p.id);this.rosterCollectUntil=this.entryAge+.8;}
     if(this.entryRoster&&this.entryAge<this.rosterCollectUntil)for(const p of onScreen)if(!this.entryRoster.includes(p.id))this.entryRoster.push(p.id);
-    for(const q of defenders)if(!q.alive&&this.entryRoster?.includes(q.id))this.entryDeaths.add(q.id);
+    for(const q of defenders)if(!q.alive&&q.exit!=='departed'&&this.entryRoster?.includes(q.id))this.entryDeaths.add(q.id);
     const remaining=defenders.filter(p=>p.alive&&this.entryRoster?.includes(p.id));
     const targets=remaining.filter(p=>this.visible(p,ctx.bounds));
     const black=this.kind==='naval10-black-flight',finisher=this.entryRoster?.at(-1);
@@ -1589,9 +1589,10 @@ class FormationAceBoss extends PatternBoss {
       this.move(dt,distance<150?Math.max(135,Math.hypot(p.vx||0,p.vy||0)-35):Math.max(215,Math.hypot(p.vx||0,p.vy||0)+45),ctx.bounds);const aim=this.aimAt(p);
       if((!black||last)&&this.entryAge>1.15&&Math.abs(aim.rel)<.22&&aim.dist<470&&this.visible(p,ctx.bounds)&&this.due('arrival-gun',dt,.18))this.forwardShot();
     }else{this.steer(dt,p.x,p.y-120,1.8);this.move(dt,145,ctx.bounds);}
-    if((this.entryRoster&&this.entryDeaths.size===this.entryRoster.length&&!remaining.length)||(!this.entryRoster&&this.entryAge>=3.2)){
+    const rosterClosed=this.entryRoster&&this.entryAge>=this.rosterCollectUntil;
+    if((rosterClosed&&!remaining.length)||(!this.entryRoster&&this.entryAge>=3.2)){
       this.entryClearAge+=dt;
-      if(this.entryClearAge>1.2){this.entryComplete=true;this.phase='formation-recovery';this.recoverLeft=1.4;this.command('formation-engaged');}
+      if(this.entryClearAge>1.2){this.entryComplete=true;this.phase='formation-recovery';this.recoverLeft=1.4;this.command('formation-engaged',{allDefendersDown:!!this.entryRoster?.length&&this.entryDeaths.size===this.entryRoster.length});}
     }else this.entryClearAge=0;
     return true;
   }

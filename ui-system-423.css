@@ -151,7 +151,10 @@ html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-car
 html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151 .cumulative151{
  -webkit-box-orient:vertical!important;overflow:hidden!important;white-space:normal!important;text-overflow:ellipsis!important;height:auto!important;max-height:none!important;
 }
-html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151>span:not(.cumulative151){-webkit-line-clamp:3!important;line-clamp:3}
+html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151>span:not(.cumulative151){
+ display:block!important;overflow-y:auto!important;overflow-x:hidden!important;
+ text-overflow:clip!important;overflow-wrap:anywhere;overscroll-behavior:contain;
+}
 html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151>b{-webkit-line-clamp:2!important;line-clamp:2}
 html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151 .cumulative151{-webkit-line-clamp:2!important;line-clamp:2;align-self:end!important}
 html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151 .rarity-label160{width:auto!important;max-width:none!important;min-width:0!important;white-space:nowrap!important;overflow:visible!important;flex:none}
@@ -159,7 +162,6 @@ html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-car
  html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{grid-template-columns:64px minmax(0,1fr)!important;column-gap:10px!important}
  html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{width:64px!important}
  html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151>b{-webkit-line-clamp:1!important;line-clamp:1}
- html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151>span:not(.cumulative151){-webkit-line-clamp:2!important;line-clamp:2}
  html.ui423 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.reinforcement-card151 .cumulative151{-webkit-line-clamp:1!important;line-clamp:1}
 }
 

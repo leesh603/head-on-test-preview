@@ -1,4 +1,4 @@
-import {LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS} from './laon-layout.js?v=09c75d146ae4289d';
+import {LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS} from './laon-layout.js?v=09c75d146ae4289d';
 import {LAON_ART_FRAMES} from './laon-art-frames.js?v=09c75d146ae4289d';
 import {fx} from './fx-art.js?v=09c75d146ae4289d';
 import {impactMark,aimLine} from './tactical-marks.js?v=09c75d146ae4289d';
@@ -108,7 +108,7 @@ export function laonMissionCard(g,en=false){
  const phases={loading:en?'Loading':'장전 중',ready:en?'Ready to fire':'발사 직전',recoil:en?'Recoil':'반동',return:en?'Returning':'복좌',reload:en?'Reloading':'재장전',destroyed:en?'Gun silenced':'포격 영구 중단'};
  const damaged=b.discovered?['loader','ammo','recoil'].filter(id=>state(parts(b.gun).get(id))>0):[];
  const weak=damaged.map(id=>(en?{loader:'Loader',ammo:'Ammo',recoil:'Return'}:{loader:'장전',ammo:'탄약',recoil:'복좌'})[id]+(en?[' OK',' DMG',' LOST'][state(parts(b.gun).get(id))]:[' 정상',' 손상',' 파괴'][state(parts(b.gun).get(id))])).join(' · ');
- const meta=(phases[b.gun?.phase]||'')+' · '+(weak?weak+' · ':'')+(b.discovered?(en?'Cycle ':'포격 주기 ')+Math.round(b.gun?.cycleSeconds?.()||b.gun?.cycleDuration||LAON_NORMAL_CYCLE_SECONDS)+'s':(en?'Battery ':'포대 ')+distance+'m');
+ const meta=(b.role==='attack'&&!b.result?(en?'Destroy barrel or breech':'포신 또는 약실 파괴')+' · ':'')+(phases[b.gun?.phase]||'')+' · '+(weak?(en?'Firing delay: ':'포격 지연: ')+weak+' · ':'')+(b.discovered?(en?'Cycle ':'포격 주기 ')+Math.round(b.gun?.cycleSeconds?.()||b.gun?.cycleDuration||LAON_NORMAL_CYCLE_SECONDS)+'s':(en?'Battery ':'포대 ')+distance+'m');
  return{title,objective,meta};
 }
 export function updateLaonBossHud(g,locale='ko'){
@@ -120,13 +120,14 @@ export function updateLaonBossHud(g,locale='ko'){
  slot.querySelectorAll('.gate-tick,#stageBossGate').forEach(e=>e.remove());
  const gun=b.gun,raid=b.raid,ps=parts(gun),target=b.role==='attack'?gun:raid;
  const names=en?{barrel:'Barrel',breech:'Breech',loader:'Loader',ammo:'Ammo',recoil:'Return'}:{barrel:'포신',breech:'약실',loader:'장전',ammo:'탄약',recoil:'복좌'},states=en?['OK','DMG','LOST']:['정상','손상','파괴'];
- const detail=b.role==='attack'?['barrel','breech','loader','ammo','recoil'].map(id=>names[id]+' '+states[state(ps.get(id))]).join(' · '):['bomber','escort','observer'].map(role=>{
+ const partState=id=>names[id]+' '+states[state(ps.get(id))];
+ const detail=b.role==='attack'?[...LAON_CRITICAL_PARTS.map(partState),(en?'Delay: ':'지연: ')+['loader','ammo','recoil'].map(partState).join(' / ')].join(' · '):['bomber','escort','observer'].map(role=>{
   const rows=(raid?.planes||[]).filter(p=>p.role===role);return(en?{bomber:'Bombers',escort:'Escorts',observer:'Observer'}:{bomber:'폭격',escort:'호위',observer:'관측'})[role]+' '+rows.filter(p=>p.hp>0).length+'/'+rows.length;
  }).join(' · ');
  put('stageBossParts',detail);
  let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint);}
  const hp=Math.ceil(Math.max(0,target?.hp||0)),max=Math.max(1,target?.maxHp||1);
- const text=b.role==='attack'?(en?'Destroy barrel or breech · core ':'포신 또는 약실 파괴 · 핵심 ')+hp+' / '+Math.round(max):(en?'Intercept bombers and observer · gun core ':'폭격기·관측기 요격 · 아군 핵심 ')+Math.round((gun?.hp||0)/(gun?.maxHp||1)*100)+'%';
+ const text=b.role==='attack'?(en?'Destroy barrel or breech to win · core ':'포신 또는 약실 파괴 시 승리 · 핵심 ')+hp+' / '+Math.round(max):(en?'Intercept bombers and observer · gun core ':'폭격기·관측기 요격 · 아군 핵심 ')+Math.round((gun?.hp||0)/(gun?.maxHp||1)*100)+'%';
  if(hint.textContent!==text)hint.textContent=text;
  document.getElementById('stageBossHp').style.width=Math.max(0,Math.min(100,hp/max*100))+'%';slot.setAttribute('aria-valuenow',String(hp));slot.setAttribute('aria-valuemax',String(max));
  // Silhouette strip (skyline-strip.js): the Entente watches Paris take the shells;

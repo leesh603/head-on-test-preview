@@ -8,6 +8,7 @@ import {beginFinalArena,tickFinalArena,isFinalArena,hitFinalArena} from './final
 import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js?v=09c75d146ae4289d';
 import {damageFacility} from './ground-facility-missions.js?v=09c75d146ae4289d';
 import {flushIntrusionEquipmentRewards} from './intrusion-equipment-rewards.js?v=09c75d146ae4289d';
+import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
 import {tickIntrusionHost,syncIntrusionTarget,intrusionTargetCollision,hitIntrusionTarget} from './intrusion-boss-host.js?v=09c75d146ae4289d';
 import {momentumDamage} from './ace-momentum.js?v=09c75d146ae4289d';
 import {pilotUnlockRun} from './pilot-unlocks.js?v=09c75d146ae4289d';
@@ -53,7 +54,7 @@ const formationDefenders=g=>[...(g.patrols||[])].filter(a=>a&&a.life>0&&(a.hp===
 function formationDefenderId(g,a){if(!a.stageBossTargetId){g._stageBossTargetSerial129=(g._stageBossTargetSerial129||0)+1;a.stageBossTargetId=`formation-defender-${g._stageBossTargetSerial129}`;}return a.stageBossTargetId;}
 function formationDefenderFrame(g,a){
  if(a.hp===undefined){a.maxHp??=72;a.hp=a.maxHp;a.invuln??=0;a.hitFlash??=0;}
- return{id:formationDefenderId(g,a),alive:a.life>0&&a.hp>0,x:a.x,y:a.y,a:a.a,vx:Math.cos(a.a)*(a.speed||185),vy:Math.sin(a.a)*(a.speed||185),radius:16,formationDefender:true};
+ return{id:formationDefenderId(g,a),alive:a.life>0&&a.hp>0,exit:a.hp<=0?'downed':a.life<=0?'departed':undefined,x:a.x,y:a.y,a:a.a,vx:Math.cos(a.a)*(a.speed||185),vy:Math.sin(a.a)*(a.speed||185),radius:16,formationDefender:true};
 }
 function formationDefenderTarget(g,e){
  if(!['jasta-formation','black-flight-formation'].includes(e.behavior)){const live=[...(g.patrols||[]),...(g.allies||[])].filter(a=>a&&a.life>0&&(a.hp===undefined||a.hp>0));let p=live.find(a=>formationDefenderId(g,a)===e.formationTargetId);if(!p)p=live.reduce((best,a)=>!best||Math.hypot(a.x-e.x,a.y-e.y)<Math.hypot(best.x-e.x,best.y-e.y)?a:best,null);e.formationTargetId=p?formationDefenderId(g,p):null;return p;}
@@ -205,7 +206,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(event.type==='capital-part-break'){g.combatBlast?.(event.x,event.y,34,'enemy','structure');g.event('bossSound','armorBreak');return;}
 
    if(event.type==='formation-shot'){const ordnanceFamily=bossOrdnanceFamily(g.stageBoss?.stages.encounter?.bossId,event);g.bullets.push({ordnanceFamily,hostileRocket:ordnanceFamily==='rocket',x:event.x,y:event.y,vx:Math.cos(event.angle)*event.speed,vy:Math.sin(event.angle)*event.speed,life:2,enemy:true,visualType:'boss',raidHeavy:!!event.raidHeavy,damage:Math.max(event.damage,event.raidHeavy?(g.maxHp||100)*.72:0),encounterId:event.encounterId,formationBoss129:true,sourceBossId:event.bossId});g.event('bossSound',event.raidHeavy?bossStrongSound(ordnanceFamily,'projectile'):'enemyShot');return;}
-   if(event.type==='formation-engaged')g.event('wave','아군 편대 격추 · 정예 편대와 교전');
+   if(event.type==='formation-engaged')g.event('wave',event.allDefendersDown?'아군 편대 격추 · 정예 편대와 교전':'적 정예 편대와 교전');
    if(event.type==='boss-gate-armor'){g.event('wave','장갑 강화 · 공격을 피한 뒤 반격');return;}
    if(event.type==='formation-final-order')g.event('wave',event.name+' · 예고선 밖으로 선회!');
    if(event.type==='carrier-sortie-orders')redirectStuttgartSortie(g.enemies,event);
@@ -535,7 +536,10 @@ export function stageCombatWindow(g){
  const deadline=stage===16?JUTLAND_ROUTE.deadline:STAGE_BOSS_BALANCE.deadline;
  const timeLeft=timed?Math.max(0,deadline-((g.t||0)-(g.stageStartTime||0))):Infinity;
  const remaining=stages.phase==='explore'?Math.min(travelLeft,timeLeft):0;
- return {stageIndex:stage,loopIndex:stages.loopIndex||0,remaining,progress:Math.min(1,travel/target),approaching:remaining<=18,ready:travel>=target||timeLeft===0};
+ // Jutland can reserve the early approach until its existing 32s deadline.
+ // Fast pilots still reach the normal distance trigger on time.
+ const intrusionRemaining=stage===16&&stages.phase==='explore'?timeLeft:undefined;
+ return {stageIndex:stage,loopIndex:stages.loopIndex||0,remaining,intrusionRemaining,progress:Math.min(1,travel/target),approaching:remaining<=18,ready:travel>=target||timeLeft===0};
 }
 export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
@@ -577,7 +581,7 @@ export function beginStageBossFrame(g,dt){
   g.navalRouteCues??=new Set();for(const [mark,message]of messages)if(progress>=mark&&!g.navalRouteCues.has(mark)){g.navalRouteCues.add(mark);g.event('wave',message);}
  }
  g.stageCombatWindow=stageCombatWindow(g);
- if(addon.stages.phase==='explore'&&g.stageCombatWindow.ready){
+ if(addon.stages.phase==='explore'&&g.stageCombatWindow.ready&&!(stage===16&&intrusionActive(g))){
   // Keep this gate latched after an ace dies: a quick kill must not pull
   // another scheduled ace forward or erase the interval before the boss.
   const liveAces=(g.enemies||[]).filter(e=>e.hp>0&&e.bossPilot&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed&&!e.bossMinion&&!e.stageBossBody&&!e.encounterId&&!e.escortLeaderId);

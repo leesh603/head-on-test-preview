@@ -65,7 +65,16 @@ export function cumulativeText(p,id,rarity){
  // acquire a unique reinforcement, consume a choice, or execute combat hooks.
  const doctrine=WEAPON_MOD_BY_ID[id];
  if(doctrine){const before=buildStats(p),current=getLocale()==='en'?' current ':' 현재 ',available=tacticalChoices(p)?.choices.includes(id),name=i18nUpgradeName(id,doctrine.name);return fields[id].map(key=>before[key][1]+current+before[key][2]+(available&&before[key][2]!==name?' → '+name:'')).join('\n')}
- const copy=Object.assign(Object.create(Object.getPrototypeOf(p)),p,{state:'upgrade',upgrades:{...p.upgrades},upgradeRarities:{...p.upgradeRarities},weaponMods:{...p.weaponMods},weaponModSelections:{...p.weaponModSelections},weapon:{...p.weapon},ammo:[...p.ammo],events:[],event(){},checkLevel(){}});
+ const world=p.world||p;
+ const allies=world.allies?.map(ally=>({...ally}));
+ const rewards=world.intrusionEquipmentRewards?.map(reward=>({...reward}));
+ const copy=Object.assign(Object.create(Object.getPrototypeOf(p)),p,{
+  state:'upgrade',upgrades:{...p.upgrades},upgradeRarities:{...p.upgradeRarities},
+  weaponMods:{...p.weaponMods},weaponModSelections:{...p.weaponModSelections},
+  weapon:{...p.weapon},ammo:[...p.ammo],equipmentLedger:structuredClone(p.equipmentLedger),
+  world:p.world?{players:world.players,activeUpgrade:world.activeUpgrade,allies,intrusionEquipmentRewards:rewards}:undefined,
+  allies,intrusionEquipmentRewards:rewards,events:[],rng:()=>.5,event(){},checkLevel(){},passiveMedalEvent(){}
+ });
  if(p.bomberTransfer)copy.bomberTransfer={...p.bomberTransfer,stations:p.bomberTransfer.stations?.map(station=>({...station}))};
  const current=getLocale()==='en'?' current ':' 현재 ';
  const before=buildStats(p);if(!copy.upgrade(id,rarity))return fields[id].map(k=>before[k][1]+current+before[k][2]).join('\n');

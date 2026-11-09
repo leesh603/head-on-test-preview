@@ -12,7 +12,7 @@ export const EQUIPMENT_COPY={
   "편대기 1기가 합류합니다. 출격당 2회 선택할 수 있으며, 상시 편대기는 최대 7기입니다.",
   "Permanent wingmen +1. At most 2 selections per sortie; 7 permanent wingmen total."
  ],
- "spread": ["주무장 추가탄이 1발 늘고 탄약 소모가 증가합니다.", "Adds one primary round, up to five extra rounds. Each fired round consumes ammunition."],
+ "spread": ["기본 기관총 일제사격 +1발. 추가 최대 4발(총 5발). 일반 사격은 발사한 만큼 탄약을 소모합니다.", "Adds one round to the base MG volley, up to 4 extra (5 total). Normal fire spends ammo per round."],
  "precisionSynchronizer": [
   "같은 적을 6회 연속 맞히면 다음 탄환이 강해집니다.",
   "Hit the same target 6 times with your machine guns, with at most 1.5s between hits. The next MG round deals +25% damage. 3s cooldown."
@@ -195,10 +195,10 @@ export function conciseEquipmentDescription(id,raw,locale='ko',translated=raw){
 }
 // Selection summaries prioritize the decision and its main cost, not a full parameter sheet.
 export const EQUIPMENT_CHOICE_COPY={
- "ironCross": ["액티브가 강화되고 재사용 대기시간이 줄어듭니다.", "Active cooldown is reduced by 20% and the ability is enhanced."],
+ "ironCross": ["액티브 강화 · 재사용 대기 −20%.", "Upgraded Active · cooldown −20%."],
  "cooperRack": ["전방에 폭탄 2발을 투하합니다. 장착한 탄두 효과가 적용됩니다.", "Drops 2 bombs every 4s, carrying equipped payloads."],
  "buckinghamBelt": ["기관총과 폭발물로 적에게 불을 붙입니다.", "Three gun hits ignite; burns scale with weapon growth."],
- "spread": ["주무장 추가탄이 1발 늘고 탄약 소모가 증가합니다.", "Adds 1 extra round (max 5), consuming extra ammo."],
+ "spread": ["기관총 +1발(총 5발). 탄약 소모 증가.", "MG volley +1 (5 total max). Uses extra ammo."],
  "flightGloves": [
   "고속 급선회 후 근접 연사가 빨라집니다. 사거리가 줄어듭니다.",
   "Fast turns boost close fire. Primary range −20%."
@@ -224,7 +224,7 @@ export const EQUIPMENT_CHOICE_COPY={
  "bomberTransfer": ["중폭격기로 전환해 폭격과 후방 사격을 합니다.", "Becomes a slow bomber with bombs and rear fire. No other conversions."],
  "mgTransfer": ["중무장기로 전환해 추적 기관총 2정을 사용합니다.", "Becomes a slow gunship with two tracking guns. No other conversions."],
  "airshipTransfer": ["비행선으로 전환하고 호위기 3기가 합류합니다.", "Becomes a slow airship with three escorts. No other conversions."],
- "wingman": ["편대기 1기가 합류합니다.", "Adds 1 wingman, twice per sortie (7 total max)."],
+ "wingman": ["편대기 +1(총 7기). 출격당 2회.", "Wingman +1 (7 total max). Twice per sortie."],
  "precisionSynchronizer": ["같은 적을 6회 연속 맞히면 다음 탄환이 강해집니다.", "Six consecutive same-target hits boost the next round 25%."],
  "directFuse": ["로켓·수류탄의 직격 피해가 늘고 폭발 피해가 줄어듭니다.", "Rocket/grenade hits deal 25% more; splash deals 15% less."],
  "fragmentationFuse": ["로켓·수류탄의 폭발 범위가 넓어지고 직격 피해가 줄어듭니다.", "Rocket/grenade blast radius +20%; direct-hit damage −10%."],
@@ -286,12 +286,13 @@ export const EQUIPMENT_CHOICE_COPY={
 export function conciseEquipmentChoice(id,description,locale='ko'){
  const en=locale==='en',n=[...String(description||'').matchAll(/\d+(?:\.\d+)?/g)].map(m=>m[0]);
  if(n.length)switch(id){
- case 'armor':return en?`Adds ${n[0]} max durability and repairs the gain.`:`최대 내구도가 ${n[0]} 늘고 증가량만큼 회복합니다.`;
- case 'command':return en?`Wing damage gains ${n[0]}pp and fire rate gains ${n[1]}pp.`:`편대 피해 증가량이 ${n[0]}%p, 연사 증가량이 ${n[1]}%p 늘어납니다.`;
- case 'turn':return en?`Turning rises ${n[0]}%, speed ${n[1]}%, speed recovery ${n[2]}%.`:`선회력이 ${n[0]}%, 속도가 ${n[1]}%, 속도 회복이 ${n[2]}% 증가합니다.`;
+ case 'rate':return en?`Fire interval −${n[0]}% (min 0.045s).`:`발사 간격 −${n[0]}% (최소 0.045초).`;
+ case 'armor':return en?`Hull +${n[0]} HP (cap +180). Heals the gain.`:`동체 +${n[0]} HP (상한 +180). 증가량 회복.`;
+ case 'command':return en?`Formation damage +${n[0]}pp (cap +150%). Fire rate +${n[1]}pp (cap +50%).`:`편대 피해 +${n[0]}%p(상한 +150%). 연사 +${n[1]}%p(상한 +50%).`;
+ case 'turn':return en?`Turn +${n[0]}%, speed +${n[1]}%, recovery +${n[2]}%. Caps: +150% / +40% / +60%.`:`선회 +${n[0]}%, 속도 +${n[1]}%, 회복 +${n[2]}%. 상한 +150% / +40% / +60%.`;
  case 'regen':return en?`Repairs ${n[0]}% more max HP per second, up to 4%.`:`초당 내구도 회복량이 ${n[0]}%p 늘어납니다(최대 4%).`;
- case 'cooldown':return en?`Cuts Active cooldown by ${n[0]}%, to half its base at most.`:`액티브 재사용 대기시간이 ${n[0]}% 줄어듭니다(기본의 50%까지).`;
- case 'bomber':{const t=en?(String(description).match(/every ([\d.]+)s/)?.[1]||n[0]):n[0];return en?`1 bomber drops 5 bombs every ${t}s.`:`${t}초마다 폭격기 1대가 폭탄 5발을 투하합니다.`;}
+ case 'cooldown':return en?`Active cooldown −${n[0]}% (min 50% of base).`:`액티브 재사용 대기 −${n[0]}% (기본의 최소 50%).`;
+ case 'bomber':{const t=en?(String(description).match(/every ([\d.]+)s/)?.[1]||n[0]):n[0];return en?`5 bombs every ${t}s (min 10s).`:`${t}초마다 폭탄 5발 (최소 10초).`;}
  case 'rockets':case 'mines':{const bonus=String(description).match(/(?:증가량이 |damage \+|damage increases by )([\d.]+)(?:%p| percentage points)/);return en?`${id==='rockets'?'Adds 1 rocket level':'Adds 1 grenade'} (max 5).${bonus?` Blast damage gains ${bonus[1]}pp.`:''}`:`${id==='rockets'?'로켓이 1단계 강화됩니다':'수류탄이 1개 늘어납니다'}(최대 5).${bonus?` 폭발 피해가 ${bonus[1]}%p 늘어납니다.`:''}`;}
  }
  return EQUIPMENT_CHOICE_COPY[id]?.[en?1:0]||conciseEquipmentDescription(id,description,locale,description);
