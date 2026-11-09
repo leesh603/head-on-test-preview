@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>HEAD-ON 특수미션 검증</title>
+<style>
+body{font:15px system-ui;background:#161d23;color:#eee;margin:16px}button{margin-right:8px;padding:8px} iframe{display:block;border:1px solid #837051;margin-top:10px;max-width:100%}pre{white-space:pre-wrap}
+</style>
+<h1>특수미션 PC·모바일 검증</h1>
+<button id="pc">PC 검증</button><button id="mobile">모바일 검증</button>
+<pre id="report" role="status">대기 중</pre>
+<iframe id="game" title="검증용 게임"></iframe>
+<script type="module">
+const report=document.querySelector('#report'),frame=document.querySelector('#game');
+const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const check=(cond,message)=>{if(!cond)throw new Error(message)};
+async function wait(test,message){
+ for(let t=0;t<200;t++){if(test())return;await delay(100);}
+ throw new Error(message);
+}
+async function run(mobile){
+ report.textContent='검증 진행 중';
+ for(const button of document.querySelectorAll('button'))button.disabled=true;
+ frame.width=mobile?390:1280;frame.height=mobile?740:720;
+ frame.src='./?headonTest=1&autostart=0&specialOperations=1&opqa='+(mobile?'mobile':'pc');
+ try{
+  await wait(()=>frame.contentWindow.__HEADON_TEST__,'브라우저 검증 모듈 시작 시간 초과');
+  const api=frame.contentWindow.__HEADON_TEST__;
+  const rows=[];
+  for(const [id,map,win] of [['prototype',4,true],['cargo',8,true],['squadron',2,true],['ace',6,true],['prototype',4,false]]){
+   api.start({region:0,pilot:'baron',invincible:true,freeze:true,seed:1918});
+   const game=api.debug(), addon=game.stageBoss, stages=addon.stages;
+   for(let i=0;i<6&&stages.phase!=='operation-offer';i++){
+    stages.phase='clear-pending';stages.encounter={id:'qa-operation-approach-'+i,completed:true};
+    const next=stages.advance(false,{frontResult:addon.hooks.onFrontStageCleared});
+    check(next,'특수미션 이전 스테이지 전환 실패');
+    if(next.kind==='operation-offer')addon.hooks.onOperationOffer(next);
+    else if(next.kind!=='capital-final')addon.hooks.onStageChange(next);
+   }
+   check(stages.phase==='operation-offer'&&stages.order[stages.orderPosition]!=null,'특수미션 분기 미도달');
+   stages.operation={phase:'offer',choices:[{id,stageIndex:map}]};
+   const next=stages.selectOperation(id);
+   check(next,'특수미션 선택 실패 '+id);
+   game.state='playing';addon.hooks.onStageChange(next);game.invuln=100;
+   await wait(()=>game.operationBattle?.wave===1,'첫 공세 시간 초과 '+id);
+   const battle=game.operationBattle;
+   const intro=frame.contentDocument.querySelector('#eventMissionObjective')?.textContent||'';
+   check(intro.length>0,'임무 카드 미표시 '+id);
+   game.need=Infinity;
+   for(let i=0;i<2000&&game.state==='playing';i++){
+    const objective=battle.patrols.find(p=>p.hp>0&&!p.operationRallied)
+     ||battle.patrols.find(p=>p.hp>0&&!p.operationEvacuated)||battle.train?.cargo;
+    if(objective){game.x=objective.x;game.y=objective.y+145;}
+    if(!win){
+     objective.invuln=0;
+     game.bullets.push({x:objective.x,y:objective.y,vx:0,vy:0,life:1,damage:600,enemy:true,ownerId:'p1',hit:new Set()});
+    }else{
+     for(const patrol of battle.patrols)patrol.invuln=1;
+     for(const e of battle.enemies)if(e.hp>0&&!e.expired&&e.operationRailCar!=='cargo')
+      game.bullets.push({x:e.x,y:e.y,vx:0,vy:0,life:1,damage:650,enemy:false,ownerId:'p1',hit:new Set()});
+    }
+    game.invuln=1;game.update(.04,{angle:-Math.PI/2,inputMode:'gamepad',fireHeld:false});
+   }
+   const result=game.operationResult;
+   check(game.state==='operation-result'&&result?.result===(win?'succeeded':'failed'),id+' 결과 불일치 '+JSON.stringify({state:game.state,result,elapsed:battle.elapsed}));
+   check(game.worldRegion()===stages.order[stages.orderPosition],id+' 일반 전장 복귀 실패');
+   if(win){
+    check(result.reward,id+' 보상 미지급');
+    if(id==='prototype')check(battle.testLeg===3,'검문점 누락');
+    if(id==='squadron')check(battle.evacuated>=3,'편대기 탈출 부족');
+    if(id==='ace')check(battle.repair===4,'재시동 누락');
+    if(id==='cargo')check(battle.train.secured>=3&&battle.train.cargo.hp>0,'화물 확보 미완료');
+   }
+   rows.push(id+' '+result.result+' · '+battle.elapsed.toFixed(1)+'s · '+intro);
+   report.textContent=(mobile?'모바일 390px':'PC 1280px')+'\n'+rows.join('\n');
+   await delay(250);
+  }
+  report.textContent+='\nPASS · 5개 시나리오';
+ }catch(error){report.textContent+='\nFAIL · '+error.message;}
+ finally{for(const button of document.querySelectorAll('button'))button.disabled=false;}
+}
+document.querySelector('#pc').onclick=()=>run(false);
+document.querySelector('#mobile').onclick=()=>run(true);
+</script>
+</html>
