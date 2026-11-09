@@ -20,7 +20,8 @@ document.querySelector('#run').onclick=async event=>{
    for(const id of ['bastion','twin-fortress','citadel','handley-page-v1500','linke-hofmann-r-ii','uboat','qship','nachtwal']){
     const profile=intrusionProfiles[id],stageIndex=profile.stages[0],g=new Game('fokker','baron',()=>.5);
     status.textContent='검사 중 · '+id;
-    await prepareIntrusionArt(id);
+    const load=(src)=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Cannot load '+src));img.src=src;});
+    await prepareIntrusionArt(id,{loadImage:src=>load(src).catch(()=>load(new URL(src,'https://head-on-aces.justzeon.chatgpt.site/').href))});
     Object.assign(g,{a:-Math.PI/2,viewWidth:width,viewHeight:height,fire:Infinity,spawn:Infinity,maxHp:1000,hp:1000,invuln:0});
     enableStageBoss(g,{teamFaction:profile.faction==='central'?'entente':'central'});
     Object.assign(g.stageBoss.stages,{stageIndex,orderPosition:2,phase:'explore'});
