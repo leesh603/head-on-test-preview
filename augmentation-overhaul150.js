@@ -367,7 +367,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   if(charge){const effect=world.combatFX?.at(-1);if(effect){effect.ordnanceCharge=charge;effect.ownerId=this.id;}}
   if(amatol){const fx=world.combatFX?.at(-1);if(fx){fx.amatol=true;fx.secondaryExplosion=secondaryExplosion;fx.fragmentSecondary=secondaryExplosion}}
   const hit=new Set();if(exclude)hit.add(exclude);
-  world.bullets.push({x,y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:finalDamage,hit,pierce:true,blast:true,actualExplosion:true,collisionRadius:radius,explosionRadius:radius,explosionDamage:finalDamage,explosionBaseDamage:baseDamage,explosionBaseRadius:baseRadius,secondaryExplosion,fragmentSecondary:secondaryExplosion,grenadeExplosion:grenade,bomberSalvo,pilotSupport});
+  world.bullets.push({x,y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:finalDamage,hit,pierce:true,blast:true,actualExplosion:true,collisionRadius:radius,explosionRadius:radius,explosionDamage:finalDamage,explosionBaseDamage:baseDamage,explosionBaseRadius:baseRadius,fxSource,secondaryExplosion,fragmentSecondary:secondaryExplosion,grenadeExplosion:grenade,bomberSalvo,pilotSupport});
   return radius;
  };
  Game.prototype.spawnAmatolSecondary=function(victim,source){
@@ -391,7 +391,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    if(type==='rocket'){const speed=520,damage=this.payloadPower(78+(total-1)*4)*profile.packet;world.bullets.push({x:this.x+Math.cos(a)*(this.bomberTransfer?.front??30),y:this.y+Math.sin(a)*(this.bomberTransfer?.front??30),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:this.longRange?this.shotLifetime(speed):2.4,enemy:false,ownerId:this.id,damage,rocket:true,upgradeRocket:true,explosionDamage:damage,explosionBaseRadius:84*profile.radius,ordnanceProfile:profile,collisionRadius:12,hit:new Set()});}
    else (world.grenades??=[]).push({ownerId:this.id,x:this.x,y:this.y,startX:this.x,startY:this.y,targetX:this.x+Math.cos(a)*distance,targetY:this.y+Math.sin(a)*distance,age:0,flight:.6,fuse:.55,height:0,ammunitionScale:ammunitionVisualScale(this),releaseAngle:a,phase:'flight',damage:this.payloadPower(64)*profile.packet,ordnanceProfile:profile});
   }
-  if(type==='rocket')this.burst(this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,'#ffcf83',8+count);
+  if(type==='rocket'&&count>0){this.burst(this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,'#ffcf83',8+count);this.event('rocketLaunch','');}
  };
  Game.prototype.tickPendingOrdnance=function(dt){
   const world=this.combatWorld();

@@ -139,7 +139,10 @@ export function applyAircraftCritical(world,e,b,result){
   e.criticalFuelOrigin={forward:dx*ca+dy*sa,side:-dx*sa+dy*ca};
  }
  const lethal=!c.player&&e.hp<=0;
- if(lethal)e.lethalCritical=c.pilotKill?'pilot':c.ignite?'fire':c.part;
+ if(lethal){
+  e.lethalCritical=c.pilotKill?'pilot':c.ignite?'fire':c.part;
+  if(c.part==='wing')e.lethalCriticalSide=c.side;
+ }
  const life=c.pilotKill?.65:c.player?.42:c.part==='fuel'?.9:.72;
  const feedbackId='critical:'+(world.criticalFxSerial=(world.criticalFxSerial||0)+1);
  const cue={fxProfile:'aircraftCritical',feedbackId,part:c.part,pilotKill:!!c.pilotKill,player:!!c.player,ignite:!!c.ignite,lethal,x:anchorX,y:anchorY,ownerId:b.ownerId??world.id,audioExpires:time+life,noticeExpires:time+(lethal?5:2.5)};

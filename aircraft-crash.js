@@ -27,6 +27,21 @@ export function drawAircraftCrash(c,e,x,y,t,fx){
  const progress=Math.min(1,Math.max(0,1-(e.crashT||0)/(e.crashDuration||1))),travel=e.crashDir??e.a;
  // The hot origin stays on the engine; the wake follows travel, not the spinning nose.
  const ox=x+Math.cos(e.a)*12*sink,oy=y+Math.sin(e.a)*12*sink;
+ if(e.lethalCritical==='pilot'){
+  // The cockpit spray owns the hit. A quiet descent keeps it distinct from a burning engine.
+  return;
+ }
+ if(e.lethalCritical==='engine'){
+  fx(c,'profileOil',ox-Math.cos(travel)*28*sink,oy-Math.sin(travel)*28*sink,103*sink,35*sink,travel,.42+progress*.2);
+  if(progress<.45)fx(c,'profileEngine',ox,oy,27*sink,42*sink,e.a+Math.PI/2,.68*(1-progress/.45));
+  return;
+ }
+ if(e.lethalCritical==='wing'){
+  const side=e.lethalCriticalSide||1,dir=e.a+side*Math.PI/2,d=(19+progress*71)*sink;
+  fx(c,'debrisShard',x+Math.cos(dir)*d,y+Math.sin(dir)*d,26*sink,17*sink,dir-progress*6,1-progress);
+  fx(c,'engineSmoke',x+Math.cos(dir)*d*.55,y+Math.sin(dir)*d*.55,30*sink,24*sink,dir,.36*(1-progress));
+  return;
+ }
  fx(c,'smokeTrail',ox-Math.cos(travel)*40*sink,oy-Math.sin(travel)*40*sink,(spin?124:92)*sink,(spin?34:23)*sink,travel,.35+progress*.16);
  if(spin){fx(c,'fireEngine',ox,oy,32*sink,40*sink,e.a+Math.PI/2,.7);fx(c,'engineSmoke',ox-Math.cos(travel)*20,oy-Math.sin(travel)*20,36+progress*20,36+progress*20,travel,.32);}
  // Painted fragments peel away during the opening break only; no new entities or collision.

@@ -30,7 +30,7 @@ function cue(p,e=p,kind='hit'){
  if(p.pilot==='udet'){signatureCue(p,'udetGraze',{x:e.x,y:e.y,a:p.a,life:.48,count:3});for(const side of [-1,1])signatureCue(p,'udetBrass',{x:p.x+Math.cos(p.a)*18-Math.sin(p.a)*side*8,y:p.y+Math.sin(p.a)*18+Math.cos(p.a)*side*8,a:p.a,side,life:.4});}
  else p.identityFx?.(keys[p.pilot]||'armorSpark',e.x,e.y,e.a??p.a,['guynemer','luke'].includes(p.pilot)?56:32,.32,{height:kind==='cover'?28:20,alpha:.85,passiveMedal:true});
  if(['boelcke','collishaw','goering','mannock','brumowski','lufbery','frommherz'].includes(p.pilot))for(const a of wings(p).slice(0,2))p.identityFx?.('muzzleTwin',a.x,a.y,a.a,26,.18,{height:12,passiveMedal:true});
- sCount(p);
+ p.passiveMedalAt=now(p);sCount(p);
 }
 function sCount(p){const s=state(p);s.activations=(s.activations||0)+1;}
 export function passiveMedalStatus(p){const s=states.get(p);return {activations:s?.activations||0,charges:enabled(p)&&s?.chargeUntil>now(p)?s.charges:0};}
@@ -55,7 +55,7 @@ function prepareMedalShot(p,shot){
 }
 export function installPassiveMedals(Game){
  const q=Game.prototype;
- q.resetPassiveMedal=function(){states.delete(this);};
+ q.resetPassiveMedal=function(){states.delete(this);delete this.passiveMedalAt;};
  // Called from actual near-miss/second-penetration/upgrade success branches.
  q.passiveMedalEvent=function(kind,data={}){
   if(!(kind==='engineering'&&this.upgrades?.passiveMedal&&this.hp>0)&&!enabled(this))return;const s=state(this);

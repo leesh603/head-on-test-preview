@@ -145,22 +145,39 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   const impact=p.specialRoundImpact;
   if(impact)p.specialRoundImpact=function(b,e){
    const resolved=combatImpactResult(b,e),ordinaryMg=ordinaryMgContact(e,b,resolved),result=impact.call(this,b,e);if(b.patrol)return result;
-   if(resolved?.blocked){queueCombatImpact(world,b,e,{material:'metal',blocked:true});play('armorClink');return result;}
-   if(!resolved||!(resolved.damage>0)||b.actualExplosion||b.blast||b.fireZone||b.identityDotTarget||b.flak||b.rocket||b.cow37||b.motorCannon)return result;
+   const dealt=resolved?.damage>0,heavy=!!(b.rocket||b.cow37||b.motorCannon);
+   const splash=b.actualExplosion&&!b.secondaryExplosion&&['bomb','cooper','puw'].includes(b.fxSource);
+   if(resolved?.blocked&&!dealt&&!b.actualExplosion&&!b.blast&&!b.fireZone){
+    if(queueCombatImpact(world,b,e,{material:'metal',blocked:true}))play('armorClink');
+    return result;
+   }
+   if(!dealt||(b.actualExplosion||b.blast)&&!splash||b.fireZone||b.identityDotTarget||b.flak)return result;
+   const critical=resolved.critical;
    const material=resolved.railArmor?'metal':impactMaterial(e,b),index=++state.impactSerial;
    // Large authored parts extend beyond 256px. Follow the confirmed contact,
    // not an artificial inner radius that pulls their hit flash into the hull.
    const dx=b.x-e.x,dy=b.y-e.y,reach=e.stageBossBody?Infinity:30,forward=clamp(dx*Math.cos(e.a)+dy*Math.sin(e.a),-reach,reach),side=clamp(-dx*Math.sin(e.a)+dy*Math.cos(e.a),-reach,reach);
    const d=state.damage.get(e)||{engine:0,structure:0,lastHit:-Infinity,streak:0,nextSmoke:0,side:1,broken:false};
    d.streak=(world.t||0)-d.lastHit<.45?Math.min(6,d.streak+1):1;d.lastHit=world.t||0;d.side=Math.sign(side)||d.side;
-   if(material==='metal')d.engine++;else d.structure++;state.damage.set(e,d);
+   if(critical?.part==='engine')d.engine++;
+   if(critical?.part==='body'||critical?.part==='wing')d.structure++;
+   state.damage.set(e,d);
    const aircraft=enemyCanCrash(e)||ordinary(e),finisher=aircraft&&e.hp<=0&&!d.finished;
    const breakup=aircraft&&e.hp>0&&e.hp/e.maxHp<.4&&!d.broken;
-   d.direction=Math.atan2(b.vy||0,b.vx||0);
-   d.impulse=aircraft?Math.min(e.type==='bomber'?2.5:4.5,1.4+d.streak*.45+(breakup?1.5:0)):0;
+   d.direction=splash?Math.atan2(-dy,-dx):Math.atan2(b.vy||0,b.vx||0);
+   d.impulse=aircraft?Math.min(e.type==='bomber'?2.5:5,(heavy?3.2:ordinaryMg?1.95:1.4)+d.streak*.45+(breakup?1.5:0)):0;
    if(breakup)d.broken=true;
    if(finisher)d.finished=true;
-   const cue=queueCombatImpact(world,b,e,{material,railArmor:resolved.railArmor,partHit:!!resolved.partId,streak:d.streak,impactVariant:index%3,impactMass:b.heavy?1.16:1,incendiary:!!b.burn,piercing:!!b.pierce,breakup,finisher,...(ordinaryMg&&ordinaryMgContact(e,b,resolved)&&!breakup&&!finisher?{ordinaryMg:true}:{})});
+   if(heavy||splash||critical){
+    // The dedicated detonation or part cue already owns the sound.
+    if(splash&&aircraft){
+     const offset=Math.min(12,Math.hypot(dx,dy));
+     queueCombatImpact(world,{x:e.x-Math.cos(d.direction)*offset,y:e.y-Math.sin(d.direction)*offset,vx:-dx,vy:-dy},e,{material:'fabric',splash:true});
+    }
+    state.pendingImpact=true;
+    return result;
+   }
+   const cue=queueCombatImpact(world,b,e,{material,railArmor:resolved.railArmor,partHit:!!resolved.partId,streak:d.streak,impactVariant:index%3,impactMass:b.heavy?1.16:1,incendiary:!!b.burn,piercing:!!b.pierce,breakup,finisher,...(ordinaryMg&&!breakup&&!finisher?{ordinaryMg:true}:{})});
    if(cue&&resolved.railArmor)play('armorClink');
    if(cue&&e.hp>0){
     state.impacts.push({effect:cue,target:e,forward,side,age:0});cap(state.impacts,COMBAT_FEEDBACK_LIMITS.compactImpacts,COMBAT_FEEDBACK_LIMITS.impacts);
@@ -184,12 +201,13 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
     }
     if(finisher)state.pendingKill='airframeBreak';else play('airframeBreak');
    }
-   state.pendingImpact=true;if(cue&&!finisher&&!breakup)play('materialImpact',{material,streak:d.streak});return result;
+   state.pendingImpact=true;if(cue&&!finisher&&!breakup&&!resolved.railArmor)play('materialImpact',{material,streak:d.streak});return result;
   };
  }
  const update=world.update;
  world.update=function(dt,...args){
   const before=this.t||0,result=update.call(this,dt,...args),replica=this.online&&!this.host,step=Math.min(.04,Math.max(0,replica?(this.state==='playing'?dt:0):(this.t||0)-before));
+  state.pendingImpact=false;
   if(!step)return result;
   const players=state.players??=[];players.length=0;
   if(this.players){for(const p of this.players)if(p.hp>0&&(!p.status||p.status==='alive'))players.push(p)}else if(this.hp>0&&(!this.status||this.status==='alive'))players.push(this);
@@ -227,7 +245,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    }
    else if(audible&&['groundShell','heavyShell','ammoCookoff'].includes(f.fxProfile)){if(!f.artillerySound)play('detonation',{profile:f.fxProfile});for(const event of this.events||[])if(f.feedbackId&&event.combatFeedbackId===f.feedbackId)event.combatWeapon=true;}
    else if(f.fxProfile==='tactical'){const cue=tacticalCueSound(f.tacticalCue);if(cue)play(cue,{tactical:true});}
-   else if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':f.finisher||f.breakup?'airframeBreak':'materialImpact',{material:f.material,streak:f.streak});
+   else if(f.fxProfile==='bulletImpact'&&replica&&audible&&!f.splash)play(f.blocked||f.railArmor?'armorClink':f.finisher||f.breakup?'airframeBreak':'materialImpact',{material:f.material,streak:f.streak});
    else if(audible&&['armorBreak','engineBreak','navalBreak'].includes(f.fxProfile)){play(f.fxProfile==='navalBreak'?'shipBreak':f.fxProfile==='engineBreak'?'airframeBreak':'metalBreak');pulse('explosion');}
   }
   if(criticalCue){const {f}=criticalCue;play(f.pilotKill?'criticalPilot':({wing:'criticalWing',body:'criticalBody',engine:'criticalEngine',fuel:'criticalFuel',cockpit:'criticalCockpit'})[f.part],{ignite:!!f.ignite,player:!!f.player});}
@@ -235,7 +253,8 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    const {effect:f,player:p}=strongest,d=Math.hypot(p.x-f.x,p.y-f.y)||1;
    state.punch=Math.min(compact()?1.8:2.3,strongestPower);state.punchX=(p.x-f.x)/d;state.punchY=(p.y-f.y)/d;state.punchAge=0;state.nextPunch=state.time+.18;state.duckUntil=(this.t||0)+.12;pulse('explosion');
   }
-  if(replica){let shot=false,cow37=false;for(const b of this.bullets||[]){if(state.heardRounds.has(b))continue;state.heardRounds.add(b);if(b.ownerId===this.localPlayerId&&!b.enemy&&!b.blast&&!b.actualExplosion&&!b.rocket&&!b.flak&&!b.ally&&!b.patrol&&!b.formation&&!b.pilotSupport&&!b.synthesisChild&&Math.hypot(b.vx||0,b.vy||0)>0){shot=true;cow37||=!!b.cow37;}}
+  if(replica){let shot=false,cow37=false,rocket=false;for(const b of this.bullets||[]){if(state.heardRounds.has(b))continue;state.heardRounds.add(b);if(b.ownerId===this.localPlayerId&&b.upgradeRocket&&!b.enemy)rocket=true;if(b.ownerId===this.localPlayerId&&!b.enemy&&!b.blast&&!b.actualExplosion&&!b.rocket&&!b.flak&&!b.ally&&!b.patrol&&!b.formation&&!b.pilotSupport&&!b.synthesisChild&&Math.hypot(b.vx||0,b.vy||0)>0){shot=true;cow37||=!!b.cow37;}}
+   if(rocket)play('rocket');
    if(shot&&state.time>=state.nextReplicaShot){const profile=gunShotFeedback(this,this.localPlayerId,cow37);state.nextReplicaShot=state.time+profile.intervalMs/1000;play('shot',profile);}
   }
   for(const p of players)pose(p,state.time,step,state.damage.get(p),true);
@@ -320,10 +339,6 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
  const visible=(x,y)=>Math.abs(x-world.x)<(world.viewWidth||960)+160&&Math.abs(y-world.y)<(world.viewHeight||700)+160;
  for(const f of s.plumes){if(!visible(f.x,f.y))continue;const [x,y]=point(f.x,f.y),k=f.age/f.life,size=16+k*(f.heavy?38:24);fx(c,f.heavy?'smokeDark':'engineSmoke',x,y,size,size,f.a,(1-k)*(f.heavy?.55:.35))}
  let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&!e.burnAnchorSpace&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const origin=e.criticalFuelOrigin;const [x,y]=origin?point(...localPoint(e,origin.forward,origin.side)):point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime);fuelCount++}
- for(const e of world.enemies||[])if(ordinary(e)&&e.hp>0&&!(e.burnTime>0)&&visible(e.x,e.y)){
-  const d=s.damage.get(e);if(!d||e.hp/e.maxHp>=.4)continue;const [x,y]=point(...localPoint(e,d.engine>0?14:0,d.engine>0?0:d.side*18));
-  fx(c,d.engine>0?'fireEngine':'fireWing',x,y,32,32,e.a+Math.PI/2,.6+Math.sin(s.time*21)*.12);
- }
  for(const p of world.players||[world]){const q=poses.get(p);if(p.hp<=0||!q)continue;const turn=clamp((Math.abs(q.turn)-1.25)/2.5);if(turn>0)for(const side of [-1,1]){const [x,y]=point(...localPoint(p,-30,side*27));fx(c,'vaporTrail',x,y,82,10,p.a,turn*.26)}}
  for(const f of s.passes)for(const side of [-1,1]){const [x,y]=point(...localPoint(f.player,-15,side*56));fx(c,'windStreak',x,y,135,22,f.player.a,f.life/.3*(.22+(f.rush??1)*.28))}
  if(s.headOnUntil>s.time){let count=0;const players=world.players||[world];for(const b of world.bullets||[]){

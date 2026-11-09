@@ -104,6 +104,12 @@ export function drawExplosionProfile(c,f,x,y,fx){
  const profile=f.fxProfile;if(!EXPLOSION_LIFE[profile])return false;
  const age=Math.max(0,f.maxLife-f.life)+(replicaAges.get(f)?.age||0),r=f.radius||34;
  if(profile==='bulletImpact'){
+  if(f.splash){
+   if(age>=.22)return true;
+   const q=age/.22,a=f.direction||0,d=4+q*13;
+   fx(c,'debris',x+Math.cos(a)*d,y+Math.sin(a)*d,16+q*12,9+q*7,a,(1-q)*.66);
+   return true;
+  }
   const compact=compactMgImpact(f);
   if(compact&&age>=.18)return true;
   const a=f.direction||0,q=clamp(age/(compact?.18:.27)),fade=1-q,metal=f.material==='metal',blocked=!!f.blocked;

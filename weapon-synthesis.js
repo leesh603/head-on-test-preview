@@ -67,8 +67,8 @@ function cannonGroup(p,indices,total,{heading,power=1,volleyToken=primaryVolleyT
   push(p,b);p.ammo[0]--;p.roundsFired++;fired++;p.preparePilotPrimaryRound?.(b,volleyToken);b.pierce=false;
  }
  if(fired){
-  // The volley recoils visually once, regardless of shell count.
-  p.cannonRecoil129=.14;p.cannonKick129=3.5;p.cannonKind129='cow';
+  // A single visual kick reflects how many shells actually left the barrel.
+  p.cannonRecoil129=.14;p.cannonKick129=Math.min(5,3.5+(fired-1)*.5);p.cannonKind129='cow';
   p.muzzleFlash=.11;p.synthesisMuzzleAngle=base;
   const w=world(p);w.shake=Math.max(w.shake||0,1.25);
   p.cannonMuzzleSmoke?.('cow');p.event?.('shot','cow37');
@@ -240,6 +240,7 @@ export function synthesisDescription(p,id,locale='ko',compact=false){
  if(!p)return null;
  const c=weaponComposition(p,id),en=locale==='en',dartEffect=c.explosive?(en?' Amatol adds up to 3 small impact explosions per 12-dart group, once per target.':' 아마톨은 화살 12발 묶음마다 최대 3회 소폭발을 일으키며, 같은 표적에는 한 번만 발동합니다.'):'';
  if(compact&&['cow37','quadLewis','flechettes','rearGunner','combinedProjectiles'].includes(id)){
+  if(id==='quadLewis'&&c.weapon==='cow')return en?'COW salvo: '+c.count+' firing lanes.':'COW 포탄 '+c.count+'갈래를 발사합니다.';
   if(id==='flechettes'&&c.body==='dart-shell')return c.explosive?(en?'COW and Cooper release 12 darts; up to 3 small impact explosions per group.':'COW·쿠퍼에서 화살 12발이 퍼지며, 한 묶음에 최대 3회 소폭발합니다.'):(en?'COW shells and equipped Cooper bombs release 12 piercing darts each.':'COW 포탄과 보유한 쿠퍼 폭탄이 관통 화살 12발을 퍼뜨립니다.');
   if(id==='cow37'&&c.body==='dart-shell')return en?'Replaces guns with an ammo-consuming cannon that releases 12 darts.':'기관총을 탄약을 소모하며 화살 12발을 퍼뜨리는 37 mm 포로 바꿉니다.';
   return EQUIPMENT_CHOICE_COPY[id][en?1:0];
@@ -248,7 +249,9 @@ export function synthesisDescription(p,id,locale='ko',compact=false){
  case 'cow37':return c.body==='dart-shell'
   ?(en?'Replaces the machine guns with a 37 mm cannon. Each shell consumes ammunition and releases 12 piercing darts.':'기관총을 37 mm 포로 교체합니다. 포탄마다 탄약을 소모하며 관통 화살 12발을 퍼뜨립니다.')+dartEffect
   :(en?'Replaces the machine guns with a non-piercing 37 mm cannon. Shells explode on impact and consume ammunition when fired.':'기관총을 비관통 37 mm 포로 교체합니다. 포탄은 명중하면 폭발하며 발사할 때마다 탄약을 소모합니다.');
- case 'quadLewis':return en?'Adds three firing lanes to the primary weapon. Each fired round consumes ammunition.':'주무장 발사 갈래가 3개 늘어납니다. 발사한 탄환마다 탄약을 소모합니다.';
+ case 'quadLewis':return c.weapon==='cow'
+  ?(en?'COW salvo: '+c.count+' firing lanes. Each shell consumes ammunition.':'COW 포탄 '+c.count+'갈래를 발사합니다. 포탄마다 탄약을 소모합니다.')
+  :(en?'Adds three firing lanes to the primary weapon. Each fired round consumes ammunition.':'주무장 발사 갈래가 3개 늘어납니다. 발사한 탄환마다 탄약을 소모합니다.');
  case 'flechettes':return c.body==='dart-shell'
   ?(en?'COW shells release 12 piercing darts each, inheriting cannon growth. Equipped Cooper bombs also release darts with explosive growth.':'COW 포탄마다 포의 성장을 반영한 관통 화살 12발을 퍼뜨립니다. 쿠퍼 폭탄의 화살에는 폭발물 성장이 적용됩니다.')+dartEffect
   :(en?'Keeps machine guns and fires 12 piercing darts every 3 seconds without gun ammunition. Independent darts inherit gun growth; Cooper-carried darts inherit explosive growth.':'기관총을 유지하며 탄약 소모 없이 3초마다 관통 화살 12발을 별도로 발사합니다. 독립 화살은 기관총, 쿠퍼 폭탄의 화살은 폭발물 성장을 반영합니다.')+dartEffect;
