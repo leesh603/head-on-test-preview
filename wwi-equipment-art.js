@@ -1,17 +1,20 @@
-import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=09c75d146ae4289d';
-import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js?v=09c75d146ae4289d';
-import {equipmentMountArtReady} from './equipment-mount-fx.js?v=09c75d146ae4289d';
-import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=09c75d146ae4289d';
-import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=09c75d146ae4289d';
-import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=09c75d146ae4289d';
-import {bombSprite} from './bomb-sprites.js?v=09c75d146ae4289d';
-import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=09c75d146ae4289d';
-import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js?v=09c75d146ae4289d';
-import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=09c75d146ae4289d';
-import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=09c75d146ae4289d';
+import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
+import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
+import {equipmentMountArtReady} from './equipment-mount-fx.js?v=equipmentmount20261030';
+import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=equipmentdetail20261030';
+import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=equipmentextension20261030';
+import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=equipmentart20261030';
+import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {WWI_FRAMES} from './wwi-equipment-art-data.js';
+import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
+import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js';
+import {hasSecretWeapon} from './secret-weapons.js';
+import {secretRotaryMountSide} from './secret-weapon-combat.js';
 
-let atlas,bomb,brakePanel,grapnelAtlas;
+let atlas,bomb,brakePanel,grapnelAtlas,rotaryMount;
 const load=(file,set)=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}
  const image=new Image();image.onload=()=>{set(image);resolve(true);};image.onerror=()=>resolve(false);image.src=new URL(file,import.meta.url).href;
@@ -19,6 +22,7 @@ const load=(file,set)=>new Promise(resolve=>{
 export const equipmentArtReady=Promise.all([
  load('./wwi-equipment-atlas.webp',im=>atlas=im),load('./bomb-cooper-readable-q92.webp',im=>bomb=im),
  load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./fiery-grapnel-20261028.webp',im=>grapnelAtlas=im),incendiaryArtReady,equipmentSignatureArtReady,equipmentExtensionArtReady,equipmentDetailArtReady,equipmentMountArtReady,equipmentFinishingArtReady,hytheCameraArtReady
+ ,secretWeaponArtReady,load('./secret-leimberger-mount.webp',im=>rotaryMount=im)
 ]).then(results=>results.every(Boolean));
 
 function sprite(c,key,x,y,width,angle=0,alpha=1){
@@ -43,6 +47,16 @@ function hardware(c,image,x,y,width,height){
  if(!image?.naturalWidth)return;c.drawImage(image,x-width/2,y-height/2,width,height);
 }
 
+function drawRotaryMount(c,p,now){
+ if(!rotaryMount?.naturalWidth)return;
+ const fire=p.secretWeaponState.effects.fokkerLeimberger,last=fire?.lastShotAt;
+ const frame=Number.isFinite(last)?Math.floor(Math.min(now,last+.2)*42)%12:0;
+ const heading=Number.isFinite(last)&&now-last<.18?fire.shotHeading:p.a;
+ c.save();c.rotate(heading-p.a);
+ c.drawImage(rotaryMount,frame%3*256,Math.floor(frame/3)*94,256,94,19,secretRotaryMountSide(p)-2.4,13,4.8);
+ c.restore();
+}
+
 // Equipment stays inside the aircraft silhouette; show deployed ordnance
 // instead of inventory boxes pasted over the tail and wings.
 export function drawWWIEquipment(c,world,W,H,options={}){
@@ -51,6 +65,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  const sx=x=>(x-cx)*z+W/2,sy=y=>(y-cy)*z+H/2;
  const visible=(x,y,pad=90)=>Math.abs((x-cx)*z)<W/2+pad&&Math.abs((y-cy)*z)<H/2+pad;
  const players=world.players||[world];c.save();
+ drawSecretWeaponFx(c,world,{sx,sy,z,visible},{sprite,cable:drawGrapnelCable},options);
  for(const p of players){
   if(!(p.hp>0)||p.status==='downed'||p.heineckeEscape>0)continue;
   const u=p.upgrades||{},pose=playerPose(p,p.x,p.y),fit=p.bomberTransfer;
@@ -60,10 +75,11 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   }
   for(const field of p.synthesisZones||[])if(field.life>0&&visible(field.x,field.y,150)){
    if(field.payload.incendiary)drawIncendiaryFire(c,sx(field.x),sy(field.y),0,100*z,3-field.life,Math.min(1,field.life),'legacy');
-   if(field.payload.smoke)sprite(c,'verySmoke',sx(field.x),sy(field.y),190*z,0,Math.min(.7,field.life));
+   if(field.payload.smoke&&!field.secretSmoke)sprite(c,'verySmoke',sx(field.x),sy(field.y),190*z,0,Math.min(.7,field.life));
   }
   c.save();c.translate(sx(pose.x),sy(pose.y));c.scale(z*(pose.scale||1),z*(pose.scale||1));c.globalAlpha*=pose.alpha??1;applyPlayerAttitude(c,p,pose);
   const front=fit?Math.min(26,fit.hullLength*.2):8;
+  if(hasSecretWeapon(p,'fokkerLeimberger'))drawRotaryMount(c,p,world.t||0);
   if(u.strutterAirbrake&&!fit&&Number.isFinite(p.strutterBrakeAge)){
    const age=p.strutterBrakeAge,open=Math.min(1,age/.04)*Math.max(0,Math.min(1,(.34-age)/.12));
    // Root panels follow the aircraft pose and close with the braking interval.
@@ -135,7 +151,13 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  for(const b of world.bullets||[]){
   if(!(b.life>0)||!visible(b.x,b.y))continue;
   const projectileScale=z*(b.ammunitionScale||1);
-  if(b.wwiIncendiary){sprite(c,'burn0',sx(b.x),sy(b.y),11*projectileScale,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
+  if(b.secretWeapon==='farnboroughFirechain'){
+   const start=b.secretChainOrigin,a=Math.atan2(b.vy,b.vx);
+   if(start)drawGrapnelCable(c,sx(start.x),sy(start.y),sx(b.x)-Math.cos(a)*19*z,sy(b.y)-Math.sin(a)*19*z,z,4*z);
+   grapnelSprite(c,'grapnelFire',sx(b.x),sy(b.y),35*projectileScale,Math.atan2(b.vy,b.vx));
+   continue;
+  }
+  if(b.wwiIncendiary&&b.secretWeapon!=='fokkerLeimberger'){sprite(c,'burn0',sx(b.x),sy(b.y),11*projectileScale,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
   if(b.flechette)drawFlechetteTrail(c,b,sx(b.x),sy(b.y),{...options,scale:projectileScale});
   if(b.fieryGrapnel){

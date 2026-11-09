@@ -1,13 +1,13 @@
-import {canvasCullView,outsideCanvas} from './render-culling.js?v=09c75d146ae4289d';
-import {drawWhiteFlightRound} from './goering-whiteflight-fx.js?v=09c75d146ae4289d';
-import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js?v=09c75d146ae4289d';
-import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=09c75d146ae4289d';
-import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js?v=09c75d146ae4289d';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=09c75d146ae4289d';
+import {canvasCullView,outsideCanvas} from './render-culling.js';
+import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
+import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
+import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=09c75d146ae4289d';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=tame3';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -70,6 +70,11 @@ function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus){
  if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
  if(drawNungesserBlackRound(c,b,x,y))return true;
  if(drawWhiteFlightRound(c,b,x,y,{tint:fxTint,ready:fxReady}))return true;
+ if(b.secretWeapon==='fokkerLeimberger'){
+  const a=Math.atan2(b.vy,b.vx);
+  if(!fx(c,'tracerCore',x-Math.cos(a)*14,y-Math.sin(a)*14,32,3.1,a,.98))drawTracerBolt(c,x,y,a,'#ffdb8d',30,3.3,.98);
+  return true;
+ }
  if(drawGunSignature(c,b,x,y))return true;
  drawProjectileTactic(c,b,x,y); // Keep custom pilot paint while exposing the real active tactic.
  const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
@@ -197,6 +202,10 @@ export function drawCannonProjectile(c,b,x,y){
  if(b.ammunitionScale>1)c.scale(b.ammunitionScale,b.ammunitionScale);
  drawProjectileTactic(c,b,0,0,0);
  // Approved flight sprites retain a body-centered anchor; no rocket flame.
+ if(b.secretWeapon==='vickersPomPom'){
+  fx(c,'smokeTrail',-20,0,37,8,0,.62);
+  if(fx(c,'shellHeavy',0,0,32,10,0,1)){c.restore();return;}
+ }
  const flightKey=cow?'cannonCow':'cannonMotor',oldKey=cow?'shellHeavy':'shellAuto';
  if(FX3&&(fxReady(flightKey)||fxReady(oldKey))){
   fx(c,fxReady(flightKey)?flightKey:oldKey,0,0,cow?24:31,cow?8:7);

@@ -1,20 +1,21 @@
-import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js?v=09c75d146ae4289d';
-import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=09c75d146ae4289d';
-import {EQUIPMENT_COPY} from './equipment-copy.js?v=09c75d146ae4289d';
-import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=09c75d146ae4289d';
-import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js?v=09c75d146ae4289d';
-import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js?v=09c75d146ae4289d';
-import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=09c75d146ae4289d';
-import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js?v=09c75d146ae4289d';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=09c75d146ae4289d';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {fighterAim} from './dogfight-pass165.js?v=09c75d146ae4289d';
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=09c75d146ae4289d';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=09c75d146ae4289d';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=09c75d146ae4289d';
-import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=09c75d146ae4289d';
+import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js';
+import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js';
+import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
+import {EQUIPMENT_COPY} from './equipment-copy.js';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
+import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
+import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
+import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {reconcileSecretWeapons} from './secret-weapons.js';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
+import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -316,6 +317,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   // A newly earned doctrine is a free, deferrable choice after this upgrade.
   // Co-op queues the same prompt through its existing authoritative item flow.
   recordEquipmentUpgrade(this,id,rarity);
+  reconcileSecretWeapons(this);
   if(this._equipmentReplay||this._capturedEquipmentGrant===id)return true;
   if(id==='passiveMedal')this.event?.('ally',passiveMedalName(PILOTS[this.pilot]?.faction)+' · 강화 적용됨');
   if(!u.legendary&&this.pilot==='mccudden'&&this.lastChoices?.length===4)this.passiveMedalEvent?.('engineering',{serial:this.choiceDraftSerial??this.level});
@@ -359,13 +361,15 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.cow37Damage=function(){const gun=this.gunUpgradeBonus||0,explosive=this.explosiveBonus||0;return COW37_BALANCE.damage*(this.damage/12)/(1+gun)*(1+gun+explosive)*(1+this.badinDamageBonus())*this.normalGunMultiplier()};
  Game.prototype.explosionRadius=function(radius){return ammunitionBlastRadius(this,radius)*(this.upgrades?.amatolCharge?AUGMENTATION_OVERHAUL_BALANCE.amatolRadiusMultiplier:1)};
  Game.prototype.explosionDamage=function(damage,{secondaryExplosion=false}={}){return damage*(this.upgrades?.amatolCharge&&!secondaryExplosion?AUGMENTATION_OVERHAUL_BALANCE.amatolDamageMultiplier:1)};
- Game.prototype.queueExplosionDamage=function(x,y,baseRadius,damage,{secondaryExplosion=false,exclude=null,grenade=false,fxSource=null,bomberSalvo=null,pilotSupport=false}={}){
+ Game.prototype.queueExplosionDamage=function(x,y,baseRadius,damage,{secondaryExplosion=false,exclude=null,grenade=false,fxSource=null,bomberSalvo=null,pilotSupport=false,presentation=true}={}){
   const world=this.combatWorld(),radius=this.explosionRadius(baseRadius),baseDamage=damage,finalDamage=this.explosionDamage(damage,{secondaryExplosion}),amatol=!!this.upgrades?.amatolCharge;
-  if(grenade){world.combatFX??=[];world.combatFX.push({x,y,radius,side:'friendly',grenade:true,amatol,secondaryExplosion,life:secondaryExplosion?.24:.32,maxLife:secondaryExplosion?.24:.32});world.event('explosion','friendly')}else world.combatBlast(x,y,radius,'friendly');
-  if(fxSource){const effect=world.combatFX?.at(-1);if(effect)effect.fxSource=fxSource}
-  const charge=this.pilot==='loewenhardt'?0:(this.explosiveBonus||0)>=.6?2:(this.explosiveBonus||0)>=.2?1:0;
-  if(charge){const effect=world.combatFX?.at(-1);if(effect){effect.ordnanceCharge=charge;effect.ownerId=this.id;}}
-  if(amatol){const fx=world.combatFX?.at(-1);if(fx){fx.amatol=true;fx.secondaryExplosion=secondaryExplosion;fx.fragmentSecondary=secondaryExplosion}}
+  if(presentation){
+   if(grenade){world.combatFX??=[];world.combatFX.push({x,y,radius,side:'friendly',grenade:true,amatol,secondaryExplosion,life:secondaryExplosion?.24:.32,maxLife:secondaryExplosion?.24:.32});world.event('explosion','friendly')}else world.combatBlast(x,y,radius,'friendly');
+   if(fxSource){const effect=world.combatFX?.at(-1);if(effect)effect.fxSource=fxSource}
+   const charge=this.pilot==='loewenhardt'?0:(this.explosiveBonus||0)>=.6?2:(this.explosiveBonus||0)>=.2?1:0;
+   if(charge){const effect=world.combatFX?.at(-1);if(effect){effect.ordnanceCharge=charge;effect.ownerId=this.id;}}
+   if(amatol){const fx=world.combatFX?.at(-1);if(fx){fx.amatol=true;fx.secondaryExplosion=secondaryExplosion;fx.fragmentSecondary=secondaryExplosion}}
+  }
   const hit=new Set();if(exclude)hit.add(exclude);
   world.bullets.push({x,y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:finalDamage,hit,pierce:true,blast:true,actualExplosion:true,collisionRadius:radius,explosionRadius:radius,explosionDamage:finalDamage,explosionBaseDamage:baseDamage,explosionBaseRadius:baseRadius,fxSource,secondaryExplosion,fragmentSecondary:secondaryExplosion,grenadeExplosion:grenade,bomberSalvo,pilotSupport});
   return radius;
