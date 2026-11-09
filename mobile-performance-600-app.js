@@ -617,7 +617,7 @@ function flightContext(){
   terrainPaintMs:flightTerrainStats.paintMs,terrainMaxPaintMs:flightTerrainStats.maxPaintMs};
 }
 if(new URLSearchParams(location.search).get('perf')==='1'){
- import('./mobile-performance-600-recorder.js?v=mobile-performance-4ced7dc8-20261109').then(({createFlightRecorder})=>{
+ import('./mobile-performance-600-recorder.js?v=mobile-performance-9a19d9f1-20261109').then(({createFlightRecorder})=>{
   flightRecorder=createFlightRecorder({context:()=>({
    ...flightContext(),
    stage:Number.isInteger(game?.stageBoss?.stages.orderPosition)?game.stageBoss.stages.orderPosition+1:null,
