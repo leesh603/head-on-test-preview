@@ -1,6 +1,6 @@
 import {ammunitionPartPadding} from './heavy-ammunition.js?v=09c75d146ae4289d';
 import {PILOTS} from './engine.js?v=09c75d146ae4289d';
-import {applyOperationReward,clearOperationBattle,expireOperationRewards,refreshOperationReinforcement,startOperationBattle,tickOperationBattle} from './special-operation-combat.js?v=09c75d146ae4289d';
+import {applyOperationReward,clearOperationBattle,expireOperationRewards,refreshOperationReinforcement,startOperationBattle,tickOperationBattle} from './special-operation-combat.js?v=special-ops-1c861d64';
 import {HARBOR_PARTS} from './harbor-crane-layout.js?v=09c75d146ae4289d';
 import {legacyProjectileTarget} from './projectile-contacts.js?v=09c75d146ae4289d';
 import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';

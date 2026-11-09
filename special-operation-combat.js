@@ -1,10 +1,18 @@
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=09c75d146ae4289d';
 import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js?v=09c75d146ae4289d';
-import {operationOutcome, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION} from './special-operations.js?v=09c75d146ae4289d';
+import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION} from './special-operations.js?v=09c75d146ae4289d';
 
 const live = entity => entity && entity.hp > 0 && !entity.expired && !entity.crashing && entity.life !== 0;
 const pilots = game => game.players || [game];
 const lead = game => pilots(game).find(player => live(player) && player.status !== 'downed');
+const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const pilotNear = (game, target, radius) => pilots(game).some(player =>
+ live(player) && player.status !== 'downed' && distance(player, target) <= radius);
+const RALLY_RADIUS = 165;
+const SQUADRON_REQUIRED = 3;
+const REPAIR_RADIUS = 210;
+const REPAIR_TIME = 4;
+const survivors = battle => battle.patrols.filter(patrol => patrol.operationEvacuated || live(patrol)).length;
 const at = (entity, heading, distance) => ({
  x: entity.x + Math.cos(heading) * distance,
  y: entity.y + Math.sin(heading) * distance
@@ -65,25 +73,38 @@ export function startOperationBattle(game, id, pilotData, operation = {}) {
   battle.train = {engine, flak, cargo, sign, x, y, originX: x, age: 0, secured: 0, nextFire: 2};
   battle.enemies.push(...[engine, flak, cargo].filter(Boolean));
  } else {
-  battle.escape = at(position, heading, 440);
   if (id === 'prototype') {
    const plane = faction === 'central' ? 'fokker_f1' : 'salamander_trial';
    battle.patrols.push(addPatrol(game, plane, heading, position, 330, {operationTarget: true}));
-   battle.testRoute = [at(position, heading, 420), at(position, heading + 1.4, 380), at(position, heading + Math.PI, 320), at(position, heading - 1.4, 380)];
+   battle.testRoute = [
+    at(at(position, heading, 560), heading - Math.PI / 2, 200),
+    at(at(position, heading, 1120), heading + Math.PI / 2, 250),
+    at(position, heading, 1720)
+   ];
    battle.testLeg = 0;
+   battle.patrols[0].frontEscortRoute = battle.testRoute[0];
+   battle.patrols[0].operationCheckpoint = battle.testRoute[0];
   } else if (id === 'ace') {
    battle.acePilot = operation.acePilot ??= rescueCandidate(game, pilotData, faction);
    if (battle.acePilot) {
     const plane = PILOT_AIRCRAFT[battle.acePilot].defaultAircraft;
-    battle.patrols.push(addPatrol(game, plane, heading, position, 315, {operationTarget: true, acePilot: battle.acePilot}));
+    battle.repair = 0;
+    const loiter = at(position, heading, 210);
+    battle.patrols.push(addPatrol(game, plane, heading, position, 315, {
+     operationTarget: true, acePilot: battle.acePilot, speed: 105, frontEscortRoute: loiter
+    }));
    }
   } else {
    const unit = faction === 'central' ? 'jasta18' : 'lafayette';
    battle.unit = unit;
    const profile = FAMOUS_WING_BALANCE[unit];
    for (let i = 0; i < profile.count; i++) {
-    const offset = at(position, heading + Math.PI / 2, (i % 2 ? 1 : -1) * Math.ceil(i / 2) * 54);
-    battle.patrols.push(addPatrol(game, profile.plane, heading, offset, i ? 175 : 310, {operationTarget: true, operationUnit: unit, slot: i}));
+    const side = (i % 2 ? 1 : -1) * Math.ceil(i / 2);
+    const offset = at(at(position, heading, Math.abs(side) * 95), heading + Math.PI / 2, side * 215);
+    battle.patrols.push(addPatrol(game, profile.plane, heading, offset, i ? 175 : 310, {
+     operationTarget: true, operationUnit: unit, slot: i, speed: 105,
+     frontEscortRoute: at(offset, heading, 145)
+    }));
    }
   }
  }
@@ -96,8 +117,8 @@ export function startOperationBattle(game, id, pilotData, operation = {}) {
 // scripted crises, each announced (toast + mission card countdown) and each
 // answerable by the pilot. All use existing aircraft, AI and art.
 const say = (game, text) => game.event?.('wave', text);
-function alertFor(battle, text, seconds = 0) {
- battle.alert = {text, until: battle.elapsed + Math.max(4, seconds), countdownTo: seconds ? battle.elapsed + seconds : null};
+function alertFor(battle, ko, en, seconds = 0) {
+ battle.alert = {text: [ko, en], until: battle.elapsed + Math.max(4, seconds), countdownTo: seconds ? battle.elapsed + seconds : null};
 }
 // A flight that goes straight for an escorted aircraft from one flank.
 function diveFlight(game, battle, target, count, {type = 'hunter', distance = 560, side = 1} = {}) {
@@ -124,65 +145,71 @@ const OPERATION_SCRIPTS = Object.freeze({
  prototype: [
   {at: 9, run(game, battle, target) {
    battle.engineTrouble = battle.elapsed + 10;
-   say(game, '시험기 엔진 고장 · 속도 저하 10초 · 추격조가 붙습니다');alertFor(battle, '엔진 고장 · 시험기 감속', 10);
+   say(game, '시험기 엔진 고장 · 속도 저하 10초 · 추격조가 붙습니다');alertFor(battle, '시험기 감속 · 좌측 추격조', 'Prototype slowed · left flank', 10);
    diveFlight(game, battle, target, 2, {side: -1, distance: 480});
   }},
   {at: 22, run(game, battle, target) {
    diveFlight(game, battle, target, 3, {side: 1});
-   say(game, '급강하 공격조 접근 · 시험기를 노립니다');alertFor(battle, '급강하 공격조 접촉', 3);
+   say(game, '우측 급강하 공격조 접근 · 시험기를 노립니다');alertFor(battle, '우측 급강하 공격조', 'Strike flight · right flank');
   }},
   {at: 36, run(game, battle, target) {
    if (!interceptAce(game, battle, target)) return;
-   say(game, '적 에이스 요격 · 이탈 전에 격추하세요');alertFor(battle, '적 에이스가 시험기를 추격', 0);
+   say(game, '적 에이스 요격 · 이탈 전에 격추하세요');alertFor(battle, '적 에이스 요격', 'Intercept the enemy ace');
   }}
  ],
  cargo: [
   {at: 14, run(game, battle) {
-   battle.train.speed = 98;say(game, '열차 가속 · 터널 진입 전에 기관차를 멈추세요');alertFor(battle, '열차 가속', 0);
+   if (!live(battle.train.engine)) return;
+   battle.train.speed = 98;say(game, '열차 가속 · 터널 진입 전에 기관차를 멈추세요');alertFor(battle, '열차 가속', 'Train accelerating');
   }},
   {at: 26, run(game, battle) {
    const player = lead(game);if (!player) return;
    for (const e of diveFlight(game, battle, player, 2, {type: 'scout', side: -1, distance: 520})) e.operationStrike = false;
-   say(game, '열차 엄호기 출격');alertFor(battle, '열차 엄호기', 0);
+   say(game, '열차 엄호기 출격');alertFor(battle, '열차 엄호기 출격', 'Train escorts airborne');
   }}
  ],
  squadron: [
   {at: 7, run(game, battle) {latchOn(game, battle, 1);}},
   {at: 20, run(game, battle) {latchOn(game, battle, 2);}},
   {at: 32, run(game, battle) {
-   const leader = battle.patrols[0];if (!live(leader)) return;
-   diveFlight(game, battle, leader, 5, {type: 'scout', side: 1, distance: 640});
-   say(game, '적 대편대 돌입 · 편대장을 지키세요');alertFor(battle, '적 대편대 돌입', 4);
+   const survivors = battle.patrols.filter(live);
+   for (const [index, member] of survivors.entries()) {
+    diveFlight(game, battle, member, 1, {type: 'scout', side: index % 2 ? -1 : 1, distance: 500 + index * 38});
+   }
+   say(game, '적 편대가 흩어진 아군을 각개 추격합니다');alertFor(battle, '적 편대가 각개 추격 중', 'Enemy flight splits to pursue');
   }}
  ],
  ace: [
   {at: 0, run(game, battle, target) {
-   target.hp = Math.round(target.maxHp * .55);battle.engineTrouble = battle.elapsed + 15;
-   say(game, '구출 대상 피격 · 엔진 손상으로 감속 중');alertFor(battle, '에이스 엔진 손상', 15);
+   target.hp = Math.round(target.maxHp * .55);
+   say(game, '구출 대상 엔진 손상 · 근접 비행으로 재시동을 엄호하세요');
   }},
-  {at: 17, run(game, battle, target) {
+  {at: 12, run(game, battle, target) {
    if (!interceptAce(game, battle, target)) return;
-   say(game, '적 에이스가 구출 대상을 추격 · 격추하세요');alertFor(battle, '적 에이스 추격', 0);
+   say(game, '적 에이스가 구출 대상을 추격 · 격추하세요');alertFor(battle, '적 에이스 추격', 'Enemy ace in pursuit');
   }},
   {at: 30, run(game, battle, target) {
    diveFlight(game, battle, target, 2, {side: -1});
-   say(game, '추격조 합류');alertFor(battle, '추격조 합류', 3);
+   say(game, '추격조 합류');alertFor(battle, '추격조 합류', 'Pursuit flight closing');
   }}
  ]
 });
 // A pair of hunters fastens onto one squadron member at a time.
 function latchOn(game, battle, round) {
  const members = battle.patrols.filter(live);if (!members.length) return;
- const member = members[(round * 2 + 1) % members.length];
+ const scattered = members.filter(member => !member.operationRallied);
+ const candidates = scattered.length ? scattered : members;
+ const member = candidates[(round * 2 + 1) % candidates.length];
  diveFlight(game, battle, member, 2, {side: round % 2 ? 1 : -1, distance: 460});
- say(game, `편대원 ${(member.slot ?? 0) + 1}번기 추격당함 · 떼어내세요`);alertFor(battle, `${(member.slot ?? 0) + 1}번기 추격당함`, 0);
+ const number = member.slot + 1;
+ say(game, `편대원 ${number}번기 추격당함 · 떼어내세요`);alertFor(battle, `${number}번기 추격당함`, `No. ${number} under pursuit`);
 }
 function runScript(game, battle) {
  const script = OPERATION_SCRIPTS[battle.id];if (!script || battle.script == null) return;
  const target = battle.patrols[0];
  while (battle.script < script.length && battle.elapsed >= script[battle.script].at) {
   const step = script[battle.script++];
-  if (battle.train || live(target)) step.run(game, battle, target);
+  if (battle.train || battle.id === 'squadron' || live(target)) step.run(game, battle, target);
  }
  // Engine trouble: the escorted aircraft limps along, a sitting duck.
  if (live(target) && battle.engineTrouble != null) {
@@ -196,10 +223,11 @@ const operationThreats = battle => battle.enemies.filter(e => !e.operationRailCa
 function spawnInterceptors(game, battle, wave, count, escortAttackers) {
  const player = lead(game);
  if (!player) return;
- const escort = battle.patrols[0];
+ const escorts = battle.patrols.filter(live);
  const train = battle.train?.engine;
  for (let i = 0; i < count; i++) {
-  const attacksEscort = i < escortAttackers && live(escort);
+  const escort = escorts[i % escorts.length];
+  const attacksEscort = i < escortAttackers && !!escort;
   const anchor = attacksEscort ? escort : live(train) && i === 0 ? train : player;
   const opponent = addEnemy(game, attacksEscort || i === 1 && wave > 0 ? 'hunter' : 'scout');
   if (!opponent) break;
@@ -224,30 +252,103 @@ function advanceTrain(game, battle, dt) {
   if (car) {car.x = train.x - train.sign * slot * 110; car.y = train.y;}
  }
  const player = lead(game);
- train.inRange = live(train.cargo) && pilots(game).some(pilot =>
-  live(pilot) && pilot.status !== 'downed' && Math.hypot(pilot.x-train.cargo.x,pilot.y-train.cargo.y) < 320);
+ train.inRange = live(train.cargo) && pilotNear(game, train.cargo, 320);
  // Once the train is stopped, a demolition flight comes to blow the cargo
  // before it can be taken: shoot it down, then hold over the cargo.
  if (!live(train.engine) && !live(train.flak) && live(train.cargo) && !train.demolition) {
-  const player = lead(game);
   const crew = player ? diveFlight(game, battle, train.cargo, 2, {side: 1, distance: 520}) : [];
   if (crew.length) {
+   for (const aircraft of crew) aircraft.operationDemolition = true;
    train.demolition = {deadline: battle.elapsed + SPECIAL_OPERATION_DEMOLITION, crew};
-   say(game, `적 폭파조 접근 · ${SPECIAL_OPERATION_DEMOLITION}초 안에 격추하세요`);alertFor(battle, '폭파조가 화물을 노림', SPECIAL_OPERATION_DEMOLITION);
+   say(game, `적 폭파조 접근 · ${SPECIAL_OPERATION_DEMOLITION}초 안에 격추하세요`);
   }
  }
  const crew = train.demolition?.crew.filter(live).length || 0;
  if (train.demolition && crew && battle.elapsed >= train.demolition.deadline && live(train.cargo)) {
   train.cargo.hp = 0;train.demolished = true;say(game, '화물 폭파됨');
  }
- if (!live(train.engine) && !live(train.flak) && train.inRange && train.demolition && !crew) train.secured += dt;
- if (!player || !live(train.flak) || train.age < train.nextFire || Math.hypot(player.x - train.flak.x, player.y - train.y) > 520) return;
- train.nextFire = train.age + 1.8;
- const heading = Math.atan2(player.y - train.flak.y, player.x - train.flak.x);
- for (const spread of [-.14, 0, .14]) {
+ if (train.demolition && !crew && train.inRange) train.secured += dt;
+ else train.secured = 0;
+ if (!live(train.flak) || train.age < train.nextFire) return;
+ if (!train.flak.operationFlakAiming) {
+  const contact = pilots(game).filter(pilot => live(pilot) && pilot.status !== 'downed' && distance(pilot, train.flak) <= 520)
+   .sort((a, b) => distance(a, train.flak) - distance(b, train.flak))[0];
+  if (!contact) return;
+  train.flak.operationFlakAiming = true;
+  train.flakAim = {x: contact.x, y: contact.y};
+  train.nextFire = train.age + .85;
+  return;
+ }
+ train.flak.operationFlakAiming = false;
+ train.nextFire = train.age + 1.45;
+ const heading = Math.atan2(train.flakAim.y - train.flak.y, train.flakAim.x - train.flak.x);
+ const spreadAngles = live(train.engine) ? [-.14, 0, .14] : [-.28, -.14, 0, .14, .28];
+ for (const spread of spreadAngles) {
   const a = heading + spread, position = at(train.flak, a, 26);
   game.bullets.push({...position, vx: Math.cos(a) * 255, vy: Math.sin(a) * 255, life: 2, damage: 8, enemy: true, visualType: 'hunter'});
  }
+}
+
+const pursuerNear = (battle, target, radius) => battle.enemies.some(enemy =>
+ enemy.operationEscortTarget === target && live(enemy) && distance(enemy, target) <= radius);
+
+function advanceSquadron(game, battle) {
+ const members = battle.patrols.filter(patrol => !patrol.operationEvacuated && live(patrol));
+ for (const patrol of members) {
+  if (!patrol.operationRallied && pilotNear(game, patrol, RALLY_RADIUS) && !pursuerNear(battle, patrol, 210)) {
+   patrol.operationRallied = true;
+   patrol.speed = 155;
+   say(game, `편대원 ${patrol.slot + 1}번기 재합류`);
+  }
+ }
+ const ready = members.filter(patrol => patrol.operationRallied);
+ battle.rallied = ready.length;
+ if (battle.elapsed >= 32 && ready.length >= SQUADRON_REQUIRED && !battle.squadronExit) {
+  battle.squadronExit = at(ready[0], battle.heading, 510);
+  say(game, '구출 편대 이탈 시작 · 최소 3기를 탈출시키세요');
+ }
+ if (!battle.squadronExit) return;
+ for (const patrol of ready) {
+  patrol.frontEscortRoute = battle.squadronExit;
+  if (distance(patrol, battle.squadronExit) <= 95) {
+   patrol.operationEvacuated = true;
+   patrol.life = 0;
+  }
+ }
+ battle.evacuated = battle.patrols.filter(patrol => patrol.operationEvacuated).length;
+ battle.rallied -= ready.filter(patrol => patrol.operationEvacuated).length;
+ battle.routeComplete = battle.evacuated >= SQUADRON_REQUIRED;
+}
+
+function advanceEscort(game, battle, target, dt) {
+ if (battle.routeComplete) return;
+ if (battle.id === 'prototype') {
+  const gate = battle.testRoute[battle.testLeg];
+  if (gate && distance(target, gate) <= 105 && pilotNear(game, target, 310)) {
+   battle.testLeg++;
+   target.frontEscortRoute = battle.testRoute[battle.testLeg] || gate;
+   target.operationCheckpoint = battle.testRoute[battle.testLeg] || null;
+   say(game, `시험 비행 검문점 통과 ${battle.testLeg}/${battle.testRoute.length}`);
+  }
+  if (battle.testLeg < battle.testRoute.length || battle.elapsed < SPECIAL_OPERATION_EXIT_AT) return;
+ } else {
+  if (battle.repair < REPAIR_TIME) {
+   battle.repairing = pilotNear(game, target, REPAIR_RADIUS) && !pursuerNear(battle, target, 230);
+   if (battle.repairing) battle.repair = Math.min(REPAIR_TIME, battle.repair + dt);
+   if (battle.repair < REPAIR_TIME) return;
+   target.speed = 170;
+   say(game, '에이스 엔진 재시동 완료 · 철수 엄호');
+  }
+  if (battle.elapsed < 30) return;
+ }
+ if (!battle.exitStarted) {
+  battle.exitStarted = true;
+  battle.escape = at(target, target.a, 460);
+  target.frontEscortRoute = battle.escape;
+ }
+ const remaining = distance(target, battle.escape);
+ battle.routeComplete = remaining <= 95;
+ battle.exitProgress = Math.max(0, Math.min(1, (460 - remaining) / (460 - 95)));
 }
 
 export function operationBattleProgress(battle) {
@@ -255,7 +356,8 @@ export function operationBattleProgress(battle) {
  const target = train?.cargo || battle.patrols[0];
  return {
   id: battle.id, elapsed: battle.elapsed, wave: battle.wave, threats: operationThreats(battle),
-  hp: Math.max(0, Math.min(100, Math.ceil(100 * (target?.hp || 0) / (target?.maxHp || 1)))),
+  hp: battle.id === 'squadron' ? Math.round(100 * survivors(battle) / battle.patrols.length)
+   : Math.max(0, Math.min(100, Math.ceil(100 * (target?.hp || 0) / (target?.maxHp || 1)))),
   routeComplete: battle.routeComplete, exitProgress: battle.exitProgress || 0,
   train: train ? {
    x: train.x, y: train.y, originX: train.originX, sign: train.sign,
@@ -270,6 +372,9 @@ export function tickOperationBattle(game, dt) {
  if (!battle || game.state !== 'playing' || game.online && !game.host || !lead(game)) return null;
  battle.elapsed += dt;
  battle.enemies = battle.enemies.filter(e => e.operationRailCar || live(e) && game.enemies.includes(e));
+ for (const patrol of battle.patrols) {
+  if (live(patrol) && !game.patrols.includes(patrol)) patrol.expired = true;
+ }
  const active = operationThreats(battle);
  const limit = battle.train ? 6 : 8;
  const waveAt = SPECIAL_OPERATION_WAVES[battle.wave] ?? Infinity;
@@ -289,21 +394,15 @@ export function tickOperationBattle(game, dt) {
  runScript(game, battle);
  if (battle.train) advanceTrain(game, battle, dt);
  const target = battle.patrols[0];
- if (live(target) && battle.testRoute && !target.frontEscortRoute) {
-  const next = battle.testRoute[battle.testLeg];
-  if (Math.hypot(target.x-next.x,target.y-next.y)<95) battle.testLeg=(battle.testLeg+1)%battle.testRoute.length;
-  target.operationWaypoint=battle.testRoute[battle.testLeg];
- }
- if (live(target) && battle.elapsed >= SPECIAL_OPERATION_EXIT_AT && !battle.routeComplete) {
-  if (!target.frontEscortRoute) battle.escape = at(target, target.a, 460);
-  for (const patrol of battle.patrols) patrol.frontEscortRoute = battle.escape;
-  const remaining = Math.hypot(target.x - battle.escape.x, target.y - battle.escape.y);
-  battle.routeComplete = remaining <= 90;
-  battle.exitProgress = Math.max(0, Math.min(1, (460 - remaining) / (460 - 90)));
- }
+ if (battle.id === 'squadron') advanceSquadron(game, battle);
+ else if (live(target)) advanceEscort(game, battle, target, dt);
+ const targetAlive = battle.train ? live(battle.train.cargo) : battle.id === 'squadron'
+  ? survivors(battle) >= SQUADRON_REQUIRED
+  : live(target);
+ const threats = battle.id === 'squadron' ? 0 : battle.enemies.filter(enemy =>
+  live(enemy) && (enemy.operationAce || enemy.operationStrike && enemy.operationEscortTarget === target)).length;
  return operationOutcome(battle.id, {
-  elapsed: battle.elapsed, threats: operationThreats(battle),
-  targetAlive: battle.train ? live(battle.train.cargo) : live(target),
+  elapsed: battle.elapsed, threats, targetAlive,
   routeComplete: battle.routeComplete,
   escaped: battle.train && battle.train.age >= SPECIAL_OPERATION_TRAIN_ESCAPE && live(battle.train.engine),
   transportDisabled: battle.train && battle.train.secured >= SPECIAL_OPERATION_CARGO_HOLD,
@@ -371,7 +470,7 @@ export function expireOperationRewards(game) {
 
 // Mission card: what is happening now, how long is left, how the protected unit is holding.
 const CARD_TITLES = {prototype: ['시험기 호위', 'PROTOTYPE ESCORT'], cargo: ['비밀병기 탈취', 'SECRET CARGO RAID'], squadron: ['특수편대 구출', 'SQUADRON RESCUE'], ace: ['에이스 구출', 'ACE RESCUE']};
-const UNIT_NAMES = {prototype: ['시험기', 'Prototype'], cargo: ['화물칸', 'Cargo'], squadron: ['편대장', 'Leader'], ace: ['에이스', 'Ace']};
+const UNIT_NAMES = {prototype: ['시험기', 'Prototype'], cargo: ['화물칸', 'Cargo'], ace: ['에이스', 'Ace']};
 export function operationMissionCard(game, en = false) {
  const battle = game?.operationBattle;
  if (!battle) {
@@ -382,17 +481,36 @@ export function operationMissionCard(game, en = false) {
  const L = en ? 1 : 0, now = battle.elapsed, train = battle.train;
  const unit = train?.cargo || battle.patrols?.[0], hp = Math.max(0, Math.ceil(100 * (unit?.hp || 0) / (unit?.maxHp || 1)));
  const alert = battle.alert && now < battle.alert.until ? battle.alert : null;
- const left = alert?.countdownTo != null ? Math.max(0, Math.ceil(alert.countdownTo - now)) : null;
+ const demolish = train?.demolition?.crew.filter(live).length ? train.demolition.deadline : null;
+ const countdown = demolish ?? alert?.countdownTo;
+ const left = countdown == null ? null : Math.max(0, Math.ceil(countdown - now));
  let objective;
- if (alert) objective = alert.text + (left ? ` · ${left}${en ? ' s' : '초'}` : '');
+ if (demolish != null) objective = en ? `Stop demolition · ${left} s` : `폭파조 저지 · ${left}초`;
+ else if (alert) objective = alert.text[L] + (left ? ` · ${left}${en ? ' s' : '초'}` : '');
  else if (train) {
   const tunnel = Math.max(0, Math.ceil(SPECIAL_OPERATION_TRAIN_ESCAPE - train.age));
   objective = live(train.engine) ? (en ? `Stop the engine · tunnel in ${tunnel} s` : `기관차 정지 · 터널까지 ${tunnel}초`)
    : live(train.flak) ? (en ? 'Silence the flak car' : '대공 화차 제압')
-   : (en ? `Hold over the cargo · ${Math.round(100 * Math.min(1, train.secured / SPECIAL_OPERATION_CARGO_HOLD))}%` : `화물 확보 · ${Math.round(100 * Math.min(1, train.secured / SPECIAL_OPERATION_CARGO_HOLD))}%`);
- } else if (now >= SPECIAL_OPERATION_EXIT_AT) objective = (en ? 'Clear the exit route · ' : '이탈 경로 확보 · ') + Math.round(100 * (battle.exitProgress || 0)) + '%';
- else objective = (en ? 'Protect · exit in ' : '보호 · 이탈까지 ') + Math.ceil(SPECIAL_OPERATION_EXIT_AT - now) + (en ? ' s' : '초');
+   : (en ? 'Stay over the cargo · ' : '화물 상공 유지 · ') + Math.floor(100 * Math.min(1, train.secured / SPECIAL_OPERATION_CARGO_HOLD)) + '%';
+ } else if (battle.id === 'squadron') {
+  objective = battle.squadronExit
+   ? (en ? 'Extract aircraft · ' : '편대기 탈출 · ') + (battle.evacuated || 0) + '/' + SQUADRON_REQUIRED
+   : battle.rallied >= SQUADRON_REQUIRED
+    ? (en ? 'Cover the regrouped flight' : '재집결한 편대 엄호')
+    : (en ? 'Fly close to rally · ' : '편대기에 접근해 재집결 · ') + (battle.rallied || 0) + '/' + SQUADRON_REQUIRED;
+ } else if (battle.id === 'ace' && battle.repair < REPAIR_TIME) {
+  objective = (en ? 'Fly alongside for restart · ' : '근접 엄호로 재시동 · ') + Math.floor(100 * battle.repair / REPAIR_TIME) + '%';
+ } else if (battle.id === 'prototype' && battle.testLeg < battle.testRoute.length) {
+  objective = (en ? 'Escort through test gates · ' : '시험 비행 검문점 호위 · ') + battle.testLeg + '/' + battle.testRoute.length;
+ } else if (battle.routeComplete) objective = en ? 'Drive off the pursuit flight' : '남은 추격조 격퇴';
+ else if (battle.exitStarted) objective = (en ? 'Cover the exit · ' : '이탈 엄호 · ') + Math.round(100 * (battle.exitProgress || 0)) + '%';
+ else objective = en ? 'Hold off the pursuit flight' : '추격조 저지';
  const threats = operationThreats(battle), ace = live(battle.ace);
- const meta = [`${UNIT_NAMES[battle.id][L]} ${hp}%`, ace ? (en ? 'Enemy ace' : '적 에이스') + ' ' + Math.ceil(100 * battle.ace.hp / (battle.ace.maxHp || 1)) + '%' : null, threats ? (en ? `${threats} hostile` : `적기 ${threats}`) : null].filter(Boolean).join(' · ');
- return {title: CARD_TITLES[battle.id][L], objective, meta, urgent: !!alert && left != null && left > 0 && left <= 3};
+ const squadron = battle.id === 'squadron';
+ const alive = squadron ? survivors(battle) : 0;
+ const status = squadron ? (en ? `Survivors ${alive}/5` : `생존기 ${alive}/5`) : `${UNIT_NAMES[battle.id][L]} ${hp}%`;
+ const timeLeft = Math.max(0, Math.ceil(SPECIAL_OPERATION_LIMIT - now));
+ const meta = [status, ace ? (en ? 'Enemy ace' : '적 에이스') + ' ' + Math.ceil(100 * battle.ace.hp / (battle.ace.maxHp || 1)) + '%' : null,
+  timeLeft <= 15 ? (en ? `${timeLeft} s left` : `${timeLeft}초 남음`) : threats ? (en ? `${threats} hostile` : `적기 ${threats}`) : null].filter(Boolean).join(' · ');
+ return {title: CARD_TITLES[battle.id][L], objective, meta, urgent: left != null && left > 0 && left <= 3};
 }

@@ -1,4 +1,4 @@
-import {operationMissionCard} from './special-operation-combat.js?v=09c75d146ae4289d';
+import {operationMissionCard} from './special-operation-combat.js?v=special-ops-1c861d64';
 // Compact tuples avoid the protocol's reserved simulation key "objective".
 const operationCardSnapshot=(game,en)=>{const c=operationMissionCard(game,en);return c?[c.title,c.objective,c.meta,c.urgent]:null;};
 import {pruneCriticalFeedback} from './aircraft-criticals.js?v=09c75d146ae4289d';
