@@ -60,6 +60,8 @@ function tacticalContext(world, owner, wing, target, state, passive) {
  return {nearbyFriends, nearbyEnemies, aspect, sinceHit};
 }
 
+export const hasAceWingProfile=pilot=>Object.hasOwn(profiles,pilot);
+
 export function tickAceWingPilot(wing, dt, cooldown) {
  if (!profiles[wing.acePilot]) return;
  const state = wing._netAcePilotState ??= {
