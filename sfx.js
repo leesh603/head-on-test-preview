@@ -136,7 +136,9 @@ const bankTurn=new Map();
 export function machineGunAudioProfile(input={}){
  const guns=Math.max(1,Math.min(4,Number(input?.guns)||1));
  const rpm=Math.max(300,Math.min(1200,Number(input?.rpm)||600)),heavy=!!input?.heavy;
- return Object.freeze({rate:(heavy?.88:1)*(1+(rpm-600)/7500),level:(heavy?.235:.21)*(1+(guns-1)*.045),cut:heavy?7200:10400,duration:Math.min(heavy?.13:.10,60/rpm*1.15)});
+ const precision=!!input?.precision,interval=Number(input?.shotInterval);
+ const cadence=Number.isFinite(interval)&&interval>0?Math.max(.005,Math.min(.12,interval)):60/rpm;
+ return Object.freeze({jitter:precision?.01:.06,interval:precision?Math.max(.004,cadence*.8):INTERVAL.shot,release:precision?.012:0,rate:(heavy?.88:1)*(1+(rpm-600)/7500),level:(heavy?.235:.21)*(1+(guns-1)*.045),cut:heavy?7200:10400,duration:precision?Math.max(.025,Math.min(.08,cadence*1.25)):Math.min(heavy?.13:.10,60/rpm*1.15)});
 }
 const weaponProfiles=Object.freeze({
  mine:Object.freeze({sample:'flak',level:.31,rate:.82,cut:4800,duration:.33,transient:'hitmetal',transientLevel:.06}),
@@ -224,7 +226,7 @@ function bankSample(key,level,fallback,rate=1,shape=null){
  if(!reserve())return;
  const src=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rate;f.type='lowpass';f.frequency.value=shape?.cut||16000;g.gain.value=level*master;
  src.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(src,f,g);src.start();
- if(shape?.duration){const now=ctx.currentTime,end=now+shape.duration;g.gain.setValueAtTime(level*master,now);g.gain.setTargetAtTime(.0001,end-.035,.012);src.stop(end+.025);}
+ if(shape?.duration){const now=ctx.currentTime,end=now+shape.duration;g.gain.setValueAtTime(level*master,now);if(shape.release){g.gain.setValueAtTime(level*master,Math.max(now,end-shape.release));g.gain.linearRampToValueAtTime(0,end);src.stop(end+.003);}else{g.gain.setTargetAtTime(.0001,end-.035,.012);src.stop(end+.025);}}
 }
 function fileSample(name,level,fallback,rate=1){
  const buffer=cachedFile(name);if(!buffer){loadFileCue(name);fallback?.();return}
@@ -331,7 +333,7 @@ const VOICES={
   // Player machine guns: a bright crack over a short mechanical body.
   shot(input){
     if(input?.cow37){bankSample('artillery-fire',.28,()=>VOICES.cowShotSynth(),jit(1.18),{cut:5600,duration:.12});return;}
-    const p=machineGunAudioProfile(input);bankSample('mg',p.level,()=>VOICES.shotSynth(),jit(p.rate),p);
+    const p=machineGunAudioProfile(input);bankSample('mg',p.level,()=>VOICES.shotSynth(),p.rate*(1+(Math.random()*2-1)*p.jitter),p);
   },
   cowShotSynth(){hiss(2100,320,.075,.08,'lowpass',.75);tone(jit(156),62,.09,.095,'triangle',720)},
   weaponImpact(input){weaponImpactSample(input)},
@@ -433,7 +435,7 @@ export function sfx(name,arg){
   if(ctx.state!=='running'&&!resuming){try{resuming=Promise.resolve(ctx.resume()).catch(()=>{}).finally(()=>{resuming=null})}catch{}}
   const now=ctx.currentTime;
   const voiceKey=name==='shot'&&arg?.cow37?'cow37':arg?.tactical?'tactical:'+name:arg?.player&&name.startsWith('critical')?'player:'+name:name;
-  if(now-(lastVoices.get(voiceKey)??-Infinity)<Math.max(INTERVAL[name]||0,arg?.tactical?1.2:0))return;
+  if(now-(lastVoices.get(voiceKey)??-Infinity)<Math.max(name==='shot'&&!arg?.cow37?machineGunAudioProfile(arg).interval:INTERVAL[name]||0,arg?.tactical?1.2:0))return;
   const critical=name.startsWith('critical'),criticalRank=arg?.player?4:name==='criticalPilot'?3:arg?.ignite?2:1;
   if(critical&&now-(lastVoices.get('critical-family')??-Infinity)<.12&&criticalRank<=(lastVoices.get('critical-rank')||0))return;
   if(critical){lastVoices.set('critical-family',now);lastVoices.set('critical-rank',criticalRank);}

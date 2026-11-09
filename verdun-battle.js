@@ -9,7 +9,16 @@ export function tickVerdunBattle(g,dt){
  v.age+=dt;for(const d of v.dust)d.age+=dt;v.dust=v.dust.filter(d=>d.age<d.life);
  for(const d of v.muzzles)d.age+=dt;v.muzzles=v.muzzles.filter(d=>d.age<.2);
  if(addon.stages.phase!=='explore'){
-  if(!v.approachCleared){addon.hazards.clear('verdun-approach');v.approachCleared=true;}return;
+  if(!v.approachCleared){addon.hazards.clear('verdun-approach');v.approachCleared=true;}
+  if(!v.reconTarget){
+   const fort=addon.stages.encounter?.bodies.values().next().value;
+   const partId=fort?.kind==='fort-douaumont'?'control':'observer',part=fort?.parts.get(partId);
+   if(fort&&!fort.dead&&part&&!part.destroyed&&players(g).some(p=>p.hp>0&&Math.hypot(p.x-fort.x-part.x,p.y-fort.y-part.y)<470)){
+    v.reconTarget={bodyId:fort.id,partId};
+    g.event('wave',partId==='control'?'항공사진 판독 · 사격통제소를 파괴해 양측 중포를 교란':'항공사진 판독 · 관측소를 파괴해 외곽 유도포격 차단');
+   }
+  }
+  return;
  }
  if(v.age>=v.shellAt){
   v.shellAt=v.age+4.8;const live=players(g).filter(p=>p.hp>0),p=live[Math.floor((v.age/5)%Math.max(1,live.length))];if(!p)return;
@@ -52,6 +61,9 @@ export function handleVerdunCue(g,event){
  if(event.type==='fort-section-exposed'){g.event('wave',event.partId==='ammo'?'폐허 붕괴 · 지하 탄약고 노출':'외부 장갑 붕괴 · 탄약고 노출');dust(g,event.x,event.y,45);return true;}
  if(event.type==='fort-pit-open'){dust(g,event.x,event.y,25);return true;}
  if(event.type==='fort-reserve-active'){g.event('wave','수빌 지휘소 · 예비 포좌 개방');return true;}
+ if(event.type==='part-destroyed'&&g.verdunBattle?.reconTarget?.partId===event.partId){
+  g.event('wave',event.partId==='control'?'사격통제소 파괴 · 중포 조준 초기화':'관측소 파괴 · 외곽 유도포격 중단');
+ }
  if(event.type==='part-destroyed'){const p=body.parts.get(event.partId);if(p)dust(g,body.x+p.x,body.y+p.y,55);}
  if(event.type==='boss-destruction-pulse')dust(g,event.x,event.y,event.radius);
  return false;

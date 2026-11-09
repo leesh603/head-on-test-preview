@@ -82,7 +82,7 @@ export class JutlandVessel extends BaseBoss{
  counterWindow(){return this.attackStep==='reload'||this.attackStep==='disarmed'?1.6:super.counterWindow();}
  reload(seconds,phase='jutland-reload'){
   this.pending=null;this.attackStep='reload';this.attackTime=seconds;
-  this.command('phase-change',{phase});
+  this.command('phase-change',{phase,crescendo:phase==='jutland-reload'&&this.crescendoReload});this.crescendoReload=false;
  }
  hurry(){
   if(this.attackStep==='approach')this.attackTime=Math.min(this.attackTime,.15);
@@ -143,8 +143,9 @@ export class JutlandVessel extends BaseBoss{
   const lastImpact=Math.max(...armed.map(({id})=>coordinated?LANES[id].delay+(rounds-1)*LANES[id].interval:.3));
   this.pending={...this.pending,lanes:armed,rounds,slots,warning,elapsed:0};
   this.attackStep='fall';this.attackTime=warning+lastImpact+.34;
+  this.crescendoReload=crescendo;
   this.volleyCount++;
-  this.command('phase-change',{phase:coordinated?(last?'jutland-last-salvo':'jutland-broadside-fire'):'jutland-blind-salvo'});
+  this.command('phase-change',{phase:coordinated?(last?'jutland-last-salvo':'jutland-broadside-fire'):'jutland-blind-salvo',crescendo});
   this.fireReadyLanes();
  }
  fireReadyLanes(){

@@ -43,11 +43,15 @@ function launch(g,op,route){
 }
 
 function cutFortress(g,op){
- const body=fortress(g);if(!body)return;
- while(op.cut<Math.min(op.scuttled,CUTS.length)){
-  const [id,ko]=CUTS[op.cut++],part=body.parts.get(id);
+ const count=Math.min(op.scuttled,CUTS.length),body=fortress(g),preview=g.navalRoute?.fortressPreview;
+ if(!body&&preview)for(let i=op.previewCut;i<count;i++){
+  const part=preview.parts.find(p=>p.id===CUTS[i][0]);if(part){part.hp=0;part.destroyed=true;}
+  op.previewCut=i+1;
+ }
+ if(!body)return;
+ while(op.cut<count){
+  const [id]=CUTS[op.cut++],part=body.parts.get(id);
   if(part&&!part.destroyed){part.hittable=true;body.hit({partId:id,damage:part.hp});}
-  g.event?.('wave','운하 폐색 · '+ko);
  }
 }
 
@@ -73,7 +77,7 @@ export function tickZeebruggeRaid(g,dt){
  const phase=g.stageBoss?.stages.phase,route=g.navalRoute;
  if(!g.zeebruggeRaid){
   if(phase!=='explore'||!route)return;
-  const op=g.zeebruggeRaid={ships:[],scuttled:0,sunk:0,cut:0,gunClock:new Map(),done:false};
+  const op=g.zeebruggeRaid={ships:[],scuttled:0,sunk:0,cut:0,previewCut:0,gunClock:new Map(),done:false,approachWarned:false};
   launch(g,op,route);
   g.event?.('wave','폐색 작전 · 폐색선 3척을 운하 입구까지 호위하세요 · 자침할 때마다 요새 기능이 끊깁니다');
  }
@@ -87,11 +91,12 @@ export function tickZeebruggeRaid(g,dt){
   while(wp<Z.path.length&&along>=Z.path[wp][0]-60)wp++;e.blockshipWaypoint=wp;
   const aim=wp<Z.path.length?routePoint(route,Z.path[wp][0],Z.path[wp][1]):canal;e.course=Math.atan2(aim.y-e.y,aim.x-e.x);
   const side=-(e.x-route.x)*Math.sin(route.a)+(e.y-route.y)*Math.cos(route.a);
+  if(!op.approachWarned&&wp>=Z.path.length-1){op.approachWarned=true;g.event?.('wave','폐색선 최종 진입 · 운하 입구까지 포대를 견제하세요');}
   if(along>=Z.canalS-e.blockship*Z.settleStep&&Math.abs(side-Z.canalN)<Z.settleBand){
    // Scuttled in the canal mouth: the hull sinks where it stops.
    e.blockshipResolved='scuttled';op.scuttled++;e.hp=0;e.driveVelocity=0;
    g.combatBlast?.(e.x,e.y,70,'friendly','shipSink');
-   g.event?.('wave',`${e.name} 자침 · 운하 폐색 ${op.scuttled}/${op.ships.length}`);
+   g.event?.('wave',`${e.name} 자침 · 진입로 확보 · ${CUTS[op.scuttled-1][1]}`);
   }
  }
  cutFortress(g,op);shellConvoy(g,op,dt);
@@ -114,10 +119,10 @@ export function zeebruggeMissionCard(g,en=false){
 
 // Canal mouth marker, in the same tactical language as the city districts.
 export function drawZeebruggeCanal(c,g){
- const op=g?.zeebruggeRaid,canal=op&&zeebruggeCanal(g);if(!canal||op.done)return;
+ const op=g?.zeebruggeRaid,canal=op&&zeebruggeCanal(g);if(!canal||op.done&&!op.scuttled)return;
  // Off screen for most of the stage: skip the dashed ring and its text.
  if(Math.abs(canal.x-(g.x||0))>(g.viewWidth||1280)+300||Math.abs(canal.y-(g.y||0))>(g.viewHeight||900)+300)return;
- c.save();c.strokeStyle='#a9c7bd99';c.lineWidth=1.5;c.setLineDash([6,7]);c.beginPath();c.arc(canal.x,canal.y,Z.arrive,0,Math.PI*2);c.stroke();c.setLineDash([]);
- c.font='12px system-ui';c.textAlign='center';c.fillStyle='#e1e6da';c.fillText('운하 입구 · 폐색 '+op.scuttled+'/'+op.ships.length,canal.x,canal.y+Z.arrive+18);
+ c.save();c.strokeStyle=op.scuttled?'#bce5c9':'#a9c7bd99';c.lineWidth=op.scuttled?2:1.5;c.setLineDash(op.scuttled?[]:[6,7]);c.beginPath();c.arc(canal.x,canal.y,Z.arrive,0,Math.PI*2);c.stroke();c.setLineDash([]);
+ c.font='12px system-ui';c.textAlign='center';c.fillStyle='#e1e6da';c.fillText((op.scuttled?'진입로 확보 · ':'운하 입구 · 폐색 ')+op.scuttled+'/'+op.ships.length,canal.x,canal.y+Z.arrive+18);
  c.restore();
 }

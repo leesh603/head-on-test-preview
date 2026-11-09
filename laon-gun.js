@@ -1,5 +1,5 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {LAON_LAYOUT,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS,laonPartState,sweptLaonEllipse} from './laon-layout.js?v=09c75d146ae4289d';
+import {LAON_LAYOUT,LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS,laonPartState,sweptLaonEllipse} from './laon-layout.js?v=09c75d146ae4289d';
 
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const PHASES=Object.freeze(['loading','ready','recoil','return','reload']);
@@ -29,11 +29,12 @@ export class ParisGeschuetz extends BaseBoss {
  muzzle(){return{x:this.x,y:this.y+(LAON_LAYOUT.muzzle.y+this.recoil)*this.scale};}
  coreOffset(){return{x:0,y:(-20+this.recoil)*this.scale};}
  syncParts(){for(const p of this.parts.values()){p.x=p.localX;p.y=p.localY+(LAON_CRITICAL_PARTS.includes(p.id)?this.recoil*this.scale:0);}}
- transition(phase){this.phase=phase;this.phaseAge=0;this.phaseProgress=0;this.loadingCue=false;this.command('laon-phase',{phase,seconds:this.phaseSeconds(),shotCount:this.shotCount});}
+ lastShotNumber(){return this.friendly?LAON_MISSION.shots:LAON_MISSION.attackShotLimit;}
+ transition(phase){this.phase=phase;this.phaseAge=0;this.phaseProgress=0;this.loadingCue=false;this.command('laon-phase',{phase,seconds:this.phaseSeconds(),shotCount:this.shotCount,finalShot:phase==='ready'&&this.shotCount+1===this.lastShotNumber()});}
  fire(){
   if(this.dead||LAON_CRITICAL_PARTS.some(id=>this.parts.get(id).destroyed))return false;
-  this.shotCount++;this.lastShotAt=this.clock;this.flash=.20;this.smoke=1;this.transition('recoil');
-  this.command('laon-shot',{...this.muzzle(),shotCount:this.shotCount,clock:this.clock,recoil:LAON_LAYOUT.recoilDistance*this.scale});
+  this.shotCount++;const finalShot=this.shotCount===this.lastShotNumber();this.lastShotAt=this.clock;this.flash=finalShot?.34:.20;this.smoke=1;this.transition('recoil');
+  this.command('laon-shot',{...this.muzzle(),shotCount:this.shotCount,clock:this.clock,recoil:LAON_LAYOUT.recoilDistance*this.scale,finalShot});
   return true;
  }
  stop(){

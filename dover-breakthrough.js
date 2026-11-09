@@ -3,6 +3,7 @@ import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=09c
 
 // Mission tuning lives here; counts, thresholds and pace can be adjusted together.
 export const DOVER_BREAKTHROUGH_BALANCE=Object.freeze({total:18,waveSize:6,maxActive:12,interceptGoal:12,escortGoal:10,routeLength:11200,speed:205,hp:260,waveGap:15,waveProgress:.2,fighterCap:6,fighterInterval:10,coastProgress:.76,resultSeconds:4});
+const BOSS_SEPARATION=3.2;
 const live=b=>b?.hp>0&&!b.doverResult&&!b.expired&&!b.crashing;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const region=g=>g.stageBoss?.stages.stageIndex??g.worldRegion?.()??g.region;
@@ -61,7 +62,8 @@ function spawnWave(g,m){
   const b={id:`dover-bomber-${g.stageBoss?.stages.loopIndex||0}-${m.spawned+i}`,doverBomber:true,missionTarget:true,arrivalAuthored:true,type:'bomber',heavyBomber:true,airframe:'gotha',escortPlane:'gotha',faction:'central',name:'고타 G.V · 해협 돌파',wave:m.waves,hp,maxHp:hp,previousHp:hp,x:route.x+lane*145,y,a:-Math.PI/2,vx:0,vy:-c.speed,speed:c.speed,hitRadius:45,contactRadius:36,fire:Infinity,hitFlash:0,engineDamage:0,smokeTimer:0,progress:0,spawnY:y};
   m.bombers.push(b);if(m.faction==='entente')(g.enemies??=[]).push(b);
  }
- m.spawned+=count;m.waves++;m.lastWaveAt=m.time;m.bossReady=m.waves>=2;
+ m.spawned+=count;m.waves++;m.lastWaveAt=m.time;
+ if(m.spawned===c.total)m.bossApproachAt=m.time+BOSS_SEPARATION;
  g.event?.('wave',`폭격기 ${m.waves}편대 접근 · ${m.spawned}/${c.total}`);spawnFighters(g,m,m.spawned===c.total?5:3);
 }
 function downBomber(g,m,b){
@@ -102,7 +104,16 @@ export function tickDoverMission(g,dt){
   if(b.y<=m.destinationY){b.doverResult='arrived';b.missionTarget=false;b.expired=true;b.hp=0;m.arrived++;g.event?.('wave',`영국 해안 돌파 · ${m.arrived}대`);}
  }
  const active=m.bombers.filter(live),last=m.bombers.filter(b=>b.wave===m.waves-1);
- if(m.spawned<c.total&&active.length+c.waveSize<=c.maxActive&&m.time-m.lastWaveAt>=c.waveGap&&(!last.length||last.every(b=>b.doverResult)||last.some(b=>b.progress>=c.waveProgress)))spawnWave(g,m);
+ const waveReady=m.spawned<c.total&&active.length+Math.min(c.waveSize,c.total-m.spawned)<=c.maxActive&&(!last.length||last.every(b=>b.doverResult)||last.some(b=>b.progress>=c.waveProgress));
+ const waveWait=c.waveGap-(m.time-m.lastWaveAt);
+ if(waveReady&&m.waves>0&&waveWait<=4&&m.approachWarned!==m.waves){
+  m.approachWarned=m.waves;m.waveApproachAt=m.time+1.5;
+  g.event?.('wave',`해협 후방 · 고타 ${m.waves+1}편대 접근 중`);
+ }
+ if(waveReady&&waveWait<=0&&m.time>=(m.waveApproachAt??0))spawnWave(g,m);
+ // Separate the regional arrival from the convoy's last entry. The boss
+ // can still engage convoy survivors and the mission still owns the exit.
+ m.bossReady=Number.isFinite(m.bossApproachAt)&&m.time>=m.bossApproachAt;
  m.progress=m.bombers.reduce((v,b)=>v+(b.doverResult?1:b.progress),0)/c.total;
  if(m.spawned===c.total&&m.shotDown+m.arrived===c.total){settleMission(g,m);if(m.time-m.finishedAt>=c.resultSeconds)m.resolved=true;return;}
  m.nextFighterAt-=dt;

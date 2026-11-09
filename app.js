@@ -24,6 +24,7 @@ import {photoReconHudModel} from './photo-recon-view.js?v=09c75d146ae4289d';
 import {laonMissionCard} from './laon-view.js?v=09c75d146ae4289d';
 import {cityRaidMissionCard} from './city-air-raid.js?v=09c75d146ae4289d';
 import {zeebruggeMissionCard} from './zeebrugge-raid.js?v=09c75d146ae4289d';
+import {operationMissionCard} from './special-operation-combat.js?v=09c75d146ae4289d';
 import {paintLaonTerrain} from './laon-terrain.js?v=09c75d146ae4289d';
 import {facilityMission} from './ground-facility-missions.js?v=09c75d146ae4289d';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js?v=09c75d146ae4289d';
@@ -1589,7 +1590,7 @@ const _tacticalCoopEvents91=coopEvents;
 coopEvents=()=>{let lastAmmo=null;const queued=game?.events;if(queued)for(const e of queued)if(e.type==='ammo')lastAmmo=e;_tacticalCoopEvents91();if(lastAmmo){$('toast').textContent=(lastAmmo.ownerId?.toUpperCase()||t('ranking.team'))+' · '+lastAmmo.text;show('toast');coopToastUntil=game.t+2.6;sfx('pickup')}};
 
 // Development-only fixture controls are never loaded by the unbundled hosted app.
-if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('bossqa'))import('../tests/stageboss-browser94.js').then(({installBossQA})=>installBossQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start();},draw:()=>{if(game.mode==='coop2'){coopEvents();coopHud();}else{events();hud();}if(game.mode==='coop2')drawCoop(ctx,game,W,H,{terrain:(x,y,w,h)=>paintRegion(game.worldRegion(),x,y,w,h),drawZeppelin,drawFieldArt,fieldArt,fieldArtImg});else draw(ambient);if(finalArenaVisible(game))drawFinalArenaBoss(ctx,game,W,H,{layer:'hazards'});else drawStageBoss(ctx,game,W,H,{drawZeppelin,drawFieldArt,layer:'hazards'});updateStageBossHud(game);}}));
+if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('bossqa'))import('../tests/stageboss-browser94.js?v=09c75d146ae4289d').then(({installBossQA})=>installBossQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start();},draw:()=>{if(game.mode==='coop2'){coopEvents();coopHud();}else{events();hud();}if(game.mode==='coop2')drawCoop(ctx,game,W,H,{terrain:(x,y,w,h)=>paintRegion(game.worldRegion(),x,y,w,h),drawZeppelin,drawFieldArt,fieldArt,fieldArtImg});else draw(ambient);if(finalArenaVisible(game))drawFinalArenaBoss(ctx,game,W,H,{layer:'hazards'});else drawStageBoss(ctx,game,W,H,{drawZeppelin,drawFieldArt,layer:'hazards'});updateStageBossHud(game);}}));
 
 function renderAircraft103(){
  let select=$('aircraftSelect103');if(!select){select=document.createElement('select');select.id='aircraftSelect103';select.setAttribute('aria-label','출격 기체');$('pilotAircraft').after(select)}
@@ -2275,7 +2276,7 @@ document.addEventListener('keydown',event=>{const book=document.getElementById('
 window.addEventListener('headon:settings',()=>{if(!game)showSettings151()});
 document.addEventListener('fullscreenchange',()=>{if(settingsPage151==='display'&&$('modal').classList.contains('settings-modal151')&&!$('modal').classList.contains('hidden'))showSettings151('display')});
 
-if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=gal1').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
+if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=09c75d146ae4289d').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
 
 // Revision 160 — portable elite-enemy module, rendered as a distinct combat layer.
 const drawBeforeElite160=draw;
@@ -2473,6 +2474,8 @@ function syncBattlefieldMissionHud(){
  const event=game?.battlefieldEvents?.current,panel=$('eventMissionHud'),state=game?.battlefieldEvents,now=game?.t||0,en=getLocale()==='en',rewards=[];
  // The city raid owns the boss slot (stageboss-view updateCityRaidHud); keep the small card clear.
  if(cityRaidMissionCard(game,en)){if(!panel.classList.contains('hidden'))show('eventMissionHud',false);return;}
+ const operation=operationMissionCard(game,en);if(operation){panel.classList.remove('folded');panel.classList.toggle('mission-urgent',!!operation.urgent);__txt($('eventMissionTitle'),operation.title);__txt($('eventMissionObjective'),operation.objective);__txt($('eventMissionMeta'),operation.meta);show('eventMissionHud');return;}
+ panel.classList.remove('mission-urgent');
  const zeebrugge=zeebruggeMissionCard(game,en);if(zeebrugge){panel.classList.remove('folded');__txt($('eventMissionTitle'),zeebrugge.title);__txt($('eventMissionObjective'),zeebrugge.objective);__txt($('eventMissionMeta'),zeebrugge.meta);show('eventMissionHud');return;}
  const laon=laonMissionCard(game,en);
  // Once the battery is found, the Laon battle owns the boss slot and its silhouette strip.

@@ -39,7 +39,7 @@ function layout(g,b){
  // Same three districts, names and HP the Gotha boss fight uses.
  b.districts=[['west','서부 시가지','West district',-R.spread,0],['docks','중앙 시가지','City center',0,-125],['east','동부 시가지','East district',R.spread,0]]
   .map(([id,name,en,l,f])=>({id,name,en,x:cx+nx*l+hx*f,y:cy+ny*l+hy*f,hp:120,maxHp:120}));
- b.raid={wave:0,nextAt:(g.t||0)+R.firstAt,startedAt:g.t||0,bombers:[],cleared:0,hits:0,done:false,heading:a};
+ b.raid={wave:0,nextAt:(g.t||0)+R.firstAt,startedAt:g.t||0,bombers:[],cleared:0,resolvedWaves:new Set(),hits:0,done:false,heading:a};
  g.event?.('wave','도심 방어 · 공습 4파를 막고 시가지 3구역을 지키세요');
 }
 
@@ -66,7 +66,7 @@ function spawnWave(g,b){
   Object.assign(w,{formationLeader:wave[0],formationBack:85,formationOffset:s*115,x:wave[0].x+s*110,y:wave[0].y+s*60,a:wave[0].a,cityRaidEscort:k,fire:1.2+i*.4});
  }}finally{g.directorSpawning=prior;g.bossMechanicSpawn=mechanic;}
  raid.bombers.push(...wave);raid.wave++;raid.nextAt=(g.t||0)+R.gap;
- g.event?.('wave',`공습 ${k}/${R.waves.length}파 · ${target.name}로 폭격기 ${wave.length}기`);
+ g.event?.('wave',k===R.waves.length?`최종 공습 · ${target.name}로 폭격기 ${wave.length}기 진입`:`공습 ${k}/${R.waves.length}파 · ${target.name}로 폭격기 ${wave.length}기`);
 }
 
 function retarget(b,e){
@@ -90,7 +90,11 @@ export function tickCityAirRaid(g,dt){
   if(!live(e)){e.cityRaid.resolved='down';continue;}
   if(e.cityRaid.dropped){if(Math.hypot(e.x-e.cityRaid.dropX,e.y-e.cityRaid.dropY)>R.exit){e.expired=true;e.cityRaid.resolved='away';}continue;}
   const d=retarget(b,e);if(!d){e.cityRaid.resolved='away';e.expired=true;continue;}
-  if(Math.hypot(e.x-d.x,e.y-d.y)<=R.bombRadius){
+  const distance=Math.hypot(e.x-d.x,e.y-d.y);
+  if(e.cityRaid.wave===R.waves.length&&distance<360&&!raid.finalWarned){
+   raid.finalWarned=true;g.event?.('bombWarning',`최종 편대 폭격 진입 · ${d.name} 투하 직전`);
+  }
+  if(distance<=R.bombRadius){
    d.hp-=Math.min(d.hp,R.damage);raid.hits++;
    Object.assign(e.cityRaid,{dropped:true,dropX:e.x,dropY:e.y});e.missionTarget=false;
    const a=e.a;e.frontRoute={x:e.x+Math.cos(a)*R.exit*1.4,y:e.y+Math.sin(a)*R.exit*1.4};
@@ -99,20 +103,25 @@ export function tickCityAirRaid(g,dt){
    g.event?.('wave',d.hp>0?`${d.name} 피격 · ${Math.ceil(d.hp/d.maxHp*100)}% 남음`:left?`${d.name} 붕괴 · 남은 구역 ${left}`:`${d.name} 붕괴 · 도심 함락`);
   }
  }
- // A wave is over when every bomber in it is down or has bombed and left.
+ // Later waves may finish first. Keep the boss gate closed until each launched
+ // group has either lost its bombers or committed its payload.
  for(let k=1;k<=raid.wave;k++){
+  if(raid.resolvedWaves.has(k))continue;
   const group=raid.bombers.filter(e=>e.cityRaid.wave===k);
-  if(group.length&&!group.some(e=>!e.cityRaid.resolved&&!e.cityRaid.dropped)&&raid.cleared<k){
-   raid.cleared=k;
-   if(group.every(e=>e.cityRaid.resolved==='down'))g.event?.('wave',`${k}파 요격 · 시가지 무사`);
-   for(const w of g.enemies||[])if(w.cityRaidEscort===k&&live(w)){w.formationLeader=null;g.breakEnemyFormation?.(w,2);}
-  }
+  if(group.some(e=>!e.cityRaid.resolved&&!e.cityRaid.dropped))continue;
+  raid.resolvedWaves.add(k);raid.cleared=raid.resolvedWaves.size;
+  if(group.length&&group.every(e=>e.cityRaid.resolved==='down'))g.event?.('wave',k===R.waves.length?'최종 폭격기 전원 요격 · 마지막 투하 저지':`${k}파 요격 · 시가지 무사`);
+  for(const w of g.enemies||[])if(w.cityRaidEscort===k&&live(w)){w.formationLeader=null;g.breakEnemyFormation?.(w,2);}
  }
  const liveWaves=raid.wave-raid.cleared;
  if(raid.wave<R.waves.length&&now>=raid.nextAt&&liveWaves<R.maxLive)spawnWave(g,b);
- if(raid.wave>=R.waves.length&&raid.cleared>=R.waves.length||now-raid.startedAt>R.timeout){
+ const timedOut=now-raid.startedAt>R.timeout,repelled=raid.cleared>=R.waves.length;
+ if(repelled||timedOut){
   raid.done=true;
-  if(alive(b).length)g.event?.('wave',`공습 저지 · ${BOSS_NAME[faction(g)][0]} 본대 접근`);
+  if(timedOut)for(const e of raid.bombers)if(!e.cityRaid.resolved&&!e.cityRaid.dropped){
+   e.cityRaid.resolved='away';e.missionTarget=false;e.expired=true;
+  }
+  if(alive(b).length)g.event?.('wave',`${!repelled?'공습기 이탈':raid.hits?'공습 종료':'시가지 피해 없이 공습 저지'} · ${BOSS_NAME[faction(g)][0]} 본대 접근`);
  }
 }
 

@@ -150,14 +150,30 @@ export class Mark1Landship extends SommeBoss{
   this.phase=entry?'mark1-approach':q?(this.recovering?'mark1-counter':q.age<2.4?'mark1-regroup':'mark1-last-push'):this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':damaged?'mark1-broken-formation':flank?'mark1-flank':'advance';
   // Preserve the intact cannon line. A broken wedge releases the surviving
   // machine-gun wings into flanking lanes instead of filling the disabled slot.
-  if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=side*(damaged&&this.tankRole==='female'?285:244),trail=(damaged&&this.tankRole==='female'?-100:-160)-this.row*150*this.sommeScale,h=Math.atan2(p.vy||(p.vx?0:1),p.vx||0)+Math.PI/2,tx=px+Math.cos(h)*off+Math.cos(h-Math.PI/2)*trail,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*trail,d=Math.hypot(tx-this.x,ty-this.y);
+  if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=side*(damaged&&this.tankRole==='female'?285:244),trail=(damaged&&this.tankRole==='female'?-100:-160)-this.row*150*this.sommeScale,h=Math.atan2(p.vy||(p.vx?0:1),p.vx||0)+Math.PI/2,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*trail;
+   let tx=px+Math.cos(h)*off+Math.cos(h-Math.PI/2)*trail;
+   const breach=e?.markBreach,clearance=breach&&breach.width/2+100*this.sommeScale;
+   if(breach&&breach.bodyId!==this.id&&age<breach.until&&Math.abs(ty-breach.y)<310&&Math.abs(tx-breach.x)<clearance){
+    const flank=Math.sign(this.x-breach.x)||this.column||1;tx=breach.x+flank*clearance;
+   }
+   const d=Math.hypot(tx-this.x,ty-this.y);
    this.driveOrder={hunt:true,heading:Math.atan2(tx-this.x,-(ty-this.y)),speed:d>420?86:d>180?65:Math.max(0,(d-30)*.42),halt:this.recovering||!!q&&q.age<2.4};}}
   if(this.driveMoving&&this.due('engine-cue',dt,.75))this.command('armor-drive');
   return {entry,final:q,live};
  }
  tracks(){return ['track-left','track-right'].filter(id=>!this.parts.get(id).destroyed).length;}
  hullArmor(){return ['sponson-left','sponson-right'].every(id=>this.parts.get(id).destroyed)?1:.45;}
- onPartDestroyed(p){this.cancel(p.id);if(this.salvo?.partId===p.id)this.salvo=null;if(this.tracks()===0||this.parts.get('engine-deck').destroyed){this.driveVelocity=0;this.driveMoving=false;}if(this.hullArmor()===1){this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.16);}this.phase=this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':this.hullArmor()===1?'exposed':'weapon-disabled';this.command('phase-change',{phase:this.phase});}
+ onPartDestroyed(p){this.cancel(p.id);if(this.salvo?.partId===p.id)this.salvo=null;const stopped=this.tracks()===0||this.parts.get('engine-deck').destroyed;
+  if(stopped){this.driveVelocity=0;this.driveMoving=false;}
+  if(this.hullArmor()===1){this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.16);}
+  this.phase=this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':this.hullArmor()===1?'exposed':'weapon-disabled';this.command('phase-change',{phase:this.phase});
+  const e=this.encounter;
+  if(e&&!e.markBreach&&this.discovered&&(stopped||this.hullArmor()===1)){
+   const seconds=4,side=this.column||(this.huntTarget?.x<this.x?-1:1),s=this.sommeScale;
+   e.markBreach={bodyId:this.id,x:this.x+side*170*s,y:this.y,width:135*s,until:(e.markClock||0)+seconds};
+   this.command('somme-breach',{...e.markBreach,seconds});
+  }
+ }
  move(dt,bounds){driveLandship(this,dt);}
  update(dt,{players,bounds}){
   if(this.dead)return;this.tickParts(dt);this.huntTarget=players.filter(p=>p.alive).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];const tactic=this.tactics(dt,bounds);this.move(dt,bounds);

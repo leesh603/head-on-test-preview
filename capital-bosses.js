@@ -54,10 +54,10 @@ const segmentRect=(x,y,x0,y0,r,w,h)=>{
 export class CapitalBoss extends BaseBoss{
  constructor({id,tuning,x=0,y=0,emit=()=>{},rng=Math.random,faction},kind){
   const art=CAPITAL_BOSS_ART[kind];if(!art)throw Error('Unknown capital boss '+kind);
-  const maxHp=tuning.maxHp*1.8,scale=(kind==='final-leviathan'?1180:1000)/art.width;
+  const leviathan=kind==='final-leviathan',maxHp=tuning.maxHp*1.8,scale=(leviathan?1320:1000)/art.width;
   const parts=art.parts.map(d=>new BossPart({id:d.id,maxHp:d.id===coreId(kind)?maxHp:tuning.maxHp*(d.kind==='structure'?.11:d.kind==='command'?.07:d.kind==='door'?.025:.045),x:d.x*scale,y:d.y*scale,radius:Math.max(14,Math.min(d.w,d.h)*scale*.36),kind:d.kind,hittable:!['propeller','barrel','fighter'].includes(d.kind)}));
   super({id,maxHp,x,y,coreRadius:65,parts,emit});
-  Object.assign(this,{kind,isCapitalBoss:true,capitalScale:scale,hullYaw:0,assetKey:kind,t:{...tuning,mobileBoss:false},faction:faction||(kind==='final-kaiserkrone'?'central':'entente'),rng,anchorX:x,anchorY:y,ownsMotion129:true,partsCarryHull:true,capitalPhase:1,entryLeft:4.5,attackClock:1.4,specialClock:5,deckClock:7,recoveryLeft:0,recoveryClock:13,acePairRequested:false,motionTime:0});
+  Object.assign(this,{kind,isCapitalBoss:true,capitalScale:scale,hullYaw:0,assetKey:kind,t:{...tuning,mobileBoss:false},faction:faction||(kind==='final-kaiserkrone'?'central':'entente'),rng,anchorX:x,anchorY:y,ownsMotion129:true,partsCarryHull:true,capitalPhase:1,entryLeft:4.5,attackClock:leviathan?2.5:1.4,specialClock:leviathan?.85:5,deckClock:7,recoveryLeft:0,recoveryClock:13,acePairRequested:false,motionTime:0});
   for(const d of art.parts){const p=this.parts.get(d.id);Object.assign(p,{artId:d.id,nativeX:d.x,nativeY:d.y,parent:d.parent||null,dependencies:d.dependencies||[],inheritDamage:d.inheritDamage,side:d.side,travel:d.travel,kind:d.kind,angle:0,recoil:0,propellerAngle:d.phase||0,hatchOpen:0,disabled:false});
    if(p.kind==='turret'){
     const side=/^port/.test(p.id)?-1:/^starboard/.test(p.id)?1:0;
@@ -178,16 +178,24 @@ export class CapitalBoss extends BaseBoss{
    const doors=[...this.parts.values()].filter(q=>q.kind==='door'&&live(q));if(!doors.length)return this.lastStand(ctx);
    doors.forEach(q=>q.hatchOpen=1);this.hatchUntil=(this.combatTime||0)+2.9;
    const mount=doors[step%doors.length],m=capitalPartPose(this,mount);
-   const speed=Math.hypot(p.vx||0,p.vy||0),a=speed>10?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a);
-   if(this.capitalPhase>=2&&step%3===1){
+   const speed=Math.hypot(p.vx||0,p.vy||0),a=speed>10?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2;
+   const breach=this.berlinBreach,bounds=ctx.bounds;
+   const inView=breach&&bounds&&breach.x>=bounds.left+breach.width/2&&breach.x<=bounds.right-breach.width/2;
+   const sides=inView?[-1,1].filter(side=>breach.x+side*150>=bounds.left+18&&breach.x+side*150<=bounds.right-18):[];
+   const carpet=this.capitalPhase>=2&&step%3===1;
+   const corridor=sides.length>0&&(!carpet||doors.some(hatch=>sides.includes(hatch.side==='left'?-1:1)));
+   const centerX=corridor?breach.x:targetX,ux=corridor?0:Math.cos(a),uy=corridor?-1:Math.sin(a);
+   let cueSeconds=3.8;
+   if(carpet){
     // A brief two-sided carpet leaves the pilot's flight corridor open.
     // Losing a hatch removes its entire lane, including pending releases.
     const rows=this.capitalPhase===3?6:4,hatches=doors.slice(0,2);
     for(const [index,hatch] of hatches.entries()){
      const side=hatch.side==='left'?-1:1,origin=capitalPartPose(this,hatch);
+     if(corridor&&!sides.includes(side))continue;
      for(let row=0;row<rows;row++){
       const along=(row-(rows-1)/2)*115;
-      this.emit({type:'hazard',bossId:this.id,sourcePartId:hatch.id,kind:'circle',x:targetX+ux*along-uy*side*150,y:targetY+uy*along+ux*side*150,sourceX:origin.x,sourceY:origin.y,airborneBomb:true,sprite:'puw',radius:58,warning:2,delay:row*.22+index*.12,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});
+      this.emit({type:'hazard',bossId:this.id,sourcePartId:hatch.id,kind:'circle',x:centerX+ux*along-uy*side*150,y:targetY+uy*along+ux*side*150,sourceX:origin.x,sourceY:origin.y,airborneBomb:true,sprite:'puw',radius:58,warning:2,delay:row*.22+index*.12,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});
      }
     }
     const release=2+(rows-1)*.22+(hatches.length-1)*.12;
@@ -196,14 +204,17 @@ export class CapitalBoss extends BaseBoss{
    }else if(this.capitalPhase>=2&&step%3===2){
     // Two staggered mine groups leave an open central flight lane. Mines
     // deploy visibly from the surviving hatch using the native mine lifecycle.
-    const points=[];for(const side of [-1,1])for(let i=0;i<2;i++)points.push({x:targetX+ux*(i-.5)*125-uy*side*150,y:targetY+uy*(i-.5)*125+ux*side*150});
+    const points=[];for(const side of corridor?sides:[-1,1])for(let i=0;i<2;i++)points.push({x:centerX+ux*(i-.5)*125-uy*side*150,y:targetY+uy*(i-.5)*125+ux*side*150});
     this.emit({type:'spawn-minefield',bossId:this.id,sourcePartId:mount.id,sourceX:m.x,sourceY:m.y,points,warning:2.1,deploySeconds:1.6,life:8,maxMines:8,blastRadius:52});
+    cueSeconds=8;
    }else{
     // A stationary pilot still sees a bombing line, never four bombs stacked
     // on one pixel. The alternate stick crosses the previous approach.
-    const nx=step%2?-uy:ux,ny=step%2?ux:uy;
-    for(let i=0;i<4;i++)this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,kind:'circle',x:targetX+nx*(i-1.5)*115,y:targetY+ny*(i-1.5)*115,sourceX:m.x,sourceY:m.y,airborneBomb:true,sprite:'puw',radius:58,warning:1.65,delay:i*.3,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});
+    const nx=corridor?0:step%2?-uy:ux,ny=corridor?1:step%2?ux:uy;
+    const x=corridor?centerX+150*(sides.find(side=>side===Math.sign(targetX-centerX))??sides[0]):targetX;
+    for(let i=0;i<4;i++)this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,kind:'circle',x:x+nx*(i-1.5)*115,y:targetY+ny*(i-1.5)*115,sourceX:m.x,sourceY:m.y,airborneBomb:true,sprite:'puw',radius:58,warning:1.65,delay:i*.3,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});
    }
+   if(corridor)this.emit({type:'berlin-breach-corridor',bossId:this.id,x:breach.x,width:breach.width,seconds:cueSeconds});
   }else{
    const decks=[...this.parts.values()].some(q=>q.kind==='fighter'&&live(q));
    if(step%3===2&&decks){this.launchDeck(ctx);this.deckClock=11;this.specialCursor=step+1;return true;}
@@ -233,17 +244,18 @@ export class CapitalBoss extends BaseBoss{
     if(climax){const release=1.6+(batteries.length-1)*.25+(waves-1)*.42;this.leviathanVolleyUntil=(this.combatTime||0)+release;this.reserveSalvoRecovery(release+3.2);}
    }else{
     const mount=(main.length?main:guns)[step%(main.length||guns.length)],a=this.hullYaw+mount.angle-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a);
-    mount.aimHoldUntil=(this.combatTime||0)+2.5;mount.aimHoldAngle=a;
+    const opening=step===0;mount.aimHoldUntil=(this.combatTime||0)+(opening?3.25:2.5);mount.aimHoldAngle=a;
     const barrel=this.parts.get(mount.id+'-barrel'),offsets=main.includes(mount)?(source(this,barrel)?.barrelOffsets||[-10,10]):[0];
     const q=capitalMuzzle(this,mount,a,offsets[0]);mount.recoil=.24;mount.gunFlash=.12;
     this.emit({type:'muzzle',bossId:this.id,partId:mount.id,x:q.x,y:q.y});
     this.emit({type:'charge-warning',bossId:this.id,partId:mount.id,x:q.x,y:q.y,targetX,targetY,seconds:1.6});
     // Main guns bracket range with three committed impacts. Alternating
     // barrels keep the source visible without doubling overlapping damage.
-    for(let i=-1;i<=1;i++){
+    for(let j=0;j<(opening?2:1);j++)for(let i=-1;i<=1;i++){
      const offset=offsets[(i+1)%offsets.length],m=capitalMuzzle(this,mount,a,offset);
-     this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceBarrelOffset:offset,kind:'circle',x:targetX+ux*i*145,y:targetY+uy*i*145,sourceX:m.x,sourceY:m.y,radius:70,warning:1.6,delay:(i+1)*.28,duration:.2,once:true,damage:this.t.damage*.9,visual:'black-flak',ordnanceFamily:'he',tag:this.id+':salvo'});
+     this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceBarrelOffset:offset,kind:'circle',x:targetX+ux*i*145,y:targetY+uy*i*145,sourceX:m.x,sourceY:m.y,radius:70,warning:1.6,delay:(i+1)*.28+j*1.05,duration:.2,once:true,damage:this.t.damage*.9,visual:'black-flak',ordnanceFamily:'he',tag:this.id+':salvo'});
     }
+    if(opening){this.leviathanVolleyUntil=(this.combatTime||0)+3.21;this.reserveSalvoRecovery(3.41);}
    }
    return true;
   }

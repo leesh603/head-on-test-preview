@@ -201,6 +201,7 @@ export function handleMaanCue(g,event,body){
  }
  if(event.type==='maan-workshop-collapse'){g.combatBlast(event.x,event.y,115,'enemy','structure');g.shake=Math.max(g.shake,8);return true;}
  if(event.type==='maan-tactic'){
+  if(event.name==='encirclement-final-shot'){g.event('wave','중앙 통로에 최종 중포 사격 · 착탄 범위 밖으로 이탈');return true;}
   const messages={'siege-shot':'중포 고정 사격 · 조준 지점 이탈','walking-barrage':'순차 포격 · 폭발 진행 방향 주의','aa-sweep':'대공포 부채꼴 제압','pressure-release':'증기 배출 예고 · 양옆 위험 구역 이탈','desert-runaway':'사막의 폭주 · 증기 배출 후 순차 중포격','overheat-service':'과열 정지 · 노출된 본체에 반격','corridor-barrage':'양측 협동 포격 · 중앙 통로 확보','desert-encirclement':'최후의 사막 포위 · 장갑차 협공 후 측면 집중사격','broken-encirclement':'지휘망 붕괴 · 잔존 측면포의 산발 사격','convoy-reload':'호위대 후퇴 · 육상함 장전 중 반격','command-lost':'지휘부 파괴 · 협동 포격 취소·호위대 후퇴'};
   g.event('wave',messages[event.name]||'');return true;
  }

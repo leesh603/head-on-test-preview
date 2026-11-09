@@ -116,7 +116,7 @@ const SPECIAL=[
  ['aceWingman','에이스 윙맨','무작위 아군 에이스 1명이 합류합니다. 기관총과 무작위 추가 무장으로 엄호하며 플레이어와 편대 강화에 따라 성장합니다.'],
  ...[...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(({id,name,desc})=>[id,name,desc]),
  ['prototypeAmmo',prototypeAmmoName('central'),EQUIPMENT_COPY.prototypeAmmo[0]],
- ['steelCore','철심탄',EQUIPMENT_COPY.steelCore[0]],
+ ['steelCore','S.m.K. 철심탄',EQUIPMENT_COPY.steelCore[0]],
 ];
 
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;

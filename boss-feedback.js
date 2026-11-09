@@ -54,6 +54,11 @@ PHASES['gotha-cover']=['고타 전방 사격 · 접근 사선 회피','Gotha app
 PHASES['gotha-crossfire']=['고타 후방 엄호 · 꼬리 사선 주의','Gotha rear cover · watch tail guns'];
 PHASES['gotha-bomb-run']=['고타 폭탄 투하 · 표식 이탈','Gotha bomb release · leave markers'];
 PHASES['gotha-reentry']=['다음 편대 선회 진입','Next flight turning in'];
+PHASES['trench-observer-active']=['포병 관측기 접근 · 격추해 유도 포격을 끊으세요','Artillery spotter inbound · shoot it down to stop directed fire'];
+PHASES['trench-observer-down']=['유도 포격 중단 · 전차 측면으로 돌파','Directed fire silenced · flank the tank'];
+PHASES['hma-deck-launch']=['전 갑판 발진 · 격납구를 노리세요','Full deck launch · target the hangars'];
+PHASES['hma-deck-disabled']=['격납구 파괴 · 함재기 발진 중단','Hangars destroyed · launches stopped'];
+PHASES['hma-deck-recovery']=['갑판 재정비 · 반격 기회','Deck crews rearming · counterattack'];
 PHASES['formation-recovery']=['편대 재집결 · 반격 기회','Formation regrouping · strike now'];
 PHASES['red-total-assault']=['붉은 총공격 · 조준선을 피해 선회','Red total assault · turn off the aim line'];
 PHASES['black-cross-encirclement']=['검은 십자 포위 · 교차 돌입 회피','Black cross encirclement · dodge the crossing runs'];
@@ -98,7 +103,7 @@ export const BOSS_NAMES_EN=Object.freeze({'paris-geschuetz':'Paris Gun · Paris-
  'o400-squadron':'Handley Page O/400 squadron','gotha-squadron':'Gotha bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
 });
 const TACTIC_RAIL_ONLY=new Set(['bruno-railway-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen']);
-const COUNTER_PHASES=new Set(['l70-gun-reload','hma23-rearm','bomber-gunner-reload','gondola-reload','flak-resupply','schwaben-reload','staaken-gunner-reload','sinai-reload','fleet-reload','jutland-reload','jutland-director-lost','jutland-disarmed','gotha-regroup','carrier-rearm','a7v-recovery','markv-recovery','verdun-recovery','flieger-recovery','treffas-recovery','gallipoli-recovery','minenwerfer-reload','formation-recovery','lincomparable-counter','livens-depressurized','mark1-counter']);
+const COUNTER_PHASES=new Set(['l70-gun-reload','hma23-rearm','hma-deck-recovery','bomber-gunner-reload','gondola-reload','flak-resupply','schwaben-reload','staaken-gunner-reload','sinai-reload','fleet-reload','jutland-reload','jutland-director-lost','jutland-disarmed','gotha-regroup','carrier-rearm','a7v-recovery','markv-recovery','verdun-recovery','flieger-recovery','treffas-recovery','gallipoli-recovery','minenwerfer-reload','formation-recovery','lincomparable-counter','livens-depressurized','mark1-counter']);
 export const bossCounterPhase=phase=>COUNTER_PHASES.has(phase);
 export function bossCounterActive(encounter){
  if(!encounter||encounter.completed)return false;

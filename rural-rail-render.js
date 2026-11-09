@@ -18,7 +18,8 @@ export function drawRuralRail(c,b,images,wrecks){
    if(p.gunFlash>0)fx(c,'muzzle',0,-145,27,43,p.shotAngle||0,Math.min(1,p.gunFlash/.08));
    // Brackets identify the currently exposed carriage, without covering its art.
    if(!b.railCars.some(other=>other.y>p.y&&!other.destroyed)){
-    c.strokeStyle='#edc17ca8';c.lineWidth=1.5;
+    const recentBreak=b.railCars.some(other=>other.destroyed&&(other.detachedPose?.age??Infinity)<2.6);
+    c.strokeStyle=recentBreak?'#ffe1a8':'#edc17ca8';c.lineWidth=recentBreak?2.5:1.5;
     for(const x of [-76,76])for(const y of [-173,173]){c.beginPath();c.moveTo(x,y-Math.sign(y)*14);c.lineTo(x,y);c.lineTo(x-Math.sign(x)*12,y);c.stroke();}
    }
    if(p.hp<p.maxHp){c.fillStyle='#292e26';c.fillRect(-50,176,100,4);c.fillStyle='#d5ad6b';c.fillRect(-50,176,100*p.hp/p.maxHp,4);}
@@ -122,7 +123,13 @@ export function drawRuralRailHazard(c,h,options){
    }
   }
  }else if(h.visual==='rural-rail-shock'){
-  if(warning)bandMark(c,h.x,h.y,Math.max(0,h.radiusStart-h.ringWidth),h.radiusLimit,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:true,exact:true});
+  if(warning){
+   const progress=Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning));
+   bandMark(c,h.x,h.y,Math.max(0,h.radiusStart-h.ringWidth),h.radiusLimit,progress,{heavy:true,exact:true});
+   c.font='bold 13px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle=MARK.ink;
+   const label=getLocale()==='en'?'SHOCKWAVE':'충격파';
+   c.strokeText(label,h.x,h.y-h.radiusLimit+22);c.fillStyle='#ffd5a3';c.fillText(label,h.x,h.y-h.radiusLimit+22);
+  }
   else if(drawArtilleryPressure(c,h,paintRailPressure,options)){
    impactMark(c,h.x,h.y,h.radius,1,{heavy:true,exact:true,fill:false,cross:false,alpha:.8});
   }

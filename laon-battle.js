@@ -56,10 +56,14 @@ export function handleLaonCue(g,e){
  if(!e.type?.startsWith('laon-')&&!(e.bossId===b.gun?.id&&['part-destroyed','body-defeated'].includes(e.type)))return false;
  if(e.type==='laon-shot'){
   b.shotCount=b.gun?.shotCount??e.shotCount??b.shotCount+1;
-  g.event?.('bossSound','railGunFire520');g.shake=Math.max(g.shake||0,b.discovered?2.4:.6);
+  g.event?.('bossSound','railGunFire520');g.shake=Math.max(g.shake||0,b.discovered?(e.finalShot?4.8:3.2):.6);
   g.event?.('wave',b.role==='attack'?'파리 포격 경보 · '+b.shotCount+' / '+LAON_MISSION.attackShotLimit:'아군 파리포 발사 · '+b.shotCount+' / '+LAON_MISSION.shots);
  }
  if(e.type==='laon-loading')g.event?.('bossSound','railBreech');
+ if(e.type==='laon-phase'&&e.phase==='ready'&&e.finalShot){
+  g.event?.('bossSound','railBreech');
+  g.event?.('wave',b.role==='attack'?'최종 포격 임박 · 포신 또는 약실을 파괴하세요':'최종 발사 준비 · 마지막 투하를 막으세요');
+ }
  if(e.type==='laon-phase'&&e.phase==='return')g.event?.('bossSound','trainBrake');
  if(e.type==='laon-ammo-explosion'){g.combatBlast?.(e.x,e.y,e.radius||100,'enemy','structure','ammoCookoff');g.event?.('bossSound','metalBreak');g.shake=Math.max(g.shake||0,3);}
  if(e.type==='laon-bomb-impact'||e.type==='laon-counterbattery-impact'){

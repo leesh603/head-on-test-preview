@@ -68,7 +68,11 @@ export class GallipoliFortress extends BaseBoss{
  p.repairRemaining=Math.max(0,p.repairRemaining-dt);
  if(p.repairRemaining<=3&&!p.repairWarned){p.repairWarned=true;this.command('phase-change',{phase:'gallipoli-repair-warning',partId:p.id});}
  if(p.repairRemaining<=0){p.hp=p.maxHp;p.destroyedAt=null;p.repairGrace=2;p.repairWarned=false;p.aimTarget=null;this.syncHp();this.command('phase-change',{phase:'gallipoli-repaired'});}}
- for(const s of GALLIPOLI_SECTORS){const disabled=s.guards.every(id=>this.parts.get(id).destroyed);if(disabled&&!this.captured.has(s.id)){this.captured.add(s.id);this.command('phase-change',{phase:'sector-'+s.id+'-captured'});}else if(!disabled)this.captured.delete(s.id);}}
+ for(const s of GALLIPOLI_SECTORS){const disabled=s.guards.every(id=>this.parts.get(id).destroyed);if(disabled&&!this.captured.has(s.id)){
+  this.captured.add(s.id);
+  const next=GALLIPOLI_SECTORS.find(zone=>zone!==s&&zone.guards.some(id=>!this.parts.get(id).destroyed));
+  this.command('phase-change',{phase:'sector-'+s.id+'-captured',sectorName:s.name,nextSectorName:next?.name});
+ }else if(!disabled)this.captured.delete(s.id);}}
  target(ps){const live=ps.filter(p=>p.alive);return live.length?live[this.cursor++%live.length]:null;}
  turnTurrets(dt,players){const live=players.filter(p=>p.alive);for(const p of this.parts.values()){p.recoil=Math.max(0,p.recoil-dt);p.gunFlash=Math.max(0,(p.gunFlash||0)-dt);if(p.destroyed||(p.kind!=='gun'&&p.kind!=='aa'))continue;const target=p.aimTarget||live.reduce((best,q)=>!best||Math.hypot(q.x-this.x-p.x,q.y-this.y-p.y)<Math.hypot(best.x-this.x-p.x,best.y-this.y-p.y)?q:best,null);if(target)p.angle=turnGallipoliTurret(p.angle,Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x),p.kind==='aa'?1.35:.7,dt);}
  this.coreRecoil=Math.max(0,this.coreRecoil-dt);this.coreFlash=Math.max(0,(this.coreFlash||0)-dt);const target=this.coreAimTarget||live[0];if(target&&!this.commandDestroyed)this.coreAngle=turnGallipoliTurret(this.coreAngle,Math.atan2(target.y-this.y,target.x-this.x),.5,dt);}

@@ -1,3 +1,6 @@
+import {operationMissionCard} from './special-operation-combat.js?v=09c75d146ae4289d';
+// Compact tuples avoid the protocol's reserved simulation key "objective".
+const operationCardSnapshot=(game,en)=>{const c=operationMissionCard(game,en);return c?[c.title,c.objective,c.meta,c.urgent]:null;};
 import {pruneCriticalFeedback} from './aircraft-criticals.js?v=09c75d146ae4289d';
 import {LegacyProjectileStream} from './legacy-projectile-stream.js?v=09c75d146ae4289d';
 import {snapshotLaonBattle} from './laon-battle.js?v=09c75d146ae4289d';
@@ -218,7 +221,7 @@ export class OnlineCoopGame extends CoopGame {
   const battle=this.operationBattle;
   const target=battle?.train?.cargo||battle?.patrols?.[0];
   const train=battle?.train;
-  this.operationSnapshot=operation?{operation,result:this.operationResult||null,battle:battle?{
+  this.operationSnapshot=operation?{operation,cards:battle?{ko:operationCardSnapshot(this,false),en:operationCardSnapshot(this,true)}:null,result:this.operationResult||null,battle:battle?{
    id:battle.id,elapsed:battle.elapsed,wave:battle.wave,hp:Math.max(0,Math.ceil(100*(target?.hp||0)/(target?.maxHp||1))),
    train:train?{x:train.x,y:train.y,originX:train.originX,sign:train.sign,cars:[train.engine,train.flak,train.cargo].map(car=>car?{hp:car.hp,maxHp:car.maxHp}:null)}:null
   }:null}:null;

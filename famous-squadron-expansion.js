@@ -3,7 +3,9 @@ import {squadronDamage,squadronCourierDamage,squadronHp} from './squadron-elite-
 import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
 import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js?v=09c75d146ae4289d';
 import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
-export const EXPANSION_BALANCE=Object.freeze({duration:24,jasta5:{plane:'jasta5_patrol',count:5,faction:'central',hp:70},spa65:{plane:'spad',count:5,faction:'entente',hp:62},courierPlane:'dfw_cv',courierHp:80,warning:.65,acquire:.42,breakAngle:.35,quiet:1.25,maxBursts:4,maxBreaks:2});
+export const EXPANSION_BALANCE=Object.freeze({duration:24,jasta5:{plane:'jasta5_patrol',count:5,faction:'central',hp:70},spa65:{plane:'spad',count:5,faction:'entente',hp:62},courierPlane:'dfw_cv',courierHp:80,warning:.65,acquire:.42,breakAngle:.35,quiet:1.25,maxBursts:7,maxBreaks:3});
+// 20261107 Jasta 5 stays in the fight: seven passes (was four), departs after a
+// third broken lock (was two).
 const B=EXPANSION_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host,pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g;
 const angle=a=>Math.atan2(Math.sin(a),Math.cos(a)),pace=g=>Math.max(60,Math.min(320,(pilot(g).speed||150)*(pilot(g).airframeSpeed??1)*(pilot(g).pursuitSpeedFactor??1)));
 const stage=g=>`${g.stageBoss?.stages?.loopIndex||0}:${g.stageBoss?.stages?.orderPosition||0}:${g.stageBoss?.stages?.stageIndex}`;

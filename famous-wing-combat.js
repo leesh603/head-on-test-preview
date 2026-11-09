@@ -4,7 +4,7 @@ import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
 import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
 import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js?v=09c75d146ae4289d';
 import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
-export const FAMOUS_WING_BALANCE=Object.freeze({jasta18:{plane:'jasta18_fokkerd7',count:5,faction:'central',duration:25,hp:72,speed:120,warning:.7},lafayette:{plane:'lafayette_nieuport17',count:5,faction:'entente',duration:22,hp:68,speed:110,warning:1},bulletLife:1.2,bulletSpeed:375,burstGap:.15,damage:12});
+export const FAMOUS_WING_BALANCE=Object.freeze({jasta18:{plane:'jasta18_fokkerd7',count:5,faction:'central',duration:25,hp:72,speed:120,warning:.55},lafayette:{plane:'lafayette_nieuport17',count:5,faction:'entente',duration:28,hp:68,speed:110,warning:1},bulletLife:1.2,bulletSpeed:375,burstGap:.15,damage:12});
 const B=FAMOUS_WING_BALANCE,alive=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host,pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g;
 const angle=a=>Math.atan2(Math.sin(a),Math.cos(a)),stage=g=>`${g.stageBoss?.stages?.loopIndex||0}:${g.stageBoss?.stages?.orderPosition||0}:${g.stageBoss?.stages?.stageIndex}`;
 const members=g=>(g.enemies||[]).filter(e=>e.famousWingGroup===g.famousWing?.groupId&&e.famousWingUnit===g.famousWing?.unitId&&alive(e));

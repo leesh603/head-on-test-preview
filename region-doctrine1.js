@@ -23,13 +23,20 @@ export function tickRegionalConditions(g,dt){
  const region=g.worldRegion(),now=g.t||0,step=Math.min(.04,dt);
  if(g.regionalCondition?.region!==region)g.regionalCondition={region,next:now+5,serial:0,spotter:null,weakenedUntil:0};
  const r=g.regionalCondition;
- if(g.stageBoss?.stages.phase!=='explore')return;
- const ps=(g.players||[g]).filter(p=>p.hp>0&&(!p.status||p.status==='alive'));
+ const stage=g.stageBoss?.stages,ps=(g.players||[g]).filter(p=>p.hp>0&&(!p.status||p.status==='alive'));
  if(region===6){
   for(const p of ps)for(const gust of g.gusts||[])if(gust.thermal&&gust.life>0&&Math.hypot(p.x-gust.x,p.y-gust.y)<gust.radius){
    const energy=p.airframeSpeed??1;p.airframeSpeed=energy+(1-energy)*(1-Math.exp(-3*step));
   }
+  const bomber=stage?.phase==='boss'&&stage.encounter?.bodies.values().next().value,pilot=ps[0];
+  if(pilot&&bomber&&!bomber.dead&&bomber.phase>=2&&r.thermalBoss!==bomber.id&&(g.gusts||[]).length<4){
+   const h=bomber.hullYaw||0,side=(pilot.x-bomber.x)*Math.cos(h)+(pilot.y-bomber.y)*Math.sin(h)<0?-1:1;
+   const x=bomber.x+Math.cos(h)*side*205,y=bomber.y+Math.sin(h)*side*205,a=Math.atan2(y-pilot.y,x-pilot.x),d=Math.min(170,Math.hypot(x-pilot.x,y-pilot.y));
+   (g.gusts??=[]).push({x:pilot.x+Math.cos(a)*d,y:pilot.y+Math.sin(a)*d,vx:Math.cos(a)*28,vy:Math.sin(a)*28,a,life:9,maxLife:9,radius:100,thermal:true,hit:false,hitPlayers:new Set()});
+   r.thermalBoss=bomber.id;g.event('flak','측면 상승기류 · 폭격기 날개 쪽으로 접근');
+  }
  }
+ if(stage?.phase!=='explore')return;
  if(region===10&&r.spotter?.hp<=0&&!r.spotterDefeated){
   r.spotterDefeated=true;r.weakenedUntil=now+24;
   g.event('wave','관측기구 격추 · 24초간 포격 밀도 감소');

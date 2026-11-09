@@ -2,7 +2,7 @@ import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=0
 import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
 /** 94th Aero Squadron-inspired patrol. Alternating lane choreography is game fiction. */
 import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-export const HAT_RING_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:28,reserve:8,speed:152,turn:1.1,warning:.7,burst:.86,coast:1.8,bulletLife:2,bulletSpeed:455,gapHalfWidth:45,maxPasses:3,spacing:112,damage:9,minSeparation:100});
+export const HAT_RING_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:28,reserve:8,speed:152,turn:1.1,warning:.7,burst:.86,coast:1.8,bulletLife:2,bulletSpeed:455,gapHalfWidth:45,maxPasses:3,spacing:112,damage:9,minSeparation:100,reformPatience:3.5});
 const B=HAT_RING_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;
 const pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g,hasPilot=g=>g.players?.length?g.players.some(p=>p.hp>0&&p.status!=='downed'):g.hp>0;
 const pace=g=>Math.max(60,Math.min(280,(pilot(g).speed||150)*(pilot(g).airframeSpeed??1)*(pilot(g).pursuitSpeedFactor??1)));
@@ -20,7 +20,7 @@ function blocked(g){return !g.stageBoss?.stages||g.stageBoss.stages.phase!=='exp
 const visible=(g,e,margin=0)=>{const v=arrivalViewport(g);return Math.abs(e.x-v.x)<v.w+margin&&Math.abs(e.y-v.y)<v.h+margin};
 const visibleLanes=(g,es)=>[-1,0,1].every(slot=>!es.some(e=>gunLane(e)===slot)||es.some(e=>gunLane(e)===slot&&visible(g,e,-15)));
 function room(g){const es=(g.enemies||[]).filter(live);return es.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)).length+B.count<=(g.regularEnemyLimit?.()??12)&&es.length+B.count<=(g.enemyCapacity?.()??65)-1;}
-function withdraw(g,reason){const s=g.hatRingBlockade;if(!s)return;s.phase='exit';s.outcome=reason;s.nextIn=B.interval;for(const e of members(g)){e.hatRingPhase='exit';e.hatRingHeading=e.a+.75;e.hatRingOpen=false;speed(e,pace(g)+120);e.missionTarget=false;e.fire=Infinity;}}
+function withdraw(g,reason){const s=g.hatRingBlockade;if(!s)return;s.phase='exit';s.outcome=reason;s.nextIn=B.interval;for(const e of members(g)){e.hatRingSnapAt=null;e.hatRingSnapRounds=0;e.hatRingPhase='exit';e.hatRingHeading=e.a+.75;e.hatRingOpen=false;speed(e,pace(g)+120);e.missionTarget=false;e.fire=Infinity;}}
 /** Admission only: may warm artwork, never creates combat entities or consumes RNG. */
 export function canSpawnHatRingBlockade(g){
  if(!canAdmitSquadron(g,'hat-ring'))return false;
@@ -41,12 +41,27 @@ export function spawnHatRingBlockade(g){
 }
 // A passed approach is retried through native flight. Wait for the old bullets
 // to expire before turning the formation or announcing a different safe lane.
-function reform(g,s){if(s.completedPasses>=B.maxPasses){withdraw(g,'departed');return;}s.phase='reform';s.age=0;s.reformHeading=s.heading;const es=members(g),cx=es.reduce((n,e)=>n+e.x,0)/es.length,cy=es.reduce((n,e)=>n+e.y,0)/es.length;s.reformCenterX=cx;s.reformCenterY=cy;s.reformSpeed=es.reduce((n,e)=>n+e.speed,0)/es.length;s.reformRate=0;for(const e of es){e.hatRingPhase='reform';e.hatRingOpen=false;e.fire=Infinity;e.hatRingFormationForward=(e.x-cx)*Math.cos(s.heading)+(e.y-cy)*Math.sin(s.heading);e.hatRingFormationSide=-(e.x-cx)*Math.sin(s.heading)+(e.y-cy)*Math.cos(s.heading);}}
+function reform(g,s){if(s.completedPasses>=B.maxPasses){withdraw(g,'departed');return;}s.phase='reform';s.age=0;s.reformHeading=s.heading;const es=members(g),cx=es.reduce((n,e)=>n+e.x,0)/es.length,cy=es.reduce((n,e)=>n+e.y,0)/es.length;s.reformCenterX=cx;s.reformCenterY=cy;s.reformSpeed=es.reduce((n,e)=>n+e.speed,0)/es.length;s.reformRate=0;for(const e of es){e.hatRingSnapAt=null;e.hatRingSnapRounds=0;e.hatRingPhase='reform';e.hatRingOpen=false;e.fire=Infinity;e.hatRingFormationForward=(e.x-cx)*Math.cos(s.heading)+(e.y-cy)*Math.sin(s.heading);e.hatRingFormationSide=-(e.x-cx)*Math.sin(s.heading)+(e.y-cy)*Math.cos(s.heading);}}
 function clearForReform(g,s){if((g.bullets||[]).some(b=>b.hatRingGroup===s.groupId&&b.life>0)){s.phase='clear';s.age=0;for(const e of members(g)){e.hatRingPhase='clear';e.hatRingHeading=s.heading;}}else reform(g,s);}
 function warn(g,s){const es=members(g);s.phase='warning';s.age=0;s.openSlot=[0,-1,1][s.completedPasses%3];s.pass++;s.passFired=false;s.volley=0;s.laneRounds={};s.centerRounds=0;
  const center=es.find(e=>e.hatRingSlot===s.openSlot)||es.find(e=>gunLane(e)===s.openSlot),mean=es.reduce((sum,e)=>sum+lane(e,s.heading)-gunLane(e)*B.spacing,0)/Math.max(1,es.length);s.openLane=center?lane(center,s.heading):mean+s.openSlot*B.spacing;
- for(const e of es){e.hatRingPhase='warning';e.hatRingOpen=gunLane(e)===s.openSlot;e.hatRingHeading=s.heading;speed(e,Math.max(60,(s.projectedCruise??s.cruise)-(e.hatRingOpen?1:0)));e.hatRingRounds=0;e.fire=Infinity;}
+ for(const e of es){e.hatRingSnapAt=null;e.hatRingSnapRounds=0;e.hatRingPhase='warning';e.hatRingOpen=gunLane(e)===s.openSlot;e.hatRingHeading=s.heading;speed(e,Math.max(60,(s.projectedCruise??s.cruise)-(e.hatRingOpen?1:0)));e.hatRingRounds=0;e.fire=Infinity;}
  g.event?.('wave','94항공대 사격 준비 · 사격을 쉬는 기체의 빈 통로를 확인하세요');
+}
+function snapShot(g,s,es,p){
+ const now=g.t||0;if((g.bullets?.length||0)>=180)return;
+ for(const e of es){
+  if(e.hatRingSnapAt!=null){
+   if(now<e.hatRingSnapAt+(e.hatRingSnapRounds||0)*.12)continue;
+   const want=Math.atan2(p.y-e.y,p.x-e.x);
+   if(Math.abs(angle(want-e.a))<.25&&visible(g,e,-15)){const a=e.a;(g.bullets??=[]).push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,vx:Math.cos(a)*B.bulletSpeed,vy:Math.sin(a)*B.bulletSpeed,life:B.bulletLife,enemy:true,sourceX:e.x,sourceY:e.y,hatRingGroup:s.groupId,hatRingSlot:e.hatRingSlot,hatRingPass:s.pass,hatRingSnap:true,collisionRadius:2,damage:squadronDamage(g,B.damage),visualType:'scout'});e.muzzleFlash=.12;e.gunAim=a;}
+   if(++e.hatRingSnapRounds>=2){e.hatRingSnapAt=null;e.hatRingSnapReadyAt=now+1.6;s.snapBusyUntil=now+.4;}
+   continue;
+  }
+  if(s.snapBusyUntil>now||e.hatRingSnapReadyAt>now)continue;
+  const d=Math.hypot(p.x-e.x,p.y-e.y),off=Math.abs(angle(Math.atan2(p.y-e.y,p.x-e.x)-e.a));
+  if(d>140&&d<440&&off<.45&&visible(g,e,-15)){e.hatRingSnapAt=now+.38;e.hatRingSnapRounds=0;e.dangerMarksman=true;e.dangerAimUntil=e.hatRingSnapAt;s.snapBusyUntil=now+1.2;}
+ }
 }
 export function tickHatRingBlockade(g,dt){
  if(!host(g)||!(dt>0)||g.mode==='campaign')return;let s=g.hatRingBlockade;
@@ -66,7 +81,15 @@ export function tickHatRingBlockade(g,dt){
    // circling target need not become parallel to every inner/outer wing first;
    // the full warning gives the formation time to settle on this fixed course.
    const attack=s.reformHeading,depth=e=>(target.x-e.x)*Math.cos(attack)+(target.y-e.y)*Math.sin(attack),toward=Math.atan2(target.y-cy,target.x-cx);
-   if(visibleLanes(g,es)&&Math.abs(angle(toward-attack))<.6&&es.every(e=>depth(e)>B.minSeparation+15&&Math.abs(angle(e.a-attack))<.65)){s.heading=attack;warn(g,s);}
+   // A pilot circling the box kept it reforming for 25 s without a shot. After
+   // B.reformPatience the lanes commit from a looser line-up: the box faces the
+   // pilot within 1.2 rad, and every wing is ahead of the pilot by the minimum gap.
+   const patient=s.age>=B.reformPatience;
+   if(visibleLanes(g,es)&&(patient?Math.abs(angle(toward-attack))<1.2&&es.every(e=>depth(e)>B.minSeparation):Math.abs(angle(toward-attack))<.6&&es.every(e=>depth(e)>B.minSeparation+15&&Math.abs(angle(e.a-attack))<.65))){s.heading=attack;warn(g,s);}
+   // While a long reform drags on, the wing whose nose is already on the pilot
+   // takes a warned snap shot (the existing aim line, then two rounds) so the
+   // box is never silent while a pilot circles inside it.
+   if(patient&&s.phase==='reform')snapShot(g,s,es,target);
   }else if(s.phase==='clear'){if(!(g.bullets||[]).some(b=>b.hatRingGroup===s.groupId&&b.life>0))reform(g,s);}
   else if(s.phase==='entry'){const p=pilot(g),v=arrivalViewport(g),dx=Math.abs(Math.cos(s.heading)),dy=Math.abs(Math.sin(s.heading)),fit=Math.min(dx>.001?(v.w-15-dy*B.spacing)/dx:Infinity,dy>.001?(v.h-15-dx*B.spacing)/dy:Infinity),depth=Math.min(fit-12,Math.max(B.minSeparation+25,dx*v.w+dy*v.h-90));if(visibleLanes(g,es)&&es.filter(e=>e.hatRingSlot<2).every(e=>(p.x-e.x)*Math.cos(s.heading)+(p.y-e.y)*Math.sin(s.heading)<=depth))warn(g,s);}
   else if(s.phase==='warning'&&s.age>=B.warning){s.phase='salvo';s.age=0;for(const e of es)e.hatRingPhase='salvo';}
@@ -88,7 +111,10 @@ export function tickHatRingBlockade(g,dt){
  for(const e of es)if(e.hatRingPhase==='exit'&&!visible(g,e,110))g.enemies=g.enemies.filter(x=>x!==e);
  if(!members(g).length&&!hatRingActive(g)){s.phase='idle';if(!g.squadronManaged&&!blocked(g)){s.nextIn=Math.max(0,s.nextIn-dt);if(!s.nextIn)spawnHatRingBlockade(g);}}
 }
-export function hatRingSteering(g,e){if(e.hatRingGroup==null)return null;if(e.hatRingPhase==='exit')speed(e,pace(g)+120);let heading=e.hatRingHeading;
+export function hatRingSteering(g,e){if(e.hatRingGroup==null)return null;if(e.hatRingPhase==='exit')speed(e,pace(g)+120);
+ // A snap-shooting wing swings its nose onto the pilot (native turn limit) for its two rounds.
+ if(e.hatRingSnapAt!=null&&e.hatRingPhase==='reform'&&g.hatRingBlockade?.phase==='reform'){const p=pilot(g);if(p)return {delta:angle(Math.atan2(p.y-e.y,p.x-e.x)-e.a),turn:B.turn};}
+ let heading=e.hatRingHeading;
  if(g.hatRingBlockade?.phase==='reform'&&e.hatRingPhase!=='exit'){
   const s=g.hatRingBlockade,a=s.reformHeading,dx=Math.cos(a),dy=Math.sin(a),forward=e.hatRingFormationForward,side=e.hatRingFormationSide,ox=dx*forward-dy*side,oy=dy*forward+dx*side;
   // Rotate the formation through native per-aircraft velocities, including the

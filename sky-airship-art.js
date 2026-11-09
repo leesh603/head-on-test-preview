@@ -47,7 +47,8 @@ export function skyPortOpen(b,p){
  let open=age>=0&&age<1.03?1:age>=1.03&&age<1.25?ease((1.25-age)/.22):0;
  if(b.phase==='launching'&&Number.isFinite(b.skyLaunchIn)&&b.skyLaunchIn>=0&&b.skyLaunchIn<.35){
   const ports=(b.parts||[]).filter(q=>q.id.startsWith('port-')&&!q.destroyed),count=Math.min(ports.length,ports.length>=3?3:2);
-  for(let i=0;i<count;i++)if(ports[((b.skyLaunchSide||0)+i)%ports.length]?.id===p.id)open=Math.max(open,ease(1-b.skyLaunchIn/.35));
+  const ready=b.skyPeakBeat===0?ports:b.skyPeakBeat===1?ports.slice(-2):Array.from({length:count},(_,i)=>ports[((b.skyLaunchSide||0)+i)%ports.length]);
+  if(ready.some(q=>q.id===p.id))open=Math.max(open,ease(1-b.skyLaunchIn/.35));
  }
  return open;
 }

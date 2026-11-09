@@ -184,7 +184,7 @@ export class StageBossAddon {
     if(bossId==='mark4-wedge')tuning={...tuning,sommeApproach:true};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
-    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'||b.kind==='armored-harbor-fortress'||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];if(this.stages.front)encounter.frontStartedAt=this.time;this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival,entryBounds);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
+    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||['a7v-flak','mark-v-cruiser','fliegerzug','armored-harbor-fortress'].includes(b.kind)||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];if(this.stages.front)encounter.frontStartedAt=this.time;this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival,entryBounds);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
   }
   // Boss rounds were laid at the spot a pilot occupied when the warning began.
   // Pilots never stop flying, so every warned round missed a pilot who simply
@@ -463,7 +463,11 @@ export class StageBossAddon {
     }
     if(laon?.success&&laon.exitReady&&this.stages.phase==='clear-pending')this.hooks.onLaonMissionCleared?.();
     const transition=this.stages.advance(blocked||!!(dover&&!dover.resolved)||!!(laon&&(!laon.success||!laon.exitReady)),{missionCompleted:missionExit,frontResult:this.hooks.onFrontStageCleared});
-    if(transition){if(transition.kind==='final-arena')this.hooks.onFinalArenaPending(transition);else if(transition.kind==='capital-final')this.hooks.onCue({...transition,type:'capital-final-pending'});else if(transition.kind==='front-complete')this.hooks.onFrontComplete?.(transition);else if(transition.kind==='operation-offer')this.hooks.onOperationOffer?.(transition);else this.hooks.onStageChange(transition);}return transition;
+    if(transition){if(transition.kind==='final-arena')this.hooks.onFinalArenaPending(transition);else if(transition.kind==='capital-final'){
+      const defense=encounter.bossId==='berlin-drachen'?encounter.bodies.values().next().value:null;
+      const lane=defense?.cityMineLane,berlinBreach=defense?{x:lane?.x??defense.x,width:lane?.width??130}:undefined;
+      this.hooks.onCue({...transition,type:'capital-final-pending',berlinBreach});
+    }else if(transition.kind==='front-complete')this.hooks.onFrontComplete?.(transition);else if(transition.kind==='operation-offer')this.hooks.onOperationOffer?.(transition);else this.hooks.onStageChange(transition);}return transition;
   }
   // Called on host game-over/restart; it does not restart players or submit scores.
   dispose() {

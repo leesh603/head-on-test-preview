@@ -865,14 +865,26 @@ function tickDirector(game,dt){
  if(!ace&&previousAce)state.recoveryDuration=BATTLE_DIRECTOR_BALANCE.aceRecoveryDuration;
  if(!elite&&previousElite)state.recoveryDuration=Math.max(state.recoveryDuration||0,BATTLE_DIRECTOR_BALANCE.eliteRecoveryDuration);
  if(previousAce&&!ace||previousElite&&!elite)game.battleRecoveryUntil=Math.max(game.battleRecoveryUntil||0,now+(previousAce&&!ace?8:BATTLE_DIRECTOR_BALANCE.eliteRecoveryDuration));
- if(suspended(game)){
+ // Use the live encounter so a preview or a stage flag alone cannot reserve a rest.
+ const stage=game.stageBoss?.stages,authored=!!stage?.encounter&&stage.stageIndex!==19&&(scriptedBoss(game)||state.authoredBoss&&stage.phase==='clear-pending');
+ const authoredEntry=authored&&!state.authoredBoss;
+ if(state.authoredBoss&&!authored&&stage?.phase==='explore'){
+  const rest=BATTLE_DIRECTOR_BALANCE.recoveryDuration;
+  state.recoveryDuration=Math.max(state.recoveryDuration||0,rest);
+  state.lastContactAt=now;state.clearSince=now;
+  game.battleRecoveryUntil=Math.max(game.battleRecoveryUntil||0,now+rest);
+ }
+ state.authoredBoss=authored;
+ if(authored||suspended(game)){
   finishScene(game,state,true);
   const mission=game.battlefieldEvents?.current;
   for(const e of game.enemies||[]){
    if(e.directorSquad){releaseSquadMember(e);delete e.directorSquad}
-   if(!state.suspended&&mission?.status==='active'&&regular(e)&&!e.battlefieldEventId&&directorAircraftEligible(game,e)){
-    const p=playerFor(game),end=mission.deadline||now+8;
+   const withdrawing=authoredEntry?(ordinaryFighter(e)||e.type==='bomber'&&!e.eliteKind&&!e.stageBossBody):!state.suspended&&mission?.status==='active'&&directorAircraftEligible(game,e);
+   if(withdrawing&&regular(e)&&!e.battlefieldEventId&&!e.bossMinion){
+    const p=playerFor(game),end=authoredEntry?now+8:mission.deadline||now+8;
     e.directorLayout='recovery';e.directorIntentUntil=end;e.combatPassState=S.DISENGAGE;e.combatPassTimer=Math.max(1,end-now);e.combatPassHeading=regionalExitHeading(game,e,Math.atan2(e.y-p.y,e.x-p.x));
+    if(authoredEntry)e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil||0,end);
    }
   }
   const eventOnly=exclusiveEvent(game)&&!scriptedBoss(game)&&!game.londonBattle&&!elite;

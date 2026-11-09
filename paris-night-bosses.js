@@ -113,6 +113,7 @@ export class ParisSearchlightFortress extends ParisBoss {
       // Each generator feeds its own flank. Destroying it opens that approach
       // while the opposite search team and all surviving guns remain active.
       for(const lamp of this.parts.values())if(lamp.kind==='searchlight'&&!this.lightPowered(lamp.id))this.command('cancel-hazards',{tag:this.id+':'+lamp.id});
+      this.command('paris-blackout',{side:p.id.endsWith('left')?'left':'right',partId:p.id});
     }
     if(this.activeCatchPart===p.id){this.activeCatchPart=null;this.catchRemaining=Math.min(this.catchRemaining,.2);}
     if(p.kind==='gun'&&![...this.parts.values()].some(q=>q.kind==='gun'&&!q.destroyed)){
@@ -259,7 +260,7 @@ export class ParisStaakenRVI extends ParisBoss {
   rotateMounts(){const a=this.a+Math.PI/2,c=Math.cos(a),s=Math.sin(a);
     for(const p of this.parts.values()){p.x=p.localX*c-p.localY*s;p.y=p.localX*s+p.localY*c;p.angle=a;}}
   coreOffset(){const a=this.a+Math.PI/2,c=Math.cos(a),s=Math.sin(a);return{x:this.coreLocalX*c-this.coreLocalY*s,y:this.coreLocalX*s+this.coreLocalY*c};}
-  abortRun(){if(this.runTarget)this.command('city-bomb-abort',{runId:this.runId});this.runTarget=null;this.runBayId=null;this.runRemaining=0;this.armingWork=0;}
+  abortRun(partId){if(this.runTarget)this.command('city-bomb-abort',{runId:this.runId,partId});this.runTarget=null;this.runBayId=null;this.runRemaining=0;this.armingWork=0;}
   updateRunEstimate(){
     // runRemaining is nominal-engine flight work, so dividing by speedRatio
     // gives seconds. A distant district can never show a zero-second drop
@@ -272,13 +273,13 @@ export class ParisStaakenRVI extends ParisBoss {
     if(this.gunCommit?.partId===p.id)this.gunCommit=null;
     if(p.kind==='payload'){
       this.command('city-bomb-rack-abort',{rackId:p.id,partId:p.id,sourceBossId:this.id});
-      if(this.runBayId===p.id){this.abortRun();this.raidWait=2;}
+      if(this.runBayId===p.id){this.abortRun(p.id);this.raidWait=2;}
       if(!this.payloadStrength()){this.abortRun();this.phase='payload-lost';this.coreVulnerable=true;}
       else this.phase='payload-damaged';
     }
     if(p.kind==='engine'){
       this.coreVulnerable=this.engines()<=2||!this.payloadStrength();
-      if(!this.engines()){this.abortRun();this.phase='gliding';this.glideAge=0;this.coreVulnerable=true;}
+      if(!this.engines()){this.abortRun(p.id);this.phase='gliding';this.glideAge=0;this.coreVulnerable=true;}
     }
     if(this.coreVulnerable&&!this.payloadStrength())this.hp=Math.min(this.hp,this.maxHp*.35);
     if(this.coreVulnerable&&![...this.parts.values()].some(q=>q.kind==='gun'&&!q.destroyed))this.hp=Math.min(this.hp,this.maxHp*.22);

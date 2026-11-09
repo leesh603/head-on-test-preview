@@ -2,7 +2,8 @@
 import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=09c75d146ae4289d';
 import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
 import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
-export const LEGEND_BALANCE=Object.freeze({sqn56:{plane:'se5a',faction:'entente',count:5,hp:66},jasta2:{plane:'albatros_d5a',faction:'central',count:5,hp:72},duration:24,commandWarning:.65,commandSpacing:.18,commandCycles:3,coverPasses:4,recovery:1.8});
+export const LEGEND_BALANCE=Object.freeze({sqn56:{plane:'se5a',faction:'entente',count:5,hp:66},jasta2:{plane:'albatros_d5a',faction:'central',count:5,hp:72},duration:24,commandWarning:.65,commandSpacing:.18,commandCycles:5,coverPasses:4,recovery:1.8});
+// 20261107: Jasta 2 issues five command volleys (was three) before departing.
 const B=LEGEND_BALANCE,angle=a=>Math.atan2(Math.sin(a),Math.cos(a)),live=e=>e&&e.hp>0&&!e.crashing&&!e.expired,host=g=>!g.online||g.host;
 const pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g,pace=g=>Math.max(60,Math.min(320,(pilot(g).speed||150)*(pilot(g).airframeSpeed??1)*(pilot(g).pursuitSpeedFactor??1)));
 const stage=g=>`${g.stageBoss?.stages?.loopIndex||0}:${g.stageBoss?.stages?.orderPosition||0}:${g.stageBoss?.stages?.stageIndex}`;

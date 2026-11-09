@@ -162,7 +162,7 @@ export function t(key,params={}){const table=locale==='en'?EN:KO;return format(t
 for(const u of RARE_SPECIALIZATIONS){UPGRADE_NAMES_EN[u.id]=u.enName;UPGRADE_DESC_EN[u.id]=u.enDesc;}
 for(const d of SPECIAL_DOCTRINES){UPGRADE_NAMES_EN[d.id]=d.enName;UPGRADE_DESC_EN[d.id]=d.enDescription;}
 Object.assign(UPGRADE_DESC_EN,{fighterSupply:"Upgrades current and future permanent wingmen. Damage +35%, firing interval −20%; formation size unchanged.",mercedesEngine:"Base flight speed +20%; 1.2s straight flight raises total speed to +55%. Hard turns reduce output over 0.75s.",combinedProjectiles:'Splits rockets/grenades into packets 0.24s apart without increasing their total. Second packet: damage +25%, blast radius +10%. Single projectile: damage +15%.'});
-Object.assign(UPGRADE_NAMES_EN,{prototypeAmmo:prototypeAmmoName('central','en'),steelCore:'Steel-Core Ammunition'});
+Object.assign(UPGRADE_NAMES_EN,{prototypeAmmo:prototypeAmmoName('central','en'),steelCore:'S.m.K. Steel-Core Ammunition'});
 export function upgradeName(id,fallback=''){return locale==='en'?(UPGRADE_NAMES_EN[id]||fallback):equipmentNameKo(id,fallback).replace(/퐁크/g,'폰크').replace(/리켄배커/g,'리켄바커')}
 export function upgradeDescription(id,fallback=''){const translated=locale==='en'?(liveUpgradeDescriptionEnglish(id,fallback)||UPGRADE_DESC_EN[id]||fallback):fallback;return conciseEquipmentDescription(id,fallback,locale,translated)}
 export function pilotName(id,fallback=''){return locale==='en'?(PILOT_NAMES_EN[id]||fallback):fallback}

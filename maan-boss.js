@@ -212,7 +212,14 @@ export class SinaiLandship extends DesertHull {
     this.aimed(gun,{x,y:s.lane.y+(s.index%2?-.5:.5)*130},{side,warning:1.7,visual:'sinai-impact',tag:this.id+':'+gun.id});
    }
   }
-  if(!s.disrupted&&!s.finishFired&&s.age>=4.75){s.finishFired=true;if(this.duneLane)this.duneLane.remaining=0;const order=s.guns.find(q=>!this.parts.get(q.id).destroyed);if(order){const gun=this.parts.get(order.id);impactPulse(this,{x:s.lane.x,y:s.lane.y,radius:100,warning:1.35,source:this.muzzle(gun,order.side),partId:gun.id,visual:'sinai-impact',tag:this.id+':'+gun.id});}}
+  if(!s.disrupted&&!s.finishFired&&s.age>=4.75){
+   s.finishFired=true;const order=s.guns.find(q=>!this.parts.get(q.id).destroyed);
+   if(order){
+    if(this.duneLane)this.duneLane.remaining=0;
+    const gun=this.parts.get(order.id);this.tactic('encirclement-final-shot');
+    impactPulse(this,{x:s.lane.x,y:s.lane.y,radius:100,warning:1.35,source:this.muzzle(gun,order.side),partId:gun.id,visual:'sinai-impact',tag:this.id+':'+gun.id});
+   }
+  }
   if(s.age>=7){this.encirclement=null;this.duneLane=null;this.escortOrder='withdraw';this.serviceWindow=3.2;this.drivePause=3.2;this.finalCooldown=10;this.tactic('convoy-reload');}
  }
  update(dt,ctx){

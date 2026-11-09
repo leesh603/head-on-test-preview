@@ -7,6 +7,8 @@ export const ELITE_KINDS = Object.freeze({
   SALAMANDER: 'salamander_squadron'
 });
 
+// Preserve the stronger current durability, firepower and gun cadence.
+// Le Prieur rockets/guns use 6 / 1.6 s; Schlachtstaffel rear range is 420 px.
 export const DEFAULT_ELITE_CONFIG = Object.freeze({
   firstEncounterAt: 0,
   unlockStage: 4,
@@ -34,8 +36,8 @@ export const DEFAULT_ELITE_CONFIG = Object.freeze({
     rocketSpeed: 236,
     rocketLife: 4.2,
     rocketSpacing: 0.12,
-    rocketCooldown: 6.4,
-    forwardGunCooldown: 1.61
+    rocketCooldown: 6,
+    forwardGunCooldown: 1.6
   }),
   schlachtstaffel: Object.freeze({
     hpNormalMultiplier: 5.62,
@@ -47,7 +49,7 @@ export const DEFAULT_ELITE_CONFIG = Object.freeze({
     rearCooldown: 0.96,
     rearHalfArc: Math.PI * 0.34,
     rearMinRange: 48,
-    rearMaxRange: 360
+    rearMaxRange: 420
   }),
   junkers: Object.freeze({
     hpNormalMultiplier: 7.7,

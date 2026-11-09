@@ -1482,3 +1482,7 @@ html body.astra-ui #viewport #stageBossHud.skyline-ready #stageBossParts,#stageB
 /* Single-object strips (the Paris Gun) get a little more height. */
 #stageBossHud.skyline-hud.skyline-tall #skylineStrip{height:48px}
 @media(max-width:720px),(pointer:coarse){#stageBossHud.skyline-hud.skyline-tall #skylineStrip{height:42px}}
+/* Special operations: a countdown in its last three seconds turns to the danger red and pulses. */
+body.astra-ui.playing #flightNotices151 #eventMissionHud.mission-urgent #eventMissionObjective,body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.mission-urgent #eventMissionObjective{color:var(--ho-danger,#c8513c)!important;animation:mission-urgent-pulse .5s ease-in-out infinite alternate}
+@keyframes mission-urgent-pulse{from{opacity:1}to{opacity:.55}}
+@media (prefers-reduced-motion:reduce){body.astra-ui.playing #eventMissionHud.mission-urgent #eventMissionObjective{animation:none!important}}

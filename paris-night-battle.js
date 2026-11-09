@@ -18,8 +18,15 @@ export function handleParisCue(g,e){
  }
  if(e.type==='city-bomb-warning')b.warnings.push({...e,bodyId:e.bossId});
  if(e.type==='paris-light-beat')b.safeRoutes=e.safeRoutes;
- if(e.type==='city-bomb-abort')b.warnings=b.warnings.filter(w=>w.runId!==e.runId);
- if(e.type==='city-bomb-rack-abort')b.bombs=b.bombs.filter(q=>q.bossId!==e.sourceBossId||q.rackId!==e.rackId);
+ if(e.type==='city-bomb-abort'){
+  const active=b.warnings.some(w=>w.runId===e.runId);b.warnings=b.warnings.filter(w=>w.runId!==e.runId);
+  if(active&&e.partId)g.event('wave','슈타켄 폭격 접근 저지 · 투하 중단');
+ }
+ if(e.type==='city-bomb-rack-abort'){
+  const before=b.bombs.length;b.bombs=b.bombs.filter(q=>q.bossId!==e.sourceBossId||q.rackId!==e.rackId);
+  if(b.bombs.length<before)g.event('wave','폭탄창 파괴 · 해당 폭격 차단');
+ }
+ if(e.type==='paris-blackout')g.event('wave',e.side==='left'?'서측 탐조등 소등 · 어둠을 따라 접근':'동측 탐조등 소등 · 어둠을 따라 접근');
  if(e.type==='city-bomb'){b.warnings=b.warnings.filter(w=>w.runId!==e.runId);b.bombs.push({...e,left:e.seconds});}
 }
 export function tickParisBattle(g,dt){

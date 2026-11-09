@@ -1,4 +1,5 @@
 import {pruneCriticalFeedback} from './aircraft-criticals.js?v=09c75d146ae4289d';
+import {bishopGlovesInterval} from './equipment-flight-balance.js?v=09c75d146ae4289d';
 import {recordEquipmentHit} from './equipment-hit-feedback.js?v=09c75d146ae4289d';
 import {weaponImpactKind} from './weapon-impact-profile.js?v=09c75d146ae4289d';
 import {combatImpactResult,ordinaryMgContact} from './combat-impact-result.js?v=09c75d146ae4289d';
@@ -59,8 +60,10 @@ function pose(e,time,dt,damageState,flight=false){
 }
 export function gunShotFeedback(world,ownerId,cow37=false){
  const p=world.players?.find(p=>p.id===(ownerId||world.localPlayerId))||world.players?.[0]||world;
- const rpm=60/Math.max(.025,p.rate||60/(p.weapon?.rpm||600));
- return {guns:p.weapon?.guns||1,rpm,heavy:cow37||!!p.motorCannon,cow37,intervalMs:cow37?45:Math.max(45,Math.min(120,60000/rpm*.9))};
+ const baseInterval=Math.max(.025,p.rate||60/(p.weapon?.rpm||600)),rpm=60/baseInterval;
+ const boost=(world.players||p.world?.players)&&p.udetBoost>0?2.4:1;
+ const precision=!cow37&&p.weaponMods?.GUN==='precision',actualInterval=bishopGlovesInterval(p,Math.max(.02,baseInterval/(boost*(p.pilot==='jacobs'?1+(p.jacobsStacks||0)*.1:1)))),shotInterval=precision?Math.max(.005,actualInterval*.35):baseInterval;
+ return {guns:p.weapon?.guns||1,rpm,heavy:cow37||!!p.motorCannon,cow37,precision,shotInterval,intervalMs:cow37?45:precision?Math.max(4,shotInterval*800):Math.max(45,Math.min(120,60000/rpm*.9))};
 }
 export function blastFeedbackStrength(f){
  if(f.fxHidden)return 0;

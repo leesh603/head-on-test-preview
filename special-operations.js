@@ -18,8 +18,11 @@ export const SPECIAL_OPERATION_AFTER = 4;
 export const SPECIAL_OPERATION_LIMIT = 96;
 export const SPECIAL_OPERATION_WAVES = Object.freeze([0, 14, 28, 42]);
 export const SPECIAL_OPERATION_EXIT_AT = 46;
-export const SPECIAL_OPERATION_TRAIN_ESCAPE = 84;
+// The train reaches its tunnel: shorter, so the chase is a chase.
+export const SPECIAL_OPERATION_TRAIN_ESCAPE = 62;
 export const SPECIAL_OPERATION_CARGO_HOLD = 3;
+// Seconds the demolition flight needs to blow a stopped cargo car.
+export const SPECIAL_OPERATION_DEMOLITION = 14;
 
 // Keep the opening, the Laon/Paris approach and the faction capital in the
 // route. Reserve Cambrai for the rail operation and sample the other bands.

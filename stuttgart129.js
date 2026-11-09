@@ -71,13 +71,13 @@ export class StuttgartSupport {
   this.onCue({type:'aa-volley',encounterId:this.id,x:this.x,y:this.y});
  }
  launch(players=[],{intro=false,final=false}={}){if(!intro&&(this.phase<2||this.parts.get('fuel').hp<=0||this.parts.get('hangar').hp<=0))return 0;
-  const active=this.countSeaplanes(this.id),count=Math.min(intro?5:final?3:2,this.tuning.minionCap-active);
-  if(final&&active>0){const target=players.filter(p=>p.alive)[this.finalWave%Math.max(1,players.filter(p=>p.alive).length)];if(target)this.onCue({type:'carrier-sortie-orders',encounterId:this.id,wave:this.finalWave,targetX:target.x+(target.vx||0)*.9+(this.finalWave%2?120:-120),targetY:target.y+(target.vy||0)*.9});}if(count<=0)return;
+  const active=this.countSeaplanes(this.id),count=Math.min(intro?5:final?4:2,this.tuning.minionCap-active);
+  if(final&&active>0){const target=players.filter(p=>p.alive)[this.finalWave%Math.max(1,players.filter(p=>p.alive).length)];if(target)this.onCue({type:'carrier-sortie-orders',encounterId:this.id,wave:this.finalWave,targetX:target.x+(target.vx||0)*.9+(this.finalWave%2?120:-120),targetY:target.y+(target.vy||0)*.9});}if(count<=0){if(final)this.finalWave++;return 0;}
   const q=this.world(0,intro?-.25:.445),angle=this.angle+Math.PI/2,target=players.filter(p=>p.alive)[this.volley%Math.max(1,players.filter(p=>p.alive).length)];
   let accepted=0;for(let i=0;i<count;i++){const lane=(i-(count-1)/2)*42,nx=q.x-Math.sin(angle)*lane,ny=q.y+Math.cos(angle)*lane;
    if(this.spawnSeaplane({ownerId:this.id,faction:'central',x:nx,y:ny,angle,kind:'floatplane',behavior:'attack-pass',formationIndex:i,formationCount:count,
     passTargetX:(target?.x??q.x+Math.cos(angle)*520)+(target?.vx||0)*.9+(final?(this.finalWave%2?120:-120):0),passTargetY:(target?.y??q.y+Math.sin(angle)*520)+(target?.vy||0)*.9,fire:1+i*.18+(final?this.finalWave*.18:0),invulnerableSeconds:.45})!==false)accepted++;}
-  if(accepted){this.sortieLaunched=true;this.fx('wake',q.x,q.y,22,.8,{angle:this.angle});this.onCue({type:'seaplane-launch',encounterId:this.id,count:accepted,...q});}return accepted;
+  if(accepted){this.sortieLaunched=true;this.fx('wake',q.x,q.y,22,.8,{angle:this.angle});this.onCue({type:'seaplane-launch',encounterId:this.id,count:accepted,...q});}if(final)this.finalWave++;return accepted;
  }
  enterEvasive(){if(this.phase!==2)return;this.phase=3;this.phaseAge=0;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-evasive'});}
  enterFullSortie(){if(this.phase!==3)return;this.phase=4;this.phaseAge=0;this.finalSortie=true;this.finalClock=1.35;this.finalWave=0;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-final-sortie'});this.onCue({type:'charge-warning',encounterId:this.id,x:this.x,y:this.y,targetX:this.x,targetY:this.y+420,seconds:1.35});}
@@ -111,7 +111,7 @@ export class StuttgartSupport {
   // Keep the existing nine-second broadside clock and authored rearm window.
   if(this.sortieState!=='rearm'){this.fireClock-=dt;if(this.fireClock<=0&&!this.fireWarning){this.fireClock=9;this.prepareFire(players);}}
   if(this.sortieState==='gun-lure'){
-   if(!this.liveGuns().length||this.sortieAge>=2.8){this.setSortieState('plane-pass',players);return;}
+   if(!this.liveGuns().length||this.sortieAge>=2.8){this.setSortieState(this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0?'plane-pass':'hull-turn',players);return;}
   }else if(this.sortieState==='plane-pass'){
    const deckLive=this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0;if(!deckLive||this.sortieAge>=3.1)this.setSortieState('hull-turn');
   }else if(this.sortieState==='hull-turn'){

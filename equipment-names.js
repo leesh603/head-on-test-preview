@@ -14,6 +14,7 @@ export function prototypeAmmoName(faction,locale='ko'){
  return PROTOTYPE_AMMO_NAMES[faction==='entente'?'entente':'central'][locale==='en'?'en':'ko'];
 }
 export const EQUIPMENT_NAMES_KO=Object.freeze({
+ steelCore:'S.m.K. 철심탄',
  ironCross:MEDAL_DISPLAY_NAMES.central.ko,
  redScarf:'붉은 남작의 머플러',
  telescope:'르네 폰크의 망원경',
