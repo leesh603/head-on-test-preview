@@ -59,7 +59,11 @@ async function readBuild(){
  }catch{return null;}
 }
 const regions=[0,2,4,6];
-const hasCoverage=r=>regions.every(region=>r.buckets.some(x=>x.lastContext?.region===region&&x.drawGapMs.count>=30));
+function hasCoverage(report){
+ const minimum=Math.min(120,Math.max(30,Math.floor(report.metadata.targetMs/2000)));
+ return regions.every(region=>report.buckets.reduce((count,bucket)=>
+  count+(bucket.lastContext?.region===region?bucket.drawGapMs.count:0),0)>=minimum);
+}
 const reportIsValid=r=>r.summary.drawGapMs.count>=120&&(r.metadata.scenario==='manual'||
  (r.activeMs>=r.metadata.targetMs&&hasCoverage(r)));
 const number=(n,d=1)=>Number.isFinite(n)?n.toFixed(d):'—';

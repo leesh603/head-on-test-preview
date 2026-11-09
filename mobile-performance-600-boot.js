@@ -35,7 +35,7 @@
   return active.delete(img);
  };
  let relaxed=false,loads=0,pumpScheduled=false;
- const diagnostic=typeof location!=='undefined'&&new URLSearchParams(location.search).get('perf')==='1';
+ const diagnostic=typeof location!=='undefined'&&new URL(location.href||document.baseURI).searchParams.get('perf')==='1';
  const timings=diagnostic?{imageLoads:0,imageErrors:0,imageLoadMs:0,imageLoadMaxMs:0,imageQueueMs:0,imageQueueMaxMs:0,imageDecodes:0,imageDecodeErrors:0,imageDecodeMs:0,imageDecodeMaxMs:0}:null;
  // Many image setters can run in the same task. A single queued pump sees
  // their final priorities; later microtasks would only rescan a full queue.

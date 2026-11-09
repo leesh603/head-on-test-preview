@@ -602,7 +602,6 @@ const stepGameInner=(g,dt,input)=>{if(g.testMode&&g.trenchDioramaDemoRunning){co
 let simulationDebt=0,frameTimeEma=1/60;
 // Loaded only for the explicit phone diagnostic page. Normal play allocates no recorder.
 let flightRecorder=null;
-let flightTerrainStats;
 function flightContext(){
  const counts={};let managed=0;
  for(const [key,items] of Object.entries(game||{})){
@@ -618,7 +617,7 @@ function flightContext(){
   terrainPaintMs:flightTerrainStats.paintMs,terrainMaxPaintMs:flightTerrainStats.maxPaintMs};
 }
 if(new URLSearchParams(location.search).get('perf')==='1'){
- import('./mobile-performance-600-recorder.js?v=mobile-performance-c93bacd0-20261109').then(({createFlightRecorder})=>{
+ import('./mobile-performance-600-recorder.js?v=mobile-performance-4ced7dc8-20261109').then(({createFlightRecorder})=>{
   flightRecorder=createFlightRecorder({context:()=>({
    ...flightContext(),
    stage:Number.isInteger(game?.stageBoss?.stages.orderPosition)?game.stageBoss.stages.orderPosition+1:null,
@@ -638,7 +637,7 @@ if(new URLSearchParams(location.search).get('perf')==='1'){
     userAgent:navigator.userAgent,devicePixelRatio:devicePixelRatio,viewport:[innerWidth,innerHeight],
     scope:'Native requestAnimationFrame and completed game canvas draw calls; not direct panel-present or GPU timing.'});
    },
-   read:()=>flightRecorder.read(),stop:reason=>flightRecorder.stop(reason),status:()=>game?.state??'hangar'
+   read:()=>flightRecorder.read(),stop:reason=>{const report=flightRecorder.stop(reason);flightTerrainStats=null;return report;},status:()=>game?.state??'hangar'
   });
   document.addEventListener('visibilitychange',()=>flightRecorder.resetGap(document.hidden?'hidden':undefined));
  }).catch(error=>console.warn('[headon] performance recorder unavailable',error));
@@ -1093,6 +1092,7 @@ function releaseTerrainBuffer(key){
  const old=_terrBufs.get(key);if(!old)return;
  old.cv.width=old.cv.height=0;if(old.back)old.back.width=old.back.height=0;old.source=null;_terrBufs.delete(key);
 }
+let flightTerrainStats;
 function releaseTerrainBuffers(){for(const key of _terrBufs.keys())releaseTerrainBuffer(key);}
 function drawTerrainBuffered(key,cx,cy,W,H){
  drawWorldBuffered(key,cx,cy,W,H,terrainAlpsRenderer.tile?.(key),(g,nax,nay,bw,bh)=>{
@@ -1122,14 +1122,14 @@ function drawWorldBuffered(key,cx,cy,W,H,source,painter){
  if(b.cv.width<minWidth){b.cv.width=Math.ceil(minWidth/128)*128;b.ax=NaN;}
  if(b.cv.height<minHeight){b.cv.height=Math.ceil(minHeight/128)*128;b.ax=NaN;}
  const bw=b.cv.width,bh=b.cv.height;
- if(b.source!==source){if(flightRecorder?.recording)flightTerrainStats.sourceChanges++;b.source=source;b.ax=NaN}
+ if(b.source!==source){if(flightTerrainStats)flightTerrainStats.sourceChanges++;b.source=source;b.ax=NaN}
  const vx=cx-W/2,vy=cy-H/2,inner=M*.5;
  if(!(Math.abs(vx-b.ax-M)<=inner&&Math.abs(vy-b.ay-M)<=inner)){
   // Integer anchors so a scroll is an exact pixel shift. When the new anchor overlaps the old
   // one, shift the painted pixels and repaint only the exposed strips (clipped full draws, so
   // world-anchored dressing stays identical); a full repaint every ~96 px was a regular hitch.
   const nax=Math.round(vx-M),nay=Math.round(vy-M),ddx=nax-b.ax,ddy=nay-b.ay;let notReady=false;
-  const perfPaintAt=flightRecorder?.recording?performance.now():null;
+  const perfPaintAt=flightTerrainStats?performance.now():null;
   const paint=(g,rects)=>{
    g.save();
    if(rects){g.beginPath();for(const r of rects)g.rect(...r);g.clip();}
