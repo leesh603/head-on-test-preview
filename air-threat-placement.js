@@ -1,4 +1,4 @@
-import {GALLIPOLI_ROUTE,gallipoliPoint} from './gallipoli-route.js?v=09c75d146ae4289d';
+import {GALLIPOLI_ROUTE,gallipoliPoint} from './gallipoli-route.js?v=b3bf991d11fc7798';
 // Only the existing landward Gallipoli field-unit slot gains coastal balloons.
 // Open water (sea/Jutland/Dover/harbor) keeps its original exclusions.
 export function coastalBalloonAllowed(g){

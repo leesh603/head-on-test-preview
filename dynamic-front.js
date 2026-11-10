@@ -1,12 +1,11 @@
-import {MAP_COMBAT_TYPES as T,mapCombatProfileForStage} from './map-combat-roles.js?v=09c75d146ae4289d';
+import {MAP_COMBAT_TYPES as T,mapCombatProfileForStage} from './map-combat-roles.js?v=b3bf991d11fc7798';
 export const FRONT_LENGTH=10;
 // Saves from the opt-in twelve-map front have no length field. Finish that
 // already-started route; continueFront creates the new ten-map format.
 export const frontLength=front=>front&&front.length!==FRONT_LENGTH?12:FRONT_LENGTH;
 export const FRONT_MULTIPLIERS=Object.freeze([.9,1,1.2,1.4]);
-// Two early, three middle and one late map. Cambrai remains available for
-// the rail operation; Laon, Paris and the enemy capital close every front.
-const EARLY=[[2],[1],[4]], MID=[[9],[3],[10],[7],[5],[6]], LATE=[[12],[13],[14],[16],[17]];
+// Two early, three middle and one late map, then Laon, Paris and the capital.
+const EARLY=[[2],[1],[4]], MID=[[9],[8],[3],[10],[7],[5],[6]], LATE=[[12],[13],[14],[16],[17]];
 const LEGACY_MID=[[9],[8],[3],[10],[7],[5],[6]],LEGACY_LATE=[[12],[13],[14],[16],[19,15],[17]];
 const BUILD_TYPES={GUN:[T.DECISIVE],EXPLOSIVE:[T.SABOTAGE,T.DECISIVE],FORMATION:[T.ESCORT_INTERCEPT],SPEED:[T.BREAKTHROUGH,T.INTERDICT_SUPPLY],SURVIVAL:[T.DEFENSE]};
 const unit=n=>Number.isFinite(n)?Math.min(1,Math.max(0,n)):null;
@@ -30,7 +29,7 @@ export function nextFrontMap(front,order,{mission,boss,build,outcome}={}){
  const pool=legacy?(end===4?EARLY:end===8?LEGACY_MID:LEGACY_LATE):(end===3?EARLY:end===6?MID:LATE);
  const faction=front.capital===18?'entente':'central';
  const typeFor=map=>mapCombatProfileForStage(map,faction)?.type;
- const candidates=pool.filter(group=>group.length<=end-position&&group.every(map=>!order.includes(map)&&map!==front.operationStage));
+ const candidates=pool.filter(group=>group.length<=end-position&&group.every(map=>!order.includes(map)&&(map===8||map!==front.operationStage)));
  const weighted=candidates.map(group=>{
   const type=typeFor(group[0]), recovery=type===T.DEFENSE||type===T.BREAKTHROUGH, offensive=type===T.SABOTAGE||type===T.DECISIVE;
   const components=[

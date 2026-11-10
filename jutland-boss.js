@@ -1,6 +1,6 @@
-import {recordShipWake} from './naval-water.js?v=09c75d146ae4289d';
-import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {segmentDistance} from './alps-geometry117.js?v=09c75d146ae4289d';
+import {recordShipWake} from './naval-water.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {segmentDistance} from './alps-geometry117.js?v=b3bf991d11fc7798';
 
 export const JUTLAND_ENTRY_SECONDS=2.2;
 export const JUTLAND_HULL=Object.freeze({width:302,height:1050});

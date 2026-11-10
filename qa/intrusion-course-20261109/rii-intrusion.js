@@ -1,5 +1,5 @@
 /** R.II intrusion adapter. Native rear-quarter guns / external racks, plain network state. */
-import {followTurningArrival} from './giant-intrusion-arrival.js';
+import {followTurningArrival} from './giant-intrusion-arrival.js?v=b3bf991d11fc7798';
 import {LinkeHofmannRII,RII_LAYOUT,RII_WEAPON_ARCS} from './linke-hofmann-rii.js';
 import {drawRIIBoss,drawRIIReleasedBombs} from './linke-hofmann-rii-render.js';
 import {riiCollapseSites,riiCollapsePulse,queueRIICollapseFx} from './rii-destruction-fx.js';

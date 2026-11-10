@@ -1,18 +1,18 @@
-import {createFront,nextFrontMap,frontLength} from './dynamic-front.js?v=09c75d146ae4289d';
-import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=09c75d146ae4289d';
-import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js?v=09c75d146ae4289d';
-import {tickBossEntry} from './boss-entry-presentation.js?v=09c75d146ae4289d';
-import {beginBossArrival,tickBossArrival} from './boss-arrival.js?v=09c75d146ae4289d';
-import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js?v=09c75d146ae4289d';
-import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js?v=09c75d146ae4289d';
-import {gothaCrashPose} from './aircraft-crash.js?v=09c75d146ae4289d';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=09c75d146ae4289d';
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=09c75d146ae4289d';
-import {recordShipWake} from './naval-water.js?v=09c75d146ae4289d';
-import {predictPilot} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=09c75d146ae4289d';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=09c75d146ae4289d';
-import {BossHazards} from './headon-stageboss-hazards.js?v=09c75d146ae4289d';
+import {createFront,nextFrontMap,frontLength} from './dynamic-front.js?v=b3bf991d11fc7798';
+import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=b3bf991d11fc7798';
+import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js?v=b3bf991d11fc7798';
+import {tickBossEntry} from './boss-entry-presentation.js?v=b3bf991d11fc7798';
+import {beginBossArrival,tickBossArrival} from './boss-arrival.js?v=b3bf991d11fc7798';
+import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js?v=b3bf991d11fc7798';
+import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js?v=b3bf991d11fc7798';
+import {gothaCrashPose} from './aircraft-crash.js?v=b3bf991d11fc7798';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=b3bf991d11fc7798';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=b3bf991d11fc7798';
+import {recordShipWake} from './naval-water.js?v=b3bf991d11fc7798';
+import {predictPilot} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=b3bf991d11fc7798';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=b3bf991d11fc7798';
+import {BossHazards} from './headon-stageboss-hazards.js?v=b3bf991d11fc7798';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty
@@ -92,7 +92,7 @@ export class BossStages {
     this.phase='explore';resetFinalArenaRoute(this.finalArena);
     return {stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex};
   }
-  advance(blocked=false,{missionCompleted=false,frontResult}={}) {
+  advance(blocked=false,{missionCompleted=false,missionId=null,frontResult}={}) {
     if(blocked)return null;
     if(this.phase==='final-arena') {
       if(this.finalArena?.phase!=='cleared')return null;
@@ -107,9 +107,10 @@ export class BossStages {
       return{completedId,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex,finalArenaCompleted:true,finalArenaToken};
     }
     if(this.phase!=='clear-pending'||!this.encounter?.completed&&!missionCompleted)return null;
+    const id=this.encounter?.id||(missionCompleted?missionId:null);if(!id)return null;
     if(this.capitalEncounter&&this.capitalRound===0){const completedId=this.encounter.id;this.capitalRound=1;this.phase='explore';this.encounter=null;return {kind:'capital-final',completedId,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex,bossId:this.bossId};}
-    recordFinalArenaStage(this.finalArena,{order:this.order,stageIndex:this.stageIndex,loopIndex:this.loopIndex,completedId:this.encounter.id});
-    const id=this.encounter.id;const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
+    recordFinalArenaStage(this.finalArena,{order:this.order,stageIndex:this.stageIndex,loopIndex:this.loopIndex,completedId:id});
+    const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
     if(this.front){
       const signals=frontResult?.(this);
       if(this.orderPosition>=frontLength(this.front)){this.orderPosition--;return this.frontDecision(id);}
@@ -142,7 +143,16 @@ export class StageBossAddon {
     Object.assign(this,{runId,hooks,rng,minionCap,showFloors,presentArrivals});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng,finalArenaEnabled,runId,frontSeed,operationsEnabled,canEnterFinalArena:()=>hooks.canEnterFinalArena?.()===true});this.capitalDefeatReceipts=new Map();
     // A salvo re-aimed at the pilot's flight path may land at most two rounds on one pilot.
-    const onDamage=(pid,damage,h)=>{if(h?.leadAimed){const k=pid+'|'+h.bossId+'|'+h.signatureStarted,m=this.salvoHits??=new Map();const n=m.get(k)||0;if(n>=2)return;m.set(k,n+1);if(m.size>256)m.delete(m.keys().next().value);}return hooks.onDamage(pid,damage,h);};
+    const onDamage=(pid,damage,h,projectileHit)=>{
+      const encounter=this.stages.encounter,target=encounter?.bodies?.get(pid);
+      if(this.stages.stageIndex===17&&target){
+        const source=encounter.bodies.get(h.bossId),hit=projectileHit||target.locateHit({x:h.x,y:h.y,radius:h.radius||0});
+        if(source&&source.faction!==target.faction&&hit)this.hit({bodyId:pid,partId:hit.partId,damage,faction:source.faction});
+        return;
+      }
+      if(h?.leadAimed){const k=pid+'|'+h.bossId+'|'+h.signatureStarted,m=this.salvoHits??=new Map();const n=m.get(k)||0;if(n>=2)return;m.set(k,n+1);if(m.size>256)m.delete(m.keys().next().value);}
+      return hooks.onDamage(pid,damage,h);
+    };
     this.hazards=new BossHazards({capacity,onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
       onActivate:h=>{const cb=this.stages.encounter?.bodies.get(h.bossId),cp=cb?.parts.get(h.sourcePartId);cb?.noteAttackActivated?.(h);if(cb?.isCapitalBoss&&cp&&h.kind==='projectile'){cp.recoil=.24;cp.gunFlash=.12;hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.kind==='projectile'&&cp&&((cb.kind==='fliegerzug'&&['car-flak','car-rear'].includes(cp.id))||(cb.kind==='treffas-wagen'&&cp.id.startsWith('mg-')))){const flash=cp.gunFlash||0;cp.gunFlash=.16;cp.recoil=.18;if(Number.isFinite(h.sourceAngle)){cp.shotAngle=h.sourceAngle;cp.aimAngle=h.sourceAngle;}if(!h.basicMuzzle&&!flash)hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);if(body?.kind==='armored-harbor-fortress'){const m=basicBarrageMuzzle(body,h);if(m){h.x=m.x;h.y=m.y;}}hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,ordnanceFamily:h.ordnanceFamily,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
     this.canBasicFire=()=>this.hazards.pool.count<42;
@@ -183,7 +193,10 @@ export class StageBossAddon {
     if(bossId==='fort-douaumont'||bossId==='fort-souville')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     if(bossId==='mark4-wedge')tuning={...tuning,sommeApproach:true};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
-    const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
+    const dover=this.stages.stageIndex===17?this.hooks.getDoverMission?.({initialize:true}):null;
+    const wingId=bossId==='supermarine-nighthawk'?'siemens-schuckert-r-viii':'supermarine-nighthawk';
+    const doverWing=dover?.bossObjective?{id:wingId,destinationY:dover.destinationY,tuning:this.hooks.getTuning({bossId:wingId,stageIndex:17,loopIndex:this.stages.loopIndex})}:null;
+    const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,doverWing,emit:event=>this.accept(event,id,tuning)});
     for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||['a7v-flak','mark-v-cruiser','fliegerzug','armored-harbor-fortress'].includes(b.kind)||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];if(this.stages.front)encounter.frontStartedAt=this.time;this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival,entryBounds);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
   }
   // Boss rounds were laid at the spot a pilot occupied when the warning began.
@@ -279,7 +292,7 @@ export class StageBossAddon {
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
       if(body?.ruralRailBoss)this.hazards.clearBody(encounterId,body.id);
-      if((zubianHalf||['gotha-raider','o400-raider'].includes(body?.kind))&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,a:body.a,age:0,duration:zubianHalf?3.2:2.65});
+      if((zubianHalf||['gotha-raider','o400-raider','siemens-schuckert-r-viii','supermarine-nighthawk'].includes(body?.kind))&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,a:body.a,age:0,duration:zubianHalf?3.2:2.65});
       this.hooks.onCue({...event,encounterId,x:body?.x,y:body?.y,kind:body?.kind});
     }else if(event.type==='building-impact') {
       if(!this.frameContext||!this.hooks.onBuildingImpact({...event,encounterId}))return;
@@ -372,7 +385,13 @@ export class StageBossAddon {
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
-    else if(encounter&&!encounter.completed)encounter.update(dt,{...frame,canBasicFire:this.canBasicFire,isIlluminated:p=>this.hazards.isIlluminated(p)});
+    const doverRaid=this.stages.stageIndex===17&&this.hooks.getDoverMission?.()?.bossObjective
+      ?{faction:this.stages.teamFaction,bodies:[...encounter?.bodies.values()||[]].map(b=>({
+        id:b.id,kind:b.kind,faction:b.faction,alive:!b.dead&&!b.hidden&&!b.arrivalPending,
+        x:b.x,y:b.y,a:b.a,vx:b.velocityX||0,vy:b.velocityY||0,radius:b.coreRadius||25,
+        projectileHit:(h,x,y)=>b.locateHit({x:h.x,y:h.y,previousX:x,previousY:y,radius:h.radius||0})
+      }))}:null;
+    if(!this.defeatSequence&&encounter&&!encounter.completed)encounter.update(dt,{...frame,doverRaid,canBasicFire:this.canBasicFire,isIlluminated:p=>this.hazards.isIlluminated(p)});
     if(this.showFloors&&encounter&&!encounter.completed)this.settleBanked();
     for(const b of encounter?.bodies.values()||[]){const ship=b.support129||(b.kind.startsWith('hms-zubian')?b:null);if(ship&&!b.dead){if(b.support129)ship.hullYaw=ship.angle||0;recordShipWake(ship,dt,ship.height||950);}}
     // Queued rounds leave the actual surviving mount, even while the hull
@@ -397,7 +416,13 @@ export class StageBossAddon {
     });
     // Escort bombers are physical victims of the same warned, swept attacks.
     // They never enter the pilot prediction/trail arrays or other stages.
-    this.hazards.update(dt,frame.doverBombers?.length?{...frame,players:[...frame.players,...frame.doverBombers]}:frame);
+    if(doverRaid?.bodies.length){
+      const friendly=h=>encounter.bodies.get(h.bossId)?.faction===doverRaid.faction;
+      const allies=doverRaid.bodies.filter(b=>b.faction===doverRaid.faction);
+      const foes=doverRaid.bodies.filter(b=>b.faction!==doverRaid.faction);
+      this.hazards.update(dt,{...frame,players:[...frame.players,...allies,...(frame.doverBombers||[])]},h=>!friendly(h));
+      this.hazards.update(dt,{...frame,players:foes},friendly);
+    }else this.hazards.update(dt,frame.doverBombers?.length?{...frame,players:[...frame.players,...frame.doverBombers]}:frame);
     // What is actually in play (warned, flying or burning) is what keeps a boss from counting as silent.
     if(encounter&&!encounter.completed){let live=false;this.hazards.pool.visit(h=>{if(!live&&h.encounterId===encounter.id&&(h.damage>0||h.kind==='searchlight'||h.kind==='net'))live=true;});if(live||encounter.liveThreatAt==null)encounter.liveThreatAt=encounter.clock;}
     return true;
@@ -438,20 +463,29 @@ export class StageBossAddon {
     const encounter=this.stages.encounter;
     const dover=this.stages.stageIndex===17?this.hooks.getDoverMission?.():null;
     const laon=this.stages.stageIndex===19?this.hooks.getLaonMission?.():null;
-    if(dover&&encounter?.completed)dover.bossDefeated=true;
+    const candidate=this.hooks.getMapMission?.(),mission=candidate?.region===this.stages.stageIndex?candidate:null;
+    const mapExit=!!(mission?.resolved&&mission.success&&mission.exitReady);
+    if(dover?.bossObjective&&encounter&&!dover.bossDefeated){
+      const enemy=[...encounter.bodies.values()].find(b=>b.faction!==this.stages.teamFaction);
+      const stillFalling=this.bodyDefeats.some(d=>d.id===enemy?.id&&d.age<d.duration);
+      if(enemy?.dead&&!stillFalling){
+        dover.bossDefeated=true;
+        this.hooks.onEncounterCleared({id:encounter.id,bossId:encounter.bossId});
+      }
+    }else if(dover&&encounter?.completed)dover.bossDefeated=true;
     if(laon?.role==='defend'&&encounter?.completed)laon.airGroupDefeated=true;
-    const missionExit=!!((dover?.resolved||laon?.resolved&&laon.success&&laon.exitReady)&&encounter&&!encounter.completed);
-    if(missionExit&&!blocked&&this.stages.phase==='boss'){
+    const missionExit=mapExit||!!((dover?.resolved&&dover.success||laon?.resolved&&laon.success&&laon.exitReady)&&encounter&&!encounter.completed);
+    if(missionExit&&!blocked&&!encounter?.completed&&['explore','boss'].includes(this.stages.phase)){
       // The convoy result owns the exit. A surviving boss withdraws; it is not
       // killed, counted, or rewarded by the normal boss-clear path.
-      this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
-      for(const body of encounter.bodies.values())body.dispose?.();
+      if(encounter){this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
+      for(const body of encounter.bodies.values())body.dispose?.();}
       this.stages.phase='clear-pending';this.defeatSequence=null;
     }
     if(encounter?.completed&&this.stages.phase==='boss'&&!this.defeatSequence)this.beginDefeat(encounter);
     if(this.defeatSequence&&this.defeatSequence.age<this.defeatSequence.duration)return null;
     if(this.stages.poll()) {
-      if(!(this.stages.capitalEncounter&&this.stages.capitalRound===0))this.hooks.onEncounterCleared({id:encounter.id,bossId:encounter.bossId});
+      if(!dover?.bossObjective&&!(this.stages.capitalEncounter&&this.stages.capitalRound===0))this.hooks.onEncounterCleared({id:encounter.id,bossId:encounter.bossId});
       this.defeatSequence=null;
     }
     if(this.stages.phase==='clear-pending'&&this.stages.capitalRound===1){
@@ -462,7 +496,8 @@ export class StageBossAddon {
       }
     }
     if(laon?.success&&laon.exitReady&&this.stages.phase==='clear-pending')this.hooks.onLaonMissionCleared?.();
-    const transition=this.stages.advance(blocked||!!(dover&&!dover.resolved)||!!(laon&&(!laon.success||!laon.exitReady)),{missionCompleted:missionExit,frontResult:this.hooks.onFrontStageCleared});
+    if(mapExit&&!blocked&&this.stages.phase==='clear-pending')this.hooks.onMapMissionCleared?.(mission);
+    const transition=this.stages.advance(blocked||!!(dover&&(!dover.resolved||!dover.success))||!!(laon&&(!laon.success||!laon.exitReady))||!!(mission&&!mapExit),{missionCompleted:missionExit,missionId:mission?.id,frontResult:this.hooks.onFrontStageCleared});
     if(transition){if(transition.kind==='final-arena')this.hooks.onFinalArenaPending(transition);else if(transition.kind==='capital-final'){
       const defense=encounter.bossId==='berlin-drachen'?encounter.bodies.values().next().value:null;
       const lane=defense?.cityMineLane,berlinBreach=defense?{x:lane?.x??defense.x,width:lane?.width??130}:undefined;

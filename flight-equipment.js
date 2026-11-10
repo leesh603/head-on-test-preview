@@ -18,7 +18,7 @@ export function equipmentTargets(w){
 
 export function flightEquipmentAllowed(p,id){
  if(p?.upgrades?.[id])return false;
- if(id==='wimperisSight')return (p.rockets||0)>0||(p.mineCount||0)>0||!!p.upgrades?.cooperRack||['guynemer','bishop'].includes(p.pilot)||!!p.bomberTransfer&&p.bomberTransfer.kind!=='gunship'&&p.bomberTransfer.kind!=='airship';
+ if(id==='wimperisSight')return !!p.upgrades?.bomber||(p.rockets||0)>0||(p.mineCount||0)>0||!!p.upgrades?.cooperRack||['guynemer','bishop'].includes(p.pilot)||!!p.bomberTransfer&&p.bomberTransfer.kind!=='gunship'&&p.bomberTransfer.kind!=='airship';
  return id==='strutterAirbrake'&&!p.bomberTransfer&&!['bomberTransfer','mgTransfer','airshipTransfer'].some(id=>p.upgrades?.[id]);
 }
 
@@ -90,12 +90,13 @@ export function sampleWimperisMotion(p){
   observed.set(point.key,{x:point.x,y:point.y,t,vx,vy,valid:dt>0&&dt<=.2&&Math.hypot(vx,vy)<900});
  }
 }
-export function wimperisTarget(p,{x=p.x,y=p.y,heading=p.a,range=650,cone=.3,time=0,speed=0,front=0}={}){
+export function wimperisTarget(p,{x=p.x,y=p.y,heading=p.a,range=650,cone=.3,time=0,speed=0,front=0,filter}={}){
  // The WWI equipment layer supplies read-only, owner-local aim hints. They only
  // rank candidates that already passed the normal range, cone and part checks.
  const priorities=enabled(p)?p.equipmentAimPriorities?.()||[]:[];
  let best=null,score=Infinity,bestPriority=Infinity;
  for(const point of candidatePoints(p)){
+  if(filter&&!filter(point.entity))continue;
   const dx=point.x-x,dy=point.y-y,d=Math.hypot(dx,dy);
   if(d>range||Math.abs(delta(Math.atan2(dy,dx),heading))>cone)continue;
   const v=velocity(point);let t=time;

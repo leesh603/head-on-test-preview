@@ -1,14 +1,14 @@
-import {initializeRII,stepRIIMotion,stepRIICombat,beginRIIDestruction,stepRIIDestruction,locateRIIIntrusionHit} from './rii-intrusion.js';
-import {stepGiantArrivalShadow} from './giant-intrusion-arrival.js';
-import {initializeV1500,stepV1500Motion,stepV1500Combat,beginV1500Destruction,stepV1500Destruction} from './handley-page-v1500.js';
+import {initializeRII,stepRIIMotion,stepRIICombat,beginRIIDestruction,stepRIIDestruction,locateRIIIntrusionHit} from './rii-intrusion.js?v=b3bf991d11fc7798';
+import {stepGiantArrivalShadow} from './giant-intrusion-arrival.js?v=b3bf991d11fc7798';
+import {initializeV1500,stepV1500Motion,stepV1500Combat,beginV1500Destruction,stepV1500Destruction} from './handley-page-v1500.js?v=b3bf991d11fc7798';
 import {majorEncounterBlocked} from './encounter-admission.js';
 import {hullOverlap} from './adriatic-boss-layout.js?v=tame3';
 import {submarineObstacles,guardSubmarineMovement} from './naval-spacing.js?v=pandemonium394r2';
 /** Host-authoritative optional encounters. No stage advancement or regular-boss rewards. */
-import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact} from './submarine-intrusion.js';
+import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact} from './submarine-intrusion.js?v=b3bf991d11fc7798';
 import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import { intrusionLayout, ownHullClear } from './intrusion-boss-layouts.js';
-import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js';
+import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js?v=b3bf991d11fc7798';
 import {enqueueIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
 export const intrusionProfiles = Object.freeze({
  ...MARITIME_PROFILES,

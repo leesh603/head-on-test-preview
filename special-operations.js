@@ -25,10 +25,10 @@ export const SPECIAL_OPERATION_CARGO_HOLD = 3;
 export const SPECIAL_OPERATION_DEMOLITION = 14;
 
 // Keep the opening, the Laon/Paris approach and the faction capital in the
-// route. Reserve Cambrai for the rail operation and sample the other bands.
+// route. The rail operation is drawn separately from regular Cambrai.
 export function planOperationRoute(stages, pools, faction, rng) {
  const early = shuffle(pools.early, rng).slice(0, 2);
- const mid = shuffle(pools.mid.filter(i => stages[i] !== 'cambrai'), rng).slice(0, 3);
+ const mid = shuffle(pools.mid, rng).slice(0, 3);
  const late = shuffle(pools.late.filter(i => !['london', 'berlin', 'paris-night'].includes(stages[i])), rng)[0];
  const index = name => stages.indexOf(name);
  return [pools.opening, ...early, ...mid, late, index('laon'), index('paris-night'), index(faction === 'entente' ? 'berlin' : 'london')];
@@ -37,7 +37,7 @@ export function planOperationRoute(stages, pools, faction, rng) {
 export function rollOperationChoices(stages, route, rng) {
  const used = new Set(route.map(i => stages[i]));
  const available = Object.entries(SPECIAL_OPERATIONS).map(([id, spec]) => {
-  const maps = shuffle(spec.maps.filter(map => stages.includes(map) && !used.has(map)), rng);
+  const maps = shuffle(spec.maps.filter(map => stages.includes(map) && (id==='cargo'||!used.has(map))), rng);
   return {id, maps};
  }).filter(choice => choice.maps.length);
  return shuffle(available, rng).slice(0, 2).map(({id, maps}) => ({id, stageIndex: stages.indexOf(maps[0])}));

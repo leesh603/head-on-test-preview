@@ -1,5 +1,5 @@
 /** Optional sea encounters. Fictional WWI-inspired designs, not historical ship replicas. */
-import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack} from './submarine-intrusion.js';
+import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack} from './submarine-intrusion.js?v=b3bf991d11fc7798';
 export const isSubmarine=e=>isNewSubmarine(e)||(typeof e==='string'?e:e?.profileId)==='nachtwal';
 import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';

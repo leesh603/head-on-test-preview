@@ -1,4 +1,4 @@
-import {applyTerrainAtmosphere} from './alps-terrain117.js?v=09c75d146ae4289d';
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=b3bf991d11fc7798';
 // One coordinate scale for the painted city, the camera and river concealment.
 // Native art is cached without shrinking it; neighbouring tiles only translate.
 export const CAPITAL_TERRAIN_SIZE=2560;

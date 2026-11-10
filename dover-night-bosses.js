@@ -1,5 +1,5 @@
-import {doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {doverCliffRoute} from './dover-patrol-chart.js?v=b3bf991d11fc7798';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
 
 const freezeParts=parts=>Object.freeze(parts.map(Object.freeze));
 const freezePolys=polys=>Object.freeze(polys.map(poly=>Object.freeze(poly.map(point=>Object.freeze(point)))));
@@ -294,6 +294,7 @@ class DoverAircraft extends BaseBoss {
   wholeOutside(bounds){const e=this.airframeExtents();return this.x+e.x<bounds.left||this.x-e.x>bounds.right||this.y+e.y<bounds.top||this.y-e.y>bounds.bottom;}
   coreInside(bounds,margin=18){const q=this.coreOffset(),x=this.x+q.x,y=this.y+q.y;return x>=bounds.left+margin&&x<=bounds.right-margin&&y>=bounds.top+margin&&y<=bounds.bottom-margin;}
   beginSortie(bounds,worldBounds){
+    if(Number.isFinite(this.doverTransit))return false;
     if(this.sortieDone||!bounds)return false;this.sortieDone=true;this.sortieDropIndex=0;this.sortieDropClock=0;this.phaseClock=0;this.coreVulnerable=false;
     let flowX=this.patrolFlowX,flowY=this.patrolFlowY;const flow=Math.hypot(flowX,flowY),fx=flow>30?flowX/flow:0,fy=flow>30?flowY/flow:-1,nx=-fy,ny=fx,extent=this.airframeExtents();
     if(worldBounds){const marginX=extent.x+100,marginY=extent.y+100;if(this.x<=worldBounds.left+marginX&&flowX<0||this.x>=worldBounds.right-marginX&&flowX>0)flowX=0;if(this.y<=worldBounds.top+marginY&&flowY<0||this.y>=worldBounds.bottom-marginY&&flowY>0)flowY=0;}
@@ -539,7 +540,15 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     let left=0,right=0;for(const id of RVIII_LEFT_DRIVES)if(!this.partAlive(id))left++;for(const id of RVIII_RIGHT_DRIVES)if(!this.partAlive(id))right++;
     this.easeSpeed(112*this.speedRatio(),18,dt);const turn=this.coreVulnerable||this.phase==='bomb-exit'||this.phase==='recovery-return'?Math.max(this.wings()===2?.4:.28,1.2):this.alignIntent?(this.wings()===2?1.2:.8):this.wings()===2?.4:.28,asymmetry=(left-right)*.075,chart=mapBounds||worldBounds;
     if(!disarmed&&this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateSortie(dt,bounds,chart,turn,asymmetry);return;}
-    const bombing=this.phase==='bomb-approach'||this.phase==='bomb-run';if(bombing)this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+.45);this.fly(dt,players,bounds,this.currentSpeed,turn,asymmetry,bombing?this.runAngle:null,bombing?this.runGroundSpeed:null,chart);
+    const bombing=this.phase==='bomb-approach'||this.phase==='bomb-run';
+    if(bombing)this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+.45);
+    let heading=bombing?this.runAngle:null,speed=bombing?this.runGroundSpeed:null;
+    if(chart&&Number.isFinite(this.doverTransit)){
+      const y=Math.max(this.doverTransit,this.y-420),point=doverCliffRoute(chart,y,560,0);
+      heading=-Math.PI/2+clamp(Math.atan2(point.x-this.x,Math.max(260,this.y-y)),-.65,.65);
+      speed=142*this.speedRatio();
+    }
+    this.fly(dt,players,bounds,this.currentSpeed,turn,asymmetry,heading,speed,chart);
     if(disarmed){this.updateDisarmed(dt);return;}if(this.updateRecoveryReturn(bounds))return;
     if(this.convoyAnchor&&!this.coreVulnerable&&!this.phase.startsWith('sortie-')){
       this.convoyCoverClock=Math.max(0,(this.convoyCoverClock||0)-dt);

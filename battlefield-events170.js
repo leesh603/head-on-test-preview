@@ -1,13 +1,13 @@
-import {majorEncounterBlocked} from './encounter-admission.js?v=09c75d146ae4289d';
-import {mapCombatMissionPool,automaticMapMissionsAllowed,prioritizeMapConvoy} from './map-combat-roles.js?v=09c75d146ae4289d';
-import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js?v=09c75d146ae4289d';
-import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
-import {activeFronts,tickRuralFronts} from './rural-fronts.js?v=09c75d146ae4289d';
-import {achievementMission} from './achievements.js?v=09c75d146ae4289d';
-import {doverFlightBounds} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=09c75d146ae4289d';
-import {JUTLAND_ROUTE} from './jutland-route.js?v=09c75d146ae4289d';
-import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=09c75d146ae4289d';
+import {majorEncounterBlocked} from './encounter-admission.js?v=b3bf991d11fc7798';
+import {mapCombatMissionPool,automaticMapMissionsAllowed,prioritizeMapConvoy} from './map-combat-roles.js?v=b3bf991d11fc7798';
+import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js?v=b3bf991d11fc7798';
+import {intrusionActive} from './intrusion-bosses.js?v=b3bf991d11fc7798';
+import {activeFronts,tickRuralFronts} from './rural-fronts.js?v=b3bf991d11fc7798';
+import {achievementMission} from './achievements.js?v=b3bf991d11fc7798';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=b3bf991d11fc7798';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=b3bf991d11fc7798';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=b3bf991d11fc7798';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=b3bf991d11fc7798';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
  HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY',TRANSPORT_CONVOY:'TRANSPORT_CONVOY'

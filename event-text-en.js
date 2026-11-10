@@ -1,8 +1,8 @@
 // English for in-game event toasts that were only written in Korean.
 // Presentation only: wraps Game#event to swap the display text when the
 // locale is English. Short technical tokens ('balloon', 'heal', …) pass through.
-import {getLocale,activeName,pilotName} from './i18n.js?v=09c75d146ae4289d';
-import {MAP_OPERATION_PHRASES} from './map-operation-flow.js?v=09c75d146ae4289d';
+import {getLocale,activeName,pilotName} from './i18n.js?v=b3bf991d11fc7798';
+import {MAP_OPERATION_PHRASES} from './map-operation-flow.js?v=b3bf991d11fc7798';
 
 
 const EXACT = {

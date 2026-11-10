@@ -1,7 +1,8 @@
 // The map objective owns the route and result; existing aircraft movement,
 // targeting, bullets and patrol damage own every combat interaction.
+import {registerMaanReconFacility} from './ground-facility-missions.js?v=b3bf991d11fc7798';
 export const AIR_MAP_MISSION_BALANCE=Object.freeze({
- skyWaves:3,skyWaveSize:3,skyGoal:7,skyLeaks:3,skyWarning:3,skyGap:18,skyLimit:112,
+ arrasTotal:9,arrasWave:3,arrasGoal:6,arrasGap:22,arrasLimit:105,
  reconHp:240,reconSpeed:132,reconPhotoRadius:180,reconPhotoSeconds:3,reconExitRadius:170,reconLimit:110,reconThreatCap:4
 });
 const B=AIR_MAP_MISSION_BALANCE;
@@ -22,69 +23,61 @@ function spawn(g,type){
  finally{[g.directorSpawning,g.bossMechanicSpawn,g.battlefieldEventSpawning]=flags;}
 }
 
-function warnSkyWave(g,m){
- const s=m.air,p=pilot(g);if(!p)return;
- const heading=(p.a??-Math.PI/2)+(s.waves%2?-1:1)*Math.PI/2,v=viewport(g);
- const center=at(p,p.a??-Math.PI/2,160),span=Math.hypot(v.w,v.h)+240;
- s.pending={heading,center,span,spawned:0,at:m.age+B.skyWarning,nextTry:0};
- say(g,`폭격 편대 ${s.waves+1}/${B.skyWaves}파 접근 · 진입 반대편으로 돌파하기 전에 요격하세요`);
+function missionPlane(m,start,heading,route,altitude){
+ return {...start,a:heading,plane:'re8',faction:'entente',name:'R.E.8 임무기',mapMissionId:m.id,operationTarget:true,
+  hp:180,maxHp:180,life:Infinity,speed:150,altitude,fire:.4,invuln:0,hitFlash:0,think:0,pass:0,target:null,frontEscortRoute:route,waypoint:route};
 }
-
-function launchSkyWave(g,m){
- const s=m.air,q=s.pending;if(!q||m.age<q.at||m.age<q.nextTry)return;
- const left=B.skyWaveSize-q.spawned;
- if(!room(g,left)){q.nextTry=m.age+1;return;}
- for(let i=q.spawned;i<B.skyWaveSize;i++){
-  const e=spawn(g,'bomber');if(!e){q.nextTry=m.age+1;return;}
-  const side=(i-1)*105,back=Math.abs(i-1)*85,origin=at(at(q.center,q.heading,-q.span-back),q.heading+Math.PI/2,side);
-  const exitDistance=q.span*2+220+back;
-  Object.assign(e,{...origin,a:q.heading,mapMissionId:m.id,mapAirBomber:true,missionTarget:true,
-   faction:m.faction==='central'?'entente':'central',ace:false,arrivalAuthored:true,arrivalPending:false,
-   eventExit:true,eventExitHeading:q.heading,eventExitOrigin:{...origin},eventExitDistance:exitDistance,
-   frontRoute:at(origin,q.heading,exitDistance+1800),fire:1.3+i*.25,altitude:pilot(g)?.altitude});
-  // A fixed cruise gives every bounded wave time to cross the interception lane.
-  e.speed=Math.max(110,Math.min(150,e.speed||110));s.targets.push(e);q.spawned++;
- }
- s.waves++;s.nextAt=m.age+B.skyGap;s.pending=null;
-}
-
-function tickSky(g,m){
- const s=m.air;
- for(const e of s.targets){
-  if(e.mapAirResult)continue;
-  // Crash animation and corpse drift beyond the exit never become a leak.
-  if(e.hp<=0||e.deathHandled||e.deathCounted||e.crashing||e.crashed){e.mapAirResult='down';s.down++;continue;}
-  const a=e.eventExitHeading,o=e.eventExitOrigin,travel=(e.x-o.x)*Math.cos(a)+(e.y-o.y)*Math.sin(a);
-  if(travel>=e.eventExitDistance||e.expired){
-   e.mapAirResult='escaped';e.missionTarget=false;e.eventExit=false;e.expired=true;s.escaped++;
-   const index=g.enemies?.indexOf(e)??-1;if(index>=0)g.enemies.splice(index,1);
-   say(g,`폭격기 돌파 ${s.escaped}/${B.skyLeaks} · 3대 돌파 시 임무 실패`);
+function tickArras(g,m){
+ const s=m.air,protect=m.faction==='entente',heading=m.heading,p=pilot(g),altitude=p.altitude;
+ if(s.launched<B.arrasTotal&&m.age>=s.nextAt){
+  const lane=(s.launched%B.arrasWave-1)*155;
+  const start=at(at(m.origin,heading,-700),heading+Math.PI/2,lane),exit=at(start,heading,6900);
+  const e=protect?missionPlane(m,start,heading,exit,altitude):spawn(g,'bomber');
+  if(e){
+   if(protect)(g.patrols??=[]).push(e);
+   else Object.assign(e,{...start,a:heading,escortPlane:'re8',faction:'entente',hp:180,maxHp:180,altitude,speed:150,
+    mapMissionId:m.id,missionTarget:true,arrivalAuthored:true,arrivalPending:false,airArrival:null,frontRoute:at(exit,heading,1000)});
+   s.planes.push({e,exit});s.launched++;
+   s.nextAt=m.age+(s.launched%B.arrasWave===0?B.arrasGap:.45);
   }
  }
- const active=s.targets.filter(e=>!e.mapAirResult);
- m.title=['고공 폭격 편대 요격','HIGH-ALTITUDE INTERCEPTION'];
- m.task=[`폭격기 ${s.down}/${B.skyGoal}대 요격 · 돌파 ${s.escaped}/${B.skyLeaks}`,`Bombers down ${s.down}/${B.skyGoal} · Escaped ${s.escaped}/${B.skyLeaks}`];
- m.detail=[`${s.waves}/${B.skyWaves}파 · 비행선은 엄호 전력입니다`,`Wave ${s.waves}/${B.skyWaves} · The airship covers the raid`];
- m.guides=active.map(e=>({x:e.x,y:e.y,kind:'target',label:['요격 표적','INTERCEPT']}));
- if(s.escaped>=B.skyLeaks)return finish(m,false,'폭격기 3대 돌파 · 요격선 붕괴','Three bombers escaped · interception line lost');
- if(s.down>=B.skyGoal)return finish(m,true,'폭격기 7대 요격 · 공습 저지','Seven bombers intercepted · raid stopped');
- if(m.age>=m.limit)return finish(m,false,'요격 시간 초과','Interception time expired');
- if(!s.pending&&s.waves<B.skyWaves&&!active.length&&m.age>=s.nextAt)warnSkyWave(g,m);
- launchSkyWave(g,m);
- if(s.pending)m.detail=[`${s.waves+1}파 접근 · ${Math.max(0,Math.ceil(s.pending.at-m.age))}초`,`Wave ${s.waves+1} approaching · ${Math.max(0,Math.ceil(s.pending.at-m.age))}s`];
+ for(const q of s.planes){
+  const {e,exit}=q;if(q.result)continue;
+  if(e.hp<=0||e.crashing||e.crashed){q.result='down';s.down++;continue;}
+  if(e.expired||!(protect?g.patrols:g.enemies)?.includes(e)){q.result='missing';continue;}
+  const dx=e.x-exit.x,dy=e.y-exit.y;
+  if(dx*Math.cos(heading)+dy*Math.sin(heading)>=-95&&Math.abs(dy*Math.cos(heading)-dx*Math.sin(heading))<=165){
+   q.result='home';s.home++;e.expired=true;e.missionTarget=false;
+   const list=protect?g.patrols:g.enemies;list.splice(list.indexOf(e),1);
+  }
+ }
+ const active=s.planes.filter(q=>!q.result),progress=protect?s.home:s.down;
+ m.task=protect?['임무기 안전 귀환 '+progress+'/'+B.arrasGoal,'Mission aircraft returned '+progress+'/'+B.arrasGoal]:
+  ['적 임무기 격추 '+progress+'/'+B.arrasGoal,'Mission aircraft intercepted '+progress+'/'+B.arrasGoal];
+ m.detail=['임무기 출격 '+s.launched+'/'+B.arrasTotal,'Mission aircraft launched '+s.launched+'/'+B.arrasTotal];
+ m.guides=active.map(({e})=>({x:e.x,y:e.y,kind:protect?'ally':'target',label:['임무기','MISSION AIRCRAFT']}));
+ if(protect&&active.length&&m.age>=s.nextSweep){
+  const target=active[0].e;
+  for(const side of [-1,1]){const e=spawn(g,'hunter');if(e){const q=pursuerPosition(g,target,side);Object.assign(e,{...q,a:Math.atan2(target.y-q.y,target.x-q.x),mapMissionId:m.id,operationEscortTarget:target,altitude,airArrival:null,arrivalAuthored:true,arrivalPending:false});}}
+  s.nextSweep=m.age+14;
+ }
+ if(progress>=B.arrasGoal&&g.stageBoss.stages.encounter)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
+ if(progress+active.length+B.arrasTotal-s.launched<B.arrasGoal)return finish(m,false,'아라스 제공 임무 실패','Arras air mission failed');
  return null;
 }
 
 function beginRecon(g,m,p){
  const heading=p.a??-Math.PI/2,v=viewport(g),start=at(p,heading,-Math.hypot(v.w,v.h)-140);
- const route=[at(p,heading,850),at(at(p,heading,2050),heading+Math.PI/2,310),at(at(p,heading,3250),heading-Math.PI/2,240)];
+ const facilities=[registerMaanReconFacility(g,m,'airfield',at(p,heading,1000)),
+  registerMaanReconFacility(g,m,'signal',at(at(p,heading,2900),heading+Math.PI/2,310))];
+ const route=[...facilities,null];
  const exit=at(p,heading,-550);
  const scout={...start,a:heading,plane:m.faction==='central'?'dfw_cv':'re8',faction:m.faction,
   name:m.faction==='central'?'DFW C.V 사진정찰기':'R.E.8 사진정찰기',mapMissionId:m.id,operationTarget:true,
   hp:B.reconHp,maxHp:B.reconHp,life:Infinity,speed:B.reconSpeed,altitude:p.altitude,
   fire:.4,invuln:0,hitFlash:0,think:0,pass:0,target:null,frontEscortRoute:route[0],waypoint:route[0]};
  (g.patrols??=[]).push(scout);
- m.air={kind:'recon',scout,route,exit,photos:0,hold:0,threats:[],sweeps:0,nextSweepAt:m.age+9,aceDueAt:null,aceTriedAt:-Infinity};
+ m.air={kind:'recon',scout,route,facilities,exit,photos:0,hold:0,threats:[],sweeps:0,nextSweepAt:m.age+9,aceDueAt:null,aceTriedAt:-Infinity};
  say(g,'정찰기 합류 · 촬영 지점 3곳을 엄호한 뒤 아군 전선까지 귀환시키세요');
 }
 
@@ -99,7 +92,8 @@ function pursuerPosition(g,target,side){
 }
 
 function sendPursuer(g,m,type,side){
- const s=m.air,target=s.scout;if(!room(g,1)||s.threats.filter(alive).length>=B.reconThreatCap)return null;
+ const s=m.air,target=s.scout,cap=type==='boss'?B.reconThreatCap:B.reconThreatCap-1;
+ if(!room(g,1)||s.threats.filter(alive).length>=cap)return null;
  const e=spawn(g,type);if(!e)return null;
  const position=pursuerPosition(g,target,side);
  Object.assign(e,{...position,a:Math.atan2(target.y-position.y,target.x-position.x),mapMissionId:m.id,
@@ -110,27 +104,30 @@ function sendPursuer(g,m,type,side){
 
 function reconPressure(g,m){
  const s=m.air;
- if(s.sweeps<2&&m.age>=s.nextSweepAt){
+ if(s.sweeps<(s.facilities[0].destroyed?1:2)&&m.age>=s.nextSweepAt){
   if(s.threats.filter(alive).length<=B.reconThreatCap-2&&room(g,2)){
    const made=[sendPursuer(g,m,'hunter',-1),sendPursuer(g,m,'hunter',1)].filter(Boolean);
    if(made.length){s.sweeps++;s.nextSweepAt=m.age+23;say(g,'적 추격 편대 접근 · 정찰기의 후방을 지키세요');}
    else s.nextSweepAt=m.age+2;
   }else s.nextSweepAt=m.age+2;
  }
- if(s.photos>=2&&s.aceDueAt==null){s.aceDueAt=m.age+4;say(g,'적 에이스 접근 · 촬영을 마친 정찰기를 추격합니다');}
- if(s.aceDueAt!=null&&!s.ace&&m.age>=s.aceDueAt&&m.age-s.aceTriedAt>=2){
+ if(s.photos>=2&&!s.facilities[1].destroyed&&s.aceDueAt==null){s.aceDueAt=m.age+4;say(g,'적 에이스 접근 · 촬영을 마친 정찰기를 추격합니다');}
+ if(s.aceDueAt!=null&&!s.facilities[1].destroyed&&!s.ace&&m.age>=s.aceDueAt&&m.age-s.aceTriedAt>=2){
   s.aceTriedAt=m.age;s.ace=sendPursuer(g,m,'boss',1);
  }
 }
 
 function tickRecon(g,m,dt){
  const s=m.air,p=s.scout,returning=s.photos>=s.route.length;
- m.title=['아라스 사진정찰 호위','ARRAS RECONNAISSANCE ESCORT'];
+ if(!alive(p)||!g.patrols?.includes(p))return finish(m,false,'정찰기 상실 · 촬영 자료 소실','Reconnaissance aircraft lost · photographs lost');
+ const landship=[...g.stageBoss.stages.encounter?.bodies?.values()||[]].find(b=>['wustenpanzer','sinai-landship'].includes(b.kind));
+ if(landship&&!landship.arrivalPending)s.route[2]={x:landship.x,y:landship.y};
  m.task=returning?['정찰기를 아군 전선까지 귀환시키세요','Escort the reconnaissance aircraft home']:[`촬영 ${s.photos}/3 · 정찰기가 촬영 구역에서 3초 체공`,`Photos ${s.photos}/3 · Keep the aircraft in each photo area for 3s`];
  m.detail=[`정찰기 ${Math.max(0,Math.ceil(p.hp))}/${p.maxHp}`+(returning?' · 귀환 중':` · 촬영 ${s.hold.toFixed(1)}/3초`),`Aircraft ${Math.max(0,Math.ceil(p.hp))}/${p.maxHp}`+(returning?' · Returning':` · Photo ${s.hold.toFixed(1)}/3s`)];
  const target=returning?s.exit:s.route[s.photos];
- m.guides=[{x:p.x,y:p.y,kind:'ally',label:['정찰기 엄호','PROTECT RECON']},{...target,kind:returning?'exit':'target',label:returning?['귀환 지점','RETURN POINT']:[`촬영 ${s.photos+1}/3`,`PHOTO ${s.photos+1}/3`]}];
- if(!alive(p)||!g.patrols?.includes(p))return finish(m,false,'정찰기 상실 · 촬영 자료 소실','Reconnaissance aircraft lost · photographs lost');
+ if(!target){p.frontEscortRoute=s.route[1];m.detail=['육상함 집결지 식별 중','Locating the landship position'];reconPressure(g,m);return null;}
+ const names=[['격납고','Hangar'],['통신본부','Signal HQ'],['중포·육상함 집결지','Landship artillery position']];
+ m.guides=[{x:p.x,y:p.y,kind:'ally',label:['정찰기 엄호','PROTECT RECON']},{...target,kind:returning?'exit':'target',label:returning?['귀환 지점','RETURN POINT']:names[s.photos]}];
  if(returning){
   p.frontEscortRoute=s.exit;
   if(distance(p,s.exit)<=B.reconExitRadius)return finish(m,true,'정찰기 귀환 · 촬영 자료 확보','Reconnaissance aircraft home · photographs secured');
@@ -152,13 +149,13 @@ function tickRecon(g,m,dt){
 }
 
 export function tickAirMapMission(g,m,dt){
- if(!g||!m||![5,9].includes(m.region)||g.state!=='playing'||g.online&&!g.host||!(dt>0))return null;
+ if(!g||!m||![9,13].includes(m.region)||g.state!=='playing'||g.online&&!g.host||!(dt>0))return null;
  if(m.air?.result)return m.air.result;
  if(m.status!=='active')return null;
  const p=pilot(g);if(!p)return null;
  if(!m.air){
-  if(m.region===5){m.limit=B.skyLimit;m.air={kind:'intercept',waves:0,targets:[],down:0,escaped:0,nextAt:m.age,pending:null};}
+  if(m.region===9){m.limit=B.arrasLimit;m.air={kind:'sortie',planes:[],launched:0,down:0,home:0,nextAt:m.age,nextSweep:8};}
   else{m.limit=B.reconLimit;beginRecon(g,m,p);}
  }
- return m.region===5?tickSky(g,m):tickRecon(g,m,Math.min(.1,dt));
+ return m.region===9?tickArras(g,m):tickRecon(g,m,Math.min(.1,dt));
 }

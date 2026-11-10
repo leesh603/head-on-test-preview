@@ -1,13 +1,13 @@
-import {getLocale} from './i18n.js?v=09c75d146ae4289d';
-import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=09c75d146ae4289d';
-import {drawFormationEdgeBadge} from './tactical-marks.js?v=09c75d146ae4289d';
-import {finalArenaBosses} from './pandemonium-registry.js?v=09c75d146ae4289d';
-import {drawBoss as drawAsymmetric,loadAssets as loadAsymmetric,profile as asymmetricProfile} from './pandemonium-a-render.js?v=09c75d146ae4289d';
-import {drawBoss as drawFactory,loadAssets as loadFactory,profile as factoryProfile} from './pandemonium-factory-render.js?v=09c75d146ae4289d';
-import {drawFortress,loadFortressArt} from './fortress-render.js?v=09c75d146ae4289d';
-import {drawFortressModules,drawFortressCombatWorld} from './fortress-systems-render.js?v=09c75d146ae4289d';
-import {fx as sharedFX} from './fx-art.js?v=09c75d146ae4289d';
-import {fx as fortressFX,fxArtReady as fortressFXReady} from './combat-fx196.js?v=09c75d146ae4289d';
+import {getLocale} from './i18n.js?v=b3bf991d11fc7798';
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=b3bf991d11fc7798';
+import {drawFormationEdgeBadge} from './tactical-marks.js?v=b3bf991d11fc7798';
+import {finalArenaBosses} from './pandemonium-registry.js?v=b3bf991d11fc7798';
+import {drawBoss as drawAsymmetric,loadAssets as loadAsymmetric,profile as asymmetricProfile} from './pandemonium-a-render.js?v=b3bf991d11fc7798';
+import {drawBoss as drawFactory,loadAssets as loadFactory,profile as factoryProfile} from './pandemonium-factory-render.js?v=b3bf991d11fc7798';
+import {drawFortress,loadFortressArt} from './fortress-render.js?v=b3bf991d11fc7798';
+import {drawFortressModules,drawFortressCombatWorld} from './fortress-systems-render.js?v=b3bf991d11fc7798';
+import {fx as sharedFX} from './fx-art.js?v=b3bf991d11fc7798';
+import {fx as fortressFX,fxArtReady as fortressFXReady} from './combat-fx196.js?v=b3bf991d11fc7798';
 const fx=(...args)=>fortressFX(...args)||sharedFX(...args);
 
 // Rendering uses world coordinates shared with the host. No simulation is stepped here.

@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
-import {impactMark} from './tactical-marks.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {impactMark} from './tactical-marks.js?v=b3bf991d11fc7798';
 // Painted layers measured in art-delivery/layer-metadata.json (1800 x 900).
 // No class methods: the same renderer accepts a plain coop snapshot.
 const images=new Map(),loads=new Map();

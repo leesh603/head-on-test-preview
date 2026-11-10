@@ -1,16 +1,16 @@
-import {portraitThumbnailSource} from './portraits.js?v=09c75d146ae4289d';
+import {portraitThumbnailSource} from './portraits.js?v=b3bf991d11fc7798';
 /* Phone lobby (420). Presentation only: the key art and logo own the screen,
    the selected aircraft is named under them, then mode tabs, the sortie
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=09c75d146ae4289d';
-import {hangarArt, hangarArtLayout} from './hangar-art.js?v=09c75d146ae4289d';
+import {aircraftKey} from './aircraft.js?v=b3bf991d11fc7798';
+import {hangarArt, hangarArtLayout} from './hangar-art.js?v=b3bf991d11fc7798';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=09c75d146ae4289d';
-import {aircraftFeelRatings} from './aircraft-feel174.js?v=09c75d146ae4289d';
-import {t} from './i18n.js?v=09c75d146ae4289d';
-import {waitForLobbyIcons} from './lobby-assets-ready.js?v=09c75d146ae4289d';
+import {PLANES} from './engine.js?v=b3bf991d11fc7798';
+import {aircraftFeelRatings} from './aircraft-feel174.js?v=b3bf991d11fc7798';
+import {t} from './i18n.js?v=b3bf991d11fc7798';
+import {waitForLobbyIcons} from './lobby-assets-ready.js?v=b3bf991d11fc7798';
 const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';

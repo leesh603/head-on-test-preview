@@ -1,5 +1,5 @@
-import {combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
-import {airThreatMuzzles,aaMuzzle} from './air-threat-profiles.js?v=09c75d146ae4289d';
+import {combatDamageTime} from './front-performance.js?v=b3bf991d11fc7798';
+import {airThreatMuzzles,aaMuzzle} from './air-threat-profiles.js?v=b3bf991d11fc7798';
 // Existing volley schedules call these helpers. They create no extra enemies,
 // timers or prototype layers, and cap fire well below the previous 45-round volley.
 function protectedUnit(e){return !e?.airThreatArt||e.stageBossBody||e.bossMinion||e.bossPilot;}
@@ -37,7 +37,7 @@ export function configureFlakSource(source,rounds,size=66){
 export function tickAirThreatObservation(g,dt){
  if(g.state!=='playing'||g.online&&g.host===false)return;
  const region=g.worldRegion?.()??g.region??0,step=Math.min(.04,Math.max(0,dt));
- const observers=(g.enemies||[]).filter(e=>e.fieldUnit==='balloon'&&e.airThreatArt&&e.fieldRegion===region);
+ const observers=(g.enemies||[]).filter(e=>e.fieldUnit==='balloon'&&e.airThreatArt&&e.fieldRegion===region&&!e.mapAlpsObserver);
  for(const e of observers)noteAirThreatObserverDown(g,e);
  const live=observers.filter(e=>e.hp>0&&!e.expired),pilots=(g.players||[g]).filter(p=>p.hp>0&&(!p.status||p.status==='alive'));
  if(!live.length||(g.obsBlackoutUntil||0)>(g.t||0)||g.stageBoss?.stages?.phase==='boss'){g.airThreatObservationT=7;return;}
@@ -47,6 +47,6 @@ export function tickAirThreatObservation(g,dt){
 }
 
 export function noteAirThreatObserverDown(g,e){
- if(e?.fieldUnit!=='balloon'||!e.airThreatArt||e.hp>0||e._obsDown)return false;
+ if(e?.fieldUnit!=='balloon'||!e.airThreatArt||e.hp>0||e._obsDown||e.mapAlpsObserver)return false;
  e._obsDown=true;g.obsBlackoutUntil=Math.max(g.obsBlackoutUntil||0,(g.t||0)+12);g.spottedUntil=0;g.airThreatObservationT=7;g.event?.('flak','관측기구 격추 · 12초간 관측포격 중단');return true;
 }

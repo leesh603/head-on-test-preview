@@ -1,10 +1,10 @@
 // Black Heart: accepted close contacts earn pressure. Paired shots use real ammo and collision.
-import {signatureState,signatureCue,signatureInterval,activatePilotSignature,nungesserState} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {finalArenaBosses} from './pandemonium-registry.js?v=09c75d146ae4289d';
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
-import {modGunDamage} from './weapon-modifications.js?v=09c75d146ae4289d';
-import {bishopGlovesLifetime} from './equipment-flight-balance.js?v=09c75d146ae4289d';
+import {signatureState,signatureCue,signatureInterval,activatePilotSignature,nungesserState} from './pilot-signature-state.js?v=b3bf991d11fc7798';
+import {finalArenaBosses} from './pandemonium-registry.js?v=b3bf991d11fc7798';
+import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {isReplacementPrimary} from './pilot-primary.js?v=b3bf991d11fc7798';
+import {modGunDamage} from './weapon-modifications.js?v=b3bf991d11fc7798';
+import {bishopGlovesLifetime} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
 export const NUNGESSER_BALANCE=Object.freeze({activeSeconds:5,rate:1.35,speed:1.25,turn:1.15,reload:1.35,followupDelay:.065,followupDamage:.75,passiveDamage:.3,engagementHits:3,contactStep:.08,gapSeconds:1.2,closeRange:260,boostSeconds:3,rearmSeconds:4,memorySeconds:8,contactCap:64,pendingCap:8,aimRange:780,aimPad:18});
 const B=NUNGESSER_BALANCE,INSTALLED=Symbol.for('headon.nungesser-combat.v3'),runtime=new WeakMap();
 const owner=p=>p.id??'p1',world=p=>p.combatWorld?.()||p.world||p;

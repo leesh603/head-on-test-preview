@@ -1,5 +1,5 @@
-import {updateBasicBarrage,breakSilence} from './boss-basic-barrage.js?v=09c75d146ae4289d';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
+import {updateBasicBarrage,breakSilence} from './boss-basic-barrage.js?v=b3bf991d11fc7798';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=b3bf991d11fc7798';
 // Where a pilot will be after t seconds if it keeps doing what it is doing:
 // straight flight, or the turn it is in (omega rad/s, set by the boss runtime).
 export function predictPilot(p,t){
@@ -212,8 +212,15 @@ export class BossEncounter {
       else{b.x=b.anchorX+Math.sin(b.motionTime*pace)*span;
         b.y=b.anchorY+Math.sin(b.motionTime*pace)*(armor?65:fixed?0:rail?95:ship?55:30);}
     }
-    b.update(dt,ctx);
-    if(!updateBasicBarrage(b,dt,ctx)&&typeof b.suppressive==='function')b.suppressive(dt,ctx.players);
+    let combat=ctx;
+    if(ctx.doverRaid){
+      const {faction,bodies}=ctx.doverRaid;
+      const foes=bodies.filter(q=>q.faction!==b.faction&&q.alive);
+      const bomber=foes.find(q=>q.kind==='siemens-schuckert-r-viii');
+      combat={...ctx,players:b.faction===faction?foes:[...foes,...ctx.players],doverConvoy:bomber?[bomber]:[]};
+    }
+    b.update(dt,combat);
+    if(!updateBasicBarrage(b,dt,combat)&&typeof b.suppressive==='function')b.suppressive(dt,combat.players);
   }if(this.bossId==='hms-zubian')separateZubianHalves(this);breakSilence(this,dt,ctx);}
   snapshot() {
     let hp=0,aliveParts=0,totalParts=0,shielded=false,formationAlive=0,formationTotal=0;const phases=[];

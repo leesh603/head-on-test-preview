@@ -3,9 +3,9 @@
 <h1>난입 보스 공격 검증 · 2026-11-05</h1><button id="all">12종 × PC/모바일 × 직진/선회 검사</button><pre id="result">준비 중</pre>
 <select id="boss"></select><select id="size"><option value="390">모바일 390×844</option><option value="1280">PC 1280×800</option></select><select id="motion"><option value="orbit">선회</option><option value="straight">직진</option></select><button id="prepare">실제 엔진 준비</button><button id="step">2초 진행</button><button id="live">실시간 진행</button><pre id="liveResult"></pre><canvas id="canvas"></canvas><div id="table"></div>
 <script type="module">
-import{forceIntrusionForTest,stepIntrusion,intrusionProfiles}from'./intrusion-bosses.js';
-import{Game}from'./engine.js';import{enableStageBoss}from'./stageboss-host.js';
-import{prepareIntrusionArt}from'./intrusion-boss-art.js';import{drawIntrusionLayer}from'./intrusion-boss-view.js';
+import{forceIntrusionForTest,stepIntrusion,intrusionProfiles}from'./intrusion-bosses.js?v=b3bf991d11fc7798';
+import{Game}from'./engine.js?v=b3bf991d11fc7798';import{enableStageBoss}from'./stageboss-host.js?v=b3bf991d11fc7798';
+import{prepareIntrusionArt}from'./intrusion-boss-art.js?v=b3bf991d11fc7798';import{drawIntrusionLayer}from'./intrusion-boss-view.js?v=b3bf991d11fc7798';
 const $=id=>document.getElementById(id),rows=[];let state,live=false,last=0;
 for(const[id,p]of Object.entries(intrusionProfiles))$('boss').add(new Option(p.name,id));$('boss').value='nachtwal';
 function make(id,w,h){const g={state:'playing',x:0,y:0,a:-Math.PI/2,hp:10000,speed:185,bullets:[],drops:[],events:[]},c={stageIndex:intrusionProfiles[id].stages[0],width:w,height:h,phase:'explore',remaining:180};return{g,c,e:forceIntrusionForTest(g,id,c),seen:new Set(),count:0,frame:0};}

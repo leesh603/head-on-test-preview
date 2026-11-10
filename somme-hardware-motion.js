@@ -1,4 +1,4 @@
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=09c75d146ae4289d';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=b3bf991d11fc7798';
 
 // Measured barrel-to-carriage joints in the existing production sheets.
 export const SOMME_GUN_JOINTS=Object.freeze({'gun-twin-aa':240,'gun-heavy':180,'gun-mg':90,'mark1-gun-heavy':244,'mark1-gun-mg':248});

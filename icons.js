@@ -4,7 +4,7 @@ export const LEGENDARY_ICON_KEYS=Object.freeze(['passiveMedal','redScarf','pranc
 const frames=new Map(),atlasIconReady=new Map(),cleanedLegendaryFrames=new WeakSet();
 function loadIconAtlas(file,columns,rows,names,smooth=false){const ready=new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
- names.forEach((key,i)=>{const x0=Math.round(i%columns*c.width/columns),x1=Math.round((i%columns+1)*c.width/columns),y0=Math.round(Math.floor(i/columns)*c.height/rows),y1=Math.round((Math.floor(i/columns)+1)*c.height/rows);let l=x1,r=x0,t=y1,b=y0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>100){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}if(r>=l&&b>=t&&!frames.get(key)?.direct)frames.set(key,{atlas,x:l,y:t,w:r-l+1,h:b-t+1,smooth})});resolve(true)
+ names.forEach((key,i)=>{if(atlasIconReady.get(key)?.file!==file||frames.get(key)?.direct)return;const x0=Math.round(i%columns*c.width/columns),x1=Math.round((i%columns+1)*c.width/columns),y0=Math.round(Math.floor(i/columns)*c.height/rows),y1=Math.round((Math.floor(i/columns)+1)*c.height/rows);let l=x1,r=x0,t=y1,b=y0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>100){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}if(r>=l&&b>=t)frames.set(key,{atlas,x:l,y:t,w:r-l+1,h:b-t+1,smooth})});resolve(true)
 };atlas.onerror=()=>resolve(false);atlas.src=file});for(const key of names)atlasIconReady.set(key,{file,ready});return ready}
 function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Image();const commit=()=>{if(key.startsWith('cooldown-')){
  const canvas=document.createElement('canvas');canvas.width=icon.naturalWidth;canvas.height=icon.naturalHeight;const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(icon,0,0);const pixels=c.getImageData(0,0,canvas.width,canvas.height),d=pixels.data,w=canvas.width,h=canvas.height;
@@ -47,10 +47,13 @@ const atlasReady=Promise.all([
 ]);
 // Keep hangar art eager. Equipment art is requested only when a card or HUD needs it.
 const hangarIcons=['cooldown-central','cooldown-entente','emblemCentral','emblemEntente'];
-const directIconReady=new Map();
+const directIconReady=new Map(),failedDirectIcons=new Set();
 function directIconUrl(key){const file=DIRECT_ICONS[key];return './'+(file.startsWith('rare_')?'augmentation-icons':'augmentation-icons-384')+'/'+file+'?v=tame3'}
 function requestDirectIcon(key){
- if(!directIconReady.has(key))directIconReady.set(key,loadDirectIcon(directIconUrl(key),key));
+ if(!directIconReady.has(key))directIconReady.set(key,loadDirectIcon(directIconUrl(key),key).then(ok=>{
+  if(!ok)failedDirectIcons.add(key);
+  return ok;
+ }));
  return directIconReady.get(key);
 }
 export function gameIconReady(key){
@@ -80,7 +83,14 @@ export const iconsReady={then(onReady,onError){
  });
  return allIconsReady.then(onReady,onError);
 }};
-export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore();if(key==='airshipTransfer'){drawGameIcon(c,'wingman',x-size*.29,y+size*.26,size*.4);drawGameIcon(c,'wingman',x+size*.29,y+size*.26,size*.4);}}
+export function drawGameIcon(c,key,x,y,size){
+ const f=frames.get(key);
+ // A direct icon replaces its atlas cell only once, after the final art decodes.
+ if(!f?.direct&&Object.hasOwn(DIRECT_ICONS,key)&&!failedDirectIcons.has(key)){requestDirectIcon(key);return;}
+ if(!f)return;
+ const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore();
+ if(key==='airshipTransfer'){drawGameIcon(c,'wingman',x-size*.29,y+size*.26,size*.4);drawGameIcon(c,'wingman',x+size*.29,y+size*.26,size*.4);}
+}
 
 export function drawSpecialAmmoIcon(c,type,x,y,size=38){drawGameIcon(c,'ammo-'+type,x,y,size)}
 

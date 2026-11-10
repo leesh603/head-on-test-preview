@@ -1,21 +1,22 @@
-import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js';
-import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js';
-import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
-import {EQUIPMENT_COPY} from './equipment-copy.js';
-import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
-import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
-import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
-import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
-import {reconcileSecretWeapons} from './secret-weapons.js';
-import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
-import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108';
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js?v=b3bf991d11fc7798';
+import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js?v=b3bf991d11fc7798';
+import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=b3bf991d11fc7798';
+import {EQUIPMENT_COPY} from './equipment-copy.js?v=b3bf991d11fc7798';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=b3bf991d11fc7798';
+import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
+import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js?v=b3bf991d11fc7798';
+import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=b3bf991d11fc7798';
+import {hasSecretWeapon,reconcileSecretWeapons} from './secret-weapons.js?v=b3bf991d11fc7798';
+import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js?v=b3bf991d11fc7798';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=b3bf991d11fc7798';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js?v=b3bf991d11fc7798';
+import {fighterAim} from './dogfight-pass165.js?v=b3bf991d11fc7798';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=b3bf991d11fc7798';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=b3bf991d11fc7798';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=b3bf991d11fc7798';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=b3bf991d11fc7798';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=b3bf991d11fc7798';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -426,7 +427,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  const oldIncoming=Game.prototype.incomingDamageMultiplier;
  Game.prototype.incomingDamageMultiplier=function(source){let mult=oldIncoming.call(this,source);if(this.prancingHorse&&source){const incoming=Math.atan2(source.y-this.y,source.x-this.x);if(Math.abs(angleDiff(incoming,this.a))<Math.PI/2){mult*=AUGMENTATION_OVERHAUL_BALANCE.frontDamageReduction;this.prancingHorseFlash160=.34}}if(this.jArmorCapsule&&source?.bullet&&!source.bullet.flak&&!source.bullet.heavy&&!source.bullet.heavyShell&&!source.bullet.rocket&&!source.bullet.actualExplosion&&!source.bullet.blast&&!source.bullet.gas)mult*=AUGMENTATION_OVERHAUL_BALANCE.jCapsuleBullet;if(this.sacredCowling&&source?.bullet&&Number.isFinite(source.bullet.sourceX)&&Number.isFinite(source.bullet.sourceY)){const d=Math.hypot(source.bullet.sourceX-this.x,source.bullet.sourceY-this.y);if(d<AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)mult*=1-(1-AUGMENTATION_OVERHAUL_BALANCE.cowlingMinReceived)*(1-d/AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)}return mult*this.lufberyDamageMultiplier()};
  const oldRound=Game.prototype.roundDamageMultiplier;
- Game.prototype.roundDamageMultiplier=function(b,e){let mult=oldRound.call(this,b,e);if(b.mauserRound){const engaged=(this.t||0)-(e.wwiDirectHitAt?.[this.id||'p1']??-Infinity)<=1.5;if(e.ace||e.bossPilot||e.type==='boss')mult*=engaged?120/18:AUGMENTATION_OVERHAUL_BALANCE.mauserAceMultiplier;else if((this.combatWorld?.()||this).eliteEnemies?.members?.includes(e))mult*=engaged?3:AUGMENTATION_OVERHAUL_BALANCE.mauserEliteMultiplier;}if(this.sacredCowling&&Math.hypot(e.x-this.x,e.y-this.y)<=AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)mult*=AUGMENTATION_OVERHAUL_BALANCE.cowlingDamage;return mult};
+ Game.prototype.roundDamageMultiplier=function(b,e){let mult=oldRound.call(this,b,e)*secretRankenDamageScale(b,e);if(b.mauserRound){const engaged=(this.t||0)-(e.wwiDirectHitAt?.[this.id||'p1']??-Infinity)<=1.5;if(e.ace||e.bossPilot||e.type==='boss')mult*=engaged?120/18:AUGMENTATION_OVERHAUL_BALANCE.mauserAceMultiplier;else if((this.combatWorld?.()||this).eliteEnemies?.members?.includes(e))mult*=engaged?3:AUGMENTATION_OVERHAUL_BALANCE.mauserEliteMultiplier;}if(this.sacredCowling&&Math.hypot(e.x-this.x,e.y-this.y)<=AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)mult*=AUGMENTATION_OVERHAUL_BALANCE.cowlingDamage;return mult};
 
  const distanceTo=(g,e)=>Math.hypot(e.x-g.x,e.y-g.y);
  const mauserTarget=g=>{
@@ -460,7 +461,15 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   if(this.mccuddenRepair){this.mccuddenRepairTimer-=dt;if(this.mccuddenRepairTimer<=0){this.mccuddenRepairTimer+=AUGMENTATION_OVERHAUL_BALANCE.repairInterval;const before=this.hp;this.hp=Math.min(this.maxHp,this.hp+this.maxHp*AUGMENTATION_OVERHAUL_BALANCE.repairFraction);if(this.hp>before){this.repairFlash151=.75;this.event('ally','비상수선 · 내구도 8% 회복')}}}
   if(this.mauserAceKiller){this.mauserTimer-=dt;if(this.mauserTimer<=0){const target=mauserTarget(this);if(target){const scaled=mauserScaling(this);this.mauserTimer+=scaled.interval;const a=Math.atan2(target.y-this.y,target.x-this.x);this.mauserAim156=a;this.mauserTarget156=target;this.mauserFlash160=.12;push({x:this.x+Math.cos(a)*16,y:this.y+Math.sin(a)*16,vx:Math.cos(a)*420,vy:Math.sin(a)*420,life:.72,mauserRound:true,mauserTarget:target,specialColor:'#a98cff',damage:scaled.damage})}else this.mauserTimer=.3}}
   this.mauserFlash160=Math.max(0,(this.mauserFlash160||0)-dt);
-  if(this.rankinShrapnel&&!this.upgrades.cooperRack&&!this.upgrades.fieryGrapnel&&!this.cow37&&!(this.armorUpgradeHp>0||this.jArmorCapsule)){this.rankinShrapnelTimer-=dt;if(this.rankinShrapnelTimer<=0){this.rankinShrapnelTimer+=AUGMENTATION_OVERHAUL_BALANCE.rankinInterval;let removed=0;const clears=[];this.equipmentRankinFx={x:this.x,y:this.y,a:this.a,clears};const half=AUGMENTATION_OVERHAUL_BALANCE.rankinRearArcDegrees*Math.PI/360;for(const b of world.bullets){if(!b.enemy||b.life<=0||b.heavyShell||b.heavy||b.raidHeavy||b.signatureAttack)continue;const d=Math.hypot(b.x-this.x,b.y-this.y),rear=Math.abs(angleDiff(Math.atan2(b.y-this.y,b.x-this.x),this.a+Math.PI));if(d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half){b.life=0;removed++;if(clears.length<12&&Number.isFinite(b.x)&&Number.isFinite(b.y))clears.push({x:b.x,y:b.y})}}for(const e of this.enemies){const d=Math.hypot(e.x-this.x,e.y-this.y),rear=Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),this.a+Math.PI));if(e.hp>0&&d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half)push({x:e.x,y:e.y,vx:0,vy:0,life:.1,blast:true,damage:this.payloadPower(AUGMENTATION_OVERHAUL_BALANCE.rankinDamage)})}this.rankinFlash=.5;this.event('wave',`랭킨 파편탄 · 후방 탄막 ${removed}발 제거`)}}
+  const rearShrapnel=this.rankinShrapnel&&!this.upgrades.cooperRack&&!this.upgrades.fieryGrapnel&&!this.cow37&&!(this.armorUpgradeHp>0||this.jArmorCapsule);
+  if(rearShrapnel||this.rankinShrapnel&&hasSecretWeapon(this,'rankenExplosiveDarts')){
+   this.rankinShrapnelTimer-=dt;
+   if(this.rankinShrapnelTimer<=0){
+    this.rankinShrapnelTimer+=AUGMENTATION_OVERHAUL_BALANCE.rankinInterval;
+    secretRankenPulse(this);
+    if(rearShrapnel){let removed=0;const clears=[];this.equipmentRankinFx={x:this.x,y:this.y,a:this.a,clears};const half=AUGMENTATION_OVERHAUL_BALANCE.rankinRearArcDegrees*Math.PI/360;for(const b of world.bullets){if(!b.enemy||b.life<=0||b.heavyShell||b.heavy||b.raidHeavy||b.signatureAttack)continue;const d=Math.hypot(b.x-this.x,b.y-this.y),rear=Math.abs(angleDiff(Math.atan2(b.y-this.y,b.x-this.x),this.a+Math.PI));if(d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half){b.life=0;removed++;if(clears.length<12&&Number.isFinite(b.x)&&Number.isFinite(b.y))clears.push({x:b.x,y:b.y})}}for(const e of this.enemies){const d=Math.hypot(e.x-this.x,e.y-this.y),rear=Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),this.a+Math.PI));if(e.hp>0&&d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half)push({x:e.x,y:e.y,vx:0,vy:0,life:.1,blast:true,damage:this.payloadPower(AUGMENTATION_OVERHAUL_BALANCE.rankinDamage)})}this.rankinFlash=.5;this.event('wave',`랭킨 파편탄 · 후방 탄막 ${removed}발 제거`)}
+   }
+  }
   if(this.brockSmoke){this.brockSmokeTimer-=dt;if(this.brockSmokeTimer<=0){this.brockSmokeTimer+=AUGMENTATION_OVERHAUL_BALANCE.smokeInterval;this.kaiserFogTime=AUGMENTATION_OVERHAUL_BALANCE.smokeDuration;for(const e of this.enemies){if(!e.targetPlayerId||e.targetPlayerId===this.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}this.event('wave','브록식 연막 · 적 추적 해제')}this.kaiserFogTime=Math.max(0,(this.kaiserFogTime||0)-dt)}
   this.repairFlash151=Math.max(0,(this.repairFlash151||0)-dt);
   this.rankinFlash=Math.max(0,(this.rankinFlash||0)-dt);

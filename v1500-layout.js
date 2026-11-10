@@ -1,4 +1,4 @@
-import {V1500_POINTS,V1500_PROP_POINTS} from './handley-page-v1500.js?v=09c75d146ae4289d';
+import {V1500_POINTS,V1500_PROP_POINTS} from './handley-page-v1500.js?v=b3bf991d11fc7798';
 export const V1500_ART=Object.freeze({hull:'v1500-boss/hull.webp',damaged:'v1500-boss/damaged.webp',front:'v1500-boss/propeller-front.webp',rear:'v1500-boss/propeller-rear.webp',gun:'v1500-boss/gun.webp',bomb:'bomb-cooper-readable-q92.webp',cutin:'v1500-boss/cutin.webp'});
 const spec=(src,x=0,y=0)=>({src,x,y,pivot:[0,0]});
 const parts=[{id:'hull',group:'core',kind:'base',dependencies:[],states:{intact:spec(V1500_ART.hull),damaged:spec(V1500_ART.damaged),destroyed:spec(V1500_ART.damaged)}}];

@@ -1,4 +1,4 @@
-import {applyTerrainAtmosphere} from './alps-terrain117.js?v=09c75d146ae4289d';
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=b3bf991d11fc7798';
 // One authored Paris district. Scenery never owns combat coordinates or RNG.
 // The surrounding city and Seine continue outside it; landmarks appear once.
 export const PARIS_GROUND=Object.freeze({width:3200,left:-1600,top:-1700,bottom:1824,plaza:{x:-672,y:-790,w:1344,h:660},river:{north:500,south:800},hospital:{x:-780,y:330,w:488,h:352},rail:{x:680,y:230,w:552,h:328}});

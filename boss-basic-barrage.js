@@ -1,10 +1,10 @@
-import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=09c75d146ae4289d';
-import {alpsMuzzle} from './alps-bomber-layout.js?v=09c75d146ae4289d';
-import {harborGunMuzzle} from './harbor-crane-layout.js?v=09c75d146ae4289d';
-import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=09c75d146ae4289d';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=09c75d146ae4289d';
-import {BOSS_LOADOUTS} from './boss-ordnance-loadouts.js?v=09c75d146ae4289d';
-import {bossCounterActive} from './boss-feedback.js?v=09c75d146ae4289d';
+import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=b3bf991d11fc7798';
+import {alpsMuzzle} from './alps-bomber-layout.js?v=b3bf991d11fc7798';
+import {harborGunMuzzle} from './harbor-crane-layout.js?v=b3bf991d11fc7798';
+import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=b3bf991d11fc7798';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=b3bf991d11fc7798';
+import {BOSS_LOADOUTS} from './boss-ordnance-loadouts.js?v=b3bf991d11fc7798';
+import {bossCounterActive} from './boss-feedback.js?v=b3bf991d11fc7798';
 
 // Ordinary fire is separate from the raid controller. Only authored weapons
 // fire; destroying one removes its lane. No new HP or difficulty multipliers.
@@ -199,7 +199,7 @@ export function breakSilence(enc,dt,ctx){
  const now=enc.clock;
  let body=null,best=Infinity,target=null;
  for(const b of enc.bodies.values()){
-  if(b.dead||b.arrivalPending||(b.combatTime||0)<SILENCE.settle)continue;
+  if(b.dead||b.arrivalPending||(ctx.doverRaid&&b.faction===ctx.doverRaid.faction)||(b.combatTime||0)<SILENCE.settle)continue;
   // Prefer a body the pilot can see; a hidden one only when none is.
   const d0=b.hidden?1e6:0;
   for(const p of players){const d=d0+Math.hypot(p.x-b.x,p.y-b.y);if(d<best){best=d;body=b;target=p;}}

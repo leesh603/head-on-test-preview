@@ -1,4 +1,4 @@
-import {playerAirframeModel} from './player-airframe-handling.js?v=09c75d146ae4289d';
+import {playerAirframeModel} from './player-airframe-handling.js?v=b3bf991d11fc7798';
 // Airframe roles compose the existing handling, pursuit, round and wing hooks.
 // They are independent of aircraft tier and never change pilot skills or gun power.
 export const AIRCRAFT_COMBAT_ROLES=Object.freeze({

@@ -1,26 +1,26 @@
-import {trailPaletteFromPixels} from './ace-momentum.js?v=09c75d146ae4289d';
-import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=09c75d146ae4289d';
-import {configureLegendArt} from './legend-squadron-combat.js?v=09c75d146ae4289d';
+import {trailPaletteFromPixels} from './ace-momentum.js?v=b3bf991d11fc7798';
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=b3bf991d11fc7798';
+import {configureLegendArt} from './legend-squadron-combat.js?v=b3bf991d11fc7798';
 const SQUADRON_FLIGHT_ART=Object.freeze({jasta5_patrol:'squadron-aircraft/jasta5-albatros.webp',cigognes_cannon_paint:'squadron-aircraft/cigognes-spad12.webp',cigognes_escort_paint:'squadron-aircraft/cigognes-spad.webp',hat_ring_paint:'squadron-aircraft/hat-ring-spad.webp',jasta18_paint:'squadron-aircraft/jasta18-fokker.webp',lafayette_paint:'squadron-aircraft/lafayette-nieuport.webp',spa65_paint:'squadron-aircraft/spa65-spad.webp',sqn56_paint:'squadron-aircraft/sqn56-se5a.webp',jasta2_paint:'squadron-aircraft/jasta2-albatros.webp'});
 const SQUADRON_PAINT_ALIASES={spad12:'cigognes_cannon_paint',stork_spad:'cigognes_escort_paint',hatring_spad:'hat_ring_paint',jasta18_fokkerd7:'jasta18_paint',lafayette_nieuport17:'lafayette_paint',spad:'spa65_paint',se5a:'sqn56_paint',albatros_d5a:'jasta2_paint'};
 const squadronPaintReady=key=>hasPaintedAircraft(SQUADRON_PAINT_ALIASES[key]||key),loadSquadronPaint=key=>paintedReady(SQUADRON_PAINT_ALIASES[key]||key);
-import {configureExpansionArt} from './famous-squadron-expansion.js?v=09c75d146ae4289d';
-import {configureCigognesArt} from './cigognes-cannon-patrol.js?v=09c75d146ae4289d';
-import {configureHatRingArt} from './hat-ring-blockade.js?v=09c75d146ae4289d';
-import {configureFamousWingArt} from './famous-wing-combat.js?v=09c75d146ae4289d';
-import {fxReady as cigognesFxReady} from './fx-art.js?v=09c75d146ae4289d';
-import {configureTransportArt} from './transport-convoy.js?v=09c75d146ae4289d';
-import {configurePhotoReconArt} from './photo-recon-encounters.js?v=09c75d146ae4289d';
-import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js?v=09c75d146ae4289d';
-import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {clearCrewMatte} from './matte70.js?v=09c75d146ae4289d';
-import {BANK_ART} from './aircraft-bank-art.js?v=09c75d146ae4289d';
-import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=09c75d146ae4289d';
-import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=09c75d146ae4289d';
+import {configureExpansionArt} from './famous-squadron-expansion.js?v=b3bf991d11fc7798';
+import {configureCigognesArt} from './cigognes-cannon-patrol.js?v=b3bf991d11fc7798';
+import {configureHatRingArt} from './hat-ring-blockade.js?v=b3bf991d11fc7798';
+import {configureFamousWingArt} from './famous-wing-combat.js?v=b3bf991d11fc7798';
+import {fxReady as cigognesFxReady} from './fx-art.js?v=b3bf991d11fc7798';
+import {configureTransportArt} from './transport-convoy.js?v=b3bf991d11fc7798';
+import {configurePhotoReconArt} from './photo-recon-encounters.js?v=b3bf991d11fc7798';
+import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js?v=b3bf991d11fc7798';
+import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=b3bf991d11fc7798';
+import {clearCrewMatte} from './matte70.js?v=b3bf991d11fc7798';
+import {BANK_ART} from './aircraft-bank-art.js?v=b3bf991d11fc7798';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=b3bf991d11fc7798';
+import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=b3bf991d11fc7798';
 // NPC crew is pre-composited offline (scripts/bake-npc-crew.mjs -> crew-baked/). The live
 // compositor and its 785 KB seat table load only for art the bake has not covered yet.
 const CREW_BAKE_MODE=typeof location!=='undefined'&&new URLSearchParams(location.search).get('crewbake')==='1';
-let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=09c75d146ae4289d');
+let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=b3bf991d11fc7798');
 const crewNone=new Set(CREW_NONE),rimRepairs=new Set(AIRCRAFT_RIM_REPAIR_KEYS);
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({

@@ -1,5 +1,5 @@
 // Dedicated post-maneuver air texture; solo/co-op entry points preserved.
-import {drawImmelmannPassive} from './pilot-passive-art.js?v=09c75d146ae4289d';
+import {drawImmelmannPassive} from './pilot-passive-art.js?v=b3bf991d11fc7798';
 const clamp=n=>Math.max(0,Math.min(1,n));
 const visible=p=>p?.pilot==='immelmann'&&p.hp>0&&p.status!=='downed'&&p.state==='playing';
 // Read the existing, per-pilot flight samples. Never invent a circular path.

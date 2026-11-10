@@ -1,6 +1,6 @@
-import {groundVisualSize} from './ground-perspective.js?v=09c75d146ae4289d';
-import {airThreatMuzzles} from './air-threat-profiles.js?v=09c75d146ae4289d';
-import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=09c75d146ae4289d';
+import {groundVisualSize} from './ground-perspective.js?v=b3bf991d11fc7798';
+import {airThreatMuzzles} from './air-threat-profiles.js?v=b3bf991d11fc7798';
+import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=b3bf991d11fc7798';
 // A small bounded cache, shared by solo/co-op and the asset-bank preview. No
 // canvas creation, pixel reads, filters, or network requests on the hot path.
 const images=new Map(),queue=[];

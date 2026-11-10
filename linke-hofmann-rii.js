@@ -1,4 +1,4 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
 // QA-only game tactics. External rack bombs become warned fixed ground danger
 // areas; this is not a claim that falling bombs directly strike flying aircraft.
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));

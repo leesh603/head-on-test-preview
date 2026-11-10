@@ -1,8 +1,8 @@
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=09c75d146ae4289d';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=b3bf991d11fc7798';
+import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=b3bf991d11fc7798';
 
 // Mission tuning lives here; counts, thresholds and pace can be adjusted together.
-export const DOVER_BREAKTHROUGH_BALANCE=Object.freeze({total:18,waveSize:6,maxActive:12,interceptGoal:12,escortGoal:10,routeLength:11200,speed:205,hp:260,waveGap:15,waveProgress:.2,fighterCap:6,fighterInterval:10,coastProgress:.76,resultSeconds:4});
+export const DOVER_BREAKTHROUGH_BALANCE=Object.freeze({total:18,waveSize:6,maxActive:12,routeLength:10600,speed:205,hp:260,waveGap:15,waveProgress:.2,fighterCap:6,fighterInterval:10,coastProgress:.76,resultSeconds:4});
 const BOSS_SEPARATION=3.2;
 const live=b=>b?.hp>0&&!b.doverResult&&!b.expired&&!b.crashing;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -34,12 +34,15 @@ export function clearDoverMission(g){
 function createMission(g){
  const cfg={...DOVER_BREAKTHROUGH_BALANCE,...g.doverMissionConfig};
  cfg.total=clamp(Math.round(cfg.total),1,36);cfg.waveSize=clamp(Math.round(cfg.waveSize),1,6);cfg.maxActive=Math.max(cfg.waveSize,Math.min(12,Math.round(cfg.maxActive)));
- cfg.interceptGoal=clamp(Math.round(cfg.interceptGoal),1,cfg.total);cfg.escortGoal=clamp(Math.round(cfg.escortGoal),1,cfg.total);
  const spawnY=g.y-(g.viewHeight||700)/2-180;
- const m={config:cfg,faction:g.stageBoss?.stages.teamFaction||g.teamFaction||'entente',bombers:[],waves:0,spawned:0,shotDown:0,arrived:0,time:0,lastWaveAt:-cfg.waveGap,nextFighterAt:3,spawnY,destinationY:spawnY-cfg.routeLength,bossReady:false,bossDefeated:false,resolved:false,progress:0};
+ const m={config:cfg,bossObjective:true,faction:g.stageBoss?.stages.teamFaction||g.teamFaction||'entente',bombers:[],waves:0,spawned:0,shotDown:0,arrived:0,time:0,lastWaveAt:-cfg.waveGap,nextFighterAt:3,spawnY,destinationY:spawnY-cfg.routeLength,bossApproachAt:BOSS_SEPARATION,bossReady:false,bossDefeated:false,resolved:false,progress:0};
  g.doverMission=m;doverPatrolChart(g);
- g.event?.('wave',m.faction==='central'?`해협 돌파전 · 폭격기 ${cfg.escortGoal}대 호위`:`해협 돌파전 · 폭격기 ${cfg.interceptGoal}대 격추`);
+ g.event?.('wave',m.faction==='central'?'해협 돌파전 · R.VIII 목적지까지 호위':'해협 요격전 · 나이트호크와 함께 R.VIII 격추');
  return m;
+}
+export function ensureDoverMission(g){
+ if(region(g)!==17||g.mode==='campaign'||g.online&&!g.host)return null;
+ return g.doverMission||createMission(g);
 }
 function spawnFighters(g,m,number){
  const active=m.bombers.filter(live);if(!active.length)return;
@@ -63,7 +66,6 @@ function spawnWave(g,m){
   m.bombers.push(b);if(m.faction==='entente')(g.enemies??=[]).push(b);
  }
  m.spawned+=count;m.waves++;m.lastWaveAt=m.time;
- if(m.spawned===c.total)m.bossApproachAt=m.time+BOSS_SEPARATION;
  g.event?.('wave',`폭격기 ${m.waves}편대 접근 · ${m.spawned}/${c.total}`);spawnFighters(g,m,m.spawned===c.total?5:3);
 }
 function downBomber(g,m,b){
@@ -72,19 +74,35 @@ function downBomber(g,m,b){
  if(!b.crashing&&!b.crashed){b.crashStyle='spin';beginAircraftCrash(b,g.rng||Math.random);b.crashDuration=b.crashT=1.7;}
  g.combatBlast?.(b.x,b.y,48,m.faction==='central'?'enemy':'friendly','aircraftMedium');
 }
-function settleMission(g,m){
+function settleMission(g,m,arrived){
  if(m.rewarded)return;m.rewarded=true;
- const c=m.config;m.success=m.faction==='central'?m.arrived>=c.escortGoal:m.shotDown>=c.interceptGoal;
- const total=m.success?Math.min(36,12+17*2+(g.stageBoss?.stages.loopIndex||0)*4):12;
+ m.success=m.faction==='central'?arrived:!arrived;
+ const message=arrived?'R.VIII 영국 해안 도달':'R.VIII 격추';
+ if(!m.success){
+  m.resolved=true;g.state='lost';g.score=g.priorityKills??0;g.event?.('end',message+' · 임무 실패');
+  return;
+ }
+ const total=Math.min(36,12+17*2+(g.stageBoss?.stages.loopIndex||0)*4);
  const p=hero(g),gems=g.xpGemSplits?.(total)||[total];
  for(let i=0;i<gems.length;i++){const a=i*.7;(g.drops??=[]).push({x:p.x+Math.cos(a)*70,y:p.y+Math.sin(a)*70,value:gems[i],heal:false,bossReward:true});}
- if(m.success)(g.drops??=[]).push({x:p.x,y:p.y,value:0,heal:true,bossReward:true});
- g.event?.('wave',m.success?`임무 성공 · 격추 ${m.shotDown} / 돌파 ${m.arrived}`:`임무 실패 · 격추 ${m.shotDown} / 돌파 ${m.arrived} · 보상 감소`);
+ (g.drops??=[]).push({x:p.x,y:p.y,value:0,heal:true,bossReward:true});
+ g.event?.('wave',message+' · 임무 성공');
  m.finishedAt=m.time;
 }
 export function tickDoverMission(g,dt){
  if(region(g)!==17||g.mode==='campaign'||g.online&&!g.host||g.state!=='playing'||!(dt>0))return;
- const m=g.doverMission||createMission(g),c=m.config;if(m.resolved)return;m.time+=dt;
+ const m=ensureDoverMission(g),c=m.config;if(m.resolved)return;m.time+=dt;
+ if(m.rewarded){m.resolved=m.time-m.finishedAt>=c.resultSeconds;return;}
+ const bodies=[...g.stageBoss?.stages.encounter?.bodies?.values()||[]];
+ const bomber=bodies.find(b=>b.kind==='siemens-schuckert-r-viii'),nighthawk=bodies.find(b=>b.kind==='supermarine-nighthawk');
+ if(bomber&&!bomber.arrivalPending&&nighthawk&&!nighthawk.arrivalPending){
+  const destination=doverCliffRoute(doverPatrolChart(g),m.destinationY,560,0);
+  m.bossStartY??=bomber.y;
+  m.bossPose={x:bomber.x,y:bomber.y,hp:bomber.hp,maxHp:bomber.maxHp};
+  m.progress=clamp((m.bossStartY-bomber.y)/Math.max(1,m.bossStartY-m.destinationY),0,1);
+  if(bomber.dead||bomber.hp<=0){settleMission(g,m,false);return;}
+  if(bomber.y<=m.destinationY&&Math.abs(bomber.x-destination.x)<=340){settleMission(g,m,true);return;}
+ }
  // Retained records count every aircraft exactly once, even after normal enemy cleanup.
  for(const b of m.bombers){
   if(b.doverResult==='shotDown'){if(b.crashing&&!b.crashed)advanceAircraftCrash(g,b,dt);continue;}
@@ -101,7 +119,7 @@ export function tickDoverMission(g,dt){
   b.vx=clamp((aimX-b.x)*.65,-85,85);b.vy=-speed;b.x+=b.vx*dt;b.y+=b.vy*dt;b.a=Math.atan2(b.vy,b.vx);b.speed=speed;
   b.progress=clamp((b.spawnY-b.y)/(b.spawnY-m.destinationY),0,1);
   if(damaged){b.smokeTimer-=dt;if(b.smokeTimer<=0){b.smokeTimer=b.engineDamage===2?.18:.32;g.smoke?.(b.x+side*22,b.y+14,b.engineDamage===2);}}
-  if(b.y<=m.destinationY){b.doverResult='arrived';b.missionTarget=false;b.expired=true;b.hp=0;m.arrived++;g.event?.('wave',`영국 해안 돌파 · ${m.arrived}대`);}
+  if(b.y<=m.destinationY){b.doverResult='arrived';b.missionTarget=false;b.expired=true;m.arrived++;}
  }
  const active=m.bombers.filter(live),last=m.bombers.filter(b=>b.wave===m.waves-1);
  const waveReady=m.spawned<c.total&&active.length+Math.min(c.waveSize,c.total-m.spawned)<=c.maxActive&&(!last.length||last.every(b=>b.doverResult)||last.some(b=>b.progress>=c.waveProgress));
@@ -114,8 +132,6 @@ export function tickDoverMission(g,dt){
  // Separate the regional arrival from the convoy's last entry. The boss
  // can still engage convoy survivors and the mission still owns the exit.
  m.bossReady=Number.isFinite(m.bossApproachAt)&&m.time>=m.bossApproachAt;
- m.progress=m.bombers.reduce((v,b)=>v+(b.doverResult?1:b.progress),0)/c.total;
- if(m.spawned===c.total&&m.shotDown+m.arrived===c.total){settleMission(g,m);if(m.time-m.finishedAt>=c.resultSeconds)m.resolved=true;return;}
  m.nextFighterAt-=dt;
  if(m.nextFighterAt<=0){const coast=active.some(b=>b.progress>=c.coastProgress);m.nextFighterAt=m.bossDefeated?18:coast?6:c.fighterInterval;spawnFighters(g,m,coast?3:2);}
  // Coastal batteries fire physical, swept rounds at the arriving friendly convoy.

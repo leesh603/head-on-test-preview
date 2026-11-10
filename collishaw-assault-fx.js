@@ -1,7 +1,7 @@
 // Renderer-owned observations of the two real Black Flight attackers. No shots,
 // flight changes or serialized particles; missing textures stay omitted by tex.
-import {roleImage} from './fx-role3.js?v=09c75d146ae4289d';
-import {fxImage} from './fx-art.js?v=09c75d146ae4289d';
+import {roleImage} from './fx-role3.js?v=b3bf991d11fc7798';
+import {fxImage} from './fx-art.js?v=b3bf991d11fc7798';
 const histories=new WeakMap(),clamp=n=>Math.max(0,Math.min(1,n));
 export const COLLISHAW_WAKE_SECONDS=.36,COLLISHAW_GUN_SMOKE_SECONDS=.28;
 export function clearCollishawAssault(p){histories.delete(p)}

@@ -1,5 +1,5 @@
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=09c75d146ae4289d';
-import {capitalPartPose,capitalMuzzle} from './capital-bosses.js?v=09c75d146ae4289d';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=b3bf991d11fc7798';
+import {capitalPartPose,capitalMuzzle} from './capital-bosses.js?v=b3bf991d11fc7798';
 
 const images=new Map(),pending=new Map();
 export const isCapitalBoss=id=>Object.hasOwn(CAPITAL_BOSS_ART,id);

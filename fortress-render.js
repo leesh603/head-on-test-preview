@@ -1,5 +1,5 @@
-import {drawFortressDefeat,defeatBodyBlend} from './fortress-defeat.js?v=09c75d146ae4289d';
-import {FORTRESS,localToWorld,moduleState,gunMuzzle,gunProjection,gunSmokeBillows} from './fortress-mechanics.js?v=09c75d146ae4289d';
+import {drawFortressDefeat,defeatBodyBlend} from './fortress-defeat.js?v=b3bf991d11fc7798';
+import {FORTRESS,localToWorld,moduleState,gunMuzzle,gunProjection,gunSmokeBillows} from './fortress-mechanics.js?v=b3bf991d11fc7798';
 // All art pivots are source pixel coordinates from the separated-layer manifest.
 // Drawing never advances animation or mutates simulation state.
 export function drawFortressAsset(ctx,art,id,x,y,angle=0,scale=1){const m=art.manifest.parts[id],im=m&&art.images[m.file];if(!m||!im?.naturalWidth)return false;const r=m.sourceRect||[0,0,im.naturalWidth,im.naturalHeight],p=m.pivot||[r[2]/2,r[3]/2],k=scale*(m.scale??1);ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(im,...r,-p[0]*k,-p[1]*k,r[2]*k,r[3]*k);ctx.restore();return true;}

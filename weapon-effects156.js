@@ -1,17 +1,17 @@
-import {drawRIICollapseFx} from './rii-destruction-fx.js?v=09c75d146ae4289d';
-import {drawV1500CollapseFx} from './v1500-destruction-fx.js?v=09c75d146ae4289d';
-import {drawBishopBombImpact} from './bishop-sortie-fx.js?v=09c75d146ae4289d';
-import {drawArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
-import {drawDetonationPresence} from './detonation-presence.js?v=09c75d146ae4289d';
-import {weaponImpactKind} from './weapon-impact-profile.js?v=09c75d146ae4289d';
-import {drawAircraftCritical} from './aircraft-critical-view.js?v=09c75d146ae4289d';
-import {roleDraw} from './fx-role3.js?v=09c75d146ae4289d';
-import {drawProjectileTactic} from './gun-signatures.js?v=09c75d146ae4289d';
-import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=09c75d146ae4289d';
-import {drawGameIcon} from './icons.js?v=09c75d146ae4289d';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=09c75d146ae4289d';
-import {fxsBoom} from './fx-sample-preview.js?v=09c75d146ae4289d';
-import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=09c75d146ae4289d';
+import {drawRIICollapseFx} from './rii-destruction-fx.js?v=b3bf991d11fc7798';
+import {drawV1500CollapseFx} from './v1500-destruction-fx.js?v=b3bf991d11fc7798';
+import {drawBishopBombImpact} from './bishop-sortie-fx.js?v=b3bf991d11fc7798';
+import {drawArtilleryMuzzle} from './artillery-fx.js?v=b3bf991d11fc7798';
+import {drawDetonationPresence} from './detonation-presence.js?v=b3bf991d11fc7798';
+import {weaponImpactKind} from './weapon-impact-profile.js?v=b3bf991d11fc7798';
+import {drawAircraftCritical} from './aircraft-critical-view.js?v=b3bf991d11fc7798';
+import {roleDraw} from './fx-role3.js?v=b3bf991d11fc7798';
+import {drawProjectileTactic} from './gun-signatures.js?v=b3bf991d11fc7798';
+import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=b3bf991d11fc7798';
+import {drawGameIcon} from './icons.js?v=b3bf991d11fc7798';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=b3bf991d11fc7798';
+import {fxsBoom} from './fx-sample-preview.js?v=b3bf991d11fc7798';
+import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=b3bf991d11fc7798';
 
 export function grenadeVisualPose(g,out={}){
  const dx=g.targetX-g.startX,dy=g.targetY-g.startY;

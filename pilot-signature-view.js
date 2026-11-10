@@ -1,10 +1,10 @@
-import {planeSprite,aircraftKey} from './aircraft.js?v=09c75d146ae4289d';
-import {drawInternalRepair} from './mccudden-internal-repair.js?v=09c75d146ae4289d';
-import {drawMaterialSupply} from './petal-supply-fx.js?v=09c75d146ae4289d';
-import {fx,fxTint} from './fx-art.js?v=09c75d146ae4289d';
-import {drawProctorGunRecord} from './proctor-burst-fx.js?v=09c75d146ae4289d';
-import {drawGameIcon} from './icons.js?v=09c75d146ae4289d';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=09c75d146ae4289d';
+import {planeSprite,aircraftKey} from './aircraft.js?v=b3bf991d11fc7798';
+import {drawInternalRepair} from './mccudden-internal-repair.js?v=b3bf991d11fc7798';
+import {drawMaterialSupply} from './petal-supply-fx.js?v=b3bf991d11fc7798';
+import {fx,fxTint} from './fx-art.js?v=b3bf991d11fc7798';
+import {drawProctorGunRecord} from './proctor-burst-fx.js?v=b3bf991d11fc7798';
+import {drawGameIcon} from './icons.js?v=b3bf991d11fc7798';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=b3bf991d11fc7798';
 
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).

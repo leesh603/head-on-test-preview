@@ -1,5 +1,6 @@
-import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
-import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js';
+import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js?v=b3bf991d11fc7798';
+import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js?v=b3bf991d11fc7798';
+import {equipmentTargets,wimperisTarget} from './flight-equipment.js?v=b3bf991d11fc7798';
 
 const ownerId=p=>p.id||'p1';
 const worldOf=p=>p.combatWorld?.()||p.world||p;
@@ -9,7 +10,9 @@ const time=p=>worldOf(p).t||0;
 const activeWing=w=>w.permanent&&!w.aceWingman&&w.life>0&&!w.carrierHidden;
 const hitTimers=new WeakMap();
 const wakes=new WeakMap();
-const bomberRuns=new WeakMap();
+const dartCharges=new WeakMap();
+const dartSalvos=new WeakMap();
+const dartBursts=new WeakMap();
 const clip=(n,a,b)=>Math.min(b,Math.max(a,n));
 export const POM_AIRBURST=Object.freeze({fuse:.82,radius:103,splash:.38});
 export const SECRET_COMBAT=Object.freeze({cooperDamage:70,cooperRadius:66,signalDelay:2.65,chainInterval:6,wakeDelay:.35,wakeLife:.6,ramDelay:.8,armorDelay:15,bomberInterval:10});
@@ -28,8 +31,168 @@ function cue(p,kind,origin=p,extra={}){
  return entry;
 }
 function sound(p,kind){p.event?.('bossSound',kind);}
-function emit(p,round){(worldOf(p).bullets??=[]).push({...round,enemy:false,ownerId:ownerId(p),hit:new Set()});}
+function emit(p,round){
+ const b={...round,enemy:false,ownerId:ownerId(p),hit:new Set()};
+ (worldOf(p).bullets??=[]).push(b);return b;
+}
 const mgDamage=p=>(p.damage||1)*(p.normalGunMultiplier?.()||1)/Math.sqrt(Math.max(1,p.shots||1));
+const airTarget=e=>e.combatLayer?e.combatLayer==='air':!(e.surface||e.navalVessel||e.missionGround||e.fieldUnit||e.stationary);
+const aceTarget=e=>e.ace||e.bossPilot||e.type==='boss';
+const newAirRound=(id,x,y,a,speed,life,damage,radius)=>({
+ x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life,damage,collisionRadius:radius,
+ secretWeapon:id,secretAirRound:true,rangeExtended:true,sweptProjectile:true,heavyRoundPrepared:true,synthesisChild:true
+});
+export function secretRoundAllowsTarget(b,e){
+ if(!b?.secretAirRound)return true;
+ const charge=dartBursts.get(b);
+ const body=e.stageBossBody||e;
+ return airTarget(e)&&(!charge||charge.body===body||!charge.salvo.splashed.has(body));
+}
+export const secretRankenHullContact=(b,e)=>!e.stageBossBody&&dartBursts.get(b)?.target===e;
+export function secretRankenDamageScale(b,e){
+ const charge=dartBursts.get(b);
+ return charge&&charge.body!==(e.stageBossBody||e) ? .28 : 1;
+}
+
+export const VILLAR_RANGE=138;
+function tickVillar(p,dt){
+ const s=secretWeaponEffect(p,'villarPerosa');
+ s.delay=Math.max(0,(s.delay||0)-dt);
+ if(s.delay>0)return;
+ const g=worldOf(p);
+ let target=null,best=Infinity;
+ for(const e of equipmentTargets(g)){
+  if(!airTarget(e)||e.stageBossBody||p.canHitTarget?.(e)===false)continue;
+  const d=Math.hypot(e.x-p.x,e.y-p.y);
+  if(d>VILLAR_RANGE)continue;
+  const score=d-(aceTarget(e)?400:e.eliteKind?200:0);
+  if(score<best){best=score;target=e;}
+ }
+ const point=target||wimperisTarget(p,{range:VILLAR_RANGE,cone:Math.PI,filter:e=>airTarget(e)&&!!e.stageBossBody});
+ if(!point){s.remaining=0;return;}
+ const gloves=p.upgrades.flightGloves&&p.bishopGlovesTime>0&&!(p.invuln>0);
+ if(!s.remaining){
+  s.remaining=6;
+  sound(p,'secretVillar');
+ }
+ const a=Math.atan2(point.y-p.y,point.x-p.x),side=s.remaining%2?6:-6;
+ const x=p.x+Math.cos(a)*18-Math.sin(a)*side,y=p.y+Math.sin(a)*18+Math.cos(a)*side;
+ const speed=650,heading=Math.atan2(point.y-y,point.x-x);
+ const damage=mgDamage(p)*.72*(aceTarget(target||point.entity)?1.4:1);
+ emit(p,newAirRound('villarPerosa',x,y,heading,speed,(VILLAR_RANGE+10)/speed,damage,2));
+ cue(p,'villarShot',{x,y,a:heading},{life:.13,slot:side});
+ s.remaining--;
+ s.delay=s.remaining?(gloves?.043:.062):(gloves?.47:.73);
+}
+
+export const KETTERING_DIVE=.54;
+const KETTERING_RADIUS=96;
+export function secretKetteringLaunch(p){
+ if(!hasSecretWeapon(p,'ketteringBug')||!ownerLive(p))return;
+ const now=time(p),s=secretWeaponEffect(p,'ketteringBug');
+ if(s.readyAt>now)return;
+ const aim={range:620,cone:Math.PI,time:.65};
+ const point=wimperisTarget(p,{...aim,filter:e=>!airTarget(e)})||wimperisTarget(p,aim);
+ if(!point)return;
+ // Give the pilotless craft its own approach lane beside the manned formation.
+ const g=worldOf(p),a=Math.atan2(point.y-p.y,point.x-p.x)+Math.PI*.29,dx=Math.cos(a),dy=Math.sin(a);
+ const camera=(g.players&&g.camera)||p,zoom=g.camera?.zoom||1;
+ const reach=Math.hypot(g.viewWidth||1000,g.viewHeight||760)/(2*zoom)+Math.hypot(point.x-camera.x,point.y-camera.y)+70;
+ const duration=reach/620+KETTERING_DIVE;
+ const b={
+  x:point.x-dx*reach,y:point.y-dy*reach,sx:point.x-dx*reach,sy:point.y-dy*reach,
+  bugTargetX:point.x,bugTargetY:point.y,a,releaseAngle:a,life:duration,maxLife:duration,
+  damage:p.payloadPower(340),ownerId:ownerId(p),secretWeapon:'ketteringBug',synthesisBombPrepared:true,
+  bugAirApproach:airTarget(point.entity),bugEngineAt:now
+ };
+ (g.friendlyBombs??=[]).push(b);
+ s.readyAt=now+25;s.activeUntil=now+duration;
+}
+export function tickSecretKettering(world,p,b,dt){
+ if(b.life<=0)return;
+ const previous=b.life;
+ b.life=Math.max(0,b.life-dt);
+ const dive=clip(1-b.life/KETTERING_DIVE,0,1),travel=b.life>KETTERING_DIVE
+  ? .87*(b.maxLife-b.life)/(b.maxLife-KETTERING_DIVE):.87+.13*dive*dive;
+ b.x=b.sx+(b.bugTargetX-b.sx)*travel;b.y=b.sy+(b.bugTargetY-b.sy)*travel;
+ if(previous>KETTERING_DIVE&&b.life<=KETTERING_DIVE&&p)sound(p,'secretBugCut');
+ if(!p){b.life=0;return;}
+ if(b.life>KETTERING_DIVE+.32&&time(p)>=b.bugEngineAt&&Math.hypot(b.x-p.x,b.y-p.y)<580){
+  b.bugEngineAt=time(p)+.36;
+  sound(p,'secretBugEngine');
+ }
+ // Only the descending body can collide with aircraft. The course was set
+ // before takeoff and the target may have left the blast radius by impact.
+ let contact=false;
+ if(b.bugAirApproach&&dive>.76){
+  const fromDive=clip(1-previous/KETTERING_DIVE,.76,1),from=.87+.13*fromDive*fromDive;
+  const probe={x:b.x,y:b.y,previousX:b.sx+(b.bugTargetX-b.sx)*from,
+   previousY:b.sy+(b.bugTargetY-b.sy)*from,collisionRadius:5,sweptProjectile:true};
+  contact=equipmentTargets(world).some(e=>airTarget(e)&&p.canHitTarget?.(e,probe)!==false&&world.targetCollision?.(e,b.x,b.y,probe));
+ }
+ if(b.life>0&&!contact)return;
+ b.life=0;
+ const radius=p.queueExplosionDamage(b.x,b.y,KETTERING_RADIUS,b.damage,{
+  secondaryExplosion:true,presentation:false,bomberSalvo:{bossDamage:new Map(),bossCap:b.damage},pilotSupport:true
+ });
+ cue(p,'bugImpact',b,{radius,life:1.65,water:[1,7,16,17].includes(world.worldRegion?.())&&!b.bugAirApproach});
+ sound(p,'secretBugImpact');
+}
+
+const RANKEN_ID='rankenExplosiveDarts';
+export function secretRankenPulse(p){
+ if(!hasSecretWeapon(p,RANKEN_ID)||!ownerLive(p))return;
+ const rear=p.a+Math.PI;
+ const target=wimperisTarget(p,{heading:rear,range:224,cone:1.05,time:.16,filter:airTarget});
+ if(!target)return;
+ const a=Math.atan2(target.y-p.y,target.x-p.x),speed=560,damage=mgDamage(p);
+ const x=p.x+Math.cos(rear)*16,y=p.y+Math.sin(rear)*16,center=Math.atan2(target.y-y,target.x-x);
+ const burnScale=p.upgrades.buckinghamBelt?1+Math.max(0,p.gunUpgradeBonus||0):0;
+ const salvo={bossDamage:new Map(),bossCap:damage*5,splashed:new Set(),burnScale};
+ for(let i=0;i<5;i++){
+  const b=newAirRound(RANKEN_ID,x,y,center+(i-2)*.105,speed,.43,damage*.48,3.5);
+  b.dartSlot=i;dartSalvos.set(emit(p,b),salvo);
+ }
+ cue(p,'rankenLaunch',{x,y,a},{life:.23});
+ sound(p,'secretRankenLaunch');
+}
+function attachRanken(p,b,target){
+ const world=worldOf(p),body=target.stageBossBody||target,heading=body.hullYaw??body.angle??body.a??0;
+ const angle=Math.atan2(b.vy,b.vx),x=b.x,y=b.y,dx=x-body.x,dy=y-body.y;
+ const at=time(p)+.22+.08*b.dartSlot,charges=dartCharges.get(p)||[];
+ const salvo=dartSalvos.get(b);
+ if(!ownerLive(p)||!salvo||charges.length>=10)return;
+ const fx=cue(p,'rankenEmbed',{x,y,a:angle},{life:at-time(p)});
+ charges.push({target,body,at,fx,a:angle-heading,u:dx*Math.cos(heading)+dy*Math.sin(heading),
+  v:-dx*Math.sin(heading)+dy*Math.cos(heading),damage:b.damage*3.2,salvo});
+ dartCharges.set(p,charges);
+ const state=secretWeaponEffect(p,RANKEN_ID);
+ if(!(state.pingAt>world.t)){
+  state.pingAt=world.t+.09;
+  sound(p,'secretRankenCatch');
+ }
+}
+function tickRankenCharges(p){
+ const charges=dartCharges.get(p);
+ if(!charges?.length)return;
+ const g=worldOf(p),now=time(p);
+ for(let i=charges.length-1;i>=0;i--){
+  const q=charges[i],{body,fx}=q;
+  if(!q.target.expired&&Number.isFinite(body.x)&&Number.isFinite(body.y)){
+   const a=body.hullYaw??body.angle??body.a??0;
+   fx.x=body.x+Math.cos(a)*q.u-Math.sin(a)*q.v;fx.y=body.y+Math.sin(a)*q.u+Math.cos(a)*q.v;fx.a=a+q.a;
+  }
+  if(now<q.at)continue;
+  charges.splice(i,1);
+  p.queueExplosionDamage(fx.x,fx.y,34,q.damage,{secondaryExplosion:true,presentation:false,bomberSalvo:q.salvo});
+  const blast=g.bullets.at(-1);
+  blast.secretAirRound=true;
+  blast.secretWeapon='rankenBurst';
+  dartBursts.set(blast,q);
+  if(q.salvo.burnScale)blast.synthesisPayload={incendiary:true,burnScale:q.salvo.burnScale};
+  cue(p,'rankenBurst',fx,{life:.8});sound(p,'secretRankenBurst');
+ }
+}
 function sameTargetReady(p,e,key,delay){
  let map=hitTimers.get(p);if(!map){map=new WeakMap();hitTimers.set(p,map);}
  let state=map.get(e);if(!state){state={};map.set(e,state);}
@@ -117,29 +280,26 @@ export function secretBombImpact(p,b){
 }
 export function secretCooperRelease(p,b){
  if(!hasSecretWeapon(p,'fliegerpfeil'))return;
- const state=secretWeaponEffect(p,'fliegerpfeil');state.count=(state.count||0)+1;
+ const state=secretWeaponEffect(p,'fliegerpfeil');
+ state.count=(state.count||0)+1;
  if(state.count<3)return;
- state.count=0;const x=b.x+(b.vx||0)*b.life,y=b.y+(b.vy||0)*b.life;
- state.rain={x,y,a:p.a,next:time(p)+.22,index:0};sound(p,'secretSteelRain');
- state.activeUntil=time(p)+.72;
- cue(p,'steelRain',state.rain,{life:.46});
+ state.count=0;b.secretSteelRain=true;
 }
-export function steelDartPoint(origin,index){
- const c=Math.cos(origin.a),s=Math.sin(origin.a),lane=((index%8)-3.5)*16,front=-26+Math.floor(index/8)*32;
- return {x:origin.x+c*front-s*lane,y:origin.y+s*front+c*lane};
-}
-function tickSteelRain(p,state,f){
- const r=state.rain,now=time(p);if(!r||now<r.next)return;
- const c=Math.cos(r.a),s=Math.sin(r.a),group=state.rainGroup??={attempts:new Set(),explosions:3,explodedTargets:new Set()};
+export function secretSteelRainImpact(p,b,f){
+ if(!b.secretSteelRain)return false;
+ delete b.secretSteelRain;
+ if(!hasSecretWeapon(p,'fliegerpfeil'))return false;
+ const state=secretWeaponEffect(p,'fliegerpfeil'),now=time(p),heading=b.releaseAngle??p.a??0;
+ const group={attempts:new Set(),explosions:3,explodedTargets:new Set()};
  const gun=1+Math.max(0,p.gunUpgradeBonus||0),u=p.upgrades;
- while(r.index<24&&r.next<=now){
-  for(let n=0;n<6;n++){
-   const i=r.index++,{x,y}=steelDartPoint(r,i);
-   emit(p,{x,y,previousX:x,previousY:y,vx:c*480,vy:s*480,life:.20,damage:(f.minDamage+(f.maxDamage-f.minDamage)*(i%3)/2)*gun,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:f.collisionRadius,heavyTargetMultiplier:f.heavyMultiplier,synthesisPayloadDart:true,synthesisGroup:group,synthesisPayload:{incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,burnScale:gun},secretWeapon:'fliegerpfeil'});
-  }
-  r.next+=.07;
+ for(let i=0;i<24;i++){
+  const band=i%3,angle=heading+i*Math.PI/12,speed=360+band*80,dx=Math.cos(angle),dy=Math.sin(angle);
+  const x=b.x+dx*(14+band*6),y=b.y+dy*(14+band*6);
+  emit(p,{x,y,previousX:x,previousY:y,vx:dx*speed,vy:dy*speed,life:.36,damage:(f.minDamage+(f.maxDamage-f.minDamage)*band/2)*gun,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:f.collisionRadius,heavyTargetMultiplier:f.heavyMultiplier,synthesisPayloadDart:true,synthesisGroup:group,synthesisPayload:{incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,burnScale:gun},secretWeapon:'fliegerpfeil'});
  }
- if(r.index===24){delete state.rain;delete state.rainGroup;}
+ state.activeUntil=now+.48;
+ cue(p,'steelRain',b,{a:heading,life:.48});sound(p,'secretSteelRain');
+ return true;
 }
 export function secretGasProfile(p,b,radius,life){
  if(!b.synthesisPayload?.gas||!hasSecretWeapon(p,'grunkreuzBarrage'))return {radius,life,enhanced:false};
@@ -164,6 +324,24 @@ export function secretGrapnelContact(p,target,round,targets,point){
 }
 export function secretWeaponContact(p,b,target){
  const id=b.secretWingRound?'eliteAirWing':b.secretWeapon;
+ if(id==='villarPerosa'){
+  if(sameTargetReady(p,target,id,.055)){
+   cue(p,'villarHit',b,{a:Math.atan2(b.vy,b.vx),life:.23});
+   const s=p.secretWeaponState?.effects[id],now=time(p);
+   if(s&&!(s.hitSoundAt>now)){s.hitSoundAt=now+.13;sound(p,'secretVillarHit');}
+  }
+  return;
+ }
+ if(id===RANKEN_ID){
+  if(!b.rankenAttached){b.rankenAttached=true;attachRanken(p,b,target);}
+  return;
+ }
+ if(id==='rankenBurst'){
+  const charge=dartBursts.get(b);
+  const body=target.stageBossBody||target;
+  if(charge&&charge.body!==body)charge.salvo.splashed.add(body);
+  return;
+ }
  if(id==='nesterovRam'&&!target.stageBossBody&&!target.surface&&!target.stationary){
   if(target.hp<=0){target.lethalCritical='wing';target.lethalCriticalSide=Math.sin((target.a||0)-p.a)<0?-1:1;}
   return;
@@ -185,8 +363,12 @@ function tickWake(p,dt,previous){
  const active=(p.equipmentStraight||0)>=.99&&ratio>=1.08;
  if(!active){if(state.breakthrough){delete state.breakthrough;sound(p,'secretWakeEnd');}return;}
  if(!state.breakthrough){state.breakthrough=true;sound(p,'secretWakeStart');}
- state.visualUntil=now+.1;state.visualRatio=ratio;
  const g=worldOf(p),x=previous?.x??p.x,y=previous?.y??p.y;
+ const dx=p.x-x,dy=p.y-y;
+ if(Math.hypot(dx,dy)>.25&&!(state.wakeAt>now)){
+  state.wakeAt=now+.12;
+  cue(p,'badinWake',{x,y,a:Math.atan2(dy,dx)},{life:SECRET_COMBAT.wakeLife,power:clip((ratio-1.08)*2.7,0,1)});
+ }
  let trail=wakes.get(p);if(!trail){trail=[];wakes.set(p,trail);}
  trail.push({x,y,nx:p.x,ny:p.y,at:now});
  while(trail.length&&(now-trail[0].at>SECRET_COMBAT.wakeLife||trail.length>32))trail.shift();
@@ -231,27 +413,32 @@ export function secretArmorHit(p,before,prepare){
  const source=p.damageSource,a=source&&Number.isFinite(source.x)?Math.atan2(source.y-p.y,source.x-p.x):p.a;
  cue(p,'armorLaunch',p,{a,life:.53});sound(p,'secretArmor');
 }
-export function tickSecretWeapons(p,dt,previous,flechette){
+export function tickSecretWeapons(p,dt,previous){
  if(!p.secretWeaponState)return;
- if(!ownerLive(p)){clearSecretWeaponTransient(p);return;}
+ if(!ownerLive(p)){dartCharges.delete(p);clearSecretWeaponTransient(p);return;}
  const now=time(p),rotary=p.secretWeaponState.effects.fokkerLeimberger;
  if(rotary?.spinning&&(!hasSecretWeapon(p,'fokkerLeimberger')||now-rotary.lastShotAt>.20)){
   delete rotary.spinning;sound(p,'secretRotaryStop');
  }
- if(!hasSecretWeapon(p,'longRangeBombers'))bomberRuns.delete(p);
- if(hasSecretWeapon(p,'fliegerpfeil'))tickSteelRain(p,secretWeaponEffect(p,'fliegerpfeil'),flechette);
  if(hasSecretWeapon(p,'badinBreakthrough'))tickWake(p,dt,previous);
+ if(hasSecretWeapon(p,'villarPerosa'))tickVillar(p,dt);
+ tickRankenCharges(p);
 }
 export function clearSecretWeaponTransient(p,stage=false){
  const state=p.secretWeaponState;
  if(!state)return;
  const rain=state.effects.fliegerpfeil;
- if(rain){delete rain.rain;delete rain.rainGroup;delete rain.activeUntil;}
- wakes.delete(p);bomberRuns.delete(p);
+ if(rain)delete rain.activeUntil;
+ wakes.delete(p);
  const rotary=state.effects.fokkerLeimberger,badin=state.effects.badinBreakthrough;
  if(rotary)delete rotary.spinning;
- if(badin){delete badin.breakthrough;delete badin.visualUntil;}
+ if(badin){delete badin.breakthrough;delete badin.wakeAt;}
+ const villar=state.effects.villarPerosa;
+ if(villar)villar.remaining=0;
  if(stage){
+  dartCharges.delete(p);
+  const bug=state.effects.ketteringBug;
+  if(bug)delete bug.activeUntil;
   const heavy=state.effects.sn1650,gas=state.effects.grunkreuzBarrage;
   if(heavy)delete heavy.activeUntil;
   if(gas)delete gas.activeUntil;
@@ -311,44 +498,30 @@ export function secretWingGun(p,wing,target,heading,damage,prepare){
 }
 export function secretBomberWing(p,wing,targetFor,prepare){
  if(!activeWing(wing))return;
- if(!hasSecretWeapon(p,'longRangeBombers')){delete wing.secretBomber;delete wing.secretBombReadyAt;return;}
- const g=worldOf(p),now=time(p);
- wing.secretBomber=true;
- let run=bomberRuns.get(p);
- if(run){
-  wing.secretBombReadyAt=run.readyAt;
-  while(run.next<run.drops.length&&run.drops[run.next].at<=now){
-   const drop=run.drops[run.next++],lane=drop.lane,x=lane.x+Math.cos(lane.a)*drop.distance,y=lane.y+Math.sin(lane.a)*drop.distance;
-   const bomb=dropWingBomb(p,{x,y,a:lane.a},x+Math.cos(lane.a)*102,y+Math.sin(lane.a)*102,prepare,'longRangeBombers',drop.slot,run.damageScale);
-   if(drop.first)secretCooperRelease(p,bomb);
-   cue(p,'bomberRelease',{x,y,a:lane.a},{life:.44});sound(p,'secretBomberRelease');
-  }
-  if(now<run.readyAt)return;
-  bomberRuns.delete(p);
+ if(!hasSecretWeapon(p,'longRangeBombers')){
+  delete wing.secretBomber;delete wing.secretBombReadyAt;delete wing.secretBombSecond;return;
  }
- wing.secretBombReadyAt??=now+1.5+Math.max(0,wing.slot||0)*.9;
+ wing.secretBomber=true;
+ const now=time(p),slot=wing.slot||0;
+ if(wing.secretBombSecond&&wing.secretBombSecond.at<=now){
+  const {x,y}=wing.secretBombSecond;
+  delete wing.secretBombSecond;
+  dropWingBomb(p,wing,x,y,prepare,'longRangeBombers',slot);
+  cue(p,'bomberRelease',wing,{life:.44});sound(p,'secretBomberRelease');
+ }
+ wing.secretBombReadyAt??=now+1.5+Math.max(0,slot)*.9;
  if(wing.secretBombReadyAt>now)return;
  const target=targetFor();
  if(!live(target)||Math.hypot(target.x-wing.x,target.y-wing.y)>430)return;
- const available=Math.min(3,(g.allies||[wing]).filter(a=>a.ownerId===wing.ownerId&&activeWing(a)).length||1);
- const a=Math.atan2(target.y-p.y,target.x-p.x),ca=Math.cos(a),sa=Math.sin(a);
- const drops=[];
- for(let i=0;i<3;i++){
-  const side=(i-1)*60,delay=i*.23,lane={x:target.x-ca*660-sa*side,y:target.y-sa*660+ca*side,a};
-  cue(p,'bomberPass',lane,{delay,life:3.8,speed:380});
-  drops.push({at:now+1.33+delay,lane,distance:505,slot:i,first:i<available});
-  if(i<Math.max(0,available*2-3)){
-   drops.push({at:now+1.66+delay,lane,distance:635,slot:i,first:false});
-  }
- }
- drops.sort((a,b)=>a.at-b.at);
+ const bomb=dropWingBomb(p,wing,target.x,target.y,prepare,'longRangeBombers',slot);
+ secretCooperRelease(p,bomb);
+ wing.secretBombSecond={x:target.x-Math.sin(wing.a)*22,y:target.y+Math.cos(wing.a)*22,at:now+.30};
  wing.secretBombReadyAt=now+SECRET_COMBAT.bomberInterval;
- bomberRuns.set(p,{drops,next:0,readyAt:wing.secretBombReadyAt,damageScale:Math.min(1,available*2/3)});
- sound(p,'secretBomber');
+ cue(p,'bomberRelease',wing,{life:.44});sound(p,'secretBomberRelease');
 }
-function dropWingBomb(p,wing,x,y,prepare,id='longRangeBombers',slot,damageScale=1){
+function dropWingBomb(p,wing,x,y,prepare,id='longRangeBombers',slot){
  const g=worldOf(p),duration=.7,damage=p.payloadPower?.(SECRET_COMBAT.cooperDamage)??SECRET_COMBAT.cooperDamage;
- const bomb=prepare(p,{x,y,sx:wing.x,sy:wing.y,life:duration,maxLife:duration,radius:SECRET_COMBAT.cooperRadius,damage:damage*damageScale,secretWeapon:id,secretBomberSlot:slot,sprite:'cooper',pilotSupport:true,releaseAngle:wing.a});
+ const bomb=prepare(p,{x,y,sx:wing.x,sy:wing.y,life:duration,maxLife:duration,radius:SECRET_COMBAT.cooperRadius,damage,secretWeapon:id,secretBomberSlot:slot,sprite:'cooper',pilotSupport:true,releaseAngle:wing.a});
  (g.friendlyBombs??=[]).push(bomb);
  return bomb;
 }

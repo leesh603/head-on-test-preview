@@ -2,8 +2,8 @@
  * All encounter state is JSON; no simulation RNG, timers, or global state.
  * Coordinates describe the dedicated top-view art, not the ordinary roster sprite.
  */
-import {queueV1500CollapseFx} from './v1500-destruction-fx.js?v=09c75d146ae4289d';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
+import {queueV1500CollapseFx} from './v1500-destruction-fx.js?v=b3bf991d11fc7798';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=b3bf991d11fc7798';
 export const V1500_WIDTH=1774,V1500_HEIGHT=887,V1500_DESTRUCTION_TIME=2.9;
 export const V1500_POINTS=Object.freeze({
  engine_port_front:{x:-117,y:-253.5},engine_port_rear:{x:-117,y:-110.5},

@@ -1,8 +1,8 @@
-import {drawWhiteFlightMuzzle,drawWhiteFlightSignal,drawWhiteFlightManeuver} from './goering-whiteflight-fx.js?v=09c75d146ae4289d';
+import {drawWhiteFlightMuzzle,drawWhiteFlightSignal,drawWhiteFlightManeuver} from './goering-whiteflight-fx.js?v=b3bf991d11fc7798';
 // Real flight positions and gunfire carry escort orders; healthy wings stay clean.
 // Observe actual owned wingmen, accepted support damage and accepted guard hits.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=09c75d146ae4289d';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=09c75d146ae4289d';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=b3bf991d11fc7798';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=b3bf991d11fc7798';
 export const ESCORT_PILOTS=new Set(['goering','brumowski']);
 const INSTALLED=Symbol.for('headon.escort-command-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

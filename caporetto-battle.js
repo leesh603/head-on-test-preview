@@ -1,4 +1,4 @@
-import {CAPORETTO_MAP} from './caporetto-map-profile.js?v=09c75d146ae4289d';
+import {CAPORETTO_MAP} from './caporetto-map-profile.js?v=b3bf991d11fc7798';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export const CAPORETTO_BATTLE=Object.freeze({id:'caporetto-dev-battle',regionContext:6,inset:72,turnBuffer:160,duration:120,waves:Object.freeze([2,3,3]),networked:false,stageRegistered:false});
 export function caporettoFlightBounds(map=CAPORETTO_MAP){const n=CAPORETTO_BATTLE.inset;return{left:n,top:n,right:map.width-n,bottom:map.height-n};}

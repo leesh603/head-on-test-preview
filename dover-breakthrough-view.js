@@ -1,9 +1,12 @@
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {drawAircraftCrash,enemyCrashVisual} from './aircraft-crash.js?v=09c75d146ae4289d';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=b3bf991d11fc7798';
+import {drawAircraftCrash,enemyCrashVisual} from './aircraft-crash.js?v=b3bf991d11fc7798';
 export function doverMissionCard(g,en=false){
  const m=g?.doverMission;if(!m||g.stageBoss?.stages.stageIndex!==17)return null;
- const c=m.config,escort=m.faction==='central';
- return {title:en?'DOVER BREAKTHROUGH':'해협 돌파전',objective:m.rewarded?(m.success?(en?'Mission complete':'임무 성공'):(en?'Mission failed · reduced reward':'임무 실패 · 보상 감소')):escort?`${en?'Bombers through':'폭격기 돌파'} ${m.arrived}/${c.escortGoal}`:`${en?'Bombers down':'폭격기 격추'} ${m.shotDown}/${c.interceptGoal}`,meta:`${en?'Route':'항로'} ${Math.round(m.progress*100)}% · ${m.spawned}/${c.total}${m.bossDefeated?(en?' · Boss down':' · 보스 격파'):''}`};
+ const escort=m.faction==='central',b=m.bossPose;
+ return {title:en?'DOVER BREAKTHROUGH':'해협 돌파전',
+  objective:m.rewarded?(m.success?(en?'Mission complete':'임무 성공'):(en?'Mission failed':'임무 실패')):
+   escort?(en?'Escort R.VIII to the coast':'R.VIII 영국 해안까지 호위'):(en?'Intercept R.VIII before it reaches the coast':'해안 도달 전에 R.VIII 격추'),
+  meta:b?`R.VIII ${Math.ceil(b.hp)}/${Math.ceil(b.maxHp)} · ${en?'Route':'항로'} ${Math.round(m.progress*100)}%`:(en?'R.VIII and Nighthawk approaching':'R.VIII · 나이트호크 접근 중')};
 }
 // Existing Gotha artwork and the game's engine-fire/crash atlas are shared in both modes.
 export function drawDoverConvoy(c,g,{point=(x,y)=>[x,y],drawFieldArt,fieldArtImg,fx,en=false}){
@@ -30,10 +33,11 @@ export function drawDoverConvoy(c,g,{point=(x,y)=>[x,y],drawFieldArt,fieldArtImg
  }
  // A single nearest-convoy arrow keeps late waves discoverable when off screen.
  let nearest=null,best=Infinity;for(const b of m.bombers)if(b.hp>0&&!b.doverResult){const d=(b.x-g.x)**2+(b.y-g.y)**2;if(d<best){best=d;nearest=b;}}
+ if(m.bossPose?.hp>0)nearest=m.bossPose;
  if(nearest&&(Math.abs(nearest.x-g.x)>halfW-70||Math.abs(nearest.y-g.y)>halfH-70)){
   const dx=nearest.x-g.x,dy=nearest.y-g.y,a=Math.atan2(dy,dx),edge=Math.min((halfW-30)/Math.max(.001,Math.abs(Math.cos(a))),(halfH-60)/Math.max(.001,Math.abs(Math.sin(a)))),q=point(g.x+Math.cos(a)*edge,g.y+Math.sin(a)*edge),x=q[0],y=q[1];
   c.save();c.translate(x,y);c.rotate(a);c.strokeStyle='#dfcf9a';c.lineWidth=2.5;c.beginPath();c.moveTo(-7,-6);c.lineTo(4,0);c.lineTo(-7,6);c.stroke();c.restore();
-  c.font='600 12px sans-serif';c.textAlign='center';c.fillStyle='#eee4c8';c.fillText(en?`Bomber flight ${nearest.wave+1}`:`폭격기 ${nearest.wave+1}편대`,x,y-15);
+  c.font='600 12px sans-serif';c.textAlign='center';c.fillStyle='#eee4c8';c.fillText(nearest===m.bossPose?'R.VIII':en?`Bomber flight ${nearest.wave+1}`:`폭격기 ${nearest.wave+1}편대`,x,y-15);
  }
  if(Math.abs(m.destinationY-g.y)<halfH+60){const route=doverCliffRoute(chart,m.destinationY,560,0),q=point(route.x,m.destinationY);c.strokeStyle='#d9cda9';c.setLineDash([12,10]);c.beginPath();c.moveTo(q[0]-260,q[1]);c.lineTo(q[0]+260,q[1]);c.stroke();c.setLineDash([]);c.fillStyle='#eee4c8';c.font='600 13px sans-serif';c.textAlign='center';c.fillText(en?'British coast · exit':'영국 해안 · 돌파 지점',q[0],q[1]-16);}
  c.restore();

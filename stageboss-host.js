@@ -1,53 +1,56 @@
-import {ammunitionPartPadding} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {PILOTS} from './engine.js?v=09c75d146ae4289d';
-import {applyOperationReward,clearOperationBattle,expireOperationRewards,refreshOperationReinforcement,startOperationBattle,tickOperationBattle} from './special-operation-combat.js?v=special-ops-1c861d64';
-import {HARBOR_PARTS} from './harbor-crane-layout.js?v=09c75d146ae4289d';
-import {legacyProjectileTarget} from './projectile-contacts.js?v=09c75d146ae4289d';
-import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=09c75d146ae4289d';
-import {beginFinalArena,tickFinalArena,isFinalArena,hitFinalArena} from './final-arena-host.js?v=09c75d146ae4289d';
-import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js?v=09c75d146ae4289d';
-import {damageFacility} from './ground-facility-missions.js?v=09c75d146ae4289d';
-import {flushIntrusionEquipmentRewards} from './intrusion-equipment-rewards.js?v=09c75d146ae4289d';
-import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
-import {tickIntrusionHost,syncIntrusionTarget,intrusionTargetCollision,hitIntrusionTarget} from './intrusion-boss-host.js?v=09c75d146ae4289d';
-import {momentumDamage} from './ace-momentum.js?v=09c75d146ae4289d';
-import {pilotUnlockRun} from './pilot-unlocks.js?v=09c75d146ae4289d';
-import {bossOrdnanceFamily,bossStrongSound} from './boss-ordnance-loadouts.js?v=09c75d146ae4289d';
-import {isArtilleryImpactSound} from './rural-audio.js?v=09c75d146ae4289d';
-import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=09c75d146ae4289d';
-import {capBomberSalvoDamage} from './bomber-transfer.js?v=09c75d146ae4289d';
-import {recordCombatImpact} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {FRONT_MULTIPLIERS,recordFrontPerformance,frontLength} from './dynamic-front.js?v=09c75d146ae4289d';
-import {beginFrontStage,observeFrontMissions,frontMissionResult,frontBossBalance,combatDamageTime} from './front-performance.js?v=09c75d146ae4289d';
-import {achievementBossCue,achievementBossClear,awardPriorityKill,hasBothFactionFinalClears,recordFactionFinalClear} from './achievements.js?v=09c75d146ae4289d';
-import {doverWorldBounds} from './dover-patrol-chart.js?v=09c75d146ae4289d';
-import {doverBomberFrames,damageDoverBomber,tickDoverMission,clearDoverMission} from './dover-breakthrough.js?v=09c75d146ae4289d';
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=09c75d146ae4289d';
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=09c75d146ae4289d';
-import {LAON_STAGE,ensureLaonBattle,clearLaonBattle,tickLaonBattle,handleLaonCue,discoverLaonBattle,laonAvailableSlots} from './laon-battle.js?v=09c75d146ae4289d';
+import {ammunitionPartPadding} from './heavy-ammunition.js?v=b3bf991d11fc7798';
+import {PILOTS} from './engine.js?v=b3bf991d11fc7798';
+import {applyOperationReward,clearOperationBattle,expireOperationRewards,refreshOperationReinforcement,startOperationBattle,tickOperationBattle} from './special-operation-combat.js?v=b3bf991d11fc7798';
+import {HARBOR_PARTS} from './harbor-crane-layout.js?v=b3bf991d11fc7798';
+import {legacyProjectileTarget} from './projectile-contacts.js?v=b3bf991d11fc7798';
+import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=b3bf991d11fc7798';
+import {beginFinalArena,tickFinalArena,isFinalArena,hitFinalArena} from './final-arena-host.js?v=b3bf991d11fc7798';
+import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js?v=b3bf991d11fc7798';
+import {damageFacility} from './ground-facility-missions.js?v=b3bf991d11fc7798';
+import {flushIntrusionEquipmentRewards} from './intrusion-equipment-rewards.js?v=b3bf991d11fc7798';
+import {intrusionActive} from './intrusion-bosses.js?v=b3bf991d11fc7798';
+import {tickIntrusionHost,syncIntrusionTarget,intrusionTargetCollision,hitIntrusionTarget} from './intrusion-boss-host.js?v=b3bf991d11fc7798';
+import {momentumDamage} from './ace-momentum.js?v=b3bf991d11fc7798';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=b3bf991d11fc7798';
+import {bossOrdnanceFamily,bossStrongSound} from './boss-ordnance-loadouts.js?v=b3bf991d11fc7798';
+import {isArtilleryImpactSound} from './rural-audio.js?v=b3bf991d11fc7798';
+import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=b3bf991d11fc7798';
+import {capBomberSalvoDamage} from './bomber-transfer.js?v=b3bf991d11fc7798';
+import {recordCombatImpact} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {FRONT_MULTIPLIERS,recordFrontPerformance,frontLength} from './dynamic-front.js?v=b3bf991d11fc7798';
+import {beginFrontStage,observeFrontMissions,frontMissionResult,frontBossBalance,combatDamageTime} from './front-performance.js?v=b3bf991d11fc7798';
+import {achievementBossCue,achievementBossClear,awardPriorityKill,hasBothFactionFinalClears,recordFactionFinalClear} from './achievements.js?v=b3bf991d11fc7798';
+import {doverWorldBounds} from './dover-patrol-chart.js?v=b3bf991d11fc7798';
+import {doverBomberFrames,damageDoverBomber,tickDoverMission,ensureDoverMission,clearDoverMission} from './dover-breakthrough.js?v=b3bf991d11fc7798';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=b3bf991d11fc7798';
+import {updateRuralRailGround,ruralRailApproach,ruralRailRoute,syncRuralRailGround} from './rural-rail-ground.js?v=b3bf991d11fc7798';
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=b3bf991d11fc7798';
+import {LAON_STAGE,ensureLaonBattle,clearLaonBattle,tickLaonBattle,handleLaonCue,discoverLaonBattle,laonAvailableSlots} from './laon-battle.js?v=b3bf991d11fc7798';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=09c75d146ae4289d';
+import {tickRegionalConditions} from './region-doctrine1.js?v=b3bf991d11fc7798';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=09c75d146ae4289d';
-import {handleMaanCue} from './maan-view.js?v=09c75d146ae4289d';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=09c75d146ae4289d';
-import {tickCityAirRaid,cityRaidGate} from './city-air-raid.js?v=09c75d146ae4289d';
-import {tickZeebruggeRaid} from './zeebrugge-raid.js?v=09c75d146ae4289d';
-import {isDoverBoss} from './dover-night-view.js?v=09c75d146ae4289d';
-import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=09c75d146ae4289d';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=09c75d146ae4289d';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=09c75d146ae4289d';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=09c75d146ae4289d';
-import {bossSoundFor} from './boss-feedback.js?v=09c75d146ae4289d';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=09c75d146ae4289d';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=09c75d146ae4289d';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=b3bf991d11fc7798';
+import {handleMaanCue} from './maan-view.js?v=b3bf991d11fc7798';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=b3bf991d11fc7798';
+import {tickCityAirRaid,cityRaidGate,cityRaidBattle} from './city-air-raid.js?v=b3bf991d11fc7798';
+import {tickZeebruggeRaid} from './zeebrugge-raid.js?v=b3bf991d11fc7798';
+import {ensureMapMission,tickMapMission,clearMapMission} from './map-primary-objectives.js?v=b3bf991d11fc7798';
+import {isDoverBoss} from './dover-night-view.js?v=b3bf991d11fc7798';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=b3bf991d11fc7798';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=b3bf991d11fc7798';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=b3bf991d11fc7798';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=b3bf991d11fc7798';
+import {bossSoundFor} from './boss-feedback.js?v=b3bf991d11fc7798';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=b3bf991d11fc7798';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=b3bf991d11fc7798';
 const SEAPLANE_BOMBERS=new Set(['hansa_brandenburg_cc','hb_w29','ff33','lohner_l','macchi_m5','macchi_m3']);
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=09c75d146ae4289d';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=b3bf991d11fc7798';
 
 
-import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=09c75d146ae4289d';
+import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=b3bf991d11fc7798';
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심 공습','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해협 돌파전','베를린 방어선','라온 포격진지 · 1918'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
+const MAP_BOSS_CONTACT=Object.freeze({5:30,6:6,9:16,13:20});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
 const formationDefenders=g=>[...(g.patrols||[])].filter(a=>a&&a.life>0&&(a.hp===undefined||a.hp>0));
@@ -121,8 +124,19 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   const maanHeavyImpact=(source?.bossKind==='wustenpanzer'&&source.visual==='wusten-impact')||(source?.bossKind==='sinai-landship'&&source.visual==='sinai-impact');
   const finalDamage=maanHeavyImpact?Math.min(rawDamage,115):rawDamage;const smallArms=source?.kind==='projectile'&&(/-mg$/.test(source.visual)||source.visual==='rviii-gun');const priorSource=p.damageSource;p.damageSource=source?{x:source.x-(source.vx||0),y:source.y-(source.vy||0),kind:source.kind,visual:source.visual,hazard:source,bullet:source.kind==='projectile'?{...source,flak:!smallArms,heavyShell:!smallArms,gas:false}:null}:null;try{if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);}finally{p.damageSource=priorSource;}if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
  const hooks={
-  getDoverMission(){return g.doverMission;},
+  getDoverMission({initialize=false}={}){return initialize?ensureDoverMission(g):g.doverMission;},
   getLaonMission(){return g.laonBattle;},
+  getMapMission(){return g.mapMission;},
+  onMapMissionCleared(m){
+   if(m.rewarded)return;m.rewarded=true;
+   // Native boss kills already paid their normal reward. A mission exit pays
+   // equivalent growth without inventing a kill, boss achievement or unlock.
+   if(!g.stageBoss.stages.encounter?.completed){
+    const total=Math.min(36,12+m.region*2+g.stageBoss.stages.loopIndex*4),p=players(g)[0]||g;
+    for(const value of g.xpGemSplits?.(total)||[])(g.drops??=[]).push({x:p.x,y:p.y,value,bossReward:true});
+    (g.drops??=[]).push({x:p.x,y:p.y,value:0,heal:true,bossReward:true});
+   }
+  },
   onLaonMissionCleared(){const b=g.laonBattle;if(!b||b.cleared)return;b.cleared=true;for(const value of g.xpGemSplits?.(36)||[])(g.drops??=[]).push({x:g.x,y:g.y,value,bossReward:true});g.event('wave',b.role==='attack'?'파리포 저지 완료 · 파리 공습전으로 이동':b.shotCount+'회 포격 완료 · 파리 공습전으로 이동');},
   canEnterFinalArena(){return g.testMode===true?true:g.online?g.finalArenaPeersQualified?.()===true:hasBothFactionFinalClears();},
   isCapitalFinalEncounter(encounter){const s=g.stageBoss?.stages;return encounter===s?.encounter&&s.capitalRound===1&&s.capitalEncounter&&encounter.bossId===s.capitalBossId&&BOSS_CATALOG[encounter.bossId]?.capitalFinal===true&&encounter.bodies instanceof Map&&encounter.bodies.size>0&&[...encounter.bodies.values()].every(b=>b.isCapitalBoss===true)||g.capitalFinalArenaAdapter?.isFinalEncounter?.(encounter)===true;},
@@ -224,6 +238,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(event.type==='formation-final-order')g.event('wave',event.name+' · 예고선 밖으로 선회!');
    if(event.type==='carrier-sortie-orders')redirectStuttgartSortie(g.enemies,event);
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
+   syncRuralRailGround(g,body);
    queueBossArtilleryMuzzle(g,event,body||(event.bossId==='gallipoli-approach'?g.gallipoliRoute?.preview:null));
    recordAdriaticGunCue(body,event);
    achievementBossCue(g,event,body);
@@ -252,7 +267,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
       g.hostileMinefields.push({x:mx,y:my,radius:Math.max(60,...mines.map(m=>Math.hypot(m.x-mx,m.y-my)+20)),
         warning:event.warning,life:event.life,region:g.worldRegion(),mines,fuse:event.fuse??null,blastRadius:event.blastRadius||58,blastHeavy:!!event.blastHeavy,fuseAge:0,fuseTag:null,deploySeconds:deploying?(event.deploySeconds||event.warning):0,deployAge:0,dropMode:event.dropMode,sourcePartId:event.sourcePartId,sourceBossId:event.bossId,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
    }
-    if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
+    if(event.type==='boss-enter'){const name=BOSS_CATALOG[event.bossId].name;g.event('wave',cityRaidBattle(g)?`도심 방어 · 시가지를 지키며 ${name} 격퇴`:'지역 보스 출현! · '+name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||groundShellProfile(event.visual)&&event.visual.startsWith('somme-'))){const profile=groundShellProfile(event.visual);pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell',artillerySound:isArtilleryImpactSound(sound)?sound:null},profile));g.shake=Math.max(g.shake,profile==='heavyShell'?5:3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual==='carpet-bomb'&&['staaken-rvi','gik','ca4'].includes(body?.kind)){g.combatBlast(event.x,event.y,event.radius,'enemy','bomb');g.shake=Math.max(g.shake,3);}
@@ -278,6 +293,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight','flak-tower-cell','ca4'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure','ammoCookoff');g.shake=Math.max(g.shake,8);}
    else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron',ammo=event.partId==='ammo'||event.partId==='ammo-storage'||event.partId==='car-front'&&['bruno-railway-gun','lincomparable'].includes(body?.kind)||minen||part?.kind==='engine-deck';g.combatBlast(x+(part?.x||0),y+(part?.y||0),['gotha-raider','o400-raider'].includes(body?.kind)?(/engine/.test(event.partId)?26:event.partId==='bomb-bay'?30:20):apron?22*body.apronScale:minen?34:46,'enemy','structure',part?.kind==='fuel'||event.partId==='fuel'||body?.kind==='livens-flame-projector'&&event.partId?.startsWith('tank-')?'fuelFire':ammo?'suppressed':/engine|motor/.test(part?.kind||part?.id||'')?'engineBreak':(body?.jutlandBoss&&!body?.jutlandAirship||/^(sms-stuttgart|hms-zubian)/.test(body?.kind||''))?'navalBreak':'armorBreak');g.shake=Math.max(g.shake,['gotha-raider','o400-raider'].includes(body?.kind)?2.5:apron?3:minen?5:7);
      if(['a7v-flak','mark-v-cruiser','drachen-net'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
+   else if(event.type==='rail-break'&&body?.ruralRailBoss&&event.rail){
+    // The rail is fixed to the ground; the locomotive may be far away.
+    g.combatBlast(event.rail.x,event.rail.y,50,'enemy','structure','armorBreak');g.shake=Math.max(g.shake,5);
+   }
    else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure','ammoCookoff');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10,'profileOnly');if(g.smoke){g.smoke(event.x-18,event.y+8,true,true);g.smoke(event.x+22,event.y-5,true,true)}g.shake=Math.max(g.shake,9);}
    else if(event.type==='harbor-crane-disabled'){for(const f of g.hostileMinefields||[])if(f.sourceBossId===event.bossId&&f.sourcePartId==='crane-arm')for(const m of f.mines)if(m.deploying){m.dead=true;m.chainHandled=true;}}
    else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure','ammoCookoff');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화');}
@@ -313,12 +332,14 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='phase-change')g.event('bossPhase',event.phase);
   },
   onEncounterCleared({id,bossId}){
+   const city=cityRaidBattle(g);
+   if(city)city.cleared=true;
    const fortresses=[...g.stageBoss?.stages.encounter?.bodies.values()||[]].filter(b=>b.fortressBoss);
    if(fortresses.length)g.verdunWrecks=[...(g.verdunWrecks||[]),...fortresses];
    if(g.londonBattle){g.londonBattle.cleared=true;if(g.londonBattle.role==='defend')for(const d of g.londonBattle.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:d.x,y:d.y,value:24,bossReward:true});}
    if(g.parisBattle)g.parisBattle.cleared=true;
    g.kills++;awardPriorityKill(g,{stageBossBody:true});achievementBossClear(g,{id,bossId});const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
-   g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+(g.doverMission?' 격파 · 폭격기 임무 계속':g.laonBattle?.role==='defend'?' 격파 · 파리포 방어 계속':' 격파 · 다음 지역 진입'));
+   g.event('kill','');g.event('wave',city?`도심 방어 성공 · 폭격대 격퇴 · 보호시설 ${city.districts.filter(d=>d.hp>0).length}/${city.districts.length}곳 사수`:BOSS_CATALOG[bossId].name+(g.doverMission?' 격파 · 폭격기 임무 계속':g.laonBattle?.role==='defend'?' 격파 · 파리포 방어 계속':g.mapMission&&!g.mapMission.resolved?' 격파 · 남은 작전 목표를 완료하세요':' 격파 · 다음 지역 진입'));
    const hero=players(g)[0]||g,stages=g.stageBoss?.stages||{},stageIndex=stages.stageIndex||0,loopIndex=stages.loopIndex||0;
    const total=g.doverMission?18:Math.min(36,12+stageIndex*2+loopIndex*4),gems=g.xpGemSplits(total);
    for(let i=0;i<gems.length;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:gems[i],heal:false,bossReward:true})}
@@ -349,6 +370,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    g.state='front-complete';g.onStageCheckpoint?.();
   },
   onStageChange({stageIndex,loopIndex}){const stage=g.stageBoss.stages;
+   clearMapMission(g);
+   const city=g.cityDefenseRaid||(g.londonBattle?.cityGotha?g.londonBattle:null);
+   g.cityDefenseRaid=null;g.cityDefense=null;
    if(g.operationRewardLoop!=null&&g.operationRewardLoop!==loopIndex)expireOperationRewards(g);
    clearLaonBattle(g);clearDoverMission(g);if(g.gallipoliRoute)g.stageBoss.hazards.clear(g.gallipoliRoute.encounterId);g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;if(g.stageBoss.stages.front){g.frontEntryKills=g.priorityKills||0;g.frontTargets=[];beginFrontStage(g);}g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
    // A fresh map starts clean: leftover stragglers must not be sitting on top
@@ -356,10 +380,15 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    g.enemies=g.enemies.filter(e=>e.missionTarget||e.stageBossBody||e.navalVessel||e.heavyBomber||e.bossPilot&&e.hp>0&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed);
    if(stageIndex===9){const reserved=new Set(['baron','collishaw']);g.enemies=g.enemies.filter(e=>!reserved.has(e.bossPilot));g.bossDeck=(g.bossDeck||[]).filter(id=>!reserved.has(id));if(reserved.has(g.rivalAce?.pilot)&&g.rivalAce.phase!=='DEFEATED'){g.rivalAce.active=null;g.rivalAce.phase='ESCAPED';g.rivalAce.returnAt=Infinity;g.rivalAceNotice=null;}}
    else if(previousRegion===9&&g.rivalAce?.phase==='ESCAPED'&&g.rivalAce.returnAt===Infinity)g.rivalAce.returnAt=g.t+5;
+   updateRuralRailGround(g,{newMap:stageIndex===0});
    g.stageCombatWindow=null;g.syncAceSortie?.();
    g.bullets=g.bullets.filter(b=>!b.enemy);
    g.frontBriefing=g.stageBoss.stages.front?{risk:g.stageBoss.stages.front.risk,mission:g.stageBoss.stages.front.report?.mission??null,additional:[17,19].includes(stageIndex)?0:Math.max(0,g.stageBoss.stages.front.risk-2)}:null;
-   if(previousRegion!==undefined&&previousRegion!==stageIndex)g.events.push({type:'regionTransition',region:stageIndex,previousRegion,text:STAGE_NAMES[stageIndex]});const front=g.stageBoss.stages.front;
+   if(previousRegion!==undefined&&previousRegion!==stageIndex){
+    const defendedCity=city?.cleared?{saved:city.districts.filter(d=>d.hp>0).length,total:city.districts.length}:null;
+    g.events.push({type:'regionTransition',region:stageIndex,previousRegion,text:STAGE_NAMES[stageIndex],...(defendedCity?{defendedCity}:null)});
+   }
+   const front=g.stageBoss.stages.front;
    if(stage.phase==='operation-active'){
     g.enemies=[];g.patrols=[];g.bullets=[];
     startOperationBattle(g,stage.operation.id,PILOTS,stage.operation);
@@ -375,10 +404,11 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
 // Thin combat targets share body state. They never run the old enemy AI or rewards.
 export function syncStageBossTargets(g){
  const encounter=g.stageBoss?.stages.encounter,bodies=encounter?.bodies;
- g.enemies=g.enemies.filter(e=>!e.stageBossBody||e.intrusionBody||bodies?.get(e.stageBossBody.id)===e.stageBossBody&&!e.stageBossBody.dead&&(!e.laonPlane||e.stageBossBody.parts.get(e.laonPlane)?.hp>0));
- const incoming=[...bodies?.values()||[]].filter(body=>!body.dead&&body.kind!=='french-counter-battery'&&!g.enemies.some(e=>e.stageBossBody===body));
+ const targetable=b=>!b.dead&&(!g.doverMission?.bossObjective||b.faction!==g.doverMission.faction);
+ g.enemies=g.enemies.filter(e=>!e.stageBossBody||e.intrusionBody||bodies?.get(e.stageBossBody.id)===e.stageBossBody&&targetable(e.stageBossBody)&&(!e.laonPlane||e.stageBossBody.parts.get(e.laonPlane)?.hp>0));
+ const incoming=[...bodies?.values()||[]].filter(body=>targetable(body)&&body.kind!=='french-counter-battery'&&!g.enemies.some(e=>e.stageBossBody===body));
  if(incoming.length)g.reserveEnemySlots(incoming.length);
- for(const body of bodies?.values()||[]){if(body.dead||g.enemies.some(e=>e.stageBossBody===body))continue;
+ for(const body of bodies?.values()||[]){if(!targetable(body)||g.enemies.some(e=>e.stageBossBody===body))continue;
   if(body.kind==='french-counter-battery')continue;
   const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,combatLayer:body.isCapitalBoss||body.jutlandAirship||isDoverBoss(body.kind)||AIRBORNE_BOSSES.has(body.kind)?'air':'surface',stationary:!isDoverBoss(body.kind),surface:!body.isCapitalBoss&&!body.jutlandAirship&&!isDoverBoss(body.kind),missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
   const synced=['x','y','hp','maxHp'];if(Number.isFinite(body.a))synced.push('a');
@@ -554,17 +584,23 @@ export function updateAceRecovery(g){
 }
 export function aceRecoveryReady(g){return !g._aceCombatActive?.size&&(g._aceCombatEndedAt==null||g.t-g._aceCombatEndedAt>=8);}
 // Share the authored approach window with the existing Director and missions.
-// This observes distance/time; it never advances or moves the boss trigger.
+// Most stages approach by distance/time; the Adriatic approach follows the blockade.
 export function stageCombatWindow(g){
  const stages=g.stageBoss?.stages;if(!stages)return null;
  const stage=stages.stageIndex,route=stage===7?g.navalRoute:stage===14?g.gallipoliRoute:stage===16?g.jutlandRoute:null;
+ if(stage===1&&g.mapMission?.region===1){
+  const mission=g.mapMission,remaining=Math.max(0,60-mission.age);
+  const ready=(mission.blockadeCleared||remaining===0)&&!intrusionActive(g);
+  return {stageIndex:stage,loopIndex:stages.loopIndex||0,remaining:ready?0:remaining,
+   progress:ready?1:1-remaining/60,approaching:ready||remaining<=18,ready};
+ }
  {const raid=cityRaidGate(g);if(raid)return {stageIndex:4,loopIndex:stages.loopIndex||0,remaining:raid.remaining,progress:raid.progress,approaching:false,ready:raid.ready};}
  if(stage===17&&g.doverMission){const m=g.doverMission;return {stageIndex:17,loopIndex:stages.loopIndex||0,remaining:Math.max(0,(m.bossApproachAt??m.lastWaveAt+m.config.waveGap)-m.time),progress:m.progress,approaching:true,ready:m.bossReady};}
  const distance=stage===14?GALLIPOLI_ROUTE.fort:stage===16?JUTLAND_ROUTE.approach:STAGE_BOSS_BALANCE.distance;
  const target=distance*(stage===7?.78:1),travel=route?Math.max(0,route.maxForward||0):Math.max(0,(g.distance||0)-(g.stageStartDistance||0));
  const speed=Math.max(170,...players(g).filter(alive).map(p=>Math.abs(p.speed||0)));
  const travelLeft=Math.max(0,(target-travel)/speed),timed=stage!==7&&stage!==14;
- const deadline=stage===16?JUTLAND_ROUTE.deadline:STAGE_BOSS_BALANCE.deadline;
+ const deadline=stage===16?JUTLAND_ROUTE.deadline:g.mapMission?.region===stage?(MAP_BOSS_CONTACT[stage]??STAGE_BOSS_BALANCE.deadline):STAGE_BOSS_BALANCE.deadline;
  const timeLeft=timed?Math.max(0,deadline-((g.t||0)-(g.stageStartTime||0))):Infinity;
  const remaining=stages.phase==='explore'?Math.min(travelLeft,timeLeft):0;
  // Jutland can reserve the early approach until its existing 32s deadline.
@@ -573,10 +609,13 @@ export function stageCombatWindow(g){
  return {stageIndex:stage,loopIndex:stages.loopIndex||0,remaining,intrusionRemaining,progress:Math.min(1,travel/target),approaching:remaining<=18,ready:travel>=target||timeLeft===0};
 }
 export function beginStageBossFrame(g,dt){
- const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
+ const addon=g.stageBoss;if(!addon)return;
+ updateRuralRailGround(g);
+ if(blocked(g)||dt<=0)return;
  observeFrontMissions(g);
  if(addon.stages.phase==='final-arena'){beginFinalArena(g);return;}
  if(addon.stages.phase==='operation-active'||addon.stages.phase==='operation-offer')return;
+ ensureMapMission(g);
  ensureLaonBattle(g);
  tickDoverMission(g,dt);
  tickIntrusionHost(g,dt,stageCombatWindow(g));
@@ -587,7 +626,7 @@ export function beginStageBossFrame(g,dt){
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  for(const cue of g.bossCues){if(!cue.followSource)continue;const b=addon.stages.encounter?.bodies.get(cue.bossId),p=b?.parts.get(cue.partId);if(!b||b.dead||!p||p.destroyed){cue.life=0;continue;}const a=cue.lockedAngle;cue.x=b.x+p.x+Math.cos(a)*5;cue.y=b.y+p.y+Math.sin(a)*5;cue.targetX=cue.x+Math.cos(a)*460;cue.targetY=cue.y+Math.sin(a)*460;}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
- tickLondonBattle(g,dt);tickCityAirRaid(g,dt);tickZeebruggeRaid(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
+ tickLondonBattle(g,dt);tickCityAirRaid(g,dt);if(g.mapMission?.region!==7)tickZeebruggeRaid(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
  if(addon.stages.stageIndex===LAON_STAGE){discoverLaonBattle(g);g.stageCombatWindow={stageIndex:LAON_STAGE,loopIndex:addon.stages.loopIndex,remaining:0,progress:1,approaching:true,ready:true};syncStageBossTargets(g);updateMinions(g,dt);return;}
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
@@ -612,12 +651,13 @@ export function beginStageBossFrame(g,dt){
   g.navalRouteCues??=new Set();for(const [mark,message]of messages)if(progress>=mark&&!g.navalRouteCues.has(mark)){g.navalRouteCues.add(mark);g.event('wave',message);}
  }
  g.stageCombatWindow=stageCombatWindow(g);
- if(addon.stages.phase==='explore'&&g.stageCombatWindow.ready&&!(stage===16&&intrusionActive(g))){
+ if(addon.stages.phase==='explore'&&g.stageCombatWindow.ready&&!g.mapMission?.suppressBoss&&!([1,16].includes(stage)&&intrusionActive(g))){
   // Keep this gate latched after an ace dies: a quick kill must not pull
   // another scheduled ace forward or erase the interval before the boss.
   const liveAces=(g.enemies||[]).filter(e=>e.hp>0&&e.bossPilot&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed&&!e.bossMinion&&!e.stageBossBody&&!e.encounterId&&!e.escortLeaderId);
   for(const ace of liveAces)g._aceGateAt=Math.max(g._aceGateAt??-Infinity,ace.aceSpawnT??g.t);
-  if((stage===17&&g.doverMission||aceRecoveryReady(g)&&g.t>=(g.battleRecoveryUntil||0)&&g.battlefieldEvents?.current?.status!=='active'&&!g.eliteEnemies?.active&&(g._aceGateAt==null||g.t-g._aceGateAt>=20))&&(g.t>=(g.bossPresentationAfter||0))){
+  const missionContact=g.mapMission?.region===stage&&[6,13].includes(stage);
+  if((stage===17&&g.doverMission||missionContact||aceRecoveryReady(g)&&g.t>=(g.battleRecoveryUntil||0)&&g.battlefieldEvents?.current?.status!=='active'&&!g.eliteEnemies?.active&&(g._aceGateAt==null||g.t-g._aceGateAt>=20))&&(g.t>=(g.bossPresentationAfter||0))){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===16?'경고 · 북해 기함 접근 / 측면 포격에 주의':stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   // Harbor is an installed structure: reveal it along the existing approach,
   // at the same authored quay coordinates, instead of materializing after it.
@@ -639,7 +679,9 @@ export function beginStageBossFrame(g,dt){
       :jutlandPoint(r,Math.min(along+1150,JUTLAND_ROUTE.bossLimit-1200),clamp(across,-JUTLAND_ROUTE.halfWidth+1000,JUTLAND_ROUTE.halfWidth-1000));
     x=fleet.x;y=fleet.y;
    }else if(stage===14){const p=gallipoliPoint(g.gallipoliRoute,GALLIPOLI_ROUTE.fort);x=p.x;y=p.y;
-   }else if(stage===17){x=g.x;y=bounds.top-520;
+   }else if(stage===17){x=g.x;y=bounds.top-350;
+   }else if(stage===13&&g.mapMission?.air?.route[1]){
+    const m=g.mapMission,q=m.air.route[1];x=q.x+Math.cos(m.heading)*1750;y=q.y+Math.sin(m.heading)*1750;
    }else if(stage===13){x=g.x;y=g.y-Math.min(340,(bounds.bottom-bounds.top)*.42);
    }else if(stage===8&&addon.stages.bossId==='treffas-wagen'){
     x=g.x;y=bounds.top-210;g.event('bossSound','armorEntry');g.event('wave','거대한 바퀴의 진동 · 들판 전방에 육상전함 접근');
@@ -655,7 +697,11 @@ export function beginStageBossFrame(g,dt){
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
-   const entered=addon.startBoss({x,y,presentArrival:true,entryBounds:bounds});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
+   const railGround=stage===0?g.ruralRailGround:null;
+   if(railGround)railGround.approaching=!!ruralRailApproach(g);
+   if(!railGround?.approaching){
+    const entered=addon.startBoss({x:railGround?.artOrigin.x??x,y,presentArrival:true,entryBounds:bounds});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
+   }
   }
   }
  }
@@ -723,10 +769,16 @@ export function endStageBossFrame(g,dt){
  // The host has already resolved its entire upgrade queue/loss state this frame.
  const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>{const v=pilotVelocity(p,dt);return{id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:v.vx,vy:v.vy,turn:p.turn,radius:12,cloudConceal:p.cloudConceal||0,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}});
  const defenderFrames=addon.stages.stageIndex===9?(g.patrols||[]).map(a=>formationDefenderFrame(g,a)):[];
- if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
+ if(addon.stages.stageIndex===13){
+  const scout=g.mapMission?.air?.scout;if(scout?.hp>0)playerFrames.push(formationDefenderFrame(g,scout));
+  for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
+ }
  const doverBombers=addon.stages.stageIndex===17?doverBomberFrames(g):[],doverConvoy=(addon.stages.stageIndex===17?g.doverMission?.bombers||[]:[]).filter(b=>b.hp>0&&!b.doverResult&&!b.expired&&!b.crashing&&!b.crashed).map(b=>({id:b.id,alive:true,x:b.x,y:b.y,a:b.a,vx:b.vx||0,vy:b.vy||0,radius:b.hitRadius||24,lastHitAt:b.lastHitAt}));
- const frame={doverBombers,doverConvoy,doverTime:g.t,capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverWorldBounds(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
- frame.laonAvailableSlots=laonAvailableSlots(g);addon.tick(dt,frame);tickLaonBattle(g,dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
+ const frame={doverBombers,doverConvoy,doverTime:g.t,capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverWorldBounds(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:(cityRaidBattle(g)||g.londonBattle)?.districts||[],parisTargets:g.parisBattle?.districts||[]};
+ frame.ruralRailRoute=ruralRailRoute(g);
+ frame.laonAvailableSlots=laonAvailableSlots(g);addon.tick(dt,frame);
+ for(const body of addon.stages.encounter?.bodies.values()||[])syncRuralRailGround(g,body);
+ tickLaonBattle(g,dt,frame);tickMapMission(g,dt);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are
   // the actual dangerous geometry, and destroyed sections leave open air.
  if(g.state==='lost')addon.dispose();

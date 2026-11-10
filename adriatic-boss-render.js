@@ -1,8 +1,8 @@
-import {drawAdriaticGun} from './adriatic-gun-art.js?v=09c75d146ae4289d';
-import {drawShipWater} from './naval-water.js?v=09c75d146ae4289d';
-import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
-import {fx,fxReady} from './fx-art.js?v=09c75d146ae4289d';
-import {drawSinkingShip} from './ship-sinking.js?v=09c75d146ae4289d';
+import {drawAdriaticGun} from './adriatic-gun-art.js?v=b3bf991d11fc7798';
+import {drawShipWater} from './naval-water.js?v=b3bf991d11fc7798';
+import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=b3bf991d11fc7798';
+import {fx,fxReady} from './fx-art.js?v=b3bf991d11fc7798';
+import {drawSinkingShip} from './ship-sinking.js?v=b3bf991d11fc7798';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({

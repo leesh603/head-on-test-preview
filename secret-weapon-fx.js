@@ -1,23 +1,24 @@
-import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
-import {fx} from './fx-art.js?v=tame3';
-import {drawFlakAirburst} from './flak-airburst-art.js';
-import {drawIncendiaryFire} from './incendiary-fire.js';
-import {hasSecretWeapon} from './secret-weapons.js';
-import {steelDartPoint} from './secret-weapon-combat.js';
+import {planeSprite} from './aircraft.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {drawFlakAirburst} from './flak-airburst-art.js?v=b3bf991d11fc7798';
+import {drawIncendiaryFire} from './incendiary-fire.js?v=b3bf991d11fc7798';
+import {prepareSandVortexArt} from './sand-vortex-art.js?v=b3bf991d11fc7798';
+import {KETTERING_DIVE} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
 
 const sprites=Object.create(null);
-let bombShadow;
+let bombShadow,bugShadow,badinVortex;
 export const secretWeaponArtReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all(
- ['sn1650','badin-gauge','grunkreuz-stencil'].map(key=>new Promise(resolve=>{
+ ['sn1650','grunkreuz-stencil','kettering','ranken'].map(key=>new Promise(resolve=>{
   const image=new Image();
   image.onload=()=>{
    sprites[key]=image;
-   if(key==='sn1650'){
-    bombShadow=document.createElement('canvas');
-    bombShadow.width=image.naturalWidth;bombShadow.height=image.naturalHeight;
-    const shadow=bombShadow.getContext('2d');
+   if(key==='sn1650'||key==='kettering'){
+    const silhouette=document.createElement('canvas');
+    silhouette.width=image.naturalWidth;silhouette.height=image.naturalHeight;
+    const shadow=silhouette.getContext('2d');
     shadow.drawImage(image,0,0);shadow.globalCompositeOperation='source-in';
-    shadow.fillStyle='#161912';shadow.fillRect(0,0,bombShadow.width,bombShadow.height);
+    shadow.fillStyle='#161912';shadow.fillRect(0,0,silhouette.width,silhouette.height);
+    if(key==='sn1650')bombShadow=silhouette;else bugShadow=silhouette;
    }
    resolve(true);
   };
@@ -30,7 +31,7 @@ const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));
 const mix=(a,b,t)=>a+(b-a)*t;
 const TAU=Math.PI*2;
 function paint(c,key,x,y,w,h,a=0,alpha=1){
- const image=key==='shadow'?bombShadow:sprites[key];
+ const image=key==='shadow'?bombShadow:key==='bugShadow'?bugShadow:sprites[key];
  if(!image||alpha<=0)return;
  c.save();c.translate(x,y);if(a)c.rotate(a);c.globalAlpha*=alpha;
  c.imageSmoothingEnabled=true;c.drawImage(image,-w/2,-h/2,w,h);c.restore();
@@ -38,6 +39,21 @@ function paint(c,key,x,y,w,h,a=0,alpha=1){
 
 export function secretBomberAirframe(faction){
  return faction==='central'?'bomber-transfer-gotha':'bomber-transfer-o400';
+}
+
+function drawBadinVortex(c,x,y,a,side,size,phase,opacity){
+ if(!badinVortex){
+  const source=prepareSandVortexArt();
+  if(!source?.naturalWidth)return;
+  badinVortex=document.createElement('canvas');
+  badinVortex.width=128;badinVortex.height=128;
+  const g=badinVortex.getContext('2d');
+  g.filter='grayscale(1) brightness(1.6)';
+  g.drawImage(source,0,0,128,128);
+ }
+ c.save();c.translate(x,y);c.rotate(a);
+ c.scale(1.3,side*.85);c.rotate(phase);c.globalAlpha*=opacity;
+ c.drawImage(badinVortex,-size/2,-size/2,size,size);c.restore();
 }
 
 function drawStrategicFall(c,b,{sx,sy,z,visible},faction){
@@ -57,23 +73,33 @@ function drawStrategicFall(c,b,{sx,sy,z,visible},faction){
  paint(c,'sn1650',bx,by,length,length*.28,a,1);
 }
 
-function drawBadin(c,players,now,{sx,sy,z,visible}){
- for(const p of players){
-  if(!hasSecretWeapon(p,'badinBreakthrough')||p.hp<=0||p.status==='downed'||!visible(p.x,p.y))continue;
-  const state=p.secretWeaponState.effects.badinBreakthrough,straight=p.equipmentStraight||0;
-  const q=clamp((state?.visualUntil-now+.26)/.36)||0;
-  if(straight<.25&&q<=0)continue;
-  const a=p.a||0,ca=Math.cos(a),sa=Math.sin(a),x=sx(p.x),y=sy(p.y);
-  const size=45*z,gx=x-37*z,gy=y+44*z,ratio=clamp((state?.visualRatio-1.08)*2.7)||0;
-  if(sprites['badin-gauge']){
-   const needle=-2.52+3.85*clamp(straight*.45+q*(.3+ratio*.25));
-   c.save();c.globalAlpha*=Math.min(1,straight+q);paint(c,'badin-gauge',gx,gy,size,size);
-   c.lineCap='round';c.strokeStyle='#522219';c.lineWidth=1.7*z;c.beginPath();
-   c.moveTo(gx,gy);c.lineTo(gx+Math.cos(needle)*size*.29,gy+Math.sin(needle)*size*.29);c.stroke();
-   c.restore();
-  }
-  for(const side of [-1,1])fx(c,'mist',x-ca*25*z-sa*side*31*z,y-sa*25*z+ca*side*31*z,(36+ratio*35)*z,8*z,a,q*.38);
+function drawKettering(c,b,{sx,sy,z,visible}){
+ const image=sprites.kettering;
+ if(!image||!visible(b.x,b.y,110))return;
+ const a=b.a,x=sx(b.x),y=sy(b.y),dive=clamp(1-b.life/KETTERING_DIVE);
+ const width=52*z,height=width*image.naturalHeight/image.naturalWidth;
+ paint(c,'bugShadow',x+z*(14-11*dive),y+z*(18-15*dive),width*(.83+.10*dive),height,a+Math.PI/2,.18+.37*dive);
+ if(!dive){
+  const d=14+Math.sin(b.life*30)*2;
+  fx(c,'smokeWisp',x-Math.cos(a)*d*z,y-Math.sin(a)*d*z,24*z,8*z,a,.45);
+  paint(c,'kettering',x,y,width,height,a+Math.PI/2);
+  return;
  }
+ const iw=image.naturalWidth,ih=image.naturalHeight,l=Math.round(iw*.45),r=iw-l;
+ const top=Math.round(ih*.116),bottom=Math.round(ih*.68),k=width/iw;
+ c.save();c.translate(x,y);c.rotate(a+Math.PI/2);
+ // The intact sprite supplies both wing panels and the separate falling body.
+ for(const side of [-1,1]){
+  c.save();c.translate(side*width*dive*.7,height*dive*.7);c.rotate(side*dive*1.6);c.globalAlpha*=1-dive*.85;
+  const sx=side<0?0:r;
+  c.drawImage(image,sx,top,l,bottom-top,sx*k-width/2,top*k-height/2,l*k,(bottom-top)*k);
+  c.restore();
+ }
+ c.scale(1-.18*dive,1-.58*dive);
+ for(const [u,v,w,h] of [[0,0,iw,top],[l,top,r-l,bottom-top],[0,bottom,iw,ih-bottom]]){
+  c.drawImage(image,u,v,w,h,u*k-width/2,v*k-height/2,w*k,h*k);
+ }
+ c.restore();
 }
 
 export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
@@ -82,6 +108,7 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
  for(const b of world.friendlyBombs||[]){
   if(b.life<=0)continue;
   if(b.secretWeapon==='sn1650'){drawStrategicFall(c,b,view,faction(b.ownerId));continue;}
+  if(b.secretWeapon==='ketteringBug'){drawKettering(c,b,view);continue;}
   if(!visible(b.x,b.y,120))continue;
   if(b.secretWeapon==='explosiveArmor'){
    const t=clamp(1-b.life/b.maxLife),a=b.releaseAngle;
@@ -94,19 +121,15 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    paint(c,'grunkreuz-stencil',x,y,14*z,14*z,b.releaseAngle??0);
   }
  }
- drawBadin(c,players,now,view);
+ for(const b of world.bullets||[]){
+  if(!b.secretAirRound||b.actualExplosion||b.life<=0||!visible(b.x,b.y,30))continue;
+  const a=Math.atan2(b.vy,b.vx),x=sx(b.x),y=sy(b.y);
+  if(b.secretWeapon==='villarPerosa')fx(c,'bulletBrass',x,y,11*z,2.7*z,a,.94);
+  else if(b.secretWeapon==='rankenExplosiveDarts')paint(c,'ranken',x,y,22*z,5.4*z,a);
+ }
  for(const cue of world.secretWeaponFx||[]){
   const age=now-cue.at,life=cue.life||.45;
   if(age<0||age>=life)continue;
-  if(cue.kind==='bomberPass'){
-   const elapsed=age-cue.delay;if(elapsed<0)continue;
-   const x=cue.x+Math.cos(cue.a)*elapsed*cue.speed,y=cue.y+Math.sin(cue.a)*elapsed*cue.speed;
-   if(!visible(x,y,230))continue;
-   const key=secretBomberAirframe(faction(cue.ownerId)),scale=1.95*z;
-   planeSprite(c,sx(x)+23*z,sy(y)+31*z,cue.a,key,scale,false,true);
-   planeSprite(c,sx(x),sy(y),cue.a,key,scale);
-   continue;
-  }
   if(!visible(cue.x,cue.y,330))continue;
   const x=sx(cue.x),y=sy(cue.y),a=cue.a||0,t=age/life,fade=1-t,ca=Math.cos(a),sa=Math.sin(a);
   const stamp=(key,dx,dy,w,h,angle=a,alpha=fade)=>fx(c,key,x+dx*z,y+dy*z,w*z,h*z,angle,alpha);
@@ -118,6 +141,37 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    }
   };
   switch(cue.kind){
+  case 'villarShot':
+   if(age<.055)forward('muzzle',5,0,23,10,a,1-age/.055);
+   forward('gunSmoke',5+age*36,0,19,9,a,.43*fade);
+   break;
+  case 'villarHit':
+   stamp('ricochet',0,0,18,12,a,fade);
+   spray(low?2:4,85,(i,h,dx,dy)=>stamp(i%2?'debrisShard':'metalShard2',dx,dy,9,5,h+t*4));
+   break;
+  case 'bugImpact': {
+   const r=cue.radius||96;
+   if(age<.17)stamp('fireFlash',0,0,r*1.36,r,a,1-age/.17);
+   if(age<.56)stamp(age<.19?'airblast0':age<.36?'airblast1':'airblast2',0,0,r*(1.06+age),r*(.82+age),a,1-age/.56);
+   if(cue.water&&age<.72)stamp('splashShell',0,0,r*1.25,r*.96,a,1-age/.72);
+   if(age<.7)spray(low?4:8,135,(i,h,dx,dy)=>stamp(i%2?'debrisShard':'metalShard'+i%6,dx,dy,13,7,h+age*7,1-age/.7));
+   if(age>.16)stamp('smokeDark',t*20,-t*25,r*(.64+.72*t),r*(.56+.54*t),a,.75*fade);
+   break;
+  }
+  case 'rankenLaunch':
+   if(age<.10)stamp('muzzleRear',0,0,25,15,a,1-age/.10);
+   forward('gunSmoke',age*40,0,20+age*30,12,a,.65*fade);
+   break;
+  case 'rankenEmbed':
+   paint(c,'ranken',x-ca*6*z,y-sa*6*z,18*z,4*z,a);
+   if(age<.10)stamp('armorSpark',0,0,17,14,a,1-age/.10);
+   break;
+  case 'rankenBurst':
+   if(age<.21)stamp(age<.085?'shellBurst0':'shellBurst1',0,0,34+age*50,28+age*44,a,1-age/.21);
+   if(age<.29)spray(low?2:4,76,(i,h,dx,dy)=>stamp('metalShard'+i,dx,dy,9,5,h+age*12,1-age/.29));
+   stamp('fireSmall',2,-2,22,18,a,.83*fade);
+   if(age>.08)stamp('smokeDark',5*t,-10*t,19+t*16,16+t*16,a,.7*fade);
+   break;
   case 'rotary': {
    if(age<.085){
     const offset=Math.sin(cue.phase+age*85)*4.5;
@@ -178,15 +232,12 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    break;
   }
   case 'steelRain':
-   for(let i=0;i<24;i++){
-    if(low&&i%2===1)continue;
-    const delay=.22+Math.floor(i/6)*.07,flight=.11+(i%5)*.019,k=clamp(1-(delay-age)/flight);
-    if(k<=0||k>=1)continue;
-    const p=steelDartPoint(cue,i),height=(1-k*k)*(94+i%5*21),side=(1-k)*(i%3-1)*17;
-    const px=sx(p.x-ca*height-sa*side),py=sy(p.y-sa*height+ca*side);
-    sprite(c,'flechetteDart',px,py,(18+9*k)*z,a+Math.sin(k*3+i)*.21,Math.min(1,k*4));
-    if((i+Math.floor(k*13))%4===0)fx(c,'spark',px,py,9*z,5*z,a,.65);
+   if(age<.18){
+    const flash=1-age/.18;
+    stamp('fireFlash',0,0,72+t*46,60+t*35,a,flash);
+    stamp('armorSpark',0,0,105+t*52,86+t*46,a,flash*.95);
    }
+   stamp('gunSmoke',0,0,38+t*91,30+t*76,a,.78*fade);
    break;
   case 'dartHit': {
    const target=cue.targetId!=null&&(world.enemies||[]).find(e=>e.id===cue.targetId||e.tailId===cue.targetId);
@@ -224,12 +275,18 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    }
    break;
   }
-  case 'wake':
+  case 'badinWake':
+  case 'wake': {
+   const strike=cue.kind==='wake',power=cue.power||0;
+   const size=(strike?42:30)+t*(33+power*20),rear=(strike?8:16)+t*29;
+   const opacity=Math.min(1,fade*1.6)*(strike?.90:.72);
    for(const side of [-1,1]){
-    const h=a+side*(.9+t*1.4),r=10+t*40;
-    stamp('mist',Math.cos(h)*r,Math.sin(h)*r,54+15*t,10+t*5,h+side*Math.PI/2,.66*fade);
+    const tip=side*(27+t*(11+power*8)),d=-rear+(side===1?5:-5);
+    forward('vaporTrail',d-24,tip+side*7,67+power*19,14+7*t,a-side*.20,opacity*.44);
+    drawBadinVortex(c,x+(ca*d-sa*tip)*z,y+(sa*d+ca*tip)*z,a,side,size*z,age*10.5,opacity);
    }
    break;
+  }
   case 'ram':
    if(age<.12)stamp('armorSpark',0,0,63,43,a,1-age/.12);
    for(let i=0;i<(low?4:8);i++){

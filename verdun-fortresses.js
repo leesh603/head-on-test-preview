@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {segmentDistance} from './alps-geometry117.js?v=09c75d146ae4289d';
+import {impactPulse} from './boss-raid-strikes.js?v=b3bf991d11fc7798';
+import {fireFanSalvo} from './boss-salvo-geometry.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {segmentDistance} from './alps-geometry117.js?v=b3bf991d11fc7798';
 
 // Shared measured geometry for the authored fortress layers, hits and muzzles.
 // A fortress is one existing boss body; its core is the body's final hit route.

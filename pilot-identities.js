@@ -1,13 +1,13 @@
-import {ammunitionVisualScale} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=09c75d146ae4289d';
-import {installPilotFeedback} from './pilot-feedback.js?v=09c75d146ae4289d';
-import {wwiWingTarget} from './wwi-equipment.js?v=09c75d146ae4289d';
-import {wingmanBossPass} from './engagement-flow174.js?v=09c75d146ae4289d';
-import {advanceWingFlight} from './wingman-flight.js?v=09c75d146ae4289d';
-import {headOnTarget} from './engagement-feedback.js?v=09c75d146ae4289d';
-import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js?v=09c75d146ae4289d';
-import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js?v=09c75d146ae4289d';
-import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js?v=09c75d146ae4289d';
+import {ammunitionVisualScale} from './heavy-ammunition.js?v=b3bf991d11fc7798';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=b3bf991d11fc7798';
+import {installPilotFeedback} from './pilot-feedback.js?v=b3bf991d11fc7798';
+import {wwiWingTarget} from './wwi-equipment.js?v=b3bf991d11fc7798';
+import {wingmanBossPass} from './engagement-flow174.js?v=b3bf991d11fc7798';
+import {advanceWingFlight} from './wingman-flight.js?v=b3bf991d11fc7798';
+import {headOnTarget} from './engagement-feedback.js?v=b3bf991d11fc7798';
+import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js?v=b3bf991d11fc7798';
+import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js?v=b3bf991d11fc7798';
+import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js?v=b3bf991d11fc7798';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));

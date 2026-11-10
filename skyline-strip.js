@@ -4,7 +4,7 @@
 //  - City air-raid defense: three districts with their landmarks.
 //  - Laon, Entente: Paris under the Paris Gun's shells.
 //  - Laon, Central: the Paris Gun on its rail mount, breaking part by part.
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
 
 const LANDMARKS={entente:{west:'spire',docks:'dome',east:'clock'},central:{west:'twin',docks:'dome',east:'tower'},
  paris:[[.16,'notredame'],[.47,'eiffel'],[.8,'sacre']]};

@@ -1,7 +1,7 @@
-import {registerAircraftTiers} from './aircraft-tiers.js?v=09c75d146ae4289d';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=09c75d146ae4289d';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=09c75d146ae4289d';
-import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=09c75d146ae4289d';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=b3bf991d11fc7798';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=b3bf991d11fc7798';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=b3bf991d11fc7798';
+import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=b3bf991d11fc7798';
 
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';
@@ -320,6 +320,6 @@ export class CampaignGame extends Game{
 const ACES1918_LIVERY={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker'};
 const ACES1918_LIVERY_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만'};
 for(const[key,base]of Object.entries(ACES1918_LIVERY)){PLANES[key]={...PLANES[base],name:ACES1918_LIVERY_NAMES[key],handling:PLANES[base].handling,campaignOnly:false};WEAPONS[key]={...WEAPONS[base]};PILOT_PLANES[key.split('_')[0]]=key}
-import {installPilotAircraft,isBaronAlbatros} from './pilot-aircraft.js?v=09c75d146ae4289d';
+import {installPilotAircraft,isBaronAlbatros} from './pilot-aircraft.js?v=b3bf991d11fc7798';
 installPilotAircraft(PLANES,WEAPONS,PILOTS,PILOT_PLANES,AIRFRAME_PROFILES,configureAirframeBalance);
 registerAircraftTiers(PLANES);

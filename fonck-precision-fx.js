@@ -1,5 +1,5 @@
 // Fonck: presentation follows the existing steady lead and finite piercing volley.
-import {signatureState,signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {signatureState,signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js?v=b3bf991d11fc7798';
 export const FONCK_FX_PALETTE=Object.freeze({blue:'#9bbbc9',red:'#cf806b',ivory:'#f4e9cd',brass:'#c5a268',smoke:'#84928f'});
 const clamp=n=>Math.max(0,Math.min(1,n));
 const live=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed';

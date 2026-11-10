@@ -1,4 +1,4 @@
-import {RII_LAYOUT} from './linke-hofmann-rii.js?v=09c75d146ae4289d';
+import {RII_LAYOUT} from './linke-hofmann-rii.js?v=b3bf991d11fc7798';
 export const RII_ART=Object.freeze({hull:'rii-boss/hull.webp',damaged:'rii-boss/damaged.webp',propeller:'rii-boss/propeller.webp',gun:'rii-boss/gun.webp',bomb:'bomb-puw-readable-q92.webp',cutin:'rii-boss/cutin.webp'});
 const state=src=>({src,x:0,y:0,pivot:[0,0]});
 export const riiIntrusionLayout={id:'linke-hofmann-r-ii',enabled:true,width:1800,height:900,parts:[{id:'hull',group:'core',kind:'base',dependencies:[],states:{intact:state(RII_ART.hull),damaged:state(RII_ART.damaged),destroyed:state(RII_ART.damaged)}}],targets:[...RII_LAYOUT.parts.map(p=>({...p,rx:p.radius,ry:p.radius,kind:p.kind==='gun'?'turret_body':p.kind,angle:0,dependencies:[]})),{id:'core',kind:'core',x:0,y:0,rx:65,ry:390,angle:0,dependencies:[]}],cutin:RII_ART.cutin,extraAssets:[RII_ART.propeller,RII_ART.gun,RII_ART.bomb],shotOcclusion:{gunHeights:{'gun-left':2,'gun-right':2},occluders:[]}};

@@ -1,5 +1,5 @@
 // V/1500 painted breakup; local deterministic presentation, no simulation RNG.
-import {pushExplosionFx} from './explosion-profiles.js?v=09c75d146ae4289d';
+import {pushExplosionFx} from './explosion-profiles.js?v=b3bf991d11fc7798';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 export const V1500_CASCADE_LIFE=2.2;
 export function queueV1500CollapseFx(world,event){

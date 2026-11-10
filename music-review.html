@@ -9,7 +9,7 @@
 <button id="audit">전체 보스 재생 검증</button><pre id="auditStatus">검증 대기</pre>
 <pre id="status">연결 중</pre></header><iframe id="game" title="실제 HEAD-ON 게임" src="./index.html?headonTest=1&autostart=0&v=bgmpack2"></iframe>
 <script type="module">
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=09c75d146ae4289d';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=b3bf991d11fc7798';
 if(!['127.0.0.1','localhost','terminal.local','leesh603.github.io'].includes(location.hostname))throw new Error('Test preview only');
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function size(){const [w,h]=$('size').value.split('x');frame.width=w;frame.height=h;}

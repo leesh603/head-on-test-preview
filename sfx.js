@@ -1,6 +1,6 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=tame3';
-import {ruralSamplePath} from './rural-audio.js';
+import {railAudioSamples} from './rail-audio.js?v=b3bf991d11fc7798';
+import {ruralSamplePath} from './rural-audio.js?v=b3bf991d11fc7798';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
@@ -266,6 +266,14 @@ function updateWind(world){
 }
 const VOICES={
   // Secret weapon voices are original Web Audio synthesis. No sampled source.
+  secretVillar(){for(let i=0;i<6;i++){const at=i*.055;hiss(i%2?3650:4600,1450,.026,.047,'bandpass',.8,at);tone(i%2?246:301,97,.029,.029,'triangle',980,at)}},
+  secretVillarHit(){tone(2330,390,.05,.025,'triangle',2900);hiss(5250,1750,.046,.029,'bandpass',.8)},
+  secretBugEngine(){tone(138,151,.36,.036,'sawtooth',420,0,.08);tone(69,75,.33,.026,'triangle',330,.015,.08)},
+  secretBugCut(){tone(151,42,.13,.046,'sawtooth',480);hiss(2700,510,.39,.043,'bandpass',.74,.08)},
+  secretBugImpact(){tone(106,24,.69,.157,'sine',240);hiss(3400,470,.50,.103,'lowpass',.72);hiss(6350,930,.27,.043,'bandpass',.86,.12)},
+  secretRankenLaunch(){tone(324,122,.069,.050,'triangle',1100);hiss(4800,1050,.13,.049,'bandpass',.72,.018)},
+  secretRankenCatch(){tone(3300,1130,.061,.030,'triangle',3700);tone(1840,710,.071,.027,'triangle',2400,.019)},
+  secretRankenBurst(){tone(222,66,.12,.062,'triangle',910);hiss(4100,760,.19,.061,'bandpass',.92,.014)},
   secretEvolve(){tone(187,74,.12,.065,'triangle',800);for(const [i,f] of [294,440,587].entries())tone(f,f,.23,.037,'triangle',2400,.08+i*.07);hiss(2700,1100,.09,.04)},
   secretRotaryStart(){tone(52,189,.25,.071,'sawtooth',860,0,.016);hiss(2100,730,.15,.04,'bandpass',.68,.03)},
   secretRotary(){for(let i=0;i<5;i++)hiss(4600-i*250,1250,.037,.047,'bandpass',.72,i*.026);tone(157,179,.13,.033,'sawtooth',770)},

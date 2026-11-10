@@ -6,9 +6,9 @@
 <details><summary>부위별 검증 · 클릭한 부위 피해</summary><div><select id="part" aria-label="대상 부위"></select><button id="hit">선택 부위 파괴</button><button id="damage">선택 부위 40 피해</button><button id="drive">궤도 기동 전환</button><button id="fire">거포 공격 예약</button><button id="launch">갑판 발진 예약</button><button id="defeat">핵심부 격파</button></div></details>
 <footer>독립 시험판 · 본게임 교체/동시 3체 출현 없음. 파괴 부위의 예약은 취소되며 이미 발사된 탄과 기체는 남습니다.</footer>
 <script type="module">
-import {createBoss,updateBoss,damagePart,listParts,requestAttack,localToWorld} from '../pandemonium-a-mechanics.js';
-import {drawBoss,loadAssets} from '../pandemonium-a-render.js';
-import {createFortressAudio} from '../fortress-audio.js';
+import {createBoss,updateBoss,damagePart,listParts,requestAttack,localToWorld} from '../pandemonium-a-mechanics.js?v=b3bf991d11fc7798';
+import {drawBoss,loadAssets} from '../pandemonium-a-render.js?v=b3bf991d11fc7798';
+import {createFortressAudio} from '../fortress-audio.js?v=b3bf991d11fc7798';
 const $=id=>document.getElementById(id),cv=$('stage'),c=cv.getContext('2d'),audio=createFortressAudio();let s=createBoss(),assets=null,last=performance.now(),playing=false,elapsed=0,eventIndex=0,muted=true,recorder=null,recordTimer=null,lowfps=false,simulationDebt=0;
 audio.setMuted(true);const target={id:'test-player',x:900,y:1500,hp:100,r:20};
 const labels={core:'핵심부',deck:'갑판 발진',crane:'크레인 재보급','main-left':'좌 거포','main-right':'우 거포','aa-west':'서측 AA','aa-bridge':'함교 AA','aa-deck':'갑판 AA','aa-left':'좌 AA','aa-right':'우 AA','track-west':'서측 궤도','track-main-left':'좌 궤도','track-main-right':'우 궤도','track-deck-left':'갑판 좌 궤도','track-deck-mid':'갑판 중앙 궤도','track-deck-right':'갑판 우 궤도'};

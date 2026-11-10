@@ -1,4 +1,4 @@
-import {bossStrongSound} from './boss-ordnance-loadouts.js?v=09c75d146ae4289d';
+import {bossStrongSound} from './boss-ordnance-loadouts.js?v=b3bf991d11fc7798';
 // Presentation derived from live boss state. Never changes damage or targeting.
 const pair=(ko,en,locale)=>locale==='en'?en:ko;
 const PHASES={'evade-strike':['강타 예고 · 회피하세요!','Heavy salvo · evade!'],'strike-chain':['착탄 사슬 · 회피하세요!','Shell chain · evade!'],'strike-walls':['현측 일제사 · 회피하세요!','Broadside fences · evade!'],'strike-spiral':['포탑 선회 사격 · 회피하세요!','Turret spiral · evade!'],'strike-corridor':['대공 포위망 · 회피하세요!','Flak ring · evade!'],'strike-carpet':['융단 폭격 · 회피하세요!','Bomb carpet · evade!'],'strike-ring':['포위 탄착 · 회피하세요!','Closing barrage · evade!'],'strike-cross':['교차 기총소사 · 회피하세요!','Crossing strafe · evade!'],'strike-flame':['화염 장막 · 회피하세요!','Flame curtain · evade!'],'l70-gun-reload':['포열 재장전 · 곤돌라 포대를 노리세요','Gun decks reloading · hit the gondola batteries'],'hma23-rearm':['함재 포대 재장전 · 반격 기회','Carrier batteries reloading · counterattack'],

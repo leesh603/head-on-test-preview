@@ -1,12 +1,12 @@
 // Equipment is interpreted from the current fit, never from acquisition order.
 // Delayed launches contain data only; ammunition is charged at actual emission.
-import {ammunitionGasRadius} from './heavy-ammunition.js';
-import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js';
-import {bishopGlovesInterval} from './equipment-flight-balance.js';
-import {combatImpactResult} from './combat-impact-result.js';
-import {hasSecretWeapon} from './secret-weapons.js';
-import {POM_AIRBURST,secretWeaponContact,secretCannonInterval,secretCannonShot,secretCannonImpact,secretRotaryRound,tickSecretRotary,secretGasProfile,secretArmorHit,secretWingGun,secretCooperRelease} from './secret-weapon-combat.js';
-import {igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js';
+import {ammunitionGasRadius} from './heavy-ammunition.js?v=b3bf991d11fc7798';
+import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js?v=b3bf991d11fc7798';
+import {bishopGlovesInterval} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
+import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {hasSecretWeapon} from './secret-weapons.js?v=b3bf991d11fc7798';
+import {POM_AIRBURST,secretWeaponContact,secretSteelRainImpact,secretCannonInterval,secretCannonShot,secretCannonImpact,secretRotaryRound,tickSecretRotary,secretGasProfile,secretArmorHit,secretWingGun,secretCooperRelease} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
+import {WWI_BALANCE,igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js?v=b3bf991d11fc7798';
 const world=p=>p.combatWorld?.()||p.world||p;
 const alive=p=>p.hp>0&&p.status!=='downed';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
@@ -148,7 +148,8 @@ function shrapnel(p,x,y,a,support=false,pilotSupport=false){
 export function detonateSynthesisPayload(p,b){
  const payload=b?.synthesisPayload;if(!payload||b.synthesisDetonated||b.enemy||b.actualExplosion||b.synthesisChild||b.secondaryExplosion||b.burnTick||b.gas||b.ownerId!=null&&b.ownerId!==(p.id||'p1'))return;
  b.synthesisDetonated=true;const w=world(p),a=b.releaseAngle??Math.atan2(b.vy||0,b.vx||1);
- if(payload.darts&&!b.synthesisOpened){releaseDarts(p,{...b,vx:Math.cos(a),vy:Math.sin(a)});b.synthesisOpened=true;}
+ const steelRain=secretSteelRainImpact(p,b,WWI_BALANCE.flechettes);
+ if(payload.darts&&!b.synthesisOpened&&!steelRain){releaseDarts(p,{...b,vx:Math.cos(a),vy:Math.sin(a)});b.synthesisOpened=true;}
  if(payload.shrapnel&&!b.synthesisShrapnel){b.synthesisShrapnel=true;shrapnel(p,b.x,b.y,a,!!b.synthesisSupport,!!b.pilotSupport);}
  if(payload.incendiary||payload.gas||payload.smoke){
   const zones=p.synthesisZones??=[],gas=secretGasProfile(p,b,ammunitionGasRadius(p,100),3),gasRadius=gas.radius;
@@ -177,10 +178,12 @@ function attach(p,b,e){
  if(!hasBomb&&!u.grunkreuz&&!u.rankinShell)return;
  const payload=reservePayload(p);
  if(!hasBomb&&!payload.gas&&!payload.shrapnel)return;
- if(hasBomb){p.wwiCooperCooldown=4;p.wwiCooperSecondIn=.8;p.wwiCooperSecondDamage=p.payloadPower?.(70)||70;secretCooperRelease(p,{x:b.x,y:b.y,life:0});}
+ if(hasBomb){p.wwiCooperCooldown=4;p.wwiCooperSecondIn=.8;p.wwiCooperSecondDamage=p.payloadPower?.(70)||70;}
  const a=e.a||0,dx=b.x-e.x,dy=b.y-e.y;
  const pendingShrapnel=!!payload.shrapnel;payload.shrapnel=false;
- (p.synthesisAttachments??=[]).push({target:e,life:1.1,pendingShrapnel,shrapnelLife:4,releaseAngle:Math.atan2(b.vy,b.vx),localX:dx*Math.cos(a)+dy*Math.sin(a),localY:-dx*Math.sin(a)+dy*Math.cos(a),x:b.x,y:b.y,damage:hasBomb?(p.payloadPower?.(70)||70):0,radius:66,synthesisPayload:payload,gasLeft:payload.gas?3:0});
+ const attachment={target:e,life:1.1,pendingShrapnel,shrapnelLife:4,releaseAngle:Math.atan2(b.vy,b.vx),localX:dx*Math.cos(a)+dy*Math.sin(a),localY:-dx*Math.sin(a)+dy*Math.cos(a),x:b.x,y:b.y,damage:hasBomb?(p.payloadPower?.(70)||70):0,radius:66,synthesisPayload:payload,gasLeft:payload.gas?3:0};
+ if(hasBomb)secretCooperRelease(p,attachment);
+ (p.synthesisAttachments??=[]).push(attachment);
 }
 function tickAttachments(p,dt){
  for(const b of p.synthesisAttachments||[]){const e=b.target,lost=!e||e.hp<=0||e.dead||e.crashing;
@@ -191,7 +194,7 @@ function tickAttachments(p,dt){
   if(b.pendingShrapnel){b.shrapnelLife-=dt;if(Math.hypot(p.x-b.x,p.y-b.y)>=140){shrapnel(p,b.x,b.y,Math.atan2(b.y-p.y,b.x-p.x));b.pendingShrapnel=false;}else if(b.shrapnelLife<=0)b.pendingShrapnel=false;}
   if(b.life<=0&&!b.synthesisDetonated){
    if(b.damage&&p.upgrades?.steelCore){
-    (world(p).friendlyBombs??=[]).push({x:b.x,y:b.y,radius:b.radius,damage:b.damage,life:0,ownerId:p.id,releaseAngle:b.releaseAngle,synthesisPayload:b.synthesisPayload,contactTarget:e});
+    (world(p).friendlyBombs??=[]).push({x:b.x,y:b.y,radius:b.radius,damage:b.damage,life:0,ownerId:p.id,releaseAngle:b.releaseAngle,synthesisPayload:b.synthesisPayload,secretSteelRain:b.secretSteelRain,contactTarget:e});
     b.gasLeft=0;b.synthesisDetonated=true;continue;
    }
    if(b.damage)p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb'});detonateSynthesisPayload(p,b);

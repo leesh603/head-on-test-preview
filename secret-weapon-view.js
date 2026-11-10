@@ -1,5 +1,5 @@
-import {secretWeaponIcon} from './secret-weapons.js';
-import {secretRamSpeed} from './secret-weapon-combat.js';
+import {secretWeaponIcon} from './secret-weapons.js?v=b3bf991d11fc7798';
+import {secretRamSpeed} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
 
 const images=new Map();
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -45,6 +45,9 @@ function badgeState(recipe,p,g,en){
  }
  if(id==='explosiveArmor'||id==='farnboroughFirechain')return cooling((e.readyAt||0)-now,id==='explosiveArmor'?15:6);
  if(id==='nesterovRam'){const speed=secretRamSpeed(p);return [speed<0?.3:1,speed<0?waiting:ready];}
+ if(id==='villarPerosa')return e.remaining>0?[1,en?'BURST':'점사']:cooling(e.delay||0,.73);
+ if(id==='ketteringBug')return e.activeUntil>now?[1,en?'FLIGHT':'비행 중']:cooling(Math.max((e.readyAt||0)-now,p.bomberTimer||0),25);
+ if(id==='rankenExplosiveDarts')return cooling(p.rankinShrapnelTimer||0,3.2);
  if(id==='eliteAirWing'||id==='longRangeBombers'){
   const bomber=id==='longRangeBombers',wings=(g.allies||[]).filter(w=>(bomber?w.secretBomber:w.secretAce)&&w.ownerId===(p.id||'p1')&&w.life>0&&!w.wingWithdrawal);
   const left=wings.length?Math.min(...wings.map(w=>bomber?(w.secretBombReadyAt||0)-now:w.secretAceReady||0)):Infinity;

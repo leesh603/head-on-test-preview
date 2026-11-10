@@ -13,7 +13,7 @@ document.querySelector('#run').onclick=async event=>{
  try{
   status.textContent='게임 모듈 불러오는 중';
   const [{Game},{enableStageBoss},{intrusionProfiles,forceIntrusionForTest,hitIntrusionAt},{prepareIntrusionArt}]=await Promise.all([
-   import('./engine.js?v=09c75d146ae4289d'),import('./stageboss-host.js?v=09c75d146ae4289d'),import('./intrusion-bosses.js?v=09c75d146ae4289d'),import('./intrusion-boss-art.js?v=09c75d146ae4289d')
+   import('./engine.js?v=09c75d146ae4289d'),import('./stageboss-host.js?v=09c75d146ae4289d'),import('./intrusion-bosses.js?v=b3bf991d11fc7798'),import('./intrusion-boss-art.js?v=09c75d146ae4289d')
   ]);
   let passed=0,total=0;
   for(const [width,height] of [[390,844],[1280,800]]){

@@ -1,5 +1,5 @@
 // Rare specializations use the existing player, projectile and flight paths.
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
+import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
 export const RARE_BALANCE=Object.freeze({precisionHits:6,precisionGap:1.5,precisionDamage:1.25,precisionCooldown:3,inertiaCharge:1,inertiaWindow:.6,inertiaRetention:.5,springDuration:1.5,springTurn:1.2,springCooldown:6,platingGap:2,platingDuration:1.5,platingReduction:.18,platingCooldown:12,dopeThreshold:.25,dopeHeal:.12});
 export const RARE_SPECIALIZATIONS=Object.freeze([
  {id:'precisionSynchronizer',name:'정밀 동조 사격기',family:'GUN',desc:'1.5초 간격 안에 같은 적에게 기관총을 6회 연속 맞히면 다음 탄환 피해가 25% 증가합니다. 재발동 대기시간은 3초입니다.',enName:'Precision Synchronizer',enDesc:'Hit the same target 6 times with your machine guns, with at most 1.5s between hits. The next MG round deals +25% damage. 3s cooldown.',icon:'rare_precision_synchronizer_20261029.webp'},

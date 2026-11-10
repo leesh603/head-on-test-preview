@@ -1,4 +1,4 @@
-import {GALLIPOLI_PARTS,gallipoliMuzzle,gallipoliAngleDelta,turnGallipoliTurret} from './gallipoli-boss.js?v=09c75d146ae4289d';
+import {GALLIPOLI_PARTS,gallipoliMuzzle,gallipoliAngleDelta,turnGallipoliTurret} from './gallipoli-boss.js?v=b3bf991d11fc7798';
 export const GALLIPOLI_ROUTE=Object.freeze({shore:2800,cliff:4000,fort:8000,halfWidth:3600,backLimit:-1500,bossLimit:10800});
 export function createGallipoliRoute(g){return{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0,cues:new Set(),encounterId:(g.stageBoss?.runId||'route')+':gallipoli-approach'};}
 export function gallipoliPoint(r,s,n=0){return{x:r.x+Math.cos(r.a)*s-Math.sin(r.a)*n,y:r.y+Math.sin(r.a)*s+Math.cos(r.a)*n};}

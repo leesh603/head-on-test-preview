@@ -1,8 +1,8 @@
-import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js?v=09c75d146ae4289d';
-import {arrivalFlightTurn} from './boss-arrival-flight.js?v=09c75d146ae4289d';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {O400_LAYOUT} from './o400-layout.js?v=09c75d146ae4289d';
-import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=09c75d146ae4289d';
+import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js?v=b3bf991d11fc7798';
+import {arrivalFlightTurn} from './boss-arrival-flight.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {O400_LAYOUT} from './o400-layout.js?v=b3bf991d11fc7798';
+import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=b3bf991d11fc7798';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const inView=(q,bounds,margin=0)=>!bounds||(q.x>=bounds.left+margin&&q.x<=bounds.right-margin&&q.y>=bounds.top+margin&&q.y<=bounds.bottom-margin);
 function gunFor(body,p){

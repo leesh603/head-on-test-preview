@@ -1,9 +1,9 @@
-import {ordinaryFighter,fighterShotReady} from './dogfight-pass165.js?v=09c75d146ae4289d';
-import {mapCombatPatternPool} from './map-combat-roles.js?v=09c75d146ae4289d';
+import {ordinaryFighter,fighterShotReady} from './dogfight-pass165.js?v=b3bf991d11fc7798';
+import {mapCombatPatternPool} from './map-combat-roles.js?v=b3bf991d11fc7798';
 // Regional doctrine for ordinary aircraft.  This module only selects among the
 // Battle Director's existing manoeuvres and bends those manoeuvres around live
 // battlefield hazards; it never changes aircraft stats, spawn counts or caps.
-import {maanSandCover} from './maan-weather.js?v=09c75d146ae4289d';
+import {maanSandCover} from './maan-weather.js?v=b3bf991d11fc7798';
 
 const P=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',

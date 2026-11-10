@@ -1,36 +1,36 @@
-import {bomberWingContact,recordBomberWingHit} from './bomber-wing-damage.js?v=09c75d146ae4289d';
-import {O400Raider} from './o400-squadron.js?v=09c75d146ae4289d';
-import {updateGothaCombat} from './gotha-squadron-combat.js?v=09c75d146ae4289d';
-import {createCapitalBoss} from './capital-bosses.js?v=09c75d146ae4289d';
-import {ParisGeschuetz} from './laon-gun.js?v=09c75d146ae4289d';
-import {FrenchCounterBatteryAirGroup} from './laon-air-group.js?v=09c75d146ae4289d';
-import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=09c75d146ae4289d';
-import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js?v=09c75d146ae4289d';
-import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
-import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=09c75d146ae4289d';
-import {GallipoliFortress} from './gallipoli-boss.js?v=09c75d146ae4289d';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=09c75d146ae4289d';
-import {RuralRailBoss} from './rural-rail-combat.js?v=09c75d146ae4289d';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=09c75d146ae4289d';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=09c75d146ae4289d';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=09c75d146ae4289d';
-import {createJutlandEncounter} from './jutland-boss.js?v=09c75d146ae4289d';
+import {bomberWingContact,recordBomberWingHit} from './bomber-wing-damage.js?v=b3bf991d11fc7798';
+import {O400Raider} from './o400-squadron.js?v=b3bf991d11fc7798';
+import {updateGothaCombat} from './gotha-squadron-combat.js?v=b3bf991d11fc7798';
+import {createCapitalBoss} from './capital-bosses.js?v=b3bf991d11fc7798';
+import {ParisGeschuetz} from './laon-gun.js?v=b3bf991d11fc7798';
+import {FrenchCounterBatteryAirGroup} from './laon-air-group.js?v=b3bf991d11fc7798';
+import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=b3bf991d11fc7798';
+import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js?v=b3bf991d11fc7798';
+import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=b3bf991d11fc7798';
+import {fireFanSalvo} from './boss-salvo-geometry.js?v=b3bf991d11fc7798';
+import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=b3bf991d11fc7798';
+import {GallipoliFortress} from './gallipoli-boss.js?v=b3bf991d11fc7798';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=b3bf991d11fc7798';
+import {RuralRailBoss} from './rural-rail-combat.js?v=b3bf991d11fc7798';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=b3bf991d11fc7798';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=b3bf991d11fc7798';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=b3bf991d11fc7798';
+import {createJutlandEncounter} from './jutland-boss.js?v=b3bf991d11fc7798';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=09c75d146ae4289d';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=09c75d146ae4289d';
-import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=09c75d146ae4289d';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=09c75d146ae4289d';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=09c75d146ae4289d';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=09c75d146ae4289d';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=09c75d146ae4289d';
-import {apronPose} from './london-apron369.js?v=09c75d146ae4289d';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=09c75d146ae4289d';
-import {FlakTowerNet} from './city-flak-combat.js?v=09c75d146ae4289d';
+import {sommeScale} from './somme-boss-layout.js?v=b3bf991d11fc7798';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=b3bf991d11fc7798';
+import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=b3bf991d11fc7798';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=b3bf991d11fc7798';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=b3bf991d11fc7798';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=b3bf991d11fc7798';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=b3bf991d11fc7798';
+import {apronPose} from './london-apron369.js?v=b3bf991d11fc7798';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=b3bf991d11fc7798';
+import {FlakTowerNet} from './city-flak-combat.js?v=b3bf991d11fc7798';
 
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=09c75d146ae4289d';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=b3bf991d11fc7798';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -1978,7 +1978,7 @@ const constructors={'paris-geschuetz':ParisGeschuetz,'french-counter-battery':Fr
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
   'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship,'gallipoli-fortress':GallipoliFortress,'paris-staaken-rvi':ParisStaakenRVI,'paris-searchlight-fortress':ParisSearchlightFortress};
-export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
+export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction,doverWing}) {
   if(BOSS_CATALOG[bossId]?.capitalFinal)return new BossEncounter({id,bossId,bodies:[createCapitalBoss({id:id+':body',tuning,x,y,emit,rng,faction},bossId)]});
   if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100})]});encounter.bossId=bossId;return encounter;}
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
@@ -1991,7 +1991,11 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
    }));
    return new BossEncounter({id,bossId,bodies});
   }
-  if(bossId==='o400-squadron'){const t={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new O400Raider({id:id+':o400:'+slot,slot,tuning:t,x,y,emit,faction:faction||'entente'}))});}
+  if(bossId==='o400-squadron'){
+   const count=9,t={...tuning,maxHp:tuning.maxHp/count,partHp:tuning.partHp/count,geometryScale:1};
+   const bodies=Array.from({length:count},(_,slot)=>new O400Raider({id:id+':o400:'+slot,slot,tuning:t,x,y,emit,faction:faction||'entente'}));
+   return new BossEncounter({id,bossId,bodies});
+  }
   if(bossId==='gotha-squadron'){
    const flightTuning={...tuning,maxHp:tuning.maxHp/9,partHp:tuning.partHp/9,geometryScale:1},bodies=[];
    for(let slot=0;slot<9;slot++){
@@ -2003,6 +2007,13 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId]||{faction:bossId==='staaken-rvi'?'central':'entente'},Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});
   const bodies=[body];
+  if(doverWing){
+   const Wing=constructors[doverWing.id];
+   const ally=new Wing({id:id+':dover-wing',tuning:doverWing.tuning,x:x+260,y:y+320,emit,rng});
+   bodies.push(ally);
+   const bomber=bodies.find(b=>b.kind==='siemens-schuckert-r-viii');
+   bomber.doverTransit=doverWing.destinationY;
+  }
   if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x,y}));
   return new BossEncounter({id,bossId,bodies});
 }

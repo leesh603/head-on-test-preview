@@ -1,8 +1,8 @@
-import {drawNavarreSuppression} from './navarre-blockade-fx.js?v=09c75d146ae4289d';
-import {frommherzLandingEvents,cleanFrommherzLandingEvents,drawFrommherzLandingEvents} from './frommherz-landing-fx.js?v=09c75d146ae4289d';
+import {drawNavarreSuppression} from './navarre-blockade-fx.js?v=b3bf991d11fc7798';
+import {frommherzLandingEvents,cleanFrommherzLandingEvents,drawFrommherzLandingEvents} from './frommherz-landing-fx.js?v=b3bf991d11fc7798';
 // Native inked tactical marks and existing smoke sprites, not a luminous aura.
-import {navarreFrommherzState,NAVARRE_FROMMHERZ_BALANCE} from './navarre-frommherz-combat.js?v=09c75d146ae4289d';
-import {impactMark,partMark,MARK} from './tactical-marks.js?v=09c75d146ae4289d';
+import {navarreFrommherzState,NAVARRE_FROMMHERZ_BALANCE} from './navarre-frommherz-combat.js?v=b3bf991d11fc7798';
+import {impactMark,partMark,MARK} from './tactical-marks.js?v=b3bf991d11fc7798';
 const finite=n=>Number.isFinite(n)&&Math.abs(n)<=1e7;
 const position=p=>p&&finite(p.x)&&finite(p.y)?{x:p.x,y:p.y}:null;
 export function cleanNavarreFrommherzVisual(value){

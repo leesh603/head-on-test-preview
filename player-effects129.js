@@ -1,25 +1,25 @@
-import {internalRepairPose} from './mccudden-internal-repair.js?v=09c75d146ae4289d';
-import {drawEquipmentDecals} from './equipment-finishing-fx.js?v=09c75d146ae4289d';
-import {equipmentArmorFeedback} from './equipment-hit-feedback.js?v=09c75d146ae4289d';
-import {drawScarffMount,drawCompassPickupWisps} from './equipment-mount-fx.js?v=09c75d146ae4289d';
-import {drawRedScarf} from './equipment-detail-fx.js?v=09c75d146ae4289d';
-import {drawMercedesOutput,drawTelescopeAcquisition,drawMaximReload} from './equipment-extension-fx.js?v=09c75d146ae4289d';
-import {drawBrockConcealment,drawRankinBurst,drawRepairStitch,drawGloveCadence} from './equipment-signature-fx.js?v=09c75d146ae4289d';
-import {combatVisualPose} from './combat-feedback.js?v=09c75d146ae4289d';
-import {drawMomentumTrail,momentumTier} from './ace-momentum.js?v=09c75d146ae4289d';
-import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=09c75d146ae4289d';
-import {nungesserCombatStatus} from './nungesser-combat.js?v=09c75d146ae4289d';
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=09c75d146ae4289d';
-import {createSignatureView} from './pilot-signature-view.js?v=09c75d146ae4289d';
-import {fx,fxTint} from './fx-art.js?v=09c75d146ae4289d';
-import {planeSprite,aircraftKey,aircraftTrailPalette} from './aircraft.js?v=09c75d146ae4289d';
-import {drawHorseSilhouette} from './equipment-material-fx.js?v=09c75d146ae4289d';
+import {internalRepairPose} from './mccudden-internal-repair.js?v=b3bf991d11fc7798';
+import {drawEquipmentDecals} from './equipment-finishing-fx.js?v=b3bf991d11fc7798';
+import {equipmentArmorFeedback} from './equipment-hit-feedback.js?v=b3bf991d11fc7798';
+import {drawScarffMount,drawCompassPickupWisps} from './equipment-mount-fx.js?v=b3bf991d11fc7798';
+import {drawRedScarf} from './equipment-detail-fx.js?v=b3bf991d11fc7798';
+import {drawMercedesOutput,drawTelescopeAcquisition,drawMaximReload} from './equipment-extension-fx.js?v=b3bf991d11fc7798';
+import {drawBrockConcealment,drawRankinBurst,drawRepairStitch,drawGloveCadence} from './equipment-signature-fx.js?v=b3bf991d11fc7798';
+import {combatVisualPose} from './combat-feedback.js?v=b3bf991d11fc7798';
+import {drawMomentumTrail,momentumTier} from './ace-momentum.js?v=b3bf991d11fc7798';
+import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=b3bf991d11fc7798';
+import {nungesserCombatStatus} from './nungesser-combat.js?v=b3bf991d11fc7798';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=b3bf991d11fc7798';
+import {createSignatureView} from './pilot-signature-view.js?v=b3bf991d11fc7798';
+import {fx,fxTint} from './fx-art.js?v=b3bf991d11fc7798';
+import {planeSprite,aircraftKey,aircraftTrailPalette} from './aircraft.js?v=b3bf991d11fc7798';
+import {drawHorseSilhouette} from './equipment-material-fx.js?v=b3bf991d11fc7798';
 
-import {bishopFlightHeight} from './engine.js?v=09c75d146ae4289d';
-import {udetRollPose} from './udet-acrobat-fx.js?v=09c75d146ae4289d';
-import {bomberEntryPose} from './bomber-transfer.js?v=09c75d146ae4289d';
-import {bombSprite} from './bomb-sprites.js?v=09c75d146ae4289d';
-import {fxsBombFall} from './fx-sample-preview.js?v=09c75d146ae4289d';
+import {bishopFlightHeight} from './engine.js?v=b3bf991d11fc7798';
+import {udetRollPose} from './udet-acrobat-fx.js?v=b3bf991d11fc7798';
+import {bomberEntryPose} from './bomber-transfer.js?v=b3bf991d11fc7798';
+import {bombSprite} from './bomb-sprites.js?v=b3bf991d11fc7798';
+import {fxsBombFall} from './fx-sample-preview.js?v=b3bf991d11fc7798';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){

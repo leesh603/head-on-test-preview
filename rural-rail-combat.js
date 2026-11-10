@@ -1,10 +1,11 @@
-import {RailAdapter} from './boss-adapters129.js?v=09c75d146ae4289d';
-import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH} from './rural-rail-layout.js?v=09c75d146ae4289d';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=09c75d146ae4289d';
-import {brunoSalvo} from './bruno-raid.js?v=09c75d146ae4289d';
-import {lincomparableRound} from './lincomparable-raid.js?v=09c75d146ae4289d';
-import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js?v=09c75d146ae4289d';
+import {RailAdapter} from './boss-adapters129.js?v=b3bf991d11fc7798';
+import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH} from './rural-rail-layout.js?v=b3bf991d11fc7798';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=b3bf991d11fc7798';
+import {brunoSalvo} from './bruno-raid.js?v=b3bf991d11fc7798';
+import {lincomparableRound} from './lincomparable-raid.js?v=b3bf991d11fc7798';
+import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js?v=b3bf991d11fc7798';
+function routeBreakY(route,p,bounds){return Math.max(bounds.top+90,Math.min(bounds.bottom-90,p.y+190));}
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
@@ -12,6 +13,7 @@ export class RuralRailBoss extends RailAdapter {
   // Keep the approaching tail at the old spawn position, with the gun ahead.
   super({...o,y:(o.y||0)-(RURAL_RAIL.tailY-465)},kind);
   this.ruralRailBoss=true;this.coreVulnerable=true;this.baseReload=this.rail129.c.reloadSeconds;
+  this.rail129.ruralTrack=true;this.rail129.trackAge=0;
   this.aimPlan=null;this.barrage=null;this.gunFlash=0;this.recovery=0;this.aaClock=1.6;this.aaPlan=null;
   this.railGun=createRailArtillery();this.phaseShots={1:0,2:0,3:0};
   if(kind==='bruno-railway-gun'){this.raidPhase=1;this.entry={age:0,initialized:false};this.observerMotion={vx:0,vy:-1};this.baseReload=Math.max(2.8,this.baseReload);this.rail129.c.reloadSeconds=this.baseReload;}
@@ -196,7 +198,7 @@ export class RuralRailBoss extends RailAdapter {
   }
  }
  update(dt,ctx){
-  if(this.dead||ctx.paused)return;dt=Math.min(dt,.25);this.ruralClock+=dt;this.frameBounds=ctx.bounds;
+  if(this.dead||ctx.paused)return;dt=Math.min(dt,.25);this.ruralClock+=dt;this.rail129.trackAge+=dt;this.frameBounds=ctx.bounds;
   this.lastRaidPlayers=(ctx.players||[]).filter(p=>p.alive!==false&&Number.isFinite(p.x)&&Number.isFinite(p.y));
   if(this.kind==='lincomparable'&&!this.parts.get('car-middle').destroyed&&this.lastRaidPlayers.length){const p=this.lastRaidPlayers[this.rail129.shot%this.lastRaidPlayers.length];this.observerMotion={vx:p.vx||0,vy:p.vy||0};}
   if(this.kind==='bruno-railway-gun'){
@@ -267,16 +269,21 @@ export class RuralRailBoss extends RailAdapter {
   const bounds=ctx.bounds,p=this.lastRaidPlayers[0];if(!bounds||!p){this.entry=null;return false;}
   if(!e.initialized){
    const width=bounds.right-bounds.left,side=p.x>(bounds.left+bounds.right)/2?-1:1;
-   this.x=Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*Math.min(170,width*.26)));
-   e.startY=bounds.bottom+200;this.y=e.startY;e.initialized=true;
+   const route=ctx.ruralRailRoute;
+   this.x=route?.x??Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*Math.min(170,width*.26)));
+   e.startY=bounds.bottom+200;e.stopY=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));this.y=e.startY;e.initialized=true;
    r.from={x:this.x,y:this.y-r.length/2};r.to={x:this.x,y:this.y+r.length/2};r.s=r.length/2;
-   r.railTarget={x:this.x,y:Math.max(bounds.top+90,Math.min(bounds.bottom-90,p.y+190)),radius:34};this.syncRailPart();
+   const targetY=routeBreakY(route,p,bounds);
+   if(route)r.artOrigin={x:route.x,y:route.y};
+   r.railTarget={x:this.x,y:targetY,radius:34};this.syncRailPart();
    this.emit({type:'lincomparable-rail-discovered',bossId:this.id,x:this.x,y:r.railTarget.y});
   }
   e.age+=dt;const oldY=this.y;
+  const stop=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));
+  e.stopY+=Math.max(-600*dt,Math.min(600*dt,stop-e.stopY));
   if(e.age<=.8){r.velocity=0;this.phase='arrival';return true;}
-  const q=Math.min(1,(e.age-.8)/4.8),stop=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));
-  this.y=e.startY+(stop-e.startY)*(q*(2-q));r.s=this.y-r.from.y;r.velocity=Math.abs(this.y-oldY)/dt;r.direction=-1;
+  const q=Math.min(1,(e.age-.8)/4.8);
+  this.y=e.startY+(e.stopY-e.startY)*(q*q*(3-2*q));r.s=this.y-r.from.y;r.velocity=dt>0?Math.abs(this.y-oldY)/dt:0;r.direction=-1;
   this.railGun.shotAge+=dt;updateRailArtillery(this,dt);this.syncRailPart();this.phase='arrival';
   if(q===1){this.entry=null;r.from.y=this.y-r.length/2;r.to.y=this.y+r.length/2;r.s=r.length/2;r.velocity=0;r.target=null;r.enter('brake');r.brakeStart=0;this.railGun.brakeAge=0;this.emit({type:'rural-rail-brake',bossId:this.id});this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-heavy-shell'});}
   return true;
@@ -292,19 +299,25 @@ export class RuralRailBoss extends RailAdapter {
   const bounds=ctx.bounds,p=this.lastRaidPlayers?.[0];if(!bounds||!p){this.entry=null;return false;}
   if(!e.initialized){
    const width=bounds.right-bounds.left,offset=Math.min(190,width*.28),side=p.x>(bounds.left+bounds.right)/2?-1:1;
-   this.x=Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*offset));
-   e.startY=bounds.bottom+200;this.y=e.startY;e.initialized=true;
+   const route=ctx.ruralRailRoute;
+   this.x=route?.x??Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*offset));
+   e.startY=bounds.bottom+200;e.stopY=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));this.y=e.startY;e.initialized=true;
    r.from={x:this.x,y:this.y-r.length/2};r.to={x:this.x,y:this.y+r.length/2};r.s=r.length/2;
-   r.railTarget={x:this.x,y:Math.max(bounds.top+90,Math.min(bounds.bottom-90,p.y+190)),radius:34};this.syncRailPart();
+   const targetY=routeBreakY(route,p,bounds);
+   if(route)r.artOrigin={x:route.x,y:route.y};
+   r.railTarget={x:this.x,y:targetY,radius:34};this.syncRailPart();
    this.emit({type:'bruno-rail-discovered',bossId:this.id,x:this.x,y:r.railTarget.y});
   }
   e.age+=dt;const oldY=this.y;
+  const stop=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));
+  e.stopY+=Math.max(-600*dt,Math.min(600*dt,stop-e.stopY));
   if(e.age<=.55){r.velocity=0;this.phase='arrival';return true;}
-  const q=Math.min(1,(e.age-.55)/3.2),stop=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));
-  // Follow the visible forward stop during approach, along one fixed rail.
+  const q=Math.min(1,(e.age-.55)/3.2);
+  // Accelerate and brake on the announced line. Slew the longitudinal stop
+  // to follow normal flight without snapping after a camera correction.
   // No writes to players or camera; no independently moving cutscene sprite.
-  this.y=e.startY+(stop-e.startY)*(q*(2-q));
-  r.s=this.y-r.from.y;r.velocity=Math.abs(this.y-oldY)/dt;r.direction=-1;
+  this.y=e.startY+(e.stopY-e.startY)*(q*q*(3-2*q));
+  r.s=this.y-r.from.y;r.velocity=dt>0?Math.abs(this.y-oldY)/dt:0;r.direction=-1;
   this.railGun.shotAge+=dt;updateRailArtillery(this,dt);this.syncRailPart();this.phase='arrival';
   if(q===1){
    this.entry=null;r.from.y=this.y-r.length/2;r.to.y=this.y+r.length/2;r.s=r.length/2;

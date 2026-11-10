@@ -1,4 +1,4 @@
-import {SORTIE_FITS} from './pilot-aircraft.js?v=09c75d146ae4289d';
+import {SORTIE_FITS} from './pilot-aircraft.js?v=b3bf991d11fc7798';
 // Generation/performance bands, not rarity. Existing handling and weapons are
 // authoritative; growth is granted once at XP pickup, never again in level cost.
 export const TIER_XP_GAIN=Object.freeze({1:1.28,2:1.18,3:1,4:1,5:.88});

@@ -1,6 +1,6 @@
-import {isFinalArenaTargetProxy} from './final-arena-budget.js?v=09c75d146ae4289d';
+import {isFinalArenaTargetProxy} from './final-arena-budget.js?v=b3bf991d11fc7798';
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=09c75d146ae4289d';
+import {WING_PLANES} from './engine.js?v=b3bf991d11fc7798';
 
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;

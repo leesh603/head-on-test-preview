@@ -1,7 +1,7 @@
-import {ammunitionPartPadding} from './heavy-ammunition.js?v=09c75d146ae4289d';
-import {squadronPending} from './squadron-combat-state.js?v=09c75d146ae4289d';
-import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js?v=09c75d146ae4289d';
-import {recordCombatImpact} from './combat-impact-result.js?v=09c75d146ae4289d';
+import {ammunitionPartPadding} from './heavy-ammunition.js?v=b3bf991d11fc7798';
+import {squadronPending} from './squadron-combat-state.js?v=b3bf991d11fc7798';
+import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js?v=b3bf991d11fc7798';
+import {recordCombatImpact} from './combat-impact-result.js?v=b3bf991d11fc7798';
 
 export const FACILITY_BALANCE=Object.freeze({firstAt:14,duration:32,bossReserve:5,airfieldHp:84,signalHp:140,reduction:.25,minimumAirborne:3});
 export const FACILITY_TYPES=Object.freeze({airfield:'AIRFIELD_RAID',signal:'SIGNAL_HQ_RAID'});
@@ -24,7 +24,7 @@ export function ensureFacilityState(g){
 // retain the other visits and are never cancelled. Release failed art/placement
 // reservations promptly instead of starving the normal event scheduler.
 export function reserveFacilitySlot(g){
- if(!host(g)||g.mode==='campaign'||!g.stageBoss?.stages||!FACILITY_MAPS[region(g)])return false;
+ if(!host(g)||g.mode==='campaign'||g.mapMission?.region===13||!g.stageBoss?.stages||!FACILITY_MAPS[region(g)])return false;
  const s=ensureFacilityState(g);s.reserved??=(g.rng?.()??.5)<.5;if(facilityMission(g.battlefieldEvents?.current))return true;
  if(!s.reserved||s.offered||(g.t||0)-s.enteredAt>FACILITY_BALANCE.firstAt+4)return false;
  const map=FACILITY_MAPS[region(g)],faction=facilityFaction(g);if(!faction)return false;
@@ -35,7 +35,7 @@ function ownFaction(g){return g.teamFaction||g.stageBoss?.stages?.teamFaction||g
 export function facilityFaction(g){const own=ownFaction(g);return own==='central'?'entente':own==='entente'?'central':null;}
 function eligible(g){
  const s=g.groundFacilities,stage=g.stageBoss?.stages,now=g.t||0;
- if(!host(g)||g.state!=='playing'||g.mode==='campaign'||!FACILITY_MAPS[region(g)]||!s||s.offered||!facilityFaction(g))return false;
+ if(!host(g)||g.state!=='playing'||g.mode==='campaign'||g.mapMission?.region===13||!FACILITY_MAPS[region(g)]||!s||s.offered||!facilityFaction(g))return false;
  if(now-s.enteredAt<FACILITY_BALANCE.firstAt||(g.stageCombatWindow?.remaining??99)<FACILITY_BALANCE.duration+FACILITY_BALANCE.bossReserve)return false;
  if(stage&&stage.phase!=='explore'||g.stageCombatWindow?.approaching||g.stageCombatWindow?.ready||g.battlefieldEvents?.current||(g.battleRecoveryUntil||0)>now)return false;
  if((g.ruralFronts?.fronts||[]).some(f=>f.status==='active')||g.eliteEnemies?.active||g.squadronDirector?.owner&&squadronPending(g)||g.reserveSquadronOpportunity?.())return false;
@@ -104,7 +104,21 @@ export function tickFacilityMission(g){
 export function facilityTargets(g){
  if(!host(g)||g.state!=='playing')return[];
  const event=g.battlefieldEvents?.current;
- return facilityMission(event)&&event.status==='active'&&event.region===region(g)&&event.regionKey===facilityStageKey(g)?event.targets.filter(e=>e.hp>0):[];
+ const optional=facilityMission(event)&&event.status==='active'&&event.region===region(g)&&event.regionKey===facilityStageKey(g)?event.targets:[];
+ const recon=g.mapMission?.region===13&&!g.mapMission.resolved?g.mapMission.air?.facilities||[]:[];
+ return [...optional,...recon].filter(e=>e.hp>0);
+}
+
+export function registerMaanReconFacility(g,m,kind,{x,y}){
+ const faction=facilityFaction(g),facilityArt=`maan-${kind}-${faction}`,art=FACILITY_ART[facilityArt];
+ const width=kind==='airfield'?170:138,scale=width/(art.nominalWidth??art.width),hp=kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp;
+ artReady(art.file);
+ const e={id:`${m.id}:${kind}`,groundFacility:true,facilityKind:kind,facilityArt,faction,region:13,x,y,a:0,
+  width:art.width*scale,height:art.height*scale,hitWidth:art.hit[2]*scale,hitHeight:art.hit[3]*scale,
+  hitOffsetX:(art.hit[0]+art.hit[2]/2-art.width/2)*scale,hitOffsetY:(art.hit[1]+art.hit[3]/2-art.height/2)*scale,
+  hp,maxHp:hp,stationary:true,surface:true,missionTarget:true,hitFlash:0};
+ ensureFacilityState(g).sites.push({id:e.id,kind,targets:[e]});
+ return e;
 }
 export function facilityCollision(e,x,y,b={}){
  const cx=e.x+e.hitOffsetX,cy=e.y+e.hitOffsetY,pad=ammunitionPartPadding(b),hw=e.hitWidth/2+pad,hh=e.hitHeight/2+pad;

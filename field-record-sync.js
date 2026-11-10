@@ -1,13 +1,13 @@
-import {RARE_SPECIALIZATIONS,rareSpecializationFor} from './rare-specializations.js?v=09c75d146ae4289d';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor} from './rare-specializations.js?v=b3bf991d11fc7798';
 // The field record uses the same final registries, artwork and descriptions as sortie selection.
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=09c75d146ae4289d';
-import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=09c75d146ae4289d';
-import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=09c75d146ae4289d';
-import {hangarArtSource} from './hangar-art.js?v=09c75d146ae4289d';
-import {portraitSources} from './portraits.js?v=09c75d146ae4289d';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=09c75d146ae4289d';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=09c75d146ae4289d';
-import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=09c75d146ae4289d';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=b3bf991d11fc7798';
+import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=b3bf991d11fc7798';
+import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=b3bf991d11fc7798';
+import {hangarArtSource} from './hangar-art.js?v=b3bf991d11fc7798';
+import {portraitSources} from './portraits.js?v=b3bf991d11fc7798';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=b3bf991d11fc7798';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=b3bf991d11fc7798';
+import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=b3bf991d11fc7798';
 
 const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
 const UNIQUE_IDS=['bomber','fighterSupply','mercedesEngine','spread','combinedProjectiles'];

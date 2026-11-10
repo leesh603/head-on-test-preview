@@ -1,14 +1,15 @@
-import {outsideBossView} from './render-culling.js?v=09c75d146ae4289d';
-import {bossEntryReveal} from './boss-entry-presentation.js?v=09c75d146ae4289d';
-import {bossArrivalAlpha} from './boss-arrival.js?v=09c75d146ae4289d';
+import {outsideBossView} from './render-culling.js?v=b3bf991d11fc7798';
+import {bossEntryReveal} from './boss-entry-presentation.js?v=b3bf991d11fc7798';
+import {bossArrivalAlpha} from './boss-arrival.js?v=b3bf991d11fc7798';
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
-import {netContact} from './london-apron369.js?v=09c75d146ae4289d';
+import {netContact} from './london-apron369.js?v=b3bf991d11fc7798';
 export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard,layer='all',bodyBounds=null,view=null}) {
   for(const fn of [drawBody,drawPart,drawHazard])if(typeof fn!=='function')throw new Error('Current pixel renderer adapters required');
   if(layer!=='hazards')for(const b of addon.stages.encounter?.bodies.values()||[]) {
     const cityWreck=b.dead&&b.kind==='flak-tower-cell',ownDefeat=addon.bodyDefeats?.find(d=>d.id===b.id),globalDefeat=b.dead&&addon.defeatSequence?.encounterId===addon.stages.encounter.id&&!b.kind.startsWith('hms-zubian-')&&!['gotha-raider','o400-raider'].includes(b.kind);
-    const destroying=(b.jutlandBoss&&b.dead)||(b.sommeBoss&&b.dead)||cityWreck||!!ownDefeat||globalDefeat,destruction=ownDefeat||addon.defeatSequence;
+    const maanWreck=b.dead&&addon.stages.stageIndex===13&&(b.kind==='wustenpanzer'||b.kind==='sinai-landship');
+    const destroying=(b.jutlandBoss&&b.dead)||(b.sommeBoss&&b.dead)||cityWreck||maanWreck||!!ownDefeat||globalDefeat,destruction=ownDefeat||addon.defeatSequence;
     if(b.dead&&!destroying)continue;
     if(b.hidden&&!destroying)continue;
     if(outsideBossView(b,view,bodyBounds?.(b),{destroying}))continue;

@@ -1,11 +1,11 @@
-import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=09c75d146ae4289d';
-import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=09c75d146ae4289d';
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
-import {drawTracerBolt} from './projectiles.js?v=09c75d146ae4289d';
-import {impactMark} from './tactical-marks.js?v=09c75d146ae4289d';
-import {drawShellFlight} from './boss-rounds.js?v=09c75d146ae4289d';
-import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=09c75d146ae4289d';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=09c75d146ae4289d';
+import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=b3bf991d11fc7798';
+import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {drawTracerBolt} from './projectiles.js?v=b3bf991d11fc7798';
+import {impactMark} from './tactical-marks.js?v=b3bf991d11fc7798';
+import {drawShellFlight} from './boss-rounds.js?v=b3bf991d11fc7798';
+import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=b3bf991d11fc7798';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=b3bf991d11fc7798';
 
 // Authored atlas frames keep measured pivots; component transition canvases are reused.
 const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r8.webp?v=r5',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=r5',souvilleParts:'./boss-souville-parts-r8.webp?v=r5'};

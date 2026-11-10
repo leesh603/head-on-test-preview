@@ -1,5 +1,5 @@
-import {tickBomberWings} from './bomber-wing-damage.js?v=09c75d146ae4289d';
-import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js?v=09c75d146ae4289d';
+import {tickBomberWings} from './bomber-wing-damage.js?v=b3bf991d11fc7798';
+import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js?v=b3bf991d11fc7798';
 // City Gotha flights: guided forward flight, never slot-position interpolation.
 const TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

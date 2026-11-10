@@ -1,12 +1,12 @@
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-import {facilityPlan} from './ground-facility-missions.js?v=09c75d146ae4289d';
-import {transportConvoyActive} from './transport-convoy.js?v=09c75d146ae4289d';
-import {photoReconActive} from './photo-recon-encounters.js?v=09c75d146ae4289d';
-import {intrusionActive} from './intrusion-bosses.js?v=09c75d146ae4289d';
-import {momentumCombatTarget} from './ace-momentum.js?v=09c75d146ae4289d';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=09c75d146ae4289d';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=09c75d146ae4289d';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=09c75d146ae4289d';
+import {arrivalViewport} from './enemy-arrivals.js?v=b3bf991d11fc7798';
+import {facilityPlan} from './ground-facility-missions.js?v=b3bf991d11fc7798';
+import {transportConvoyActive} from './transport-convoy.js?v=b3bf991d11fc7798';
+import {photoReconActive} from './photo-recon-encounters.js?v=b3bf991d11fc7798';
+import {intrusionActive} from './intrusion-bosses.js?v=b3bf991d11fc7798';
+import {momentumCombatTarget} from './ace-momentum.js?v=b3bf991d11fc7798';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=b3bf991d11fc7798';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=b3bf991d11fc7798';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=b3bf991d11fc7798';
 
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',

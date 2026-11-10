@@ -7,7 +7,7 @@
 //    fight, keep their support rounds and the existing defeat check.
 //  - Central: the O/400 squadron does not bomb the city, so the raid owns the
 //    districts and the defeat check here.
-import {ensureLondonBattle} from './london-battle.js?v=09c75d146ae4289d';
+import {ensureLondonBattle} from './london-battle.js?v=b3bf991d11fc7798';
 
 export const CITY_RAID=Object.freeze({
  waves:[2,3,3,6],firstAt:6,gap:16,maxLive:2,approach:1050,cityAhead:560,spread:330,bombRadius:72,

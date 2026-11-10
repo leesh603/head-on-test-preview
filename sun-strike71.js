@@ -1,5 +1,5 @@
-import {fxTint} from './fx-art.js?v=09c75d146ae4289d';
-import {isAlbatrosHunter,drawAlbatrosWorld,drawAlbatrosLocal} from './albatros-hunter-fx.js?v=09c75d146ae4289d';
+import {fxTint} from './fx-art.js?v=b3bf991d11fc7798';
+import {isAlbatrosHunter,drawAlbatrosWorld,drawAlbatrosLocal} from './albatros-hunter-fx.js?v=b3bf991d11fc7798';
 
 // Legacy solo entry: the shared signature view normally draws this already.
 // A missing signature view still receives the same restrained painted effect.

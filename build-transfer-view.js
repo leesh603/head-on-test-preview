@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
-import {planeSprite} from './aircraft.js?v=09c75d146ae4289d';
-import {drawGameIcon} from './icons.js?v=09c75d146ae4289d';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {planeSprite} from './aircraft.js?v=b3bf991d11fc7798';
+import {drawGameIcon} from './icons.js?v=b3bf991d11fc7798';
 
 const clamp=n=>Math.max(0,Math.min(1,n));
 // Weapon artwork is the existing painted gun atlas, fitted onto the incoming airframe.

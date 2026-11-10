@@ -1,7 +1,7 @@
-import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=09c75d146ae4289d';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
+import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=b3bf991d11fc7798';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=b3bf991d11fc7798';
 /** 94th Aero Squadron-inspired patrol. Alternating lane choreography is game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
+import {arrivalViewport} from './enemy-arrivals.js?v=b3bf991d11fc7798';
 export const HAT_RING_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:28,reserve:8,speed:152,turn:1.1,warning:.7,burst:.86,coast:1.8,bulletLife:2,bulletSpeed:455,gapHalfWidth:45,maxPasses:3,spacing:112,damage:9,minSeparation:100,reformPatience:3.5});
 const B=HAT_RING_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;
 const pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g,hasPilot=g=>g.players?.length?g.players.some(p=>p.hp>0&&p.status!=='downed'):g.hp>0;

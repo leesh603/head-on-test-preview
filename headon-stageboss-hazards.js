@@ -1,6 +1,6 @@
-import {FixedPool} from './headon-stageboss-pool.js?v=09c75d146ae4289d';
-import {netContact} from './london-apron369.js?v=09c75d146ae4289d';
-import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=09c75d146ae4289d';
+import {FixedPool} from './headon-stageboss-pool.js?v=b3bf991d11fc7798';
+import {netContact} from './london-apron369.js?v=b3bf991d11fc7798';
+import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=b3bf991d11fc7798';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
@@ -77,8 +77,10 @@ export class BossHazards {
       h.x+=h.vx*activeDt;h.y+=h.vy*activeDt;h.angle+=h.angularSpeed*activeDt;
       if(h.kind==='beam'&&h.endX!==null){h.endX+=h.endVx*activeDt;h.angle=Math.atan2(h.endY-h.y,h.endX-h.x);h.length=Math.hypot(h.endX-h.x,h.endY-h.y);}
       if(h.kind==='projectile') {
-        for(const p of players)if(h.active&&p.alive&&!h.hits.has(p.id)&&segmentDistance(p.x,p.y,oldX,oldY,h.x,h.y)<=h.radius+(p.radius||0)) {
-          h.hits.add(p.id);this.onDamage(p.id,h.damage,h);
+        for(const p of players)if(h.active&&p.alive&&!h.hits.has(p.id)) {
+          const hit=p.projectileHit?.(h,oldX,oldY);
+          if(p.projectileHit?!hit:segmentDistance(p.x,p.y,oldX,oldY,h.x,h.y)>h.radius+(p.radius||0))continue;
+          h.hits.add(p.id);this.onDamage(p.id,h.damage,h,hit);
           if(!h.piercing){this.pool.release(h.index,h.generation);break;}
         }
       }else if(h.ringSpeed>0){

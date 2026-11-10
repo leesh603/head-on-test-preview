@@ -1,18 +1,19 @@
-import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
-import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
-import {equipmentMountArtReady} from './equipment-mount-fx.js?v=equipmentmount20261030';
-import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=equipmentdetail20261030';
-import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=equipmentextension20261030';
-import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=equipmentart20261030';
-import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {WWI_FRAMES} from './wwi-equipment-art-data.js';
-import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
-import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
-import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
-import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js';
-import {hasSecretWeapon} from './secret-weapons.js';
-import {secretRotaryMountSide} from './secret-weapon-combat.js';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=b3bf991d11fc7798';
+import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js?v=b3bf991d11fc7798';
+import {equipmentMountArtReady} from './equipment-mount-fx.js?v=b3bf991d11fc7798';
+import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=b3bf991d11fc7798';
+import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=b3bf991d11fc7798';
+import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=b3bf991d11fc7798';
+import {bombSprite} from './bomb-sprites.js?v=b3bf991d11fc7798';
+import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=b3bf991d11fc7798';
+import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js?v=b3bf991d11fc7798';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=b3bf991d11fc7798';
+import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js?v=b3bf991d11fc7798';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=b3bf991d11fc7798';
+import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js?v=b3bf991d11fc7798';
+import {hasSecretWeapon} from './secret-weapons.js?v=b3bf991d11fc7798';
+import {secretRotaryMountSide} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
 
 let atlas,bomb,brakePanel,grapnelAtlas,rotaryMount;
 const load=(file,set)=>new Promise(resolve=>{
@@ -159,6 +160,11 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   }
   if(b.wwiIncendiary&&b.secretWeapon!=='fokkerLeimberger'){sprite(c,'burn0',sx(b.x),sy(b.y),11*projectileScale,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
+  if(b.secretWeapon==='fliegerpfeil'){
+   const a=Math.atan2(b.vy,b.vx),x=sx(b.x),y=sy(b.y),trail=28*projectileScale;
+   fx(c,'vaporTrail',x-Math.cos(a)*trail*.7,y-Math.sin(a)*trail*.7,trail,5*projectileScale,a,.7);
+   sprite(c,'flechetteDart',x,y,35*projectileScale,a);continue;
+  }
   if(b.flechette)drawFlechetteTrail(c,b,sx(b.x),sy(b.y),{...options,scale:projectileScale});
   if(b.fieryGrapnel){
    const p=players.find(p=>(p.id??'p1')===(b.ownerId??'p1'));

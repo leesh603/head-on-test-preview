@@ -1,4 +1,4 @@
-import {isBaronAlbatros} from './pilot-aircraft.js?v=09c75d146ae4289d';
+import {isBaronAlbatros} from './pilot-aircraft.js?v=b3bf991d11fc7798';
 // Red Albatros only. Pure views of the existing agility and Sun Strike states.
 export const isAlbatrosHunter=p=>p?.pilot==='baron'&&isBaronAlbatros(p.plane);
 export const ALBATROS_FX_PALETTE=Object.freeze({red:'#cc8570',wine:'#995248',linen:'#e5d7b6',amber:'#f0d394',shade:'#c4b597'});

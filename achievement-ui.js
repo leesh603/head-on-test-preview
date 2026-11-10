@@ -1,5 +1,5 @@
-import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills,secretMedalDisclosure} from './achievements.js?v=09c75d146ae4289d';
-import {getLocale,subscribe} from './i18n.js?v=09c75d146ae4289d';
+import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills,secretMedalDisclosure} from './achievements.js?v=b3bf991d11fc7798';
+import {getLocale,subscribe} from './i18n.js?v=b3bf991d11fc7798';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;

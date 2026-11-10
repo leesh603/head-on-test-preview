@@ -1,4 +1,4 @@
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=09c75d146ae4289d';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=b3bf991d11fc7798';
 
 // Register the two approved identities before loadout and ace lifecycle setup.
 // Portraits and aircraft are independently authored assets, not atlas stand-ins.

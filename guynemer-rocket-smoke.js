@@ -1,5 +1,5 @@
 // World-fixed powder from observed, owned live rocket positions only.
-import {signatureState} from './pilot-signature-state.js?v=09c75d146ae4289d';
+import {signatureState} from './pilot-signature-state.js?v=b3bf991d11fc7798';
 export const GUYNEMER_SMOKE_LIMITS=Object.freeze({life:.38,sample:.06,points:96,rockets:12,maxStep:80});
 const L=GUYNEMER_SMOKE_LIMITS,INSTALLED=Symbol.for('headon.guynemer-rocket-smoke.v1'),runtime=new WeakMap();
 const owner=p=>p.id??'p1',world=p=>p.combatWorld?.()||p;

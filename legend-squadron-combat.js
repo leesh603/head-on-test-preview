@@ -1,7 +1,7 @@
 /** Historical units; top-view encounter choreography is gameplay interpretation. */
-import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=09c75d146ae4289d';
-import {arrivalViewport} from './enemy-arrivals.js?v=09c75d146ae4289d';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=09c75d146ae4289d';
+import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=b3bf991d11fc7798';
+import {arrivalViewport} from './enemy-arrivals.js?v=b3bf991d11fc7798';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=b3bf991d11fc7798';
 export const LEGEND_BALANCE=Object.freeze({sqn56:{plane:'se5a',faction:'entente',count:5,hp:66},jasta2:{plane:'albatros_d5a',faction:'central',count:5,hp:72},duration:24,commandWarning:.65,commandSpacing:.18,commandCycles:5,coverPasses:4,recovery:1.8});
 // 20261107: Jasta 2 issues five command volleys (was three) before departing.
 const B=LEGEND_BALANCE,angle=a=>Math.atan2(Math.sin(a),Math.cos(a)),live=e=>e&&e.hp>0&&!e.crashing&&!e.expired,host=g=>!g.online||g.host;

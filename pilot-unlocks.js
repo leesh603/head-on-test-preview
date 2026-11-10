@@ -1,6 +1,6 @@
-import {PILOT_UNLOCK_COPY} from './pilot-unlock-copy.js?v=09c75d146ae4289d';
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
-import {getAircraftMeta} from './aircraft-master.js?v=09c75d146ae4289d';
+import {PILOT_UNLOCK_COPY} from './pilot-unlock-copy.js?v=b3bf991d11fc7798';
+import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {getAircraftMeta} from './aircraft-master.js?v=b3bf991d11fc7798';
 // Challenge records start at this update. Service medals and aircraft kill totals
 // are deliberately never used as retroactive pilot clearance.
 export const DEFAULT_PILOTS=Object.freeze(['immelmann','udet','brumowski','hawker','baracca','lufbery']);

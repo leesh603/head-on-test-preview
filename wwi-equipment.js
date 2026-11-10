@@ -1,6 +1,7 @@
-import {FLIGHT_EQUIPMENT,flightEquipmentAllowed,correctWimperisBomb,sampleWimperisMotion,equipmentTargets} from './flight-equipment.js?v=09c75d146ae4289d';
-import {tickSynthesis,prepareSynthesisBomb,SYNTHESIS_BALANCE} from './weapon-synthesis.js?v=09c75d146ae4289d';
-import {combatImpactResult} from './combat-impact-result.js?v=09c75d146ae4289d';
+import {FLIGHT_EQUIPMENT,flightEquipmentAllowed,correctWimperisBomb,sampleWimperisMotion,equipmentTargets} from './flight-equipment.js?v=b3bf991d11fc7798';
+import {tickSynthesis,prepareSynthesisBomb,SYNTHESIS_BALANCE} from './weapon-synthesis.js?v=b3bf991d11fc7798';
+import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {secretGrapnelContact,secretCooperRelease,secretVerySignal,tickSecretWeapons} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
 export {equipmentTargets};
 
 export const WWI_EQUIPMENT=Object.freeze([
@@ -196,7 +197,11 @@ export function installWWIEquipment(Game){
   const direct=privateMachineGunRound(this,round,true)||!round.enemy&&!round.ally&&!round.patrol&&!round.formation&&!round.actualExplosion&&(round.cow37||round.upgradeRocket);
   if(direct&&(hasEquipment(this,'veryPistol')||hasEquipment(this,'mauserAceKiller'))){target.wwiDirectHitAt??={};target.wwiDirectHitAt[ownerId(this)]=now;if(hasEquipment(this,'veryPistol')){this.wwiVeryLastHitId=targetId(this,target);this.wwiVeryLastHitAt=now;}}
   if(round.wwiMachineGun&&privateMachineGunRound(this,round))noteMachineGunHit(this,round,target,now);
-  if(round.fieryGrapnel)attachGrapnel(this,round,target,accepted);
+  if(round.fieryGrapnel){
+   if(round.secretWeapon)igniteSharedBurn(this,target,round,accepted);
+   else attachGrapnel(this,round,target,accepted);
+   secretGrapnelContact(this,target,round,equipmentTargets(combatWorld(this)),{x:round.x,y:round.y});
+  }
   return result;
  };
  return Game;
@@ -249,7 +254,8 @@ function beginCooperDrop(owner,world,previousPose,dt){
  if(owner.upgrades?.fieryGrapnel&&(world.bullets||[]).some(b=>b.fieryGrapnel&&b.ownerId===ownerId(owner)&&b.life>0))return false;
  const b=WWI_BALANCE.cooper,a=finite(owner.a),velocity=bombVelocity(owner,previousPose,dt),sideX=-Math.sin(a)*11,sideY=Math.cos(a)*11,damage=typeof owner.payloadPower==='function'?owner.payloadPower(b.damage):b.damage;
  if(!cooperHasTarget(owner,world,owner.x,owner.y,velocity.x,velocity.y))return false;
- cooperBomb(owner,world,owner.x-sideX,owner.y-sideY,velocity.x,velocity.y,damage);
+ const bomb=cooperBomb(owner,world,owner.x-sideX,owner.y-sideY,velocity.x,velocity.y,damage);
+ secretCooperRelease(owner,bomb);
  owner.wwiCooperSecondIn=owner.upgrades?.combinedProjectiles?SYNTHESIS_BALANCE.bombDelay:b.stagger;owner.wwiCooperSecondDamage=damage;
  owner.wwiCooperCooldown=b.cooldown;
  return true;
@@ -388,6 +394,7 @@ function beginVerySignal(owner,world=combatWorld(owner)){
  if(!ownedWings(owner,world).length)return false;
  const chosen=veryTarget(owner,world);if(!chosen)return false;
  owner.wwiVeryRetargeted=false;owner.wwiVeryTargetId=targetId(owner,chosen.target);owner.wwiVeryPartId=chosen.part?.id??null;owner.wwiVeryTime=WWI_BALANCE.veryPistol.duration;owner.wwiVeryCooldown=WWI_BALANCE.veryPistol.cooldown;owner.wwiVery={x:owner.x,y:owner.y,a:finite(owner.a),age:0,life:owner.wwiVeryTime,maxLife:WWI_BALANCE.veryPistol.duration,targetId:owner.wwiVeryTargetId,partId:owner.wwiVeryPartId};
+ secretVerySignal(owner,chosen.part?partPoint(chosen.target.stageBossBody,chosen.part):chosen.target,prepareSynthesisBomb);
  return true;
 }
 
@@ -401,6 +408,7 @@ function clearTransient(owner){
 export function tickWWIEquipment(owner,world,dt,previousPose){
  if(!owner||!Number.isFinite(dt)||dt<=0)return;
  tickSynthesis(owner,dt);
+ tickSecretWeapons(owner,dt,previousPose);
  sampleWimperisMotion(owner);
  if(!WWI_EQUIPMENT.some(({id})=>hasEquipment(owner,id)))return;
  world??=combatWorld(owner);if(!activeOwner(owner,world)){clearTransient(owner);return;}

@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=09c75d146ae4289d';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=09c75d146ae4289d';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=09c75d146ae4289d';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,canMoveMaanHull,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=09c75d146ae4289d';
+import {impactPulse} from './boss-raid-strikes.js?v=b3bf991d11fc7798';
+import {fireFanSalvo} from './boss-salvo-geometry.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,canMoveMaanHull,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=b3bf991d11fc7798';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){

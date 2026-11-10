@@ -1,6 +1,6 @@
-import {V1500_ART} from './v1500-layout.js?v=09c75d146ae4289d';
-import {V1500_POINTS,V1500_PROP_POINTS,v1500WorldPoint} from './handley-page-v1500.js?v=09c75d146ae4289d';
-import {fx} from './fx-art.js?v=09c75d146ae4289d';
+import {V1500_ART} from './v1500-layout.js?v=b3bf991d11fc7798';
+import {V1500_POINTS,V1500_PROP_POINTS,v1500WorldPoint} from './handley-page-v1500.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=b3bf991d11fc7798';
 const clamp=n=>Math.max(0,Math.min(1,n));
 /** Painted originals only. Propeller rotation is projected from its vertical plane. */
 export function drawV1500Boss(c,e,point,scale,images){
