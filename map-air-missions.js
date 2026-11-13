@@ -1,6 +1,6 @@
 // The map objective owns the route and result; existing aircraft movement,
 // targeting, bullets and patrol damage own every combat interaction.
-import {registerMaanReconFacility} from './ground-facility-missions.js?v=b3bf991d11fc7798';
+import {registerMaanReconFacility} from './ground-facility-missions.js';
 export const AIR_MAP_MISSION_BALANCE=Object.freeze({
  arrasTotal:9,arrasWave:3,arrasGoal:6,arrasGap:22,arrasLimit:105,
  reconHp:240,reconSpeed:132,reconPhotoRadius:180,reconPhotoSeconds:3,reconExitRadius:170,reconLimit:110,reconThreatCap:4
@@ -29,24 +29,38 @@ function missionPlane(m,start,heading,route,altitude){
 }
 function tickArras(g,m){
  const s=m.air,protect=m.faction==='entente',heading=m.heading,p=pilot(g),altitude=p.altitude;
- if(s.launched<B.arrasTotal&&m.age>=s.nextAt){
+ const encounter=g.stageBoss.stages.encounter;
+ const formation=encounter?.bodies?.values().next().value;
+ const contact=encounter&&!encounter.arrivalPending&&(!formation?.sortieMission||formation.entryComplete||formation.dead);
+ // Bring up the last flight if the interceptors already stopped the first
+ // two. The normal sortie spacing still applies while they are in flight.
+ const earlyThird=!protect&&s.launched===2*B.arrasWave&&s.down>=B.arrasGoal&&contact;
+ if(s.launched<B.arrasTotal&&(m.age>=s.nextAt||earlyThird)){
   const lane=(s.launched%B.arrasWave-1)*155;
-  const start=at(at(m.origin,heading,-700),heading+Math.PI/2,lane),exit=at(start,heading,6900);
+  if(!protect&&s.launched%B.arrasWave===0){
+   const approach=p.a??heading;
+   s.interceptEntry=at(p,approach,620);
+   s.interceptHeading=approach+Math.PI;
+  }
+  const routeHeading=protect?heading:s.interceptHeading;
+  const entry=protect?at(m.origin,heading,-700):s.interceptEntry;
+  const start=at(entry,routeHeading+Math.PI/2,lane);
+  const exit=at(start,routeHeading,protect?6900:3000);
   const e=protect?missionPlane(m,start,heading,exit,altitude):spawn(g,'bomber');
   if(e){
    if(protect)(g.patrols??=[]).push(e);
-   else Object.assign(e,{...start,a:heading,escortPlane:'re8',faction:'entente',hp:180,maxHp:180,altitude,speed:150,
-    mapMissionId:m.id,missionTarget:true,arrivalAuthored:true,arrivalPending:false,airArrival:null,frontRoute:at(exit,heading,1000)});
-   s.planes.push({e,exit});s.launched++;
+   else Object.assign(e,{...start,a:routeHeading,escortPlane:'re8',faction:'entente',hp:180,maxHp:180,altitude,speed:110,
+    mapMissionId:m.id,missionTarget:true,arrivalAuthored:true,arrivalPending:false,airArrival:null,frontRoute:at(exit,routeHeading,1000)});
+   s.planes.push({e,exit,heading:routeHeading});s.launched++;
    s.nextAt=m.age+(s.launched%B.arrasWave===0?B.arrasGap:.45);
   }
  }
  for(const q of s.planes){
-  const {e,exit}=q;if(q.result)continue;
+  const {e,exit,heading:routeHeading}=q;if(q.result)continue;
   if(e.hp<=0||e.crashing||e.crashed){q.result='down';s.down++;continue;}
   if(e.expired||!(protect?g.patrols:g.enemies)?.includes(e)){q.result='missing';continue;}
   const dx=e.x-exit.x,dy=e.y-exit.y;
-  if(dx*Math.cos(heading)+dy*Math.sin(heading)>=-95&&Math.abs(dy*Math.cos(heading)-dx*Math.sin(heading))<=165){
+  if(dx*Math.cos(routeHeading)+dy*Math.sin(routeHeading)>=-95&&Math.abs(dy*Math.cos(routeHeading)-dx*Math.sin(routeHeading))<=165){
    q.result='home';s.home++;e.expired=true;e.missionTarget=false;
    const list=protect?g.patrols:g.enemies;list.splice(list.indexOf(e),1);
   }
@@ -58,10 +72,17 @@ function tickArras(g,m){
  m.guides=active.map(({e})=>({x:e.x,y:e.y,kind:protect?'ally':'target',label:['임무기','MISSION AIRCRAFT']}));
  if(protect&&active.length&&m.age>=s.nextSweep){
   const target=active[0].e;
-  for(const side of [-1,1]){const e=spawn(g,'hunter');if(e){const q=pursuerPosition(g,target,side);Object.assign(e,{...q,a:Math.atan2(target.y-q.y,target.x-q.x),mapMissionId:m.id,operationEscortTarget:target,altitude,airArrival:null,arrivalAuthored:true,arrivalPending:false});}}
+  for(const side of [-1,1]){const e=spawn(g,'hunter');if(e){const q=pursuerPosition(g,target,side);Object.assign(e,{...q,a:Math.atan2(target.y-q.y,target.x-q.x),mapMissionId:m.id,arrasInterceptor:true,operationEscortTarget:target,altitude,airArrival:null,arrivalAuthored:true,arrivalPending:false});}}
   s.nextSweep=m.age+14;
  }
- if(progress>=B.arrasGoal&&g.stageBoss.stages.encounter)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
+ // Mission attackers keep fighting the remaining aircraft after a target leaves.
+ for(const e of g.enemies||[]){
+  if(!e.arrasInterceptor||e.mapMissionId!==m.id||active.some(q=>q.e===e.operationEscortTarget))continue;
+  const next=active.reduce((a,b)=>!a||distance(b.e,e)<distance(a.e,e)?b:a,null);
+  e.operationEscortTarget=next?.e||null;
+  if(!next)e.arrasInterceptor=false;
+ }
+ if(progress>=B.arrasGoal&&s.launched===B.arrasTotal&&contact)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
  if(progress+active.length+B.arrasTotal-s.launched<B.arrasGoal)return finish(m,false,'아라스 제공 임무 실패','Arras air mission failed');
  return null;
 }

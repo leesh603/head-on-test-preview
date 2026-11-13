@@ -1,9 +1,9 @@
-import {impactPulse} from './boss-raid-strikes.js?v=b3bf991d11fc7798';
-import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js?v=b3bf991d11fc7798';
-import {driveLandship} from './somme-landship-drive.js?v=b3bf991d11fc7798';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=b3bf991d11fc7798';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=b3bf991d11fc7798';
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js?boss=20261020b';
+import {driveLandship} from './somme-landship-drive.js?v=tame3&somme=20261021';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=tame3&somme=20261021';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){
@@ -158,6 +158,10 @@ export class Mark1Landship extends SommeBoss{
    }
    const d=Math.hypot(tx-this.x,ty-this.y);
    this.driveOrder={hunt:true,heading:Math.atan2(tx-this.x,-(ty-this.y)),speed:d>420?86:d>180?65:Math.max(0,(d-30)*.42),halt:this.recovering||!!q&&q.age<2.4};}}
+  if(!entry&&this.mapAdvanceTarget){
+   const q=this.mapAdvanceTarget,d=Math.hypot(q.x-this.x,q.y-this.y);
+   this.driveOrder={hunt:true,heading:Math.atan2(q.x-this.x,-(q.y-this.y)),speed:d>420?86:d>180?65:Math.max(0,(d-30)*.42),halt:this.recovering};
+  }
   if(this.driveMoving&&this.due('engine-cue',dt,.75))this.command('armor-drive');
   return {entry,final:q,live};
  }

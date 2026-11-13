@@ -1,16 +1,16 @@
-import {synthesisDescription} from './weapon-synthesis.js?v=b3bf991d11fc7798';
-import {conciseEquipmentChoice} from './equipment-copy.js?v=b3bf991d11fc7798';
-import {medalDisplayName,prototypeAmmoName} from './equipment-names.js?v=b3bf991d11fc7798';
-import {passiveMedalFaction,passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=b3bf991d11fc7798';
-import {RARE_SPECIALIZATIONS} from './rare-specializations.js?v=b3bf991d11fc7798';
+import {synthesisDescription} from './weapon-synthesis.js';
+import {conciseEquipmentChoice} from './equipment-copy.js';
+import {medalDisplayName,prototypeAmmoName} from './equipment-names.js';
+import {passiveMedalFaction,passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
+import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 // Categories: current 강화 and 특수장비(개편) sheets. Blank merged cells inherit the category above.
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
-import {WWI_EQUIPMENT} from './wwi-equipment.js?v=b3bf991d11fc7798';
-import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=b3bf991d11fc7798';
-import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=b3bf991d11fc7798';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=b3bf991d11fc7798';
-import {tacticalChoices} from './tactical-doctrines.js?v=b3bf991d11fc7798';
+import {WWI_EQUIPMENT} from './wwi-equipment.js';
+import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025&fai=20261108';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
+import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 
 export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","passiveMedal":"패시브","telescope":"기관총","flightGloves":"주무장 · 기동","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
 for(const e of [...WWI_EQUIPMENT,...RARE_SPECIALIZATIONS])CATEGORIES[e.id]={GUN:'기관총',EXPLOSIVE:'폭탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[e.family];
@@ -78,6 +78,8 @@ export function cumulativeText(p,id,rarity){
  if(p.bomberTransfer)copy.bomberTransfer={...p.bomberTransfer,stations:p.bomberTransfer.stations?.map(station=>({...station}))};
  const current=getLocale()==='en'?' current ':' 현재 ';
  const before=buildStats(p);if(!copy.upgrade(id,rarity))return fields[id].map(k=>before[k][1]+current+before[k][2]).join('\n');
- const after=buildStats(copy);return fields[id].filter(k=>before[k][2]!==after[k][2]).map(k=>before[k][1]+current+before[k][2]+' → '+after[k][2]).join('\n');
+ const after=buildStats(copy),changed=fields[id].filter(k=>before[k][2]!==after[k][2]);
+ // Several stats share the card's one total line: " · " between them, without the repeated "현재".
+ return changed.map(k=>before[k][1]+(changed.length>1?' ':current)+before[k][2]+' → '+after[k][2]).join(' · ');
 }
 export function cleanDescription(text){return String(text??'').trim()}

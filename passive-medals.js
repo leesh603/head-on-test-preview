@@ -1,11 +1,11 @@
 // Passive medal effects observe the final authored hooks shared by Game/PlayerState.
 // Equipment ownership is the gate, so replay/removal cannot leave a permanent buff.
-import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
-import {pilotHeadOn} from './pilot-identities.js?v=b3bf991d11fc7798';
-import {isFiveAceAirship} from './pilot-five-combat.js?v=b3bf991d11fc7798';
-import {signatureCue} from './pilot-signature-state.js?v=b3bf991d11fc7798';
-import {navarreOutnumbered} from './navarre-frommherz-combat.js?v=b3bf991d11fc7798';
-import {isReplacementPrimary,replacementPrimaryVolley} from './pilot-primary.js?v=b3bf991d11fc7798';
+import {combatImpactResult} from './combat-impact-result.js';
+import {pilotHeadOn} from './pilot-identities.js?v=fiveace1&afc=1&ho=20261111';
+import {isFiveAceAirship} from './pilot-five-combat.js?v=fiveace1';
+import {signatureCue} from './pilot-signature-state.js';
+import {navarreOutnumbered} from './navarre-frommherz-combat.js';
+import {isReplacementPrimary,replacementPrimaryVolley} from './pilot-primary.js';
 const states=new WeakMap(),shotContacts=new WeakMap(),impactDetails=new WeakMap(),roundTargets=new WeakMap(),primaryCharges=new WeakMap();
 const world=p=>p.combatWorld?.()||p.world||p,owner=p=>p.id??'p1';
 const now=p=>world(p).t||0;

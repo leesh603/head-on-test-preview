@@ -1,15 +1,15 @@
-import {applySeaColor} from './sea-colors.js?v=b3bf991d11fc7798';
-import {fleetGunStations} from './naval-faction-atlas.js?v=b3bf991d11fc7798';
-import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=b3bf991d11fc7798';
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=b3bf991d11fc7798';
-import {drawSinkingShip} from './ship-sinking.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {impactMark,partMark,aimLine} from './tactical-marks.js?v=b3bf991d11fc7798';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=b3bf991d11fc7798';
-import {jutlandMuzzle,jutlandRotate} from './jutland-boss.js?v=b3bf991d11fc7798';
-import {JUTLAND_RECTS} from './jutland-atlas.js?v=b3bf991d11fc7798';
-import {drawJutlandGun} from './jutland-gun-art.js?v=b3bf991d11fc7798';
-import {drawShellFlight} from './boss-rounds.js?v=b3bf991d11fc7798';
+import {applySeaColor} from './sea-colors.js?v=tame3';
+import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
+import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=tame3&shipperf=20261112';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
+import {drawSinkingShip} from './ship-sinking.js?v=tame3';
+import {fx} from './fx-art.js?v=tame3';
+import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
+import {jutlandMuzzle,jutlandRotate} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {JUTLAND_RECTS} from './jutland-atlas.js?v=tame3';
+import {drawJutlandGun} from './jutland-gun-art.js?v=20261023';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',flagship:'jutland-flagship.webp',parts:'jutland-parts.webp'});
 const images=new Map(),pending=new Map();
 let water=null,regionReady=null;
@@ -134,5 +134,11 @@ export function drawFleetShip(c,e,height,gunPositions){const state=e.hp<=0?2:e.h
  if(e.hp>0){const mark=jutlandRotate(0,-height*.40,yaw);drawFactionMark(c,e.faction,mark.x,mark.y,width*.19,yaw);}
  if(e.hp>0&&e.hp<e.maxHp*.55){const q=jutlandRotate(0,-height*.04,yaw);fx(c,'smokeDark',q.x+12,q.y-30,width*.95,height*.23,0,.35);}
 }
-export function prepareFleetShipArt(){load('parts');return prepareFactionHulls();}
+export function prepareFleetShipArt(includeCapital=false,includeWeapons=false){
+ const hulls=prepareFactionHulls(includeCapital);
+ if(!includeWeapons||typeof Image==='undefined')return hulls;
+ // The first visible ship uses the gun atlas as well as the hull atlas.
+ load('parts');
+ return Promise.all([hulls,pending.get('parts')]);
+}
 

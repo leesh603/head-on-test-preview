@@ -12,7 +12,7 @@ const families={
 };
 export const BOSS_ENTRY_PROFILES=Object.freeze({
  artillery:{label:['전방 포대 포착','ARTILLERY POSITION AHEAD'],reveal:'ground',beats:[[.65,'armorOpen',1.5],[1.5,null,3]]},
- rail:{label:['철로의 굉음','RAILWAY ARTILLERY'],reveal:'length',beats:[[.08,'railClatter',1],[.82,'trainBrake',3.5]]},
+ rail:{label:['열차포 접근','RAILWAY ARTILLERY INBOUND'],reveal:'length',beats:[[0,'trainApproach',1]]},
  railCarrier:{label:['무장열차 진입','ARMOURED LAUNCH TRAIN'],reveal:'length',beats:[[.08,'railClatter',1],[.9,'trainBrake',3],[1.65,'winchRelease',1.5]]},
  naval:{label:['수평선의 포성','HEAVY WARSHIP INBOUND'],reveal:'length',beats:[[.18,null,1.4],[1.5,null,3.5]]},
  airship:{label:['하늘을 덮는 그림자','GIANT AIRSHIP INBOUND'],reveal:'curtain',beats:[[.15,null,1],[1.35,'winchRelease',2]]},

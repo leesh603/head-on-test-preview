@@ -1,4 +1,4 @@
-import {playerAirframeModel} from './player-airframe-handling.js?v=b3bf991d11fc7798';
+import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
 // Airframe roles compose the existing handling, pursuit, round and wing hooks.
 // They are independent of aircraft tier and never change pilot skills or gun power.
 export const AIRCRAFT_COMBAT_ROLES=Object.freeze({
@@ -111,7 +111,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
   try{result=fly.call(this,dt,input)}finally{this.turn=turn}
   const yaw=Math.abs(angleDiff(this.a,before));
   this.aircraftStraightTime=yaw<=step*.22?(this.aircraftStraightTime||0)+step:0;
-  this.aircraftStyleActive=false;
+  this.aircraftStyleActive=false;this.aircraftStyleKind=null;
   if(!active)return result;
   const mode=profile.mode,straight=this.aircraftStraightTime>=(profile.steady??.45);
   let recovery=0,retention=0;
@@ -128,6 +128,8 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
   }
   if(recovery)this.airframeSpeed+=(1-this.airframeSpeed)*(1-Math.exp(-recovery*step));
   this.aircraftStyleActive=factor!==1||recovery>0||retention>0;
+  // Which trait is working right now (read only by the picture: wake, streaks, bank light).
+  this.aircraftStyleKind=factor>1?'turn':retention>0?'hold':recovery>0?'surge':null;
   return result;
  };
  const tail=Game.prototype.updateTailLock;
@@ -156,7 +158,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
    const target=profile&&group<1&&mode!=='energy'?world.identityTarget?.(.16,mode==='early'?230:rear?300:420,this,heading):null;
    const correction=target?clamp(angleDiff(Math.atan2(target.y-this.y,target.x-this.x),heading),-.08,.08)*(1-group):0;
    const a=heading+angleDiff(Math.atan2(b.vy,b.vx),heading)*group+correction;
-   b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;this.aircraftStyleActive=group<1;
+   b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;this.aircraftStyleActive=group<1;if(group<1)this.aircraftAimUntil=(this.t||0)+.3;
   }
   return result;
  };

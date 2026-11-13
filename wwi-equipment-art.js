@@ -1,19 +1,19 @@
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=b3bf991d11fc7798';
-import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js?v=b3bf991d11fc7798';
-import {equipmentMountArtReady} from './equipment-mount-fx.js?v=b3bf991d11fc7798';
-import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=b3bf991d11fc7798';
-import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=b3bf991d11fc7798';
-import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=b3bf991d11fc7798';
-import {bombSprite} from './bomb-sprites.js?v=b3bf991d11fc7798';
-import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=b3bf991d11fc7798';
-import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js?v=b3bf991d11fc7798';
-import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=b3bf991d11fc7798';
-import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js?v=b3bf991d11fc7798';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=b3bf991d11fc7798';
-import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js?v=b3bf991d11fc7798';
-import {hasSecretWeapon} from './secret-weapons.js?v=b3bf991d11fc7798';
-import {secretRotaryMountSide} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=tame3';
+import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
+import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
+import {equipmentMountArtReady} from './equipment-mount-fx.js?v=equipmentmount20261030';
+import {drawFlechetteTrail,equipmentDetailArtReady} from './equipment-detail-fx.js?v=equipmentdetail20261030';
+import {equipmentExtensionArtReady} from './equipment-extension-fx.js?v=equipmentextension20261030';
+import {drawWimperisSight,drawAirbrakePressure,drawVeryDesignation,equipmentSignatureArtReady} from './equipment-signature-fx.js?v=equipmentart20261030';
+import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {WWI_FRAMES} from './wwi-equipment-art-data.js';
+import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
+import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js';
+import {hasSecretWeapon} from './secret-weapons.js';
+import {secretRotaryMountSide} from './secret-weapon-combat.js';
 
 let atlas,bomb,brakePanel,grapnelAtlas,rotaryMount;
 const load=(file,set)=>new Promise(resolve=>{

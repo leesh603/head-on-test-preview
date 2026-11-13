@@ -43,13 +43,9 @@ function hardware(c,index,x,y,size){
 const ease=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);};
 export function skyPortOpen(b,p){
  if(p.destroyed||b.destroying)return 0;
- const age=(b.motionTime||0)-p.lastLaunchAt;
+ const age=(b.skyDeckTime??b.motionTime??0)-p.lastLaunchAt;
  let open=age>=0&&age<1.03?1:age>=1.03&&age<1.25?ease((1.25-age)/.22):0;
- if(b.phase==='launching'&&Number.isFinite(b.skyLaunchIn)&&b.skyLaunchIn>=0&&b.skyLaunchIn<.35){
-  const ports=(b.parts||[]).filter(q=>q.id.startsWith('port-')&&!q.destroyed),count=Math.min(ports.length,ports.length>=3?3:2);
-  const ready=b.skyPeakBeat===0?ports:b.skyPeakBeat===1?ports.slice(-2):Array.from({length:count},(_,i)=>ports[((b.skyLaunchSide||0)+i)%ports.length]);
-  if(ready.some(q=>q.id===p.id))open=Math.max(open,ease(1-b.skyLaunchIn/.35));
- }
+ if(b.skyLaunchPorts?.includes(p.id))open=Math.max(open,ease(1-b.skyLaunchIn/b.skyLaunchSeconds));
  return open;
 }
 function launchPort(c,b,p,size){
@@ -96,14 +92,18 @@ export function drawSkyAirship(c,b,{cloud=()=>{},effect=()=>{},mark=()=>{}}={}){
  let plumeCount=0;
  for(const p of parts){
   if(p.id==='capsule'&&p.destroyed&&time-(p.destroyedAt??0)>2.6)continue;
-  const r=p.radius||19*scale,size=r*(p.id==='capsule'?2.7:p.id.startsWith('port-')?2.3:2.1),cell=b.destroying?(p.id==='capsule'?5:p.id.startsWith('port-')?9:2):skyHardwareCell(p,time);
+  const port=p.id.startsWith('port-'),r=p.radius||19*scale,size=r*(p.id==='capsule'?2.7:port?2.3:2.1);
+  const cell=b.destroying?(p.id==='capsule'?5:port?9:2):skyHardwareCell(p,port?(b.skyDeckTime??time):time);
   const falling=p.id==='capsule'&&p.destroyed,age=Math.max(0,time-(p.destroyedAt??time)),drop=falling?Math.min(90,age*age*24)*scale:0;
   if(falling){c.save();c.translate(p.x,p.y+drop);c.rotate(age*.26);c.globalAlpha*=Math.max(0,1-age/2.6);hardware(c,cell,0,0,size);c.restore();}
-  else if(p.id.startsWith('port-')&&!p.destroyed&&!b.destroying&&images.mechanics?.naturalWidth)launchPort(c,b,p,size);
-  else hardware(c,cell,p.x,p.y,size);
-  if(cell===7&&!images.mechanics?.naturalWidth){const age=time-p.lastLaunchAt,closed=p.hp<=p.maxHp*.5?8:6,alpha=age<.18?1-age/.18:age>1.03?(age-1.03)/.22:0;
-   if(alpha>0){c.save();c.globalAlpha*=Math.min(1,alpha);hardware(c,closed,p.x,p.y,size);c.restore();}
-  }
+  else if(port&&!p.destroyed&&!b.destroying){
+   if(images.mechanics?.naturalWidth)launchPort(c,b,p,size);
+   else{
+    hardware(c,p.hp<=p.maxHp*.5?8:6,p.x,p.y,size);
+    const open=skyPortOpen(b,p);
+    if(open>0){c.save();c.globalAlpha*=open;hardware(c,7,p.x,p.y,size);c.restore();}
+   }
+  }else hardware(c,cell,p.x,p.y,size);
   if(p.id.startsWith('engine-')){
    c.save();c.translate(p.x-r*.98,p.y);
    if(p.destroyed||b.destroying){

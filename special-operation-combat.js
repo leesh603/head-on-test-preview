@@ -1,6 +1,6 @@
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=b3bf991d11fc7798';
-import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js?v=b3bf991d11fc7798';
-import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION} from './special-operations.js?v=b3bf991d11fc7798';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js';
+import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
 
 const live = entity => entity && entity.hp > 0 && !entity.expired && !entity.crashing && entity.life !== 0;
 const pilots = game => game.players || [game];
@@ -8,10 +8,12 @@ const lead = game => pilots(game).find(player => live(player) && player.status !
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const pilotNear = (game, target, radius) => pilots(game).some(player =>
  live(player) && player.status !== 'downed' && distance(player, target) <= radius);
+const demolitionRemaining = train => train?.demolition?.crew.filter(e => e.hp > 0 && !e.crashing && !e.crashed).length || 0;
 const RALLY_RADIUS = 165;
 const SQUADRON_REQUIRED = 3;
 const REPAIR_RADIUS = 210;
 const REPAIR_TIME = 4;
+const DEMOLITION_FLIGHT_SIZE = 3;
 const survivors = battle => battle.patrols.filter(patrol => patrol.operationEvacuated || live(patrol)).length;
 const at = (entity, heading, distance) => ({
  x: entity.x + Math.cos(heading) * distance,
@@ -28,13 +30,16 @@ function addPatrol(game, plane, heading, position, maxHp, details = {}) {
  return patrol;
 }
 
-function addEnemy(game, type) {
+function addEnemy(game, type, reserve = false) {
  const old = game.directorSpawning;
+ const oldEvent = game.battlefieldEventSpawning;
  game.directorSpawning = true;
+ if (reserve) game.battlefieldEventSpawning = true;
  try {
   return game.spawnEnemy(type);
  } finally {
   game.directorSpawning = old;
+  if (reserve) game.battlefieldEventSpawning = oldEvent;
  }
 }
 
@@ -48,7 +53,7 @@ function addRailCar(game, key, x, y, hp) {
  const car = addEnemy(game, 'bomber');
  if (!car) return null;
  Object.assign(car, {
-  x, y, a: 0, speed: 0, hp, maxHp: hp, hitRadius: 47,
+  x, y, a: 0, speed: 0, hp, maxHp: hp, hitRadius: 64,
   operationRailCar: key, operationEnemy: true, missionTarget: true,
   stationary: true, surface: true, fire: Infinity
  });
@@ -63,13 +68,14 @@ export function startOperationBattle(game, id, pilotData, operation = {}) {
  const battle = {id, faction, heading, elapsed: 0, wave: 0, nextSweep: 6, enemies: [], patrols: [], routeComplete: false};
  if (id === 'cargo') {
   const sign = Math.cos(heading) >= 0 ? 1 : -1;
-  const y = position.y, x = player.x + sign * 140;
+  const y = position.y, x = player.x + sign * 220;
   // Armoured, and sized to the pilot's own guns: stopping the train is a chase
   // of several passes under flak, not one burst from any build.
   const shot = Math.max(8, (player.damage || 8) * (game.globalDamageMult || 1));
-  const engine = addRailCar(game, 'engine', x, y, Math.max(520, Math.round(shot * 90)));
-  const flak = addRailCar(game, 'flak', x - sign * 110, y, Math.max(300, Math.round(shot * 50)));
-  const cargo = addRailCar(game, 'cargo', x - sign * 220, y, 245);
+  const spacing = SPECIAL_OPERATION_RAIL_CAR_LENGTH;
+  const engine = addRailCar(game, 'engine', x, y, Math.max(780, Math.round(shot * 125)));
+  const flak = addRailCar(game, 'flak', x - sign * spacing, y, Math.max(450, Math.round(shot * 75)));
+  const cargo = addRailCar(game, 'cargo', x - sign * 2 * spacing, y, 245);
   battle.train = {engine, flak, cargo, sign, x, y, originX: x, age: 0, secured: 0, nextFire: 2};
   battle.enemies.push(...[engine, flak, cargo].filter(Boolean));
  } else {
@@ -121,13 +127,14 @@ function alertFor(battle, ko, en, seconds = 0) {
  battle.alert = {text: [ko, en], until: battle.elapsed + Math.max(4, seconds), countdownTo: seconds ? battle.elapsed + seconds : null};
 }
 // A flight that goes straight for an escorted aircraft from one flank.
-function diveFlight(game, battle, target, count, {type = 'hunter', distance = 560, side = 1} = {}) {
+function diveFlight(game, battle, target, count, {type = 'hunter', distance = 560, side = 1, reserve = false} = {}) {
  const flank = (target.a ?? battle.heading) + side * 1.25, made = [];
  for (let i = 0; i < count; i++) {
   const position = at(target, flank + (i - (count - 1) / 2) * .16, distance + i * 30);
-  const e = addEnemy(game, type);if (!e) break;
+  const e = addEnemy(game, type, reserve);if (!e) break;
   Object.assign(e, {...position, a: Math.atan2(target.y - position.y, target.x - position.x), operationEnemy: true, missionTarget: true,
    fire: .55 + i * .2, operationEscortTarget: game.patrols?.includes(target) ? target : null, operationStrike: true});
+  if (reserve) Object.assign(e, {arrivalAuthored: true, arrivalPending: false, airArrival: null});
   battle.enemies.push(e);made.push(e);
  }
  return made;
@@ -158,14 +165,14 @@ const OPERATION_SCRIPTS = Object.freeze({
   }}
  ],
  cargo: [
+  {at: 8, run(game, battle) {
+   const player = lead(game);if (!player) return;
+   for (const e of diveFlight(game, battle, player, 3, {type: 'hunter', side: -1, distance: 520})) e.operationStrike = false;
+   say(game, '열차 엄호기 출격');alertFor(battle, '열차 엄호기 출격', 'Train escorts airborne');
+  }},
   {at: 14, run(game, battle) {
    if (!live(battle.train.engine)) return;
    battle.train.speed = 98;say(game, '열차 가속 · 터널 진입 전에 기관차를 멈추세요');alertFor(battle, '열차 가속', 'Train accelerating');
-  }},
-  {at: 26, run(game, battle) {
-   const player = lead(game);if (!player) return;
-   for (const e of diveFlight(game, battle, player, 2, {type: 'scout', side: -1, distance: 520})) e.operationStrike = false;
-   say(game, '열차 엄호기 출격');alertFor(battle, '열차 엄호기 출격', 'Train escorts airborne');
   }}
  ],
  squadron: [
@@ -249,25 +256,30 @@ function advanceTrain(game, battle, dt) {
  const speed = live(train.engine) ? (train.speed || 72) : 0;
  train.x += train.sign * speed * dt;
  for (const [slot, car] of [train.engine, train.flak, train.cargo].entries()) {
-  if (car) {car.x = train.x - train.sign * slot * 110; car.y = train.y;}
+  if (car) {car.x = train.x - train.sign * slot * SPECIAL_OPERATION_RAIL_CAR_LENGTH; car.y = train.y;}
  }
  const player = lead(game);
- train.inRange = live(train.cargo) && pilotNear(game, train.cargo, 320);
+ train.inRange = live(train.cargo) && pilotNear(game, train.cargo, 240);
  // Once the train is stopped, a demolition flight comes to blow the cargo
  // before it can be taken: shoot it down, then hold over the cargo.
- if (!live(train.engine) && !live(train.flak) && live(train.cargo) && !train.demolition) {
-  const crew = player ? diveFlight(game, battle, train.cargo, 2, {side: 1, distance: 520}) : [];
+ const waiting = DEMOLITION_FLIGHT_SIZE - (train.demolition?.crew.length || 0);
+ if (!live(train.engine) && !live(train.flak) && live(train.cargo) && waiting > 0 && player) {
+  const crew = diveFlight(game, battle, train.cargo, waiting, {side: 1, distance: 520, reserve: true});
   if (crew.length) {
    for (const aircraft of crew) aircraft.operationDemolition = true;
-   train.demolition = {deadline: battle.elapsed + SPECIAL_OPERATION_DEMOLITION, crew};
-   say(game, `적 폭파조 접근 · ${SPECIAL_OPERATION_DEMOLITION}초 안에 격추하세요`);
+   if (!train.demolition) {
+    train.demolition = {deadline: battle.elapsed + SPECIAL_OPERATION_DEMOLITION, crew: []};
+    say(game, `적 폭파조 접근 · ${SPECIAL_OPERATION_DEMOLITION}초 안에 격추하세요`);
+   }
+   train.demolition.crew.push(...crew);
   }
  }
- const crew = train.demolition?.crew.filter(live).length || 0;
- if (train.demolition && crew && battle.elapsed >= train.demolition.deadline && live(train.cargo)) {
+ const crew = demolitionRemaining(train);
+ const allLaunched = train.demolition?.crew.length === DEMOLITION_FLIGHT_SIZE;
+ if (train.demolition && (!allLaunched || crew) && battle.elapsed >= train.demolition.deadline && live(train.cargo)) {
   train.cargo.hp = 0;train.demolished = true;say(game, '화물 폭파됨');
  }
- if (train.demolition && !crew && train.inRange) train.secured += dt;
+ if (allLaunched && !crew && train.inRange) train.secured += dt;
  else train.secured = 0;
  if (!live(train.flak) || train.age < train.nextFire) return;
  if (!train.flak.operationFlakAiming) {
@@ -282,7 +294,7 @@ function advanceTrain(game, battle, dt) {
  train.flak.operationFlakAiming = false;
  train.nextFire = train.age + 1.45;
  const heading = Math.atan2(train.flakAim.y - train.flak.y, train.flakAim.x - train.flak.x);
- const spreadAngles = live(train.engine) ? [-.14, 0, .14] : [-.28, -.14, 0, .14, .28];
+ const spreadAngles = live(train.engine) ? [-.28, -.14, 0, .14, .28] : [-.42, -.28, -.14, 0, .14, .28, .42];
  for (const spread of spreadAngles) {
   const a = heading + spread, position = at(train.flak, a, 26);
   game.bullets.push({...position, vx: Math.cos(a) * 255, vy: Math.sin(a) * 255, life: 2, damage: 8, enemy: true, visualType: 'hunter'});
@@ -481,7 +493,8 @@ export function operationMissionCard(game, en = false) {
  const L = en ? 1 : 0, now = battle.elapsed, train = battle.train;
  const unit = train?.cargo || battle.patrols?.[0], hp = Math.max(0, Math.ceil(100 * (unit?.hp || 0) / (unit?.maxHp || 1)));
  const alert = battle.alert && now < battle.alert.until ? battle.alert : null;
- const demolish = train?.demolition?.crew.filter(live).length ? train.demolition.deadline : null;
+ const demolition = train?.demolition;
+ const demolish = demolition && (demolition.crew.length < DEMOLITION_FLIGHT_SIZE || demolitionRemaining(train)) ? demolition.deadline : null;
  const countdown = demolish ?? alert?.countdownTo;
  const left = countdown == null ? null : Math.max(0, Math.ceil(countdown - now));
  let objective;

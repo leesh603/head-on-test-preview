@@ -1192,6 +1192,15 @@ body.astra-ui.playing #modal #build151 .build-tile151.rarity-legendary{--r:#f0c8
 body.astra-ui.playing #modal #build151 .build-tile151:hover{transform:translateY(-1px)}
 body.astra-ui.playing #modal #build151 .build-tile151[aria-expanded="true"]{box-shadow:inset 0 0 0 1.5px var(--r),0 0 0 3px color-mix(in srgb,var(--r) 22%,transparent)!important}
 body.astra-ui.playing #modal #build151 .build-tile151:focus-visible{outline:2px solid var(--ho-ready);outline-offset:2px}
+body.astra-ui.playing #legendaryInventory .legendary-badge:has(>.leimberger-icon),
+body.astra-ui.playing #modal #build151 .build-tile151:has(>.leimberger-icon){
+ border-color:transparent!important;background:transparent!important;box-shadow:none!important
+}
+body.astra-ui.playing #legendaryInventory .legendary-badge>.leimberger-icon,
+body.astra-ui.playing #modal #build151 .build-tile151>.leimberger-icon,
+body.astra-ui.playing .coop-instrument .relics>.leimberger-icon{
+ border-radius:0;background:transparent;box-shadow:none;object-fit:contain;image-rendering:auto
+}
 body.astra-ui.playing #modal #build151 .build-count151{
  position:absolute;right:-4px;top:-5px;min-width:18px;padding:3px 5px;box-sizing:border-box;border-radius:999px;background:#151513;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--r) 75%,transparent);
  font:700 10px/1 var(--astra-numeric,var(--astra-type));color:var(--ho-numeral);font-variant-numeric:tabular-nums;letter-spacing:0;
@@ -1418,7 +1427,7 @@ body:not(.playing) .hud-tags{display:none}
 
 /* Mission card: small, top-left under the survival pill, apart from the centred alerts.
    A slim accent rule and a fading ground instead of another full glass panel. */
-body.astra-ui.playing #viewport #flightTop151>#eventMissionHud:not(.hidden){
+body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud):not(.hidden){
  position:relative!important;inset:auto!important;top:auto!important;right:auto!important;z-index:auto;
  grid-column:1;grid-row:2;justify-self:start;align-self:start;
  display:flex!important;flex-direction:column;align-items:flex-start;gap:2px!important;
@@ -1426,10 +1435,10 @@ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud:not(.hidden){
  border:0!important;border-left:2px solid #e2c27699!important;border-radius:0!important;
  background:linear-gradient(90deg,rgba(16,15,12,.46),rgba(16,15,12,0))!important;box-shadow:none!important;
  text-align:left;pointer-events:none;color:#efe9da;text-shadow:0 0 2px #000,0 1px 3px #000c}
-body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionTitle{display:block;padding:0;background:none;color:#e2c276;font:700 9px/1.2 var(--astra-type)!important;letter-spacing:.1em}
-body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionObjective{font:700 11.5px/1.3 var(--astra-type)!important;color:#f1ecdf!important}
-body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionMeta{font:500 10.5px/1.3 var(--astra-type)!important;color:#c4bdae!important;font-variant-numeric:tabular-nums;word-break:keep-all}
-body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionMeta:empty{display:none}
+body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionTitle,#mainObjectiveTitle){display:block;padding:0;background:none;color:#e2c276;font:700 9px/1.2 var(--astra-type)!important;letter-spacing:.1em}
+body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionObjective,#mainObjectiveTask){font:700 11.5px/1.3 var(--astra-type)!important;color:#f1ecdf!important}
+body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionMeta,#mainObjectiveMeta){font:500 10.5px/1.3 var(--astra-type)!important;color:#c4bdae!important;font-variant-numeric:tabular-nums;word-break:keep-all}
+body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionMeta,#mainObjectiveMeta):empty{display:none}
 /* Two fronts: one row per side, stacked. */
 body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionObjective:has(.front-row151){display:flex!important;flex-direction:column;align-items:flex-start;gap:1px;font:inherit!important;white-space:nowrap}
 body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151{display:inline-flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
@@ -1440,10 +1449,10 @@ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 b{f
 body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 em{font:500 10.5px/1.25 var(--astra-type);font-style:normal;color:#c4bdae}
 /* Desktop: same card, sized to sit with the larger desktop pills. */
 @media(min-width:721px) and (pointer:fine){
- body.astra-ui.playing #viewport #flightTop151>#eventMissionHud:not(.hidden){margin-top:10px!important;max-width:min(330px,100%)!important;padding:4px 14px 5px 10px!important;gap:3px!important;border-left-width:3px!important;background:linear-gradient(90deg,rgba(16,15,12,.62),rgba(16,15,12,.3) 70%,rgba(16,15,12,0))!important}
- body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionTitle{font-size:10.5px!important;letter-spacing:.06em}
- body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionObjective{font-size:13.5px!important}
- body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionMeta{font-size:12px!important}
+ body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud):not(.hidden){margin-top:10px!important;max-width:min(330px,100%)!important;padding:4px 14px 5px 10px!important;gap:3px!important;border-left-width:3px!important;background:linear-gradient(90deg,rgba(16,15,12,.62),rgba(16,15,12,.3) 70%,rgba(16,15,12,0))!important}
+ body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionTitle,#mainObjectiveTitle){font-size:10.5px!important;letter-spacing:.06em}
+ body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionObjective,#mainObjectiveTask){font-size:13.5px!important}
+ body.astra-ui.playing #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud) :is(#eventMissionMeta,#mainObjectiveMeta){font-size:12px!important}
  body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 b{font-size:14px}
  body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 :is(small,em){font-size:12px}
 }
@@ -1451,7 +1460,7 @@ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 em{
  /* Phones: alerts keep their own lane right under the pills (reserved, so nothing jumps);
     the mission card sits below that lane at the left edge and never meets an alert. */
  body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151>#flightCenter156{grid-row:2;min-height:32px}
- body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151>#eventMissionHud:not(.hidden){grid-column:1/-1;grid-row:3;max-width:56vw!important}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151>:is(#eventMissionHud,#mainObjectiveHud):not(.hidden){grid-column:1/-1;grid-row:3;max-width:56vw!important}
  /* After its first 4 s the card folds to the objective line only. */
  body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.folded :is(#eventMissionTitle,#eventMissionMeta){display:none!important}
  body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.folded #eventMissionObjective{font-size:11.5px!important}
@@ -1486,3 +1495,87 @@ html body.astra-ui #viewport #stageBossHud.skyline-ready #stageBossParts,#stageB
 body.astra-ui.playing #flightNotices151 #eventMissionHud.mission-urgent #eventMissionObjective,body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.mission-urgent #eventMissionObjective{color:var(--ho-danger,#c8513c)!important;animation:mission-urgent-pulse .5s ease-in-out infinite alternate}
 @keyframes mission-urgent-pulse{from{opacity:1}to{opacity:.55}}
 @media (prefers-reduced-motion:reduce){body.astra-ui.playing #eventMissionHud.mission-urgent #eventMissionObjective{animation:none!important}}
+
+
+/* 18. Map clear condition (20261109). Same mission-card grammar as the side card
+       (fading ground, left rule, label / objective / note), stacked above it,
+       and set apart by three things only the clear condition has: a small brass
+       "클리어 조건" chip, its own clock at the end of the label row, and a left rule that
+       is the time gauge itself, draining from the top (red in the last 20 s).
+       A slightly heavier ground and objective line give it the first read. */
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud:not(.hidden){grid-column:1;grid-row:2;position:relative!important;border-left-color:transparent!important;padding-left:11px!important;
+ background:linear-gradient(90deg,rgba(22,18,9,.74),rgba(16,15,12,.38) 72%,rgba(16,15,12,0))!important;}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud::before,body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud::after{content:"";position:absolute;left:-3px;bottom:0;width:3px}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud::before{top:0;background:#e2c27633}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud::after{height:calc(var(--mo-time,1) * 100%);background:#e2c276;transition:height .3s linear}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud .mo-head{display:flex;align-items:center;gap:6px;min-width:0}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud .mo-chip{flex:none;padding:1px 5px 0;border-radius:2px;background:#e2c276;color:#1a1408;font:800 9px/1.35 var(--astra-type);letter-spacing:.08em;text-shadow:none}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud #mainObjectiveTitle{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud #mainObjectiveClock{flex:none;padding-left:7px;border-left:1px solid #e8e2d440;font:700 11px/1.2 var(--astra-type);font-variant-numeric:tabular-nums;color:#f1ecdf;letter-spacing:.02em}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud #mainObjectiveClock:empty{display:none}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud #mainObjectiveTask{font-weight:800!important;font-size:12.5px!important}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151:has(>#mainObjectiveHud:not(.hidden))>#eventMissionHud:not(.hidden){grid-row:3;margin-top:6px!important}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud.mo-urgent::after{background:#e0533c}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud.mo-urgent #mainObjectiveClock{color:#ff8a72}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud.mo-urgent .mo-chip{background:#e0533c;color:#fff4ee}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud[data-state=success] .mo-chip{background:#8fc27a}
+body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud[data-state=failed] .mo-chip{background:#e0533c;color:#fff4ee}
+@media(min-width:721px) and (pointer:fine){
+ body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud:not(.hidden){padding-left:12px!important}
+ body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud .mo-chip{font-size:10px}
+ body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud #mainObjectiveClock{font-size:13px}
+ body.astra-ui.playing #viewport #flightTop151>#mainObjectiveHud #mainObjectiveTask{font-size:14.5px!important}
+}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151>#mainObjectiveHud:not(.hidden){grid-column:1/-1;grid-row:3}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151:has(>#mainObjectiveHud:not(.hidden))>#eventMissionHud:not(.hidden){grid-row:4;margin-top:4px!important}
+}
+/* 19. Phone boss plate: name and part/HP count share one row so the plate is two lines
+       (name row + bar) instead of three; tactic and skyline strip still run full width. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #flightStack151 #stageBossHud:not(.hidden){display:grid!important;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:baseline;padding:6px 10px 7px!important}
+ body.astra-ui.playing #flightStack151 #stageBossHud>:not(#stageBossTitle):not(#stageBossParts){grid-column:1/-1}
+ body.astra-ui.playing #flightStack151 #stageBossHud #stageBossTitle{font-size:14px!important}
+ body.astra-ui.playing #flightStack151 #stageBossHud #stageBossParts{margin-top:0!important;white-space:nowrap;font-variant-numeric:tabular-nums}
+ body.astra-ui.playing #flightStack151 #stageBossHud .bar{margin-top:5px!important}
+}
+/* 20. One clock leads: while a timed clear condition runs, its countdown is the clock to read,
+       so elapsed time steps back to the quiet label tone. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151:has(>#mainObjectiveHud:not(.hidden) #mainObjectiveClock:not(:empty)) #clock{color:#a39d8f!important;font-weight:500!important;text-shadow:none!important}
+/* 21. Pause: the clear condition restated above the pilot, in the HUD card's own grammar
+       (brass chip, label row with the clock, bold objective, quiet fail line, brass left rule). */
+body.astra-ui #modal .build-objective151{box-sizing:border-box;width:100%;margin:2px 0 16px;padding:9px 12px 10px;border-left:3px solid #e2c276;border-radius:0 3px 3px 0;
+ background:linear-gradient(90deg,rgba(226,194,118,.10),rgba(226,194,118,.03) 70%,transparent);text-align:left;font-family:var(--astra-type,inherit)}
+body.astra-ui #modal .build-objective151 .bo-head{display:flex;align-items:center;gap:7px;min-width:0}
+body.astra-ui #modal .build-objective151 .bo-chip{flex:none;padding:1px 6px 0;border-radius:2px;background:#e2c276;color:#1a1408;font:800 10px/1.4 var(--astra-type,inherit);letter-spacing:.06em}
+body.astra-ui #modal .build-objective151 .bo-title{flex:0 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#e2c276;font:700 12px/1.3 var(--astra-type,inherit);letter-spacing:.02em}
+body.astra-ui #modal .build-objective151 .bo-clock{flex:none;margin-left:auto;padding-left:8px;border-left:1px solid #e8e2d440;color:#efe9da;font:700 13px/1.2 var(--astra-numeric,inherit);font-variant-numeric:tabular-nums}
+body.astra-ui #modal .build-objective151 .bo-task{margin:5px 0 0!important;color:#f1edd0!important;font:800 15px/1.35 var(--astra-type,inherit)!important;text-align:left!important}
+body.astra-ui #modal .build-objective151 .bo-meta{margin:2px 0 0!important;color:#a39d8f!important;font:500 12px/1.4 var(--astra-type,inherit)!important;text-align:left!important}
+body.astra-ui #modal .build-objective151.bo-urgent{border-left-color:#e0533c}
+body.astra-ui #modal .build-objective151.bo-urgent .bo-clock{color:#ff8a72}
+body.astra-ui #modal .build-objective151:is(.bo-urgent,[data-state=failed]) .bo-chip{background:#e0533c;color:#fff4ee}
+body.astra-ui #modal .build-objective151[data-state=success] .bo-chip{background:#8fc27a}
+/* 22. Phones: with 3-digit HP (or a 4-digit belt) the survival pill ran out of room and the
+       ammo count spilled past its edge. Both gauges shorten and the numerals drop a size. */
+@media(max-width:560px){
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival[data-tight="1"] :is(.health151,#ammoHud) .bar{width:16px!important;min-width:16px!important;flex:0 0 16px!important}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival[data-tight="1"] :is(#healthText,#ammoCount){font-size:12px!important;letter-spacing:-.01em}
+}
+/* 23. Engagement pill (tail lock / head-on) as a DOM tag: same charcoal pill and tone as the
+       canvas version it replaces, but crisp text; tail progress is a hairline under the label. */
+.hud-tag.engage{height:20px;padding:0 9px;border-radius:10px;background:var(--tag-fill,rgba(20,20,18,.82));box-shadow:inset 0 0 0 1px var(--tag-edge,#e8e2d447),0 2px 8px #00000073;text-shadow:none;transition:opacity .1s linear}
+.hud-tag.engage i,.hud-tag.engage em,.hud-tag.engage small{display:none}
+.hud-tag.engage b{font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--tag-text,#f5f2ea)}
+.hud-tag.engage[data-progress="1"]::after{content:"";position:absolute;left:9px;bottom:2px;height:1.5px;width:calc((100% - 18px) * var(--tag-progress,0));background:var(--tag-accent);box-shadow:0 0 0 0 transparent}
+.hud-tag.engage[data-progress="1"]::before{content:"";position:absolute;left:9px;right:9px;bottom:2px;height:1.5px;background:#ffffff24}
+body.astra-ui #modal .build-objective151[data-state=failed]{border-left-color:#e0533c;background:linear-gradient(90deg,rgba(224,83,60,.10),rgba(224,83,60,.03) 70%,transparent)}
+body.astra-ui #modal .build-objective151[data-state=success]{border-left-color:#8fc27a}
+/* 24. Co-op on phones: the partner HP ring (26px) is centred in the gap between the two top
+       modules, but on a phone that gap is ~7px and the ring sat on top of the ammo count.
+       The survival pill gives up room for it and always uses the tight gauges/numerals. */
+@media(max-width:560px){
+ body:is(.local-coop,.online-playing).playing #viewport #flightTop151 .flight-survival{margin-right:30px!important}
+ body:is(.local-coop,.online-playing).playing #viewport #flightTop151 .flight-survival :is(.health151,#ammoHud) .bar{width:16px!important;min-width:16px!important;flex:0 0 16px!important}
+ body:is(.local-coop,.online-playing).playing #viewport #flightTop151 .flight-survival :is(#healthText,#ammoCount){font-size:12px!important;letter-spacing:-.01em}
+}

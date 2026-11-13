@@ -1,19 +1,9 @@
-import {secretWeaponIcon} from './secret-weapons.js?v=b3bf991d11fc7798';
-import {secretRamSpeed} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
+import {secretWeaponIcon} from './secret-weapons.js';
+import {secretRamSpeed} from './secret-weapon-combat.js';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
 
-const images=new Map();
 const clamp=n=>Math.max(0,Math.min(1,n));
-export function loadSecretIcon(recipe,faction,ready){
- const src=new URL(secretWeaponIcon(recipe,faction),import.meta.url).href;
- let entry=images.get(src);
- if(!entry){
-  const image=new Image();
-  const loaded=new Promise(resolve=>{image.onload=resolve;image.onerror=resolve;});
-  entry={image,loaded};images.set(src,entry);image.src=src;
- }
- if(ready)entry.loaded.then(ready);
- return entry.image;
-}
+export const secretIconKey=(recipe,faction)=>'secret:'+secretWeaponIcon(recipe,faction).split('/').at(-1);
 export const secretName=(recipe,en)=>en?recipe.en:recipe.ko;
 export const secretDescription=(recipe,en)=>recipe.detail[en?1:0];
 export function secretCondition(recipe,en,name,family){
@@ -26,11 +16,9 @@ function badgeState(recipe,p,g,en){
  const id=recipe.id,e=p.secretWeaponState?.effects[id]||{},now=g.t||0;
  const waiting=(en?'WAIT':'대기'),ready=(en?'READY':'준비');
  const cooling=(left,total)=>[1-clamp(left/total),left>0?Math.ceil(left)+'s':ready];
- if(id==='vickersPomPom'||id==='fokkerLeimberger'){
-  const separate=id==='fokkerLeimberger'&&p.cow37;
-  const reload=separate?e.reloading:p.reloadTime,belt=separate?e.belt:p.weapon?.belt;
-  const duration=separate?e.reload:p.weapon?.reload;
-  const ammo=separate?(e.ammo??belt):(p.ammo||[]).reduce((n,a)=>n+a,0);
+ if(id==='vickersPomPom'){
+  const reload=p.reloadTime,duration=p.weapon?.reload;
+  const ammo=(p.ammo||[]).reduce((n,a)=>n+a,0);
   return reload>0?cooling(reload,duration||reload):[1,p.unlimitedAmmo?'∞':String(ammo??0)];
  }
  if(id==='sn1650'||id==='fliegerpfeil'){
@@ -57,21 +45,27 @@ function badgeState(recipe,p,g,en){
  return [1,waiting];
 }
 export function paintSecretBadge(rb,p,g,en,faction){
- const {ctx:c,secret}=rb,im=loadSecretIcon(secret,faction);
+ const {ctx:c,secret}=rb,icon=secretIconKey(secret,faction);
+ if(secret.id==='fokkerLeimberger'){
+  if(rb.frameKey===icon)return;
+  rb.frameKey=icon;
+  c.canvas.width=c.canvas.height=96;
+  c.canvas.classList.add('leimberger-icon');
+  drawGameIcon(c,icon,48,48,88);
+  return;
+ }
  const [progress,label]=badgeState(secret,p,g,en),notice=p.secretWeaponState?.notices?.[secret.id]||0;
  const assembly=clamp((notice-(p.t||0))/1.2);
  const flash=progress>=1&&rb.lastProgress<1;
  if(flash)rb.flashAt=g.t;
  const glint=Math.max(assembly,1-clamp(((g.t||0)-(rb.flashAt??-1))/.3));
- const key=progress.toFixed(2)+'|'+label+'|'+glint.toFixed(2)+'|'+im.complete;
+ const key=progress.toFixed(2)+'|'+label+'|'+glint.toFixed(2)+'|'+icon;
  if(rb.frameKey===key)return;
  rb.frameKey=key;rb.lastProgress=progress;
  c.clearRect(0,0,48,48);
- if(im.naturalWidth){
-  c.save();c.globalAlpha=progress<1?.34:1;c.drawImage(im,2,1,44,44);c.restore();
-  if(progress>0&&progress<1){
-   c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,35,-Math.PI/2,-Math.PI/2+progress*Math.PI*2);c.closePath();c.clip();c.drawImage(im,2,1,44,44);c.restore();
-  }
+ c.save();c.globalAlpha=progress<1?.34:1;drawGameIcon(c,icon,24,23,44);c.restore();
+ if(progress>0&&progress<1){
+  c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,35,-Math.PI/2,-Math.PI/2+progress*Math.PI*2);c.closePath();c.clip();drawGameIcon(c,icon,24,23,44);c.restore();
  }
  c.strokeStyle=glint>0?'#fff1bc':'#9e7c41';c.lineWidth=glint>0?2:1;c.strokeRect(1,1,46,46);
  c.font='bold 10px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle='#101719';c.fillStyle='#fff2ca';

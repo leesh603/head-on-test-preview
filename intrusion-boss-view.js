@@ -1,11 +1,12 @@
-import {giantArrivalShadowPose} from './giant-intrusion-arrival.js?v=b3bf991d11fc7798';
-import {isNewSubmarine} from './submarine-intrusion.js?v=b3bf991d11fc7798';
-import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js?v=b3bf991d11fc7798';
+import {giantArrivalShadowPose} from './giant-intrusion-arrival.js';
+import {blacken} from './silhouette.js';
+import {isNewSubmarine} from './submarine-intrusion.js';
+import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
 
-import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js?v=b3bf991d11fc7798';
-import {drawShipWater,drawTorpedo} from './naval-water.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {getLocale} from './i18n.js?v=b3bf991d11fc7798';
+import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js';
+import {drawShipWater,drawTorpedo} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
+import {fx} from './fx-art.js?v=tame3';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export {intrusionArtReady};
 export const INTRUSION_COPY=Object.freeze({
@@ -110,6 +111,25 @@ function drawMaritimeGuide(c,g,W,H){
  const label=m.submerged?(en?'Surfacing contact':'부상 예고 지점'):(en?copy.en:copy.ko),x=Math.max(82,Math.min(W-82,m.x)),y=m.y+18;
  c.strokeText(label,x,y);c.fillText(label,x,y);c.restore();
 }
+// The boss shadow is the boss itself in flat black. It used to be drawn through
+// `filter='brightness(0)'` every frame, which alone took the game from 60 to under 20 fps while a
+// flying intrusion boss was on the field. The silhouette is now cut into one offscreen canvas in the
+// boss's own frame (refreshed five times a second for turrets and lost modules) and rotated on blit.
+const SHADOW={canvas:null,key:'',limit:1536,rate:5};
+function drawIntrusionSilhouette(c,e,a,position,scale){
+ const layout=profileLayout(e.profileId);
+ if(typeof document==='undefined'||!layout||!(scale>0)){c.filter='brightness(0)';drawIntrusionBoss(c,{...e,a,flash:{},v1500Shadow:true,riiShadow:true},position,scale);return;}
+ const full=Math.ceil(Math.hypot(layout.width,layout.height)*scale)+8,fit=Math.min(1,SHADOW.limit/full),size=Math.ceil(full*fit);
+ const key=`${e.encounterId||''}|${e.profileId}|${size}|${Math.floor((e.age||0)*SHADOW.rate)}`;
+ const canvas=SHADOW.canvas||(SHADOW.canvas=document.createElement('canvas'));
+ if(SHADOW.key!==key){
+  if(canvas.width!==size)canvas.width=canvas.height=size;
+  const o=canvas.getContext('2d');o.setTransform(1,0,0,1,0,0);o.globalAlpha=1;o.globalCompositeOperation='source-over';o.clearRect(0,0,size,size);
+  drawIntrusionBoss(o,{...e,a:-Math.PI/2,flash:{},v1500Shadow:true,riiShadow:true},{x:size/2,y:size/2},scale*fit);
+  blacken(o,size,size);SHADOW.key=key;
+ }
+ c.save();c.translate(position.x,position.y);c.rotate(a+Math.PI/2);c.drawImage(canvas,-full/2,-full/2,full,full);c.restore();
+}
 export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
  const e=g?.intrusionBoss;prepareIntrusionView(e);
  if(!e||!intrusionVisible(g))return;
@@ -123,11 +143,11 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
    // A sea contact approaches at the waterline; never use the aircraft flyover shadow.
    // Cut-in/HUD warns first; the world contact is placed once at entry, not teleported visibly.
   }else if(e.phase==='warning'&&['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId)){
-   const shadow=giantArrivalShadowPose(e);if(shadow){c.globalAlpha=shadow.alpha;c.filter='brightness(0)';drawIntrusionBoss(c,{...e,a:shadow.a,flash:{},v1500Shadow:true,riiShadow:true},point(shadow.x,shadow.y),e.scale*z);}
+   const shadow=giantArrivalShadowPose(e);if(shadow){c.globalAlpha=shadow.alpha;drawIntrusionSilhouette(c,e,shadow.a,point(shadow.x,shadow.y),e.scale*z);}
   }else if(e.phase==='warning'){
    // The authored silhouette crosses the field before the real body arrives.
-   c.globalAlpha=.2;c.filter='brightness(0)';
-   drawIntrusionBoss(c,{...e,a:Math.PI/2},{x:W*.5,y:-H*.15+Math.min(1,e.phaseAge/4)*H*.9},e.scale*z);
+   c.globalAlpha=.2;
+   drawIntrusionSilhouette(c,e,Math.PI/2,{x:W*.5,y:-H*.15+Math.min(1,e.phaseAge/4)*H*.9},e.scale*z);
   }else{
    if(maritime){c.globalAlpha=maritimeOpacity(e);if(e.phase==='entering'&&!isNewSubmarine(e))c.globalAlpha*=Math.min(1,e.phaseAge/1.2);if(e.phase==='retreating')c.globalAlpha*=Math.max(0,1-e.phaseAge/3);}
    if(e.phase==='destroyed')c.globalAlpha*=Math.max(0,1-e.phaseAge/(maritime?1:3));
@@ -135,8 +155,8 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
    if(!maritime){
     // Use the same subtle ground-shadow cue as ordinary aircraft, with the exact
     // damaged-module silhouette; no replacement art or separate collision pose.
-    c.save();c.globalAlpha*=.16;c.filter='brightness(0)';
-    drawIntrusionBoss(c,{...e,flash:{},v1500Shadow:true,riiShadow:true},{x:position.x+10*z,y:position.y+(16+(e.profileId==='handley-page-v1500'?e.crashDrop||0:0))*z},e.scale*z);
+    c.save();c.globalAlpha*=.16;
+    drawIntrusionSilhouette(c,e,e.a??-Math.PI/2,{x:position.x+10*z,y:position.y+(16+(e.profileId==='handley-page-v1500'?e.crashDrop||0:0))*z},e.scale*z);
     c.restore();
    }
    drawIntrusionBoss(c,e,position,e.scale*z);

@@ -1,5 +1,5 @@
-import {ParisGeschuetz} from './laon-gun.js?v=b3bf991d11fc7798';
-import {LAON_MISSION,LAON_CRITICAL_PARTS} from './laon-layout.js?v=b3bf991d11fc7798';
+import {ParisGeschuetz} from './laon-gun.js';
+import {LAON_MISSION,LAON_CRITICAL_PARTS} from './laon-layout.js';
 
 export const LAON_STAGE=19;
 export {LAON_MISSION};

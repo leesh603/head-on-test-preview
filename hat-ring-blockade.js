@@ -1,7 +1,8 @@
-import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=b3bf991d11fc7798';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=b3bf991d11fc7798';
+import {squadronDamage,squadronDurability} from './squadron-elite-balance.js';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
 /** 94th Aero Squadron-inspired patrol. Alternating lane choreography is game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js?v=b3bf991d11fc7798';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
 export const HAT_RING_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:28,reserve:8,speed:152,turn:1.1,warning:.7,burst:.86,coast:1.8,bulletLife:2,bulletSpeed:455,gapHalfWidth:45,maxPasses:3,spacing:112,damage:9,minSeparation:100,reformPatience:3.5});
 const B=HAT_RING_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;
 const pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g,hasPilot=g=>g.players?.length?g.players.some(p=>p.hp>0&&p.status!=='downed'):g.hp>0;
@@ -20,7 +21,7 @@ function blocked(g){return !g.stageBoss?.stages||g.stageBoss.stages.phase!=='exp
 const visible=(g,e,margin=0)=>{const v=arrivalViewport(g);return Math.abs(e.x-v.x)<v.w+margin&&Math.abs(e.y-v.y)<v.h+margin};
 const visibleLanes=(g,es)=>[-1,0,1].every(slot=>!es.some(e=>gunLane(e)===slot)||es.some(e=>gunLane(e)===slot&&visible(g,e,-15)));
 function room(g){const es=(g.enemies||[]).filter(live);return es.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)).length+B.count<=(g.regularEnemyLimit?.()??12)&&es.length+B.count<=(g.enemyCapacity?.()??65)-1;}
-function withdraw(g,reason){const s=g.hatRingBlockade;if(!s)return;s.phase='exit';s.outcome=reason;s.nextIn=B.interval;for(const e of members(g)){e.hatRingSnapAt=null;e.hatRingSnapRounds=0;e.hatRingPhase='exit';e.hatRingHeading=e.a+.75;e.hatRingOpen=false;speed(e,pace(g)+120);e.missionTarget=false;e.fire=Infinity;}}
+function withdraw(g,reason){const s=g.hatRingBlockade;if(!s)return;s.phase='exit';s.outcome=reason;s.nextIn=B.interval;releaseEliteHunt(g,members(g),reason);for(const e of members(g)){e.hatRingSnapAt=null;e.hatRingSnapRounds=0;e.hatRingPhase='exit';e.hatRingHeading=e.a+.75;e.hatRingOpen=false;speed(e,pace(g)+120);e.missionTarget=false;e.fire=Infinity;}}
 /** Admission only: may warm artwork, never creates combat entities or consumes RNG. */
 export function canSpawnHatRingBlockade(g){
  if(!canAdmitSquadron(g,'hat-ring'))return false;

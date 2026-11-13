@@ -1,5 +1,5 @@
-import {combatDamageTime} from './front-performance.js?v=b3bf991d11fc7798';
-import {airThreatMuzzles,aaMuzzle} from './air-threat-profiles.js?v=b3bf991d11fc7798';
+import {combatDamageTime} from './front-performance.js';
+import {airThreatMuzzles,aaMuzzle} from './air-threat-profiles.js';
 // Existing volley schedules call these helpers. They create no extra enemies,
 // timers or prototype layers, and cap fire well below the previous 45-round volley.
 function protectedUnit(e){return !e?.airThreatArt||e.stageBossBody||e.bossMinion||e.bossPilot;}

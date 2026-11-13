@@ -1,13 +1,15 @@
-import {arrivalViewport} from './enemy-arrivals.js?v=b3bf991d11fc7798';
-import {facilityPlan} from './ground-facility-missions.js?v=b3bf991d11fc7798';
-import {transportConvoyActive} from './transport-convoy.js?v=b3bf991d11fc7798';
-import {photoReconActive} from './photo-recon-encounters.js?v=b3bf991d11fc7798';
-import {intrusionActive} from './intrusion-bosses.js?v=b3bf991d11fc7798';
-import {momentumCombatTarget} from './ace-momentum.js?v=b3bf991d11fc7798';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=b3bf991d11fc7798';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=b3bf991d11fc7798';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=b3bf991d11fc7798';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {facilityPlan} from './ground-facility-missions.js';
+import {transportConvoyActive} from './transport-convoy.js';
+import {photoReconActive} from './photo-recon-encounters.js';
+import {intrusionActive} from './intrusion-bosses.js';
+import {momentumCombatTarget} from './ace-momentum.js';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
 
+export const FLIGHT_SUCCESSION=Object.freeze({deputyShock:1.2,deputyFor:4});
+export const FLIGHT_ALARM=Object.freeze({hitWindow:.5,range:300,cone:.3,react:.25,stagger:.12,memory:3});
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',
  LUFBERY_CIRCLE:'LUFBERY_CIRCLE',BOMBER_RUN:'BOMBER_RUN',BAIT:'BAIT',VETERAN_FORMATION:'VETERAN_FORMATION',ELITE_FORMATION:'ELITE_FORMATION',ACE_PRESSURE:'ACE_PRESSURE',RECOVERY:'RECOVERY'
@@ -141,7 +143,8 @@ function chooseShape(game,state,pattern){
 function beginPattern(game,state,pattern=choosePattern(game,state)){
  const now=game.t||0,compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth;
  finishScene(game,state);
- const previous=state.pattern,quietSince=state.clearSince??state.contactGapAt??state.lastPressureAt;
+ const previous=state.pattern,quietStart=state.clearSince??state.contactGapAt??state.lastPressureAt;
+ const quietSince=quietStart==null?null:Math.max(quietStart,state.lastPressureAt??quietStart);
  pattern=game.beginBattlefieldEngagement?.(pattern,state.sceneId+1,now+18)||pattern;
  const support=![P.RECOVERY,P.ACE_PRESSURE,P.ELITE_FORMATION].includes(pattern)?supportTargetFor(game):null;
  if(support)pattern=P.ESCORT;
@@ -383,12 +386,23 @@ function tickSquadrons(game,dt){
    updateEscortRoles(game,squad,living,now);
   }
   if(!squad.broken&&(!living.includes(squad.leader)||squad.leader.hp<=0)){
-   squad.broken=true;squad.attackSignalAt=0;squad.collapseUntil=now+2.5;squad.regroupAt=squad.tactic==='veteran'?now+6:Infinity;
+   squad.broken=true;squad.attackSignalAt=0;squad.collapseUntil=now+2.5;   squad.regroupAt=squad.tactic==='veteran'?now+6:Infinity;
    for(const w of living){breakFormation(game,w,undefined,true);releaseSquadMember(w);w.combatPassHeading=w.formationBreakHeading}
+   // The deputy recovers first and goes for whoever shot the leader down while the rest
+   // are still scattering: the flight answers the kill instead of only running from it.
+   {
+    const p=squad.target?.hp>0?squad.target:playerFor(game);let deputy=null,best=Infinity;
+    for(const w of living){if(w.type!=='hunter'||!ordinaryFighter(w)||w.defensivePressure)continue;const d=Math.hypot(w.x-p.x,w.y-p.y);if(d<best){best=d;deputy=w}}
+    if(deputy){
+     const until=now+FLIGHT_SUCCESSION.deputyShock;squad.successor=deputy;
+     deputy.formationCollapseUntil=deputy.formationBreakUntil=until;deputy.combatPassTimer=FLIGHT_SUCCESSION.deputyShock;
+     deputy.directorFireHoldUntil=until+.2;deputy.attackRole='direct';deputy.attackRoleUntil=now+FLIGHT_SUCCESSION.deputyFor;
+    }
+   }
   }
   if(squad.broken){
    if(now>=squad.regroupAt&&living.length>=2){
-    squad.broken=false;squad.leader=living[0];squad.startedAt=now;
+    squad.broken=false;squad.leader=(living.includes(squad.successor)?squad.successor:null)||living.find(w=>w.type==='hunter')||living[0];squad.startedAt=now;living.sort((x,y)=>(y===squad.leader)-(x===squad.leader));
     living.forEach((w,i)=>{w.directorFormation=true;w.isFormationCommander=i===0;w.formationCommand=i===0;if(i)w.formationLeader=squad.leader;w.directorTarget=squad.target;w.combatPassState=S.REPOSITION;w.combatPassTimer=2;w.fire=Math.max(w.fire||0,.7)});
    }else continue;
   }
@@ -612,6 +626,19 @@ function choreographySteering(game,e,contact,baseTurn){
  const squad=e.directorSquad,now=game.t||0;
  if(e.directorLayout==='circle')return null;
  if(!squad||squad.broken||!e.directorLaunchAt||e.directorChoreographyDone||!contact||contact.fogHidden||contact.ballCloak>0||contact.kaiserFogTime>0||baseTurn<=0||e.directorBreakUntil>now||e.directorLayout==='recovery')return null;
+ // 20261111 alarm launch: a flight caught while still assembling does not wait out its cue.
+ // When the player lands hits on a member, or closes nose-on inside gun range, the whole
+ // flight commits now (short rank stagger) instead of holding fire in formation.
+ if(e.directorLaunchAt>now&&ordinaryFighter(e)){
+  if(!(squad.alarmAt>now-FLIGHT_ALARM.memory)){
+   const dx=e.x-contact.x,dy=e.y-contact.y;
+   if(e.struckAt>now-FLIGHT_ALARM.hitWindow||Math.hypot(dx,dy)<FLIGHT_ALARM.range&&Number.isFinite(contact.a)&&Math.abs(angleDiff(Math.atan2(dy,dx),contact.a))<FLIGHT_ALARM.cone)squad.alarmAt=now;
+  }
+  if(squad.alarmAt>now-FLIGHT_ALARM.memory){
+   const at=squad.alarmAt+FLIGHT_ALARM.react+(e.directorRank||0)*FLIGHT_ALARM.stagger;
+   if(at<e.directorLaunchAt){e.directorLaunchAt=at;e.directorReadyAt=Math.min(e.directorReadyAt||at,at);e.directorFireHoldUntil=Math.min(e.directorFireHoldUntil||0,Math.max(now,at));e.directorAlarmed=true;}
+  }
+ }
  const age=now-e.directorLaunchAt;
  // Finish a real crossing when the target passes the nose. Continuing to home
  // for the full timer turned fast passes into tight, slow-looking circles.
@@ -623,7 +650,10 @@ function choreographySteering(game,e,contact,baseTurn){
   e.directorAttackDeadline=e.directorLaunchAt+(e.directorLayout==='headOn'?Math.max(2.1,Math.min(3.1,(Math.hypot(contact.x-e.x,contact.y-e.y)-280)/Math.max(100,closing)+1.1)):2.1);
  }
  const attackEnd=e.directorAttackEndedAt??e.directorAttackDeadline??e.directorLaunchAt+2.1;
- const beat=age<0?'assemble':now<attackEnd?'attack':now<attackEnd+1.05?'break':now<attackEnd+2.3?'regroup':'free';
+ // Skilled pilots (hunters) regroup briefly and are back in free combat ~0.85 s sooner,
+ // where the flank and tail work happens. Novices keep the full reset.
+ const breakFor=1.05,regroupUntil=ordinaryFighter(e)&&e.type==='hunter'?1.45:2.3;
+ const beat=age<0?'assemble':now<attackEnd?'attack':now<attackEnd+breakFor?'break':now<attackEnd+regroupUntil?'regroup':'free';
  if(beat==='free'){
   e.directorChoreographyDone=true;e.directorBeat='free';e.directorIntentUntil=0;e.directorRallyUntil=0;
   e.combatPassState=S.APPROACH;e.combatPassTimer=0;e.combatPassCooldown=.2;e.combatPassHeading=null;e.combatPassWaypoint=null;
@@ -651,9 +681,9 @@ function choreographySteering(game,e,contact,baseTurn){
   if(Number.isFinite(e.directorPassAim))heading=e.directorPassAim;
   e.combatPassHeading=heading;
  }else if(beat==='break'){
-  heading=e.directorBreakHeading;e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil,attackEnd+1.05);
+  heading=e.directorBreakHeading;e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil,attackEnd+breakFor);
  }else{
-  e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil,beat==='assemble'?e.directorLaunchAt:attackEnd+2.3);
+  e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil,beat==='assemble'?e.directorLaunchAt:attackEnd+regroupUntil);
   const leader=squad.leader,slot=e.directorFormationSlot;
   if(beat==='assemble'&&e!==leader&&['headOn','veteran','chase'].includes(e.directorLayout)){
    return formationStationSteering(e,leader,{back:slot.back,lateral:slot.lateral},Math.min(.04,Math.max(0,game._directorStep||.016)),baseTurn,angleDiff);

@@ -1,6 +1,7 @@
-import {V1500_ART} from './v1500-layout.js?v=b3bf991d11fc7798';
-import {V1500_POINTS,V1500_PROP_POINTS,v1500WorldPoint} from './handley-page-v1500.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {blackSilhouette} from './silhouette.js';
+import {V1500_ART} from './v1500-layout.js';
+import {V1500_POINTS,V1500_PROP_POINTS,v1500WorldPoint} from './handley-page-v1500.js';
+import {fx} from './fx-art.js?v=tame3';
 const clamp=n=>Math.max(0,Math.min(1,n));
 /** Painted originals only. Propeller rotation is projected from its vertical plane. */
 export function drawV1500Boss(c,e,point,scale,images){
@@ -32,7 +33,7 @@ export function drawV1500Boss(c,e,point,scale,images){
 export function drawV1500Bombs(c,e,point,z,images){
  const im=images.get(V1500_ART.bomb);if(!im)return;
  for(const b of e.releasedBombs||[]){const q=clamp((b.age+(e.visualV1500Age||0))/b.life),dx=b.targetX-b.releaseX,dy=b.targetY-b.releaseY,a=dx*dx+dy*dy>1?Math.atan2(dy,dx):b.angle,off=Math.sin(q*Math.PI)*16;const x=b.releaseX+dx*q-Math.cos(b.angle)*off,y=b.releaseY+dy*q-Math.sin(b.angle)*off,p=point(x,y),shadow=point(x+8,y+12);const length=(43-10*q*q)*z,h=length*im.height/im.width;
-  c.save();c.globalAlpha*=.24;c.filter='brightness(0)';c.translate(shadow.x,shadow.y);c.rotate(a);c.drawImage(im,-length/2,-h/2,length,h);c.restore();
+  c.save();c.globalAlpha*=.24;const dark=blackSilhouette(im);if(!dark)c.filter='brightness(0)';c.translate(shadow.x,shadow.y);c.rotate(a);c.drawImage(dark||im,-length/2,-h/2,length,h);c.restore();
   c.save();c.translate(p.x,p.y);c.rotate(a);c.drawImage(im,-length/2,-h/2,length,h);c.restore();
  }
 }

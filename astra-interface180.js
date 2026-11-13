@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=b3bf991d11fc7798';
-import {aircraftKey} from './aircraft.js?v=b3bf991d11fc7798';
-import {hangarArt,hangarArtNow,hangarKeyFile,hangarArtLayout} from './hangar-art.js?v=b3bf991d11fc7798';
-export {hangarArt} from './hangar-art.js?v=b3bf991d11fc7798';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111';
+import {hangarArt,hangarArtNow,hangarKeyFile,hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+export {hangarArt} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
@@ -234,6 +234,8 @@ function installHud(){
   if(ammo){const long=!!counts&&counts[2].length>=4;if((ammo.dataset.long==='1')!==long)ammo.dataset.long=long?'1':''}
   ammo?.classList.toggle('astra-low-ammo',!!counts&&+counts[2]>0&&!reloading&&+counts[1]/+counts[2]<.2);
   const hpCur=parseFloat(document.getElementById('healthCurrent151')?.textContent),hpMax=parseFloat(document.getElementById('healthMax151')?.textContent),hpRaw=parseFloat(health.style.width),hpNow=hpMax>0&&Number.isFinite(hpCur)?hpCur/hpMax*100:Number.isFinite(hpRaw)?hpRaw:100;survival.classList.toggle('astra-low-health',hpRaw<30);
+  // 3-digit HP or 4-digit belts overflow the phone survival pill: gauges and numerals tighten.
+  {const tight=hpMax>=100||!!counts&&counts[2].length>=4;if((survival.dataset.tight==='1')!==tight)survival.dataset.tight=tight?'1':''}
   // Hit flash: the status pill blinks red once whenever health drops.
   if(hpNow<(survival.hoLastHp??hpNow)-.5){survival.classList.remove('astra-hit');void survival.offsetWidth;survival.classList.add('astra-hit')}survival.hoLastHp=hpNow;
   const bossHp=document.getElementById('stageBossHp');if(bossHp)bossHp.parentElement.classList.toggle('ho-boss-low',parseFloat(bossHp.style.width)<25);

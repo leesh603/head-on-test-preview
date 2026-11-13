@@ -1,8 +1,8 @@
-import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js?v=b3bf991d11fc7798';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=b3bf991d11fc7798';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=b3bf991d11fc7798';
-import {verdunFortExtents} from './verdun-fortresses.js?v=b3bf991d11fc7798';
-import {sommeExtents} from './somme-boss-layout.js?v=b3bf991d11fc7798';
+import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
+import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {sommeExtents} from './somme-boss-layout.js?v=tame3&somme=20261021';
 // Preserve authored railway, buried-weapon and formation approaches.
 const authored=new Set(['bruno-railway-gun','lincomparable','livens-flame-projector','minenwerfer-battery','mark4-wedge','treffas-wagen','fliegerzug','jasta11-circus','naval10-black-flight','london-apron-raid','sinai-landship','wustenpanzer']);
 const installed=new Set(['armored-harbor-fortress','gallipoli-fortress']);
@@ -58,10 +58,10 @@ function formationArrival(encounter,bodies,frame){
  const fx=Math.cos(heading),fy=Math.sin(heading),rx=fy,ry=-fx;
  // A single bounded prediction, never a camera lock or a moving arrival target.
  const cx=(player?.x||0)+vx*3.25,cy=(player?.y||0)+vy*3.25;
- const lateral=o400?108:125,trail=o400?150:240,flightGap=560;
+ const lateral=o400?134:125,trail=o400?235:240,flightGap=560;
  for(const b of bodies){
-  const group=o400?0:Math.floor(b.slot/3),slot=b.slot%3;
-  // Lead + two trailing wings; subsequent Gotha flights follow the same lane.
+  const group=Math.floor(b.slot/3),slot=b.slot%3;
+  // Lead + two trailing wings; later flights follow the same lane.
   const side=slot===0?0:slot===1?-lateral:lateral,forward=140-(slot===0?0:trail)-group*flightGap;
   b.x=cx+rx*side+fx*forward;b.y=cy+ry*side+fy*forward;
   b.a=heading;b.arrivalFlightGuard=true;b.rotateMounts?.();
@@ -71,14 +71,18 @@ function formationArrival(encounter,bodies,frame){
 // Set the flight's destination once, in the same moving airspace the player
 // will occupy at release. Translate native anchors too; never drag the camera.
 function positionAirArrival(encounter,bodies,frame){
- const ids=['siemens-schuckert-r-viii','supermarine-nighthawk','staaken-rvi','paris-staaken-rvi','gik','ca4','zeppelin-l70','hma23','final-leviathan'];
+ const ids=['siemens-schuckert-r-viii','supermarine-nighthawk','staaken-rvi','paris-staaken-rvi','gik','ca4','zeppelin-l70','hma23','final-leviathan','sms-stuttgart'];
  if(!ids.includes(encounter.bossId))return;
  const p=frame.players?.find(p=>p.alive!==false);if(!p)return;
  const vx=p.vx||0,vy=p.vy||0,speed=Math.hypot(vx,vy),scale=Math.min(1,400/Math.max(1,speed));
  const ahead=['zeppelin-l70','hma23'].includes(encounter.bossId)&&speed>1?220/speed:0;
- const dx=vx*(3.25*scale+ahead),dy=vy*(3.25*scale+ahead);
+ // The carrier must lead the pilot far enough for all three stern launches.
+ const carrier=encounter.bossId==='sms-stuttgart';
+ const lead=carrier?6.75:3.25;
+ const dx=vx*(lead*scale+ahead),dy=vy*(lead*scale+ahead);
  for(const b of bodies){
   b.x+=dx;b.y+=dy;
+  if(carrier&&speed>20)b.hullYaw=b.support129.angle=Math.atan2(vy,vx)+Math.PI/2;
   for(const [key,delta]of [['anchorX',dx],['anchorY',dy],['patrolCenterX',dx],['patrolCenterY',dy],['fixedX',dx],['fixedY',dy]])if(Number.isFinite(b[key]))b[key]+=delta;
   if(Number.isFinite(b.patrolFlowX)){b.patrolFlowX=vx*scale;b.patrolFlowY=vy*scale;}
  }

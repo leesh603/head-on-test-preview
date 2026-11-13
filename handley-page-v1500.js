@@ -2,8 +2,9 @@
  * All encounter state is JSON; no simulation RNG, timers, or global state.
  * Coordinates describe the dedicated top-view art, not the ordinary roster sprite.
  */
-import {queueV1500CollapseFx} from './v1500-destruction-fx.js?v=b3bf991d11fc7798';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=b3bf991d11fc7798';
+import {followTurningArrival} from './giant-intrusion-arrival.js';
+import {queueV1500CollapseFx} from './v1500-destruction-fx.js';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 export const V1500_WIDTH=1774,V1500_HEIGHT=887,V1500_DESTRUCTION_TIME=2.9;
 export const V1500_POINTS=Object.freeze({
  engine_port_front:{x:-117,y:-253.5},engine_port_rear:{x:-117,y:-110.5},
@@ -32,11 +33,11 @@ function samplePlayer(g,e,dt){const p=players(g)[0]||g,v=velocity(p),old=e.playe
 // Keep the complete fuselage and the pilot clear at the same-speed station.
 // The lead target remains 150 units beyond that station, preserving chase gain.
 export function v1500StandOff(e,p={}){return Math.max(140,V1500_HEIGHT*e.scale*.5+Math.max(12,finite(p.r,12))+48);}
-function enter(g,e){const p=players(g)[0]||g,a=finite(e.shadowPass?.a,finite(p.a,-Math.PI/2)),v=velocity(p),margin=Math.hypot(e.width,e.height)*.5+V1500_WIDTH*e.scale*.5+40;
+function enter(g,e){const p=players(g)[0]||g,v=velocity(p),a=Math.hypot(v.x,v.y)>10?Math.atan2(v.y,v.x):finite(e.shadowPass?.a,finite(p.a,-Math.PI/2)),margin=Math.hypot(e.width,e.height)*.5+V1500_WIDTH*e.scale*.5+40;
  e.entry={x:finite(p.x)-Math.cos(a)*margin,y:finite(p.y)-Math.sin(a)*margin,a,distance:margin+v1500StandOff(e,p)+Math.hypot(v.x,v.y)*3,endSpeed:Math.max(82,Math.hypot(v.x,v.y)),age:0};
  e.x=e.entry.x;e.y=e.entry.y;e.a=a;
 }
-function enterStep(g,e,dt){if(!e.entry){enter(g,e);return;}const q=e.entry;if(q.age===0){const v=e.playerMotion,travel=Math.max(0,finite(v.rawVx,v.vx)*Math.cos(q.a)+finite(v.rawVy,v.vy)*Math.sin(q.a));q.distance=Math.hypot(e.width,e.height)*.5+V1500_WIDTH*e.scale*.5+40+v1500StandOff(e,players(g)[0]||g)+travel*3;q.endSpeed=Math.max(82,travel);}q.age=Math.min(3,q.age+dt);const t=q.age/3,D=q.distance,vEnd=q.endSpeed,d=(-2*t*t*t+3*t*t)*D+(t*t*t-t*t)*vEnd*3,v=(6*t-6*t*t)*D/3+(3*t*t-2*t)*vEnd;e.x=q.x+Math.cos(q.a)*d;e.y=q.y+Math.sin(q.a)*d;e.a=q.a;e.worldVx=Math.cos(e.a)*Math.max(0,v);e.worldVy=Math.sin(e.a)*Math.max(0,v);e.flightSpeed=vEnd;}
+function enterStep(g,e,dt){if(!e.entry){enter(g,e);return;}const q=e.entry;if(q.age===0){const v=e.playerMotion,travel=Math.max(0,finite(v.rawVx,v.vx)*Math.cos(q.a)+finite(v.rawVy,v.vy)*Math.sin(q.a));q.distance=Math.hypot(e.width,e.height)*.5+V1500_WIDTH*e.scale*.5+40+v1500StandOff(e,players(g)[0]||g)+travel*3;q.endSpeed=Math.max(82,travel);}q.age=Math.min(3,q.age+dt);const t=q.age/3,D=q.distance,vEnd=q.endSpeed,d=(-2*t*t*t+3*t*t)*D+(t*t*t-t*t)*vEnd*3,v=(6*t-6*t*t)*D/3+(3*t*t-2*t)*vEnd;const p=players(g)[0]||g;if(followTurningArrival(e,q,p,velocity(p),dt,v,v1500StandOff(e,p))){e.flightSpeed=Math.hypot(e.worldVx,e.worldVy);return;}e.x=q.x+Math.cos(q.a)*d;e.y=q.y+Math.sin(q.a)*d;e.a=q.a;e.worldVx=Math.cos(e.a)*Math.max(0,v);e.worldVy=Math.sin(e.a)*Math.max(0,v);e.flightSpeed=vEnd;}
 function propulsion(e){const power=side=>V1500_ENGINE_IDS.filter(id=>id.includes(side)).reduce((sum,id)=>{const p=e.parts?.[id];return sum+(p?clamp(p.hp/Math.max(1,p.maxHp),0,1):0);},0)/2;return{port:power('port'),starboard:power('starboard')};}
 function setRun(g,e){const p=players(g)[0]||g,v=velocity(p);e.flightPhase='bombing-run';e.flightClock=0;e.runAngle=e.a;e.runTarget={x:finite(p.x)+v.x*4,y:finite(p.y)+v.y*4};e.bombClock=.65;e.bayAmmo=6;e.bombingLeg=finite(e.bombingLeg)+1;e.bombPattern=e.bombingLeg%2?'trail':'paired';emit(g,{type:'v1500BombingLeg',encounterId:e.encounterId,pattern:e.bombPattern,leg:e.bombingLeg});}
 export function stepV1500Motion(g,e,dt){
@@ -55,7 +56,7 @@ export function stepV1500Motion(g,e,dt){
  e.flightClock+=dt;
  if(e.phase==='active'){
   const changedCourse=ps>30&&Math.abs(angleDelta(Math.atan2(v.vy,v.vx),e.runAngle))>.8;
-  if(e.flightPhase==='bombing-run'&&(e.flightClock>=9||changedCourse)){e.flightPhase='turn';e.flightClock=0;e.bayAmmo=0;}
+  if(e.flightPhase==='bombing-run'&&(e.flightClock>=9||(changedCourse&&e.flightClock>=1.1))){e.flightPhase='turn';e.flightClock=0;e.bayAmmo=0;}
   if(e.flightPhase==='turn'){
    const aim=Math.atan2(lead.y-e.y,lead.x-e.x);
    const wingsLost=Number(e.parts?.wing_port?.hp<=0)+Number(e.parts?.wing_starboard?.hp<=0),power=propulsion(e),delta=angleDelta(aim,e.a);
@@ -63,7 +64,7 @@ export function stepV1500Motion(g,e,dt){
    // Alter angular authority only: translation always follows the actual nose.
    const turningBank=delta<0?power.port:power.starboard,otherBank=delta<0?power.starboard:power.port,asymmetry=Math.max(0,otherBank-turningBank);
    const turnRate=clamp(.8+ps/300,.8,2.15)*(1-.18*wingsLost)*(1-.32*asymmetry);e.a+=clamp(delta,-turnRate*dt,turnRate*dt);
-   if(e.flightClock>5+1.25*wingsLost&&Math.abs(angleDelta(aim,e.a))<.22||e.flightClock>=11)setRun(g,e);
+   if(e.flightClock>2.4+1.25*wingsLost&&Math.abs(angleDelta(aim,e.a))<.22||e.flightClock>=8)setRun(g,e);
   }else e.a+=clamp(angleDelta(e.runAngle,e.a),-.2*dt,.2*dt);
  }
  const actual=e.phase==='retreating'?Math.max(160,speed):speed;
@@ -82,9 +83,9 @@ function queueGun(g,e){
   const warning=.78,rx=p.x+v.x*warning-m.x-finite(e.worldVx)*warning,ry=p.y+v.y*warning-m.y-finite(e.worldVy)*warning,A=v.x*v.x+v.y*v.y-310*310,B=2*(rx*v.x+ry*v.y),C=rx*rx+ry*ry,disc=B*B-4*A*C;
   let flight=Math.hypot(rx,ry)/310;if(Math.abs(A)>1e-6&&disc>=0){const roots=[(-B-Math.sqrt(disc))/(2*A),(-B+Math.sqrt(disc))/(2*A)].filter(t=>t>0);if(roots.length)flight=Math.min(...roots);}flight=clamp(flight,0,1.7);
   const a=Math.atan2(ry+v.y*flight,rx+v.x*flight);
-  if(distance>560||!gunArc(id,angleDelta(a,e.a)))continue;
+  if(distance>560||Math.abs(m.x-g.x)>e.width*.48||Math.abs(m.y-g.y)>e.height*.48||!gunArc(id,angleDelta(a,e.a)))continue;
   e.v1500Shots.push({partId:id,a,age:0,warning:.78,next:0,count:5,sweep:.26,damage:6,speed:310,serial:e.gunSerial});
-  e.shotCues.push({...m,partId:id,a,age:0,warning:.78,damage:6,done:false,v1500:true});e.gunSerial=(e.gunSerial+k+1)%guns.length;e.volley=finite(e.volley)+1;return;
+  e.shotCues.push({...m,partId:id,a,age:0,warning:.78,damage:6,done:false,v1500:true});e.gunSerial=(e.gunSerial+k+1)%guns.length;e.volley=finite(e.volley)+1;return true;
  }
  e.gunSerial=(e.gunSerial+1)%guns.length;
 }
@@ -99,7 +100,7 @@ function releaseBomb(g,e,sideOverride){
  emit(g,{type:'v1500BombReleased',encounterId:e.encounterId,bossId:e.profileId,id,x,y,releaseX:m.x,releaseY:m.y,pattern:e.bombPattern});
 }
 export function stepV1500Combat(g,e,dt){
- initializeV1500(e);if(e.phase!=='active'||e.hp<=0||!(dt>0))return;
+ initializeV1500(e);if(!['entering','active'].includes(e.phase)||e.hp<=0||!(dt>0))return;
  for(const id in e.gunRecoil||{})e.gunRecoil[id]=Math.max(0,e.gunRecoil[id]-dt);
  const wingLoss=Number(e.parts?.wing_port?.hp<=0)+Number(e.parts?.wing_starboard?.hp<=0);
  if(wingLoss>finite(e.knownWingLoss)){e.structuralStagger=.85;e.v1500Shots=[];e.shotCues=[];e.gunClock=Math.max(finite(e.gunClock),.85);emit(g,{type:'v1500WingStagger',encounterId:e.encounterId,wingsLost:wingLoss});}
@@ -111,7 +112,8 @@ export function stepV1500Combat(g,e,dt){
  for(const q of e.shotCues){q.age+=dt;const w=muzzle(e,q.partId,q.a);q.x=w.x;q.y=w.y;if(!live(e,q.partId))q.done=true;}e.shotCues=e.shotCues.filter(q=>!q.done&&q.age<q.warning+.56);
  for(const q of e.v1500Shots){q.age+=dt;if(!live(e,q.partId)){q.next=q.count;continue;}while(q.next<q.count&&q.age>=q.warning+q.next*.14){const i=q.next++,a=q.a+(i/(q.count-1)-.5)*q.sweep*(q.serial%2?1:-1);if(!gunArc(q.partId,angleDelta(a,e.a))||Math.abs(angleDelta(a,e.a+finite(e.turretAngles[q.partId])))>.18)continue;const m=muzzle(e,q.partId,a);(g.bullets||=[]).push({...m,vx:Math.cos(a)*q.speed,vy:Math.sin(a)*q.speed,life:2.1,enemy:true,visualType:'boss',damage:q.damage,intrusionEncounterId:e.encounterId,encounterId:e.encounterId,sourceBossId:e.profileId,sourcePartId:q.partId});queueArtilleryMuzzle(g,{...m,angle:a,scale:.18,heavy:false});(e.gunRecoil||={})[q.partId]=.11;emit(g,{type:'v1500GunShot',encounterId:e.encounterId,partId:q.partId,x:m.x,y:m.y,a});}}
  e.v1500Shots=e.v1500Shots.filter(q=>q.next<q.count);
- e.gunClock-=dt;if(e.gunClock<=0&&e.structuralStagger<=0){queueGun(g,e);e.gunClock=1.75;}
+ e.gunClock-=dt;if(e.gunClock<=0&&e.structuralStagger<=0){e.gunClock=queueGun(g,e)?1.75:.25;}
+ if(e.phase!=='active')return;
  e.bombClock-=dt;if(e.bombClock<=0){if(e.bombPattern==='paired'){releaseBomb(g,e,-1);releaseBomb(g,e,1);e.bombClock=2.3;}else{releaseBomb(g,e);e.bombClock=1.15;}}
 }
 export function beginV1500Destruction(g,e){

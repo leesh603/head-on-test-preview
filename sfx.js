@@ -1,13 +1,13 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=b3bf991d11fc7798';
-import {ruralSamplePath} from './rural-audio.js?v=b3bf991d11fc7798';
+import {railAudioSamples} from './rail-audio.js?v=tame3';
+import {ruralSamplePath} from './rural-audio.js';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 let activeRegion=-1;
-const PRIORITY={missionStart:2,missionComplete:2,missionFailed:2,artilleryFire:2,artilleryNavalFire:2,artilleryImpact:2,detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:2,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
-const INTERVAL={secretArmorImpact:.09,secretWingSkill:.2,secretBomber:.22,secretWingVolley:.19,secretBomberRelease:.15,secretBomberImpact:.12,secretDartHit:.09,secretPomBurst:.095,missionStart:.35,missionComplete:.35,missionFailed:.35,artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={minenwerferLaunch:2,missionStart:2,missionComplete:2,missionFailed:2,artilleryFire:2,artilleryNavalFire:2,artilleryImpact:2,detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:2,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
+const INTERVAL={minenwerferLaunch:.2,secretArmorImpact:.09,secretWingSkill:.2,secretBomber:.22,secretWingVolley:.19,secretBomberRelease:.15,secretBomberImpact:.12,secretDartHit:.09,secretPomBurst:.095,missionStart:.35,missionComplete:.35,missionFailed:.35,artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
@@ -338,6 +338,12 @@ const VOICES={
   armorEntrySynth(){tone(72,43,1.2,.045,'sawtooth',220);hiss(480,180,.9,.03,'lowpass',.5);for(let i=0;i<6;i++)hiss(1200,550,.06,.024,'bandpass',1,i*.15)},
   armorBrake(){tone(82,34,.4,.038,'sawtooth',270);hiss(900,360,.3,.038,'bandpass',.6)},
   mortarLaunch(){tone(135,46,.22,.075,'sine',440);hiss(680,180,.16,.065,'bandpass',.7);hiss(1250,500,.44,.018,'bandpass',3,.14)},
+  minenwerferLaunch(){
+    fileSample('sfx/artillery-fire',.42,()=>hiss(920,190,.32,.082,'lowpass',.8),.87);
+    tone(104,32,.38,.1,'sine',280);
+    hiss(640,180,.42,.036,'bandpass',.7,.045);
+    tone(285,98,.08,.027,'triangle',850,.52);
+  },
   earthImpact(){tone(78,28,.34,.09,'sine',250);hiss(1100,170,.48,.075,'lowpass',.6);hiss(2700,850,.09,.035,'bandpass',1.2)},
   waterImpact(){hiss(1900,430,.62,.065,'bandpass',.45);tone(68,35,.3,.045,'sine',240);hiss(3600,1700,.2,.022,'highpass',.5,.14)},
   navalGun(){tone(104,31,.32,.1,'sine',300);hiss(2100,230,.26,.085,'lowpass',.5);tone(58,30,.38,.032,'sine',180,.15)},

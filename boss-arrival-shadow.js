@@ -1,9 +1,9 @@
 // Cosmetic only: host arrival clocks, actual hull alpha, no weapons/FX renderer.
-import {ALPS_BOMBER_LAYOUT} from './alps-bomber-layout.js?v=b3bf991d11fc7798';
-import {PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=b3bf991d11fc7798';
-import {O400_LAYOUT} from './o400-layout.js?v=b3bf991d11fc7798';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=b3bf991d11fc7798';
-import {capitalPartPose} from './capital-bosses.js?v=b3bf991d11fc7798';
+import {ALPS_BOMBER_LAYOUT} from './alps-bomber-layout.js?v=gal1';
+import {PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {O400_LAYOUT} from './o400-layout.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {capitalPartPose} from './capital-bosses.js';
 const clamp=q=>Math.max(0,Math.min(1,q));
 const sources={
  'supermarine-nighthawk':['./asset-bank/outlined/native/boss-dover-nighthawk.webp',17],
@@ -13,7 +13,7 @@ const sources={
  'o400-raider':[O400_LAYOUT.hull,4],
  'gotha-raider':['./gotha-runtime-hull-20261031.webp?v=natural-flight20261031',4,11],
  gik:['./boss-alps-gik-states-20261020.webp?v=bomber-style20261024',6],
- ca4:['./boss-alps-ca4-states-20261020.webp?v=bomber-style20261024',6],
+ ca4:['./boss-alps-ca4-states-20261113.webp',6],
  'zeppelin-l70':['./boss-sky-l70-states-20261020.webp?v=muted1',5],
  hma23:['./boss-sky-hma23-states-20261020.webp?v=muted1',5]
 };

@@ -1,7 +1,8 @@
-import {squadronDamage,squadronCannonDamage,squadronDurability} from './squadron-elite-balance.js?v=b3bf991d11fc7798';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=b3bf991d11fc7798';
+import {squadronDamage,squadronCannonDamage,squadronDurability} from './squadron-elite-balance.js';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
 /** Cigognes-inspired cannon patrol. The mixed formation and attack script are game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js?v=b3bf991d11fc7798';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
 export const CIGOGNES_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:26,reserve:8,speed:142,turn:.9,prepare:.4,lock:.45,reload:2.6,shots:4,damage:26});
 // 20261107: four 37 mm shells (was three) on a 2.6 s reload (was 3.0 s): the cannon stays a threat.
 const B=CIGOGNES_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;
@@ -17,7 +18,7 @@ export const cigognesActive=g=>['entry','aim','locked','reload','turn'].includes
 function blocked(g){return !g.stageBoss?.stages||g.stageBoss.stages.phase!=='explore'||g.stageCombatWindow?.ready||['active','pending','dispatching'].includes(g.photoReconDirector?.phase)||g.battlefieldEvents?.current?.status==='active'||['warning','entering','active','retreating'].includes(g.intrusionBoss?.phase)||g.eliteEnemies?.active||g.londonBattle||g.parisBattle||g.verdunBattle||(g.bossPresentationAfter||0)>(g.t||0)||(g.battleRecoveryUntil||0)>(g.t||0)||(g.enemies||[]).some(e=>live(e)&&(e.bossPilot||e.type==='boss'||e.stageBossBody));}
 const visible=(g,e,margin=0)=>{const v=arrivalViewport(g);return Math.abs(e.x-v.x)<v.w+margin&&Math.abs(e.y-v.y)<v.h+margin};
 const members=g=>(g.enemies||[]).filter(e=>e.cigognesRole&&e.cigognesGroup!=null&&e.cigognesGroup===g.cigognesPatrol?.groupId&&live(e));
-function withdraw(g,reason){const s=g.cigognesPatrol;if(!s)return;s.phase='exit';s.outcome=reason;s.nextIn=B.interval;for(const e of members(g)){e.cigognesPhase='exit';escapeSpeed(g,e);e.cigognesHeading=e.a+(e.cigognesSide||0)*.38;e.cigognesSilenced=true;e.missionTarget=false;e.fire=Infinity;}}
+function withdraw(g,reason){const s=g.cigognesPatrol;if(!s)return;s.phase='exit';s.outcome=reason;s.nextIn=B.interval;releaseEliteHunt(g,members(g),reason);for(const e of members(g)){e.cigognesPhase='exit';escapeSpeed(g,e);e.cigognesHeading=e.a+(e.cigognesSide||0)*.38;e.cigognesSilenced=true;e.missionTarget=false;e.fire=Infinity;}}
 function room(g,n){const es=(g.enemies||[]).filter(live);return es.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)).length+n<=(g.regularEnemyLimit?.()??12)&&es.length+n<=(g.enemyCapacity?.()??65)-1;}
 /** Admission only: may warm artwork, never creates combat entities or consumes RNG. */
 export function canSpawnCigognesPatrol(g){

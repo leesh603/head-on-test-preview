@@ -1,12 +1,12 @@
 // Equipment is interpreted from the current fit, never from acquisition order.
 // Delayed launches contain data only; ammunition is charged at actual emission.
-import {ammunitionGasRadius} from './heavy-ammunition.js?v=b3bf991d11fc7798';
-import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js?v=b3bf991d11fc7798';
-import {bishopGlovesInterval} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
-import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
-import {hasSecretWeapon} from './secret-weapons.js?v=b3bf991d11fc7798';
-import {POM_AIRBURST,secretWeaponContact,secretSteelRainImpact,secretCannonInterval,secretCannonShot,secretCannonImpact,secretRotaryRound,tickSecretRotary,secretGasProfile,secretArmorHit,secretWingGun,secretCooperRelease} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
-import {WWI_BALANCE,igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js?v=b3bf991d11fc7798';
+import {ammunitionGasRadius} from './heavy-ammunition.js';
+import {EQUIPMENT_CHOICE_COPY} from './equipment-copy.js';
+import {bishopGlovesInterval} from './equipment-flight-balance.js';
+import {combatImpactResult} from './combat-impact-result.js';
+import {hasSecretWeapon} from './secret-weapons.js';
+import {POM_AIRBURST,secretWeaponContact,secretSteelRainImpact,secretCannonInterval,secretCannonShot,secretCannonImpact,secretRotaryRound,tickSecretRotary,secretGasProfile,secretArmorHit,secretWingGun,secretCooperRelease} from './secret-weapon-combat.js';
+import {WWI_BALANCE,igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js';
 const world=p=>p.combatWorld?.()||p.world||p;
 const alive=p=>p.hp>0&&p.status!=='downed';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));

@@ -1,22 +1,22 @@
-import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js?v=b3bf991d11fc7798';
-import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js?v=b3bf991d11fc7798';
-import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=b3bf991d11fc7798';
-import {EQUIPMENT_COPY} from './equipment-copy.js?v=b3bf991d11fc7798';
-import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=b3bf991d11fc7798';
-import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
-import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js?v=b3bf991d11fc7798';
-import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=b3bf991d11fc7798';
-import {hasSecretWeapon,reconcileSecretWeapons} from './secret-weapons.js?v=b3bf991d11fc7798';
-import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
-import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js?v=b3bf991d11fc7798';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=b3bf991d11fc7798';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js?v=b3bf991d11fc7798';
-import {fighterAim} from './dogfight-pass165.js?v=b3bf991d11fc7798';
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=b3bf991d11fc7798';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=b3bf991d11fc7798';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=b3bf991d11fc7798';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=b3bf991d11fc7798';
-import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=b3bf991d11fc7798';
+import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js';
+import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js';
+import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
+import {EQUIPMENT_COPY} from './equipment-copy.js';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
+import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
+import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
+import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,previewSecretWeapons} from './secret-weapons.js';
+import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
+import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -62,10 +62,10 @@ const EQUIPMENT_LINKS=Object.freeze([
  ['prototypeAmmo','steelCore'],['prototypeAmmo','cow37'],['prototypeAmmo','flechettes'],['prototypeAmmo','grunkreuz'],
  ['steelCore','quadLewis'],['steelCore','buckinghamBelt'],['steelCore','cooperRack'],['steelCore','amatolCharge']
 ].map(pair=>Object.freeze(pair)));
-export function compatibleEquipmentIds(p,id){return EQUIPMENT_LINKS.flatMap(([a,b])=>{
+export function compatibleEquipmentIds(p,id){return [...new Set([...EQUIPMENT_LINKS.flatMap(([a,b])=>{
  if((a==='fighterSupply'||b==='fighterSupply')&&!(p?.permanentWingman>0))return [];
  return id===a&&p?.upgrades?.[b]?[b]:id===b&&p?.upgrades?.[a]?[a]:[];
-});}
+}),...secretWeaponMaterialLinks(p,id,BUILD_IDENTITY_LIMIT)])];}
 const BUILD_IDENTITY_BY_ID=Object.freeze({
  ...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT,...RARE_SPECIALIZATIONS].map(u=>[u.id,u.family])),
  damage:'GUN',rate:'GUN',spread:'GUN',turn:'SPEED',mercedesEngine:'SPEED',rockets:'EXPLOSIVE',mines:'EXPLOSIVE',explosives:'EXPLOSIVE',combinedProjectiles:'EXPLOSIVE',
@@ -174,7 +174,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  const SPECIAL_SYNERGY=Object.freeze({...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT,...RARE_SPECIALIZATIONS].map(u=>[u.id,u.family])),amatolCharge:'EXPLOSIVE',motorCannon:'EXPLOSIVE',lufberyCircle:'FORMATION',goeringBaton:'FORMATION',aceWingman:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',sacredCowling:'SPEED',immelmannManual:'SPEED',flightGloves:'GUN',telescope:'GUN',quadLewis:'GUN',maximBelt:'GUN',rearGunner:'GUN',sparkPlug:'SURVIVAL',steelPlate:'SURVIVAL',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL'});
  const specialSynergyWeight=(g,u)=>{const owned=Object.keys(g.upgrades||{}).filter(id=>g.upgrades[id]),count=identity=>owned.filter(id=>buildIdentityFor(id)===identity).length,identity=SPECIAL_SYNERGY[u.id],n=u.id==='mauserAceKiller'?Math.max(count('GUN'),count('EXPLOSIVE')):identity?count(identity)+(identity==='FORMATION'&&(g.permanentWingman||0)>0?1:0):0;return Math.min(1.6,1+.15*Math.min(3,n))};
  const pickWeightedSpecials=(g,pool)=>{
-  const linked=pool.filter(u=>compatibleEquipmentIds(g,u.id).length);
+  const complete=pool.filter(u=>previewSecretWeapons(g,{id:u.id,rarity:'legendary'}).some(q=>q.hint==='immediate'));
+  const linked=complete.length?complete:pool.filter(u=>compatibleEquipmentIds(g,u.id).length);
   if(!linked.length&&pool.every(u=>specialSynergyWeight(g,u)===1))return pickSpecialEquipment(g,pool);
   const source=pool.slice(),picks=[],weight=u=>transferWeight(g,u.id)*specialSynergyWeight(g,u);
   if(linked.length){const first=linked[Math.min(linked.length-1,Math.floor(g.rng()*linked.length))];picks.push(first);source.splice(source.indexOf(first),1);}
@@ -220,6 +221,16 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   const picks=[];for(let slot=0;slot<choiceCount;slot++){
    const r=this.rng();let rarity=forceRarity||(r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal?'normal':r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal+AUGMENTATION_OVERHAUL_BALANCE.rarity.magic?'magic':'rare');
    let u=normalPick(this,rarity,picks,this.lastChoices||[]);if(!u)for(const fallback of ['normal','magic','rare']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,this.lastChoices||[]);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity});
+  }
+  // Preserve a legal way to keep investing before the third family is locked.
+  // The other cards still explore; neither rarity nor family limits change.
+  const committed=committedIdentities(this);
+  if(committed.size&&picks.length&&!picks.some(u=>committed.has(buildIdentityFor(u.id)))){
+   const slot=picks.length-1,rarity=picks[slot].rarity;
+   const eligible=UPGRADES.filter(u=>committed.has(buildIdentityFor(u.id))&&normalAllowed(this,u,rarity));
+   const fresh=eligible.filter(u=>!(this.lastChoices||[]).includes(u.id));
+   const followup=shuffledPick(this,fresh.length?fresh:eligible);
+   if(followup)picks[slot]={...followup,rarity};
   }
   const offers=this.legendaryOffers??(this.legendaryOffered?1:0),cooldown=this.specialDraftCooldownIds||[],pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id));
   if(!forceRarity&&!this.mission?.unarmed&&offers<EQUIPMENT_OFFER_LEVELS.length&&this.level>=EQUIPMENT_OFFER_STARTS[offers]&&this.legendaryCount()<4&&pool.length>=3&&pool.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))&&(this.rng()<this.legendaryChance()||this.level>=EQUIPMENT_OFFER_LEVELS[offers])){
@@ -290,6 +301,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
     case 'aceWingman':{
      const faction=PLANES[this.plane]?.faction,world=this.combatWorld?.()||this;
      const occupied=new Set((world.players||[this]).flatMap(p=>[p.pilot,p.aceWingmanPilotId,p.rescuedAcePilotId]));
+     if(world.operationBattle?.id==='ace')occupied.add(world.operationBattle.acePilot);
      const aces=Object.keys(PILOT_AIRCRAFT).filter(pid=>!occupied.has(pid)&&PILOTS[pid]?.faction===faction&&PLANES[PILOT_AIRCRAFT[pid].defaultAircraft]);
      this.aceWingmanPilotId=aces.length?aces[Math.floor(this.rng()*aces.length)]:null;
      this.aceWingmanRespawnAt=this.t;
@@ -678,6 +690,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  for(const [id,p] of Object.entries(PILOTS))if(p?.name&&id==='mccudden')p.augmentationAffinity='sparkPlug';
 }
+
 
 
 

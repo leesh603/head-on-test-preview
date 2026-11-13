@@ -1,10 +1,10 @@
-import {RailAdapter} from './boss-adapters129.js?v=b3bf991d11fc7798';
-import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH} from './rural-rail-layout.js?v=b3bf991d11fc7798';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=b3bf991d11fc7798';
-import {brunoSalvo} from './bruno-raid.js?v=b3bf991d11fc7798';
-import {lincomparableRound} from './lincomparable-raid.js?v=b3bf991d11fc7798';
-import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js?v=b3bf991d11fc7798';
+import {RailAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {RURAL_RAIL,RURAL_CARS,RAIL_WAVE_WIDTH,ruralRailEntryStartY} from './rural-rail-layout.js?v=tame3';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
+import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=40';
+import {lincomparableRound} from './lincomparable-raid.js?v=tame3&ring=1023';
+import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js';
 function routeBreakY(route,p,bounds){return Math.max(bounds.top+90,Math.min(bounds.bottom-90,p.y+190));}
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
@@ -271,7 +271,7 @@ export class RuralRailBoss extends RailAdapter {
    const width=bounds.right-bounds.left,side=p.x>(bounds.left+bounds.right)/2?-1:1;
    const route=ctx.ruralRailRoute;
    this.x=route?.x??Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*Math.min(170,width*.26)));
-   e.startY=bounds.bottom+200;e.stopY=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));this.y=e.startY;e.initialized=true;
+   e.startY=ruralRailEntryStartY(bounds);e.stopY=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));this.y=e.startY;e.initialized=true;
    r.from={x:this.x,y:this.y-r.length/2};r.to={x:this.x,y:this.y+r.length/2};r.s=r.length/2;
    const targetY=routeBreakY(route,p,bounds);
    if(route)r.artOrigin={x:route.x,y:route.y};
@@ -301,7 +301,7 @@ export class RuralRailBoss extends RailAdapter {
    const width=bounds.right-bounds.left,offset=Math.min(190,width*.28),side=p.x>(bounds.left+bounds.right)/2?-1:1;
    const route=ctx.ruralRailRoute;
    this.x=route?.x??Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*offset));
-   e.startY=bounds.bottom+200;e.stopY=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));this.y=e.startY;e.initialized=true;
+   e.startY=ruralRailEntryStartY(bounds);e.stopY=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));this.y=e.startY;e.initialized=true;
    r.from={x:this.x,y:this.y-r.length/2};r.to={x:this.x,y:this.y+r.length/2};r.s=r.length/2;
    const targetY=routeBreakY(route,p,bounds);
    if(route)r.artOrigin={x:route.x,y:route.y};

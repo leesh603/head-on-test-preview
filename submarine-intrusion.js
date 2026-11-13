@@ -22,12 +22,12 @@ function m1Target(g,e,players){
  const preferred=players[e.volley%players.length];
  return preferred&&inView(g,e,preferred)?preferred:players.find(p=>inView(g,e,p))||preferred;
 }
-function m1Impact(g,e,p,predictImpact){
+function submarineImpact(g,e,p,predictImpact,warning){
  const track=e.naval.aimTracks?.[p.id||'p1'];
- if(!track||Math.abs(track.turn)<.025)return predictImpact?predictImpact(g,e,p,M1_WARNING):p;
+ if(!track||Math.abs(track.turn)<.025)return predictImpact?predictImpact(g,e,p,warning):p;
  // Give the ring the same minimum on-screen warning as a straight flypast.
- const impact=flightPoint(p,track.speed,track.heading,track.turn,M1_WARNING);
- const approach=flightPoint(p,track.speed,track.heading,track.turn,M1_WARNING-.65);
+ const impact=flightPoint(p,track.speed,track.heading,track.turn,warning);
+ const approach=flightPoint(p,track.speed,track.heading,track.turn,warning-.65);
  return inView(g,e,{x:impact.x-approach.x+p.x,y:impact.y-approach.y+p.y})?impact:null;
 }
 export const submarineTimings=e=>({exposed:e.profileId==='m1'?14:12,diving:1,submerged:1.6,surfacing:1.2});
@@ -46,24 +46,22 @@ export function submarineLayers(e){
 export function submarineSteering(g,e,dt,layout,predictImpact=null){
  const n=e.naval;if(!n)return;
  const heavy=e.profileId==='m1';
- if(n.phase!=='surfaced'){if(heavy)n.aimTracks=null;return;}
+ if(n.phase!=='surfaced'){n.aimTracks=null;return;}
  // Limited-traverse separated gun: slew before firing, then hold its bearing
  // while a locked splash warning is on screen. Hull steering stays bounded.
  const players=(g.players||[g]).filter(live);
- if(heavy){
-  n.aimTracks??={};
-  for(const p of players){
-   const key=p.id||'p1',old=n.aimTracks[key],a=finite(p.a,-Math.PI/2),speed=finite(p.baseSpeed,p.speed||0)*finite(p.pilotFlightFraction,1);
-   const vx=finite(p.vx,Math.cos(a)*speed),vy=finite(p.vy,Math.sin(a)*speed);
-   const heading=Math.hypot(vx,vy)>1?Math.atan2(vy,vx):a;
-   const measured=old?angle(heading-old.heading)/dt:!n.cycle&&p===players[0]?finite(e.contactTurnRate):0;
-   const turn=clamp(measured,-1.5,1.5);
-   n.aimTracks[key]={heading,speed:Math.hypot(vx,vy),turn:old?old.turn+(turn-old.turn)*Math.min(1,dt*8):turn};
-  }
+ n.aimTracks??={};
+ for(const p of players){
+  const key=p.id||'p1',old=n.aimTracks[key],a=finite(p.a,-Math.PI/2),speed=finite(p.baseSpeed,p.speed||0)*finite(p.pilotFlightFraction,1);
+  const vx=finite(p.vx,Math.cos(a)*speed),vy=finite(p.vy,Math.sin(a)*speed);
+  const heading=Math.hypot(vx,vy)>1?Math.atan2(vy,vx):a;
+  const measured=old?angle(heading-old.heading)/dt:!n.cycle&&p===players[0]?finite(e.contactTurnRate):0;
+  const turn=clamp(measured,-1.5,1.5);
+  n.aimTracks[key]={heading,speed:Math.hypot(vx,vy),turn:old?old.turn+(turn-old.turn)*Math.min(1,dt*8):turn};
  }
  const p=heavy?m1Target(g,e,players):players[0];
  if(!p||e.hazards.some(h=>!h.done))return;
- const aim=heavy?m1Impact(g,e,p,predictImpact):predictImpact?predictImpact(g,e,p,1.8):p;
+ const aim=submarineImpact(g,e,p,predictImpact,heavy?M1_WARNING:1.8);
  if(!aim)return;
  const travel=heavy?finite(n.speed)*M1_WARNING:0;
  const mount=layout?.targets?.find(t=>t.id==='deck_gun')||{x:0,y:0},yaw=e.a+Math.PI/2;
@@ -82,8 +80,8 @@ export function queueSubmarineAttack(g,e,layout,api){
  const gun=layout.targets.find(t=>t.id==='deck_gun');
  const heavy=e.profileId==='m1',warning=heavy?M1_WARNING:1.8,players=api.alive(g);
  const p=heavy?m1Target(g,e,players):players[e.volley%Math.max(1,players.length)];
- const impact=p?(heavy?m1Impact(g,e,p,api.predictImpact):api.predictImpact?api.predictImpact(g,e,p,warning):p):null;
- if(heavy&&e.parts.dive_control?.hp>0&&e.naval.phaseAge+warning>=submarineTimings(e).exposed)return true;
+ const impact=p?submarineImpact(g,e,p,api.predictImpact,warning):null;
+ if(e.parts.dive_control?.hp>0&&e.naval.phaseAge+warning>=submarineTimings(e).exposed)return true;
  if(impact&&gun&&api.canFire(e,gun.id)){
   const original=gun.muzzle,rotation=e.turretAngles.deck_gun||0,c=Math.cos(rotation),s=Math.sin(rotation),m={x:original.pivotX+(original.x-original.pivotX)*c-(original.y-original.pivotY)*s,y:original.pivotY+(original.x-original.pivotX)*s+(original.y-original.pivotY)*c},wp=api.world(e,m);
   const travel=heavy?finite(e.naval.speed)*warning:0;
@@ -125,15 +123,15 @@ export function stepSubmarineTorpedoes(g,e,dt){
  * sea-only regions have no shoreline cells; harbours/Dover are not eligible. */
 export function placeSubmarineContact(g,e,layout,overlaps,ships){
  const p=(g.players||[g]).find(live)||g,v=e.contactVelocity||{x:0,y:0};
- const speed=Math.hypot(v.x,v.y),a=speed>1?Math.atan2(v.y,v.x):(p.a||-Math.PI/2);
+ const speed=Math.hypot(v.x,v.y),a=speed>1?Math.atan2(v.y,v.x):finite(p.a,-Math.PI/2);
  const timeToSurface=Math.max(0,4-Math.max(2.8,e.phaseAge||0))+1.2;
  const offsetAhead=Math.min(e.width,e.height)*.12;
- const turn=e.profileId==='m1'?clamp(e.contactTurnRate||0,-1.5,1.5):0;
+ const turn=clamp(e.contactTurnRate||0,-1.5,1.5);
  // Set the hull down once, before its periscope is drawn. Leave room in
  // front of the barrel even when the approaching aircraft is turning tightly.
  const origin={x:finite(p.x),y:finite(p.y)};
  const surface=flightPoint(origin,speed,a,turn,timeToSurface);
- const impact=flightPoint(origin,speed,a,turn,timeToSurface+.4+M1_WARNING);
+ const impact=flightPoint(origin,speed,a,turn,timeToSurface+.4+(e.profileId==='m1'?M1_WARNING:1.8));
  const distance=Math.hypot(impact.x-surface.x,impact.y-surface.y);
  const heading=distance>1?Math.atan2(impact.y-surface.y,impact.x-surface.x):a;
  const gunReach=layout.targets.find(t=>t.id==='deck_gun')?.muzzle.y||0;

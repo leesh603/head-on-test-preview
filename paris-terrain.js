@@ -1,8 +1,10 @@
-import {applyTerrainAtmosphere} from './alps-terrain117.js?v=b3bf991d11fc7798';
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=gal1&phoneperf=20261103';
 // One authored Paris district. Scenery never owns combat coordinates or RNG.
 // The surrounding city and Seine continue outside it; landmarks appear once.
 export const PARIS_GROUND=Object.freeze({width:3200,left:-1600,top:-1700,bottom:1824,plaza:{x:-672,y:-790,w:1344,h:660},river:{north:500,south:800},hospital:{x:-780,y:330,w:488,h:352},rail:{x:680,y:230,w:552,h:328}});
 const bands=Object.freeze([[0,.22,-1700,-790],[.22,.39,-790,-130],[.39,.59,-130,500],[.59,.75,500,800],[.75,1,800,1824]]);
+const quayMargin=72;
+const seineTop=PARIS_GROUND.river.north-quayMargin,seineBottom=PARIS_GROUND.river.south+quayMargin;
 let source=null,citySource=null,cityTile=null,district=null,river=null,cityPatterns=new WeakMap();
 export function releaseParisTerrain(){source=null;citySource=null;cityTile=null;district=null;river=null;cityPatterns=new WeakMap();}
 const ready=im=>im?.complete&&im.naturalWidth>0;
@@ -23,13 +25,18 @@ function feather(c,w,h,horizontal,vertical){
 }
 function artwork(im){
  if(source===im)return true;
- const d=canvas(im.naturalWidth,im.naturalHeight),r=canvas(Math.round(im.naturalWidth*.13),Math.round(im.naturalHeight*.16));
- if(!d||!r)return false;
- const q=d.getContext('2d');q.filter='saturate(.72) contrast(.87)';q.drawImage(im,0,0);q.filter='none';feather(q,d.width,d.height,.09,.075);
- // A quiet bank segment contains no bridge, plaza, hospital or station.
- const rc=r.getContext('2d');rc.filter='saturate(.72) contrast(.87)';rc.drawImage(im,im.naturalWidth*.855,im.naturalHeight*.59,im.naturalWidth*.13,im.naturalHeight*.16,0,0,r.width,r.height);rc.filter='none';
- feather(rc,r.width,r.height,0,.09);
- source=im;district=d;river=r;return true;
+ const r=canvas(Math.round(im.naturalWidth*.09),seineBottom-seineTop);
+ if(!r)return false;
+ // The district WebP includes the feathered boundary. Take the Seine
+ // extension from inside that boundary, east of the last bridge.
+ const rc=r.getContext('2d');
+ for(const [a,b,y0,y1] of bands){
+  const top=Math.max(y0,seineTop),bottom=Math.min(y1,seineBottom);if(top>=bottom)continue;
+  const v=a+(b-a)*(top-y0)/(y1-y0),height=(b-a)*(bottom-top)/(y1-y0);
+  rc.drawImage(im,im.naturalWidth*.82,im.naturalHeight*v,im.naturalWidth*.09,im.naturalHeight*height,0,top-seineTop,r.width,bottom-top);
+ }
+ feather(rc,r.width,r.height,0,.12);
+ source=im;district=im;river=r;return true;
 }
 export function paintParisTerrain(c,g,cx,cy,w,h,images){
  const origin=g?.parisBattle?.origin;
@@ -49,12 +56,12 @@ export function paintParisTerrain(c,g,cx,cy,w,h,images){
  // World-anchored texture, at native scale like the other HEAD-ON cities.
  c.fillStyle=cityPatterns.get(c);c.fillRect(left,top,w,h);
  // Exactly one river latitude, also outside the authored district.
- if(top<ground.river.south&&top+h>ground.river.north){
-  const step=448,overlap=24;
+ if(top<seineBottom&&top+h>seineTop){
+  const step=288,overlap=16;
   for(let x=Math.floor(left/step)*step-step;x<left+w+step;x+=step){
-   c.save();c.beginPath();c.rect(x,ground.river.north,step,ground.river.south-ground.river.north);c.clip();
+   c.save();c.beginPath();c.rect(x,seineTop,step,seineBottom-seineTop);c.clip();
    if(Math.abs(x/step)%2){c.translate(2*x+step,0);c.scale(-1,1);}
-   c.drawImage(river,0,0,river.width,river.height,x-overlap,ground.river.north,step+overlap*2,ground.river.south-ground.river.north);c.restore();
+   c.drawImage(river,0,0,river.width,river.height,x-overlap,seineTop,step+overlap*2,seineBottom-seineTop);c.restore();
   }
  }
  // The parade ground fits the existing fortress; scenery never moves a boss.

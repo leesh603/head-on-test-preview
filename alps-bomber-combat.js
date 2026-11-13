@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=b3bf991d11fc7798';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=b3bf991d11fc7798';
-import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=b3bf991d11fc7798';
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=gal1';
 
 class AlpsBomber extends BaseBoss {
  constructor({tuning,rng=Math.random,faction,kind,...base}){
@@ -138,6 +138,7 @@ export class GIK extends AlpsBomber {
  }
  update(dt,{players,bounds}){
   this.cruise(dt,bounds,players);if(this.updateDisarmed(dt))return;this.updatePhase();
+  if(this.observationMission&&!this.timers.has('gik-bomb-run'))this.timers.set('gik-bomb-run',.85);
   if(this.encounter?.breathBlocks({type:'charge-warning'})){if(this.cannonLock){this.cannonLock=null;this.cannonRemaining=0;this.timers.set('alps-cannon',.2);}return;}
   this.cannon(dt,players);
   // Keep the original rear-gun clock and alignment decisions unchanged.
@@ -149,9 +150,16 @@ export class GIK extends AlpsBomber {
 
 export class Ca4 extends AlpsBomber {
  constructor(o){super({...o,kind:'ca4'});this.bayExpose=0;this.bayRuptured=false;this.bombLane=-1;this.bombRunRemaining=0;this.runSerial=0;this.laneWarnings=[];this.egress=null;this.egressLift=0;this.egressDone=false;}
- startBombRun(bounds){
+ startBombRun(bounds,target=null){
   if(this.part('bombBay').destroyed||this.bombRunRemaining>0)return;
-  this.bombLane=(this.bombLane+1)%3;const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
+  const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
+  if(target){
+   // Lock the first two runs ahead of the pilot's current route. The marked
+   // corridor stays fixed after the warning and always leaves an open flank.
+   const q=predictPilot(target,4.25);
+   bounds={left:q.x-width/2,right:q.x+width/2,top:q.y-height/2,bottom:q.y+height/2};
+  }
+  this.bombLane=target?(this.runSerial===0?0:2):(this.bombLane+1)%3;
   // Bounds are captured once: a moving camera never relocates a warned strike.
   const gap=width/3,margin=Math.max(32,gap*.15),radius=Math.max(24,gap*.46);
   this.runBounds={...bounds};this.runRadius=radius;this.laneWarnings=[];
@@ -184,7 +192,8 @@ export class Ca4 extends AlpsBomber {
   // while its bombs are still waiting to launch.
   this.bayExpose=Math.max(this.bayExpose,5.6);
   for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<8;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.24+row*.10),radius:this.runRadius,delay:0,warning:2+row*.32,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,sourcePartId:'bombBay',tag:this.id+':payload'});
-  const lane=this.laneWarnings.find(l=>l.safe);if(lane)impactPulse(this,{x:lane.x,y:b.top+height*.6,radius:Math.min(115,(b.right-b.left)/3*.48),warning:5,source,partId:'bombBay',visual:'carpet-bomb',tag:this.id+':payload'});this.timers.set('ca4-bombs',8);
+  const lane=this.laneWarnings.find(l=>l.safe);if(lane)impactPulse(this,{x:lane.x,y:b.top+height*.6,radius:Math.min(115,(b.right-b.left)/3*.48),warning:5,source,partId:'bombBay',visual:'carpet-bomb',tag:this.id+':payload'});
+  this.timers.set('ca4-bombs',this.observationMission&&this.runSerial===1?3.4:8);
   this.command('bomb-release',{...source});
  }
  onPartDestroyed(p){super.onPartDestroyed(p);if(p.id==='bombBay'&&!this.bayRuptured){this.bayRuptured=true;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});
@@ -192,6 +201,7 @@ export class Ca4 extends AlpsBomber {
   }}
  update(dt,{players,bounds}){
   this.cruise(dt,bounds,players);if(this.updateDisarmed(dt))return;this.updatePhase();const bay=this.part('bombBay');
+  if(this.observationMission&&!this.timers.has('ca4-bombs'))this.timers.set('ca4-bombs',.45);
   if(this.egress){
    const e=this.egress;e.age=(e.age||0)+dt;
    if(e.phase==='away'&&(Math.hypot(this.x-e.x,this.y-e.y)>=430||e.age>=12)){e.phase='hold';e.left=1.5;}
@@ -204,7 +214,7 @@ export class Ca4 extends AlpsBomber {
   if(!bay.destroyed&&!this.egressDone&&this.hp<=this.maxHp*.45){this.egressDone=true;this.egress={phase:'away',x:this.x,y:this.y,angle:this.a,age:0};this.egressLift=0;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});this.command('phase-change',{phase:'ca4-egress'});return;}
   if(this.bayExpose>0)this.bayExpose=Math.max(0,this.bayExpose-dt);
   if(this.bombRunRemaining>0){this.bombRunRemaining=Math.max(0,this.bombRunRemaining-dt);if(!this.bombRunRemaining)this.releaseBombRun();}
-  else if(!bay.destroyed&&this.due('ca4-bombs',dt,(this.t.bombInterval||(this.phase===3?3.4:4.8))*(1+this.engineLoss()*.18)))this.startBombRun(bounds);
+  else if(!bay.destroyed&&this.due('ca4-bombs',dt,(this.t.bombInterval||(this.phase===3?3.4:4.8))*(1+this.engineLoss()*.18)))this.startBombRun(bounds,this.observationMission&&this.runSerial<2?this.target(players):null);
   bay.hittable=!bay.destroyed&&(this.bayExpose>0||this.phase===3);
   if(this.due('ca4-ring',dt,this.phase===3?3.2:4.4))this.defenseRing(players);
   this.mountFire('frontGun',players,dt,2.15);this.mountFire('rearGun',players,dt,2.15,true);

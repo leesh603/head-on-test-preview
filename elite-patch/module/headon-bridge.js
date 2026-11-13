@@ -1,11 +1,11 @@
-import {arrivalViewport} from '../../enemy-arrivals.js?v=b3bf991d11fc7798';
-import {intrusionActive} from '../../intrusion-bosses.js?v=b3bf991d11fc7798';
-import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=b3bf991d11fc7798';
-import {momentumDamage,momentumCount,recordMomentumKill} from '../../ace-momentum.js?v=b3bf991d11fc7798';
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=b3bf991d11fc7798';
-import {recordCombatImpact} from '../../combat-impact-result.js?v=b3bf991d11fc7798';
-import {wwiProjectileDamageMultiplier} from '../../wwi-equipment.js?v=b3bf991d11fc7798';
-import {regionalSteering} from '../../regional-air-tactics.js?v=b3bf991d11fc7798';
+import {arrivalViewport} from '../../enemy-arrivals.js';
+import {intrusionActive} from '../../intrusion-bosses.js';
+import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {momentumDamage,momentumCount,recordMomentumKill} from '../../ace-momentum.js';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=wwifix20261025&momentum=20261027';
+import {recordCombatImpact} from '../../combat-impact-result.js';
+import {wwiProjectileDamageMultiplier} from '../../wwi-equipment.js';
+import {regionalSteering} from '../../regional-air-tactics.js?v=regionalair20261018&fai=20261108';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 

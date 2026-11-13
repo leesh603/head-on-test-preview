@@ -1,5 +1,5 @@
-import {doverCliffRoute} from './dover-patrol-chart.js?v=b3bf991d11fc7798';
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
+import {doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 
 const freezeParts=parts=>Object.freeze(parts.map(Object.freeze));
 const freezePolys=polys=>Object.freeze(polys.map(poly=>Object.freeze(poly.map(point=>Object.freeze(point)))));

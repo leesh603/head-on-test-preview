@@ -12,6 +12,8 @@ const install=()=>{
  // Mission card sits top-left under the survival pill, apart from the centred alerts.
  top.append($('eventMissionHud'));
  center.prepend($('stageBossHud'));
+ // The map's main objective is the same mission card, stacked above the side card.
+ {const main=box('mainObjectiveHud','hidden');main.innerHTML='<div class="mo-head"><span class="mo-chip"></span><span id="mainObjectiveTitle"></span><span id="mainObjectiveClock"></span></div><div id="mainObjectiveTask"></div><div id="mainObjectiveMeta"></div>';$('eventMissionHud').before(main);}
  $('pause').textContent='Ⅱ';$('pause').setAttribute('aria-label','일시정지');$('pause').title='일시정지 · ESC';
  const health=$('hud').firstElementChild;health.classList.add('health151');health.querySelector('small').textContent='HP';const icon=health.querySelector('.durability-faction-mark');if(icon){icon.classList.add('healthMark151');health.prepend(icon)}
  $('healthText').replaceChildren();for(const [id,txt]of [['healthCurrent151','100'],['healthSlash151','/'],['healthMax151','100']]){const span=document.createElement('span');span.id=id;span.textContent=txt;$('healthText').append(span)}

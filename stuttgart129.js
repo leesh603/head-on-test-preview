@@ -1,5 +1,5 @@
-import {steerNaval} from './adriatic-boss-layout.js?v=b3bf991d11fc7798';
-import {FixedPool} from './support-pool129.js?v=b3bf991d11fc7798';
+import {steerNaval} from './adriatic-boss-layout.js?v=tame3';
+import {FixedPool} from './support-pool129.js';
 export const HANGAR=Object.freeze({x:0,y:.213,w:.25,h:.314}); // normalized to full base image
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function segmentDistance(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?clamp(((x-a.x)*dx+(y-a.y)*dy)/l,0,1):0;return Math.hypot(x-a.x-t*dx,y-a.y-t*dy);}
@@ -10,7 +10,7 @@ export class StuttgartSupport {
   for(const f of [onDamage,spawnSeaplane,countSeaplanes,clearOwned,onCleared])if(typeof f!=='function')throw new Error('Missing host hook');
   Object.assign(this,{id,tuning:{...tuning},x,y,width,height,angle,onDamage,spawnSeaplane,countSeaplanes,clearOwned,onCleared,onCue});
   this.maxHp=tuning.maxHp;this.hp=this.maxHp;this.phase=1;this.time=0;this.phaseAge=0;this.dead=false;this.cleaned=false;this.notified=false;
-  this.fireClock=1.8;this.spawnClock=tuning.spawnInterval;this.linkedLaunchClock=0;this.volley=0;this.fireSide=0;this.fxSerial=0;this.cover=null;this.sortieLaunched=false;
+  this.fireClock=1.8;this.volley=0;this.fireSide=0;this.fxSerial=0;this.cover=null;
   this.introLaunched=false;this.finalSortie=false;this.finalWave=0;this.finalClock=0;this.fireWarning=null;this.smokeClock=0;
   this.sortieState='gun-lure';this.sortieAge=0;this.sortieSerial=0;this.tacticalPhase='carrier-gun-lure';this.rearming=false;this.crippled=false;
   this.anchorX=x;this.anchorY=y;this.initialAngle=angle;this.navigationAge=0;this.driveVelocity=0;
@@ -47,7 +47,7 @@ export class StuttgartSupport {
   else if(this.phase===3&&this.hp<=this.maxHp*.25)this.enterFullSortie();
   return{damage:dealt,partId,partDestroyed:p?.hp<=0,defeated:this.dead};
  }
- openHangar(){if(this.phase!==1||this.dead)return;this.phase=2;this.phaseAge=0;this.parts.get('cover').hp=0;this.spawnClock=Math.min(this.spawnClock,.35);
+ openHangar(){if(this.phase!==1||this.dead)return;this.phase=2;this.phaseAge=0;this.parts.get('cover').hp=0;
   const q=this.world(HANGAR.x,HANGAR.y),a=this.angle;this.cover={x:q.x,y:q.y,angle:a,age:0,vx:Math.cos(a)*110,vy:Math.sin(a)*110};
   this.fx('burst',q.x,q.y,62,.9);for(let i=0;i<10;i++)this.fx('debris',q.x,q.y,3,1.7,{vx:Math.cos(i*2.4)*90,vy:Math.sin(i*2.4)*90});
   this.onCue({type:'hangar-cover-ejected',encounterId:this.id,...q});
@@ -70,20 +70,36 @@ export class StuttgartSupport {
   }}
   this.onCue({type:'aa-volley',encounterId:this.id,x:this.x,y:this.y});
  }
- launch(players=[],{intro=false,final=false}={}){if(!intro&&(this.phase<2||this.parts.get('fuel').hp<=0||this.parts.get('hangar').hp<=0))return 0;
-  const active=this.countSeaplanes(this.id),count=Math.min(intro?5:final?4:2,this.tuning.minionCap-active);
-  if(final&&active>0){const target=players.filter(p=>p.alive)[this.finalWave%Math.max(1,players.filter(p=>p.alive).length)];if(target)this.onCue({type:'carrier-sortie-orders',encounterId:this.id,wave:this.finalWave,targetX:target.x+(target.vx||0)*.9+(this.finalWave%2?120:-120),targetY:target.y+(target.vy||0)*.9});}if(count<=0){if(final)this.finalWave++;return 0;}
+ launch(players=[],{intro=false,final=false,size=intro?5:final?4:2,wave=null}={}){if(!intro&&(this.phase<2||this.parts.get('fuel').hp<=0||this.parts.get('hangar').hp<=0))return 0;
+  const active=this.countSeaplanes(this.id),count=Math.min(size,this.tuning.minionCap-active);
+  if(count<=0&&wave!==null)return 0;
+  if(final&&active>0&&(wave===null||wave===0)){const target=players.filter(p=>p.alive)[this.finalWave%Math.max(1,players.filter(p=>p.alive).length)];if(target)this.onCue({type:'carrier-sortie-orders',encounterId:this.id,wave:this.finalWave,targetX:target.x+(target.vx||0)*.9+(this.finalWave%2?120:-120),targetY:target.y+(target.vy||0)*.9});}if(count<=0){if(final)this.finalWave++;return 0;}
   const q=this.world(0,intro?-.25:.445),angle=this.angle+Math.PI/2,target=players.filter(p=>p.alive)[this.volley%Math.max(1,players.filter(p=>p.alive).length)];
   let accepted=0;for(let i=0;i<count;i++){const lane=(i-(count-1)/2)*42,nx=q.x-Math.sin(angle)*lane,ny=q.y+Math.cos(angle)*lane;
-   if(this.spawnSeaplane({ownerId:this.id,faction:'central',x:nx,y:ny,angle,kind:'floatplane',behavior:'attack-pass',formationIndex:i,formationCount:count,
-    passTargetX:(target?.x??q.x+Math.cos(angle)*520)+(target?.vx||0)*.9+(final?(this.finalWave%2?120:-120):0),passTargetY:(target?.y??q.y+Math.sin(angle)*520)+(target?.vy||0)*.9,fire:1+i*.18+(final?this.finalWave*.18:0),invulnerableSeconds:.45})!==false)accepted++;}
-  if(accepted){this.sortieLaunched=true;this.fx('wake',q.x,q.y,22,.8,{angle:this.angle});this.onCue({type:'seaplane-launch',encounterId:this.id,count:accepted,...q});}if(final)this.finalWave++;return accepted;
+   const offset=wave===null?0:lane+(wave-1)*54;
+   const launchHeading=angle+lane/150+(wave===null?0:(wave-1)*.12);
+   if(this.spawnSeaplane({ownerId:this.id,faction:'central',x:nx,y:ny,angle:launchHeading,launchSeconds:.6,kind:'floatplane',behavior:'attack-pass',formationIndex:i,formationCount:count,
+    gunsOnly:wave!==null&&i!==Math.floor(count/2),
+    passTargetX:(target?.x??q.x+Math.cos(angle)*520)+(target?.vx||0)*.9+(final?(this.finalWave%2?120:-120):0)-Math.sin(angle)*offset,passTargetY:(target?.y??q.y+Math.sin(angle)*520)+(target?.vy||0)*.9+Math.cos(angle)*offset,fire:1+i*.18+(final?this.finalWave*.18:0),invulnerableSeconds:.45})!==false)accepted++;}
+  if(accepted){this.fx('wake',q.x,q.y,22,.8,{angle:this.angle});this.onCue({type:'seaplane-launch',encounterId:this.id,count:accepted,...q});}if(final&&(accepted||wave===null))this.finalWave++;return accepted;
+ }
+ tickLaunchWave(dt,players){
+  if(this.sortieWave>=this.sortieWaveCount||(this.launchClock-=dt)>0)return;
+  const final=this.phase>=4;
+  const launched=this.launch(players,{final,size:final?4:3,wave:this.sortieWave});
+  if(launched)this.sortieWave++;
+  this.launchClock=launched ? .46 : .3;
  }
  enterEvasive(){if(this.phase!==2)return;this.phase=3;this.phaseAge=0;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-evasive'});}
  enterFullSortie(){if(this.phase!==3)return;this.phase=4;this.phaseAge=0;this.finalSortie=true;this.finalClock=1.35;this.finalWave=0;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-final-sortie'});this.onCue({type:'charge-warning',encounterId:this.id,x:this.x,y:this.y,targetX:this.x,targetY:this.y+420,seconds:1.35});}
  navigate(dt,bounds){
   const mobility=this.parts.get('boiler')?.hp<=0?.35:1,oldX=this.x,oldY=this.y;
   this.hullYaw=this.angle;const cx=bounds?(bounds.left+bounds.right)/2:this.anchorX,cy=bounds?(bounds.top+bounds.bottom)/2:this.anchorY;
+  if(this.sortieSerial===0&&(this.sortieState==='gun-lure'||this.sortieState==='plane-pass'&&this.sortieWave<this.sortieWaveCount)){
+   // Keep the stern in the same lane through the last opening wave.
+   steerNaval(this,dt,this.x+Math.sin(this.angle)*220,this.y-Math.cos(this.angle)*220,{bounds,speed:52,turn:0,mobility});
+   this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);return;
+  }
   if(this.sortieState==='hull-turn'){
    const heading=this.turnHeading??this.angle,c=Math.cos(heading),s=Math.sin(heading);
    steerNaval(this,dt,this.x+c*220,this.y+s*220,{bounds,speed:36,turn:.58,mobility});this.angle=this.hullYaw;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);return;
@@ -101,7 +117,11 @@ export class StuttgartSupport {
  setSortieState(state,players=[]){if(this.sortieState===state)return;this.sortieState=state;this.sortieAge=0;this.rearming=state==='rearm'||state==='crippled';
   const names={'gun-lure':'carrier-gun-lure','plane-pass':'carrier-plane-pass','hull-turn':'carrier-hull-turn',rearm:'carrier-rearm',crippled:'carrier-crippled'};this.tacticalPhase=names[state]||names['gun-lure'];
   // A sortie transition must not cancel a broadside already telegraphed by surviving guns.
-  if(state==='crippled')this.fireWarning=null;if(state==='plane-pass')this.launch(players,{final:this.phase>=4});
+  if(state==='crippled')this.fireWarning=null;
+  if(state==='plane-pass'){
+   this.sortieWave=0;this.sortieWaveCount=this.sortieSerial===0||this.phase>=4?3:2;this.launchClock=0;
+   this.tickLaunchWave(0,players);
+  }
   if(state==='hull-turn'){this.turnSign=this.sortieSerial++%2?1:-1;this.turnHeading=this.angle+this.turnSign*Math.PI*.68;}
   this.onCue({type:'phase-change',encounterId:this.id,phase:this.tacticalPhase});
  }
@@ -111,9 +131,12 @@ export class StuttgartSupport {
   // Keep the existing nine-second broadside clock and authored rearm window.
   if(this.sortieState!=='rearm'){this.fireClock-=dt;if(this.fireClock<=0&&!this.fireWarning){this.fireClock=9;this.prepareFire(players);}}
   if(this.sortieState==='gun-lure'){
-   if(!this.liveGuns().length||this.sortieAge>=2.8){this.setSortieState(this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0?'plane-pass':'hull-turn',players);return;}
+   const lureSeconds=this.sortieSerial===0?1.1:2.8;
+   if(!this.liveGuns().length||this.sortieAge>=lureSeconds){this.setSortieState(this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0?'plane-pass':'hull-turn',players);return;}
   }else if(this.sortieState==='plane-pass'){
-   const deckLive=this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0;if(!deckLive||this.sortieAge>=3.1)this.setSortieState('hull-turn');
+   const deckLive=this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0;
+   if(!deckLive||this.sortieAge>=3.1)this.setSortieState('hull-turn');
+   else this.tickLaunchWave(dt,players);
   }else if(this.sortieState==='hull-turn'){
    const engineLive=this.parts.get('boiler')?.hp>0;if(this.sortieAge>=(engineLive?2.35:3.7))this.setSortieState('rearm');
   }else if(this.sortieState==='rearm'&&this.sortieAge>=2.7){this.fireClock=.2;this.setSortieState('gun-lure');}
@@ -122,9 +145,8 @@ export class StuttgartSupport {
   if(paused)return;if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid dt');if(this.dead){this.clean();if(!transitionBlocked&&!this.notified){this.notified=true;this.onCleared(this.snapshot());}return;}
   this.time+=dt;this.phaseAge+=dt;
   if(!this.introLaunched){this.introLaunched=true;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-gun-lure'});}
-  // The first gun lure must lead into the authored sortie even when the pilot
-  // is still learning the approach rather than damaging the sealed cover.
-  if(this.phase===1&&this.time>=4.6&&!this.fireWarning)this.openHangar();
+  // Open as the carrier comes into view, even before the pilot lands a hit.
+  if(this.phase===1&&this.time>=1.45&&!this.fireWarning)this.openHangar();
   if(this.tuning.navigation)this.navigate(dt,bounds);else this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2);
   if((this.time<4||this.phase===4)&&(this.smokeClock-=dt)<=0){this.smokeClock=.25;const q=this.world(0,-.12);this.fx('smoke',q.x,q.y,70,1.9,{vx:15,vy:25});}
   this.tickSortie(dt,players);

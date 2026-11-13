@@ -203,3 +203,27 @@ body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=selec
  body.astra-ui #modal.tactical-codex-modal .tactical-index-name b{font-size:13px}
  body.astra-ui #modal.tactical-codex-modal .tactical-index-copy small{font-size:10.5px}
 }
+
+/* 20261110 codex: one section per family (its progress shown once, in the
+   header), airframe conversions inside their family, no repeated meter strip. */
+body.astra-ui #modal.tactical-codex-modal .tactical-group{margin:0 0 16px}
+body.astra-ui #modal.tactical-codex-modal .tactical-group:last-child{margin-bottom:4px}
+body.astra-ui #modal.tactical-codex-modal .tactical-group-head{display:flex;align-items:center;gap:10px;margin:0 2px 8px;min-height:20px}
+body.astra-ui #modal.tactical-codex-modal .tactical-group-head h3{margin:0;font:800 13px/1.2 var(--astra-type,inherit);letter-spacing:.02em;color:#efe9da}
+body.astra-ui #modal.tactical-codex-modal .tactical-group.committed .tactical-group-head h3{color:#e2c27a}
+body.astra-ui #modal.tactical-codex-modal .tactical-pips{display:inline-flex;gap:3px;margin-left:4px}
+body.astra-ui #modal.tactical-codex-modal .tactical-pips i{display:block;width:14px;height:4px;border-radius:2px;background:#e8e2d41f}
+body.astra-ui #modal.tactical-codex-modal .tactical-pips i.on{background:#c9a24a}
+body.astra-ui #modal.tactical-codex-modal .tactical-group-count{font:700 12px/1 var(--astra-numeric,inherit);font-variant-numeric:tabular-nums;color:#8f897c}
+body.astra-ui #modal.tactical-codex-modal .tactical-group.complete .tactical-group-count{color:#e2c27a}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-conversion] .tactical-index-copy small{color:#b99a55}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry .tactical-index-copy small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+body.astra-ui #modal.tactical-codex-modal .tactical-group-head::after{content:"";flex:1;height:1px;background:#e8e2d414}
+/* Phones: the codex keeps more of the sheet for its cards. The settings subtitle
+   hides on every settings tab (not just the codex) and the icon tab row stays the
+   same on all tabs, so switching tabs never moves the header or the tab strip. */
+@media (max-width:720px),(pointer:coarse){
+ body.astra-ui #modal.tactical-codex-modal #modalText,
+ body.astra-ui #modal.settings-modal151.settings421 #modalText{display:none!important}
+ body.astra-ui #modal.tactical-codex-modal .tactical-categories button{padding-block:8px!important}
+}

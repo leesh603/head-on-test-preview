@@ -1,11 +1,11 @@
-import {HANGAR_OUTLINE_ART,AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=b3bf991d11fc7798';
+import {HANGAR_OUTLINE_ART,AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
 
 export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map(),artReady=new Map();
 export function hangarArtNow(key){return artReady.get(key)?.url||''}
 export function hangarArtSource(key){
  if(key==='prinz_friedrich_albatros_d1')return './mech/prinz_friedrich_albatros_d1.webp?v=albatros-d1-20261103';
- if(key==='robinson_be2c')return './mech/robinson_be2c.webp?v=capital-pilots-20261103';
+ if(key==='robinson_be2c')return './mech/robinson_be2c.webp?v=robinson-ink-20261109';
  const file=hangarKeyFile[key]||key;
  const path=HANGAR_OUTLINE_ART[key]||HANGAR_OUTLINE_ART[file]||AIRCRAFT_OUTLINE_ART['mech/'+file];
  return path?`./${path}?v=${AIRCRAFT_ART_REVISION}`:'';

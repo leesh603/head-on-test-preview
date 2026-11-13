@@ -1,3 +1,5 @@
+import {EQUIPMENT_ICON_ATLAS,EQUIPMENT_ICON_SIZE,EQUIPMENT_ICON_COLUMNS,EQUIPMENT_ICON_FILES} from './equipment-icon-frames.js';
+
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
 export const LEGENDARY_ICON_KEYS=Object.freeze(['passiveMedal','redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','fighterSupply','mercedesEngine','combinedProjectiles','buckinghamBelt','cooperRack','fieryGrapnel','flechettes','veryPistol','hytheCamera','strutterAirbrake','wimperisSight','prototypeAmmo-central','prototypeAmmo-entente','steelCore']);
@@ -16,7 +18,7 @@ function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Im
  icon.onload=()=>{if(icon.decode)icon.decode().then(commit,()=>resolve(false));else commit()};
  icon.onerror=()=>resolve(false);icon.src=file})}
 const DIRECT_ICONS=Object.freeze({
- precisionSynchronizer:'rare_precision_synchronizer_20261029.webp',directFuse:'rare_direct_fuse_20261029.webp',fragmentationFuse:'rare_fragmentation_fuse_20261029.webp',inertiaRetainer:'rare_inertia_retainer_20261029.webp',maneuverSpring:'rare_maneuver_spring_20261029.webp',emergencyPlating:'rare_emergency_plating_20261029.webp',emergencyDope:'rare_emergency_dope_20261029.webp',
+ emergencyDope:'rare_emergency_dope_20261029.webp',emergencyPlating:'rare_emergency_plating_20261029.webp',precisionSynchronizer:'rare_precision_synchronizer_20261029.webp',directFuse:'rare_direct_fuse_20261029.webp',fragmentationFuse:'rare_fragmentation_fuse_20261029.webp',inertiaRetainer:'rare_inertia_retainer_20261029.webp',maneuverSpring:'rare_maneuver_spring_20261029.webp',
  'prototypeAmmo-central':'krupp_prototype_ammunition.webp','prototypeAmmo-entente':'woolwich_prototype_ammunition.webp',steelCore:'steel_core_ammunition.webp',
  strutterAirbrake:'strutter_airbrake.webp',wimperisSight:'wimperis_sight.webp',
  buckinghamBelt:'buckingham_belt.webp',cooperRack:'cooper_rack.webp',fieryGrapnel:'fiery_grapnel.webp',flechettes:'flechettes.webp',veryPistol:'very_pistol.webp',hytheCamera:'hythe_camera_v2.webp',
@@ -45,39 +47,54 @@ const atlasReady=Promise.all([
  loadIconAtlas('./relic-lo-emblem128.webp',1,1,['loEmblem'],true),
  loadIconAtlas('./relic-sacred-cowling128.webp',1,1,['sacredCowling'],true)
 ]);
-// Keep hangar art eager. Equipment art is requested only when a card or HUD needs it.
 const hangarIcons=['cooldown-central','cooldown-entente','emblemCentral','emblemEntente'];
-const directIconReady=new Map(),failedDirectIcons=new Set();
-function directIconUrl(key){const file=DIRECT_ICONS[key];return './'+(file.startsWith('rare_')?'augmentation-icons':'augmentation-icons-384')+'/'+file+'?v=tame3'}
-function requestDirectIcon(key){
- if(!directIconReady.has(key))directIconReady.set(key,loadDirectIcon(directIconUrl(key),key).then(ok=>{
-  if(!ok)failedDirectIcons.add(key);
-  return ok;
- }));
+const directIconReady=new Map(),equipmentCells=new Map(EQUIPMENT_ICON_FILES.map((file,i)=>[file,i]));
+const directFile=key=>Object.hasOwn(DIRECT_ICONS,key)?DIRECT_ICONS[key]:typeof key==='string'&&key.startsWith('secret:')?key.slice(7):null;
+const directIconUrl=(file,key)=>'./'+(file.startsWith('rare_')?'augmentation-icons':'augmentation-icons-384')+'/'+file+(key.startsWith('secret:')?'':'?v=tame3');
+let equipmentAtlasFailed=false;
+export const equipmentIconsReady=new Promise(resolve=>{
+ const atlas=new Image();atlas.decoding='async';
+ atlas.onload=async()=>{
+  try{await atlas.decode?.();}catch{}
+  const size=EQUIPMENT_ICON_SIZE,columns=EQUIPMENT_ICON_COLUMNS;
+  if(atlas.naturalWidth!==size*columns||atlas.naturalHeight!==size*Math.ceil(EQUIPMENT_ICON_FILES.length/columns)){fail();return;}
+  const register=(key,i)=>frames.set(key,{atlas,x:(i%columns)*size,y:Math.floor(i/columns)*size,w:size,h:size,smooth:true,direct:true});
+  for(const [key,file] of Object.entries(DIRECT_ICONS))if(equipmentCells.has(file))register(key,equipmentCells.get(file));
+  for(const [file,i] of equipmentCells)if(file.startsWith('secret_'))register('secret:'+file,i);
+  resolve(true);
+ };
+ function fail(){equipmentAtlasFailed=true;resolve(false);}
+ atlas.onerror=fail;atlas.src=EQUIPMENT_ICON_ATLAS;
+});
+function requestDirectIcon(key,file){
+ if(!directIconReady.has(key))directIconReady.set(key,loadDirectIcon(directIconUrl(file,key),key));
  return directIconReady.get(key);
 }
 export function gameIconReady(key){
- const atlas=atlasIconReady.get(key),direct=Object.hasOwn(DIRECT_ICONS,key);
- const file=direct?directIconUrl(key):atlas?.file;
- const overlay=key==='airshipTransfer'?'wingman':null;
- if(file&&typeof window!=='undefined')window.HEADON_GATE?.raise(overlay?[file,directIconUrl(overlay)]:[file]);
- if(direct){
-  const ready=requestDirectIcon(key);
-  return (overlay?Promise.all([ready,requestDirectIcon(overlay)]).then(([ok])=>ok):ready)
-   .then(ok=>ok||(atlas?readyAtlasIcon(key,atlas):false));
- }
- return atlas?readyAtlasIcon(key,atlas):atlasReady;
+ if(frames.get(key)?.direct)return key==='airshipTransfer'?gameIconReady('wingman').then(()=>true):Promise.resolve(true);
+ const atlas=atlasIconReady.get(key),file=directFile(key);
+ const raise=url=>{if(url&&typeof window!=='undefined')window.HEADON_GATE?.raise([url]);};
+ if(!file){raise(atlas?.file);return atlas?readyAtlasIcon(key,atlas):atlasReady;}
+ const fallback=()=>{
+  raise(directIconUrl(file,key));
+  return requestDirectIcon(key,file).then(ok=>ok||(atlas?readyAtlasIcon(key,atlas):false));
+ };
+ const packed=equipmentCells.has(file)&&!equipmentAtlasFailed;
+ if(packed)raise(EQUIPMENT_ICON_ATLAS);
+ const ready=packed?equipmentIconsReady.then(ok=>ok||fallback()):fallback();
+ if(key==='airshipTransfer')return Promise.all([ready,gameIconReady('wingman')]).then(([ok])=>ok);
+ return ready;
 }
 function readyAtlasIcon(key,atlas){
  if(!LEGENDARY_ICON_KEYS.includes(key))return atlas.ready;
  return atlas.ready.then(ok=>{if(ok)cleanLegendaryFrame(key);return ok});
 }
-export const hangarIconsReady=Promise.all([atlasReady,...hangarIcons.map(requestDirectIcon)])
+export const hangarIconsReady=Promise.all([atlasReady,...hangarIcons.map(key=>requestDirectIcon(key,DIRECT_ICONS[key]))])
  .then(([results,...direct])=>results.every(Boolean)&&direct.every(Boolean));
 // Capture tools can explicitly wait for the complete icon set.
 let allIconsReady;
 export const iconsReady={then(onReady,onError){
- allIconsReady??=Promise.all([atlasReady,...Object.keys(DIRECT_ICONS).map(requestDirectIcon)]).then(([results,...direct])=>{
+ allIconsReady??=Promise.all([atlasReady,...Object.keys(DIRECT_ICONS).map(gameIconReady)]).then(([results,...direct])=>{
   for(const key of LEGENDARY_ICON_KEYS)cleanLegendaryFrame(key);
   return results.every(Boolean)&&direct.every(Boolean);
  });
@@ -85,8 +102,10 @@ export const iconsReady={then(onReady,onError){
 }};
 export function drawGameIcon(c,key,x,y,size){
  const f=frames.get(key);
- // A direct icon replaces its atlas cell only once, after the final art decodes.
- if(!f?.direct&&Object.hasOwn(DIRECT_ICONS,key)&&!failedDirectIcons.has(key)){requestDirectIcon(key);return;}
+ if(!f?.direct){
+  const file=directFile(key);
+  if(file&&(equipmentAtlasFailed||!equipmentCells.has(file)))requestDirectIcon(key,file);
+ }
  if(!f)return;
  const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore();
  if(key==='airshipTransfer'){drawGameIcon(c,'wingman',x-size*.29,y+size*.26,size*.4);drawGameIcon(c,'wingman',x+size*.29,y+size*.26,size*.4);}

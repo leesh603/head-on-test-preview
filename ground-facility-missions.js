@@ -1,7 +1,7 @@
-import {ammunitionPartPadding} from './heavy-ammunition.js?v=b3bf991d11fc7798';
-import {squadronPending} from './squadron-combat-state.js?v=b3bf991d11fc7798';
-import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js?v=b3bf991d11fc7798';
-import {recordCombatImpact} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {ammunitionPartPadding} from './heavy-ammunition.js';
+import {squadronPending} from './squadron-combat-state.js';
+import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js';
+import {recordCombatImpact} from './combat-impact-result.js';
 
 export const FACILITY_BALANCE=Object.freeze({firstAt:14,duration:32,bossReserve:5,airfieldHp:84,signalHp:140,reduction:.25,minimumAirborne:3});
 export const FACILITY_TYPES=Object.freeze({airfield:'AIRFIELD_RAID',signal:'SIGNAL_HQ_RAID'});

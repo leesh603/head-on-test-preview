@@ -1,4 +1,4 @@
-import {prepareRuralTrackArt,ruralTrackArtReady,drawRuralTrackTile,RURAL_TRACK_ART} from './rural-rail-track-art.js?v=b3bf991d11fc7798';
+import {prepareRuralTrackArt,ruralTrackArtReady,drawRuralTrackTile,RURAL_TRACK_ART} from './rural-rail-track-art.js';
 export {prepareRuralTrackArt};
 // The carrier retains its existing art; stage 1 uses a registered track atlas.
 const steel=(c,image,x,y,h,side=0)=>{
@@ -24,9 +24,13 @@ export function drawRailTrack(c,boss,image){
   if(!boss.railTarget||!ruralTrackArtReady())return;
   const r=boss.artOrigin||boss.railTarget,h=RURAL_TRACK_ART.height*RURAL_TRACK_ART.scale;
   c.save();c.translate(r.x,r.y);c.rotate(Math.atan2(boss.axis.y,boss.axis.x)-Math.PI/2);c.imageSmoothingEnabled=true;
-  const [lo,viewHi]=visibleLocalY(c),hi=Math.min(viewHi,boss.trackMaxY==null?Infinity:boss.trackMaxY-r.y);
+  const [lo,viewEnd]=visibleLocalY(c),trackEnd=Number.isFinite(boss.trackEndY)?boss.trackEndY-r.y:Infinity;
+  const hi=Math.min(viewEnd,trackEnd);
   if(hi<=lo){c.restore();return;}
-  if(hi<viewHi){const low=Number.isFinite(lo)?lo:-1e7;c.beginPath();c.rect(-160,low,320,hi-low);c.clip();}
+  if(trackEnd<viewEnd){
+   const start=Number.isFinite(lo)?lo:trackEnd-3600;
+   c.beginPath();c.rect(-160,start,320,trackEnd-start);c.clip();
+  }
   const first=Math.floor(((Number.isFinite(lo)?lo:-1800)+h/2)/h),last=Math.ceil(((Number.isFinite(hi)?hi:1800)+h/2)/h);
   const state=boss.broken?2:boss.railHp<boss.c.railHp*.7?1:0,end=(boss.railTarget.x-r.x)*boss.axis.x+(boss.railTarget.y-r.y)*boss.axis.y;
   // Replace only the damaged section; its collision point need not snap to the texture's repeat.

@@ -1,18 +1,18 @@
-import {createFront,nextFrontMap,frontLength} from './dynamic-front.js?v=b3bf991d11fc7798';
-import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=b3bf991d11fc7798';
-import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js?v=b3bf991d11fc7798';
-import {tickBossEntry} from './boss-entry-presentation.js?v=b3bf991d11fc7798';
-import {beginBossArrival,tickBossArrival} from './boss-arrival.js?v=b3bf991d11fc7798';
-import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js?v=b3bf991d11fc7798';
-import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js?v=b3bf991d11fc7798';
-import {gothaCrashPose} from './aircraft-crash.js?v=b3bf991d11fc7798';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=b3bf991d11fc7798';
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=b3bf991d11fc7798';
-import {recordShipWake} from './naval-water.js?v=b3bf991d11fc7798';
-import {predictPilot} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=b3bf991d11fc7798';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=b3bf991d11fc7798';
-import {BossHazards} from './headon-stageboss-hazards.js?v=b3bf991d11fc7798';
+import {createFront,nextFrontMap,frontLength} from './dynamic-front.js';
+import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=tension20261107';
+import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js';
+import {tickBossEntry} from './boss-entry-presentation.js';
+import {beginBossArrival,tickBossArrival} from './boss-arrival.js';
+import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js';
+import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js';
+import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021&close=20261107';
+import {recordShipWake} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
+import {predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BossHazards} from './headon-stageboss-hazards.js?v=pandemonium394r2&cambrai=20261021&cityart=20261022';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty
@@ -197,6 +197,10 @@ export class StageBossAddon {
     const wingId=bossId==='supermarine-nighthawk'?'siemens-schuckert-r-viii':'supermarine-nighthawk';
     const doverWing=dover?.bossObjective?{id:wingId,destinationY:dover.destinationY,tuning:this.hooks.getTuning({bossId:wingId,stageIndex:17,loopIndex:this.stages.loopIndex})}:null;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,doverWing,emit:event=>this.accept(event,id,tuning)});
+    for(const b of encounter.bodies.values())if(b.kind==='hma23'){
+      b.deckLimit=()=>Math.min(b.deckCapacity,this.minionCap);
+      b.deckSlots=()=>Math.max(0,b.deckLimit()-this.hooks.countMinions(id));
+    }
     for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||['a7v-flak','mark-v-cruiser','fliegerzug','armored-harbor-fortress'].includes(b.kind)||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];if(this.stages.front)encounter.frontStartedAt=this.time;this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival,entryBounds);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
   }
   // Boss rounds were laid at the spot a pilot occupied when the warning began.
@@ -205,6 +209,7 @@ export class StageBossAddon {
   // where that pilot will be when it lands, keeping its offset in the pattern, so
   // flying straight is hit and turning out of the marker is the dodge.
   leadAim(event){
+    if(event.lockedAim)return event;
     if(event.kind==='projectile')return this.leadShot(event);
     if(!this.showFloors||event.kind!=='circle'||!(event.damage>0)||event.objective||event.basicFire||event.lockAtWarning||event.airborneBomb||String(event.tag||'').includes('basic'))return event;
     const lead=(event.delay||0)+(event.warning||0);if(lead<.3)return event;
@@ -286,9 +291,10 @@ export class StageBossAddon {
     }
     else if(event.type==='status')this.hooks.onStatus(event.playerId,{...event.status,encounterId,sourceId:encounterId+':'+event.status.type});
     else if(event.type==='spawn-minion') {
-      if(this.hooks.countMinions(encounterId)>=this.minionCap){this.metrics.minionsDenied++;return;}
-      this.hooks.spawnMinion({...event,encounterId,id:this.runId+':boss-minion:'+this.serial++});
+      if(this.hooks.countMinions(encounterId)>=this.minionCap){this.metrics.minionsDenied++;return false;}
+      if(this.hooks.spawnMinion({...event,encounterId,id:this.runId+':boss-minion:'+this.serial++})===false)return false;
       this.hooks.onCue({...event,type:'minion-launched',encounterId});
+      return true;
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
       if(body?.ruralRailBoss)this.hazards.clearBody(encounterId,body.id);

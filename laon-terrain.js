@@ -1,8 +1,8 @@
-import {applyTerrainAtmosphere} from './alps-terrain117.js?v=b3bf991d11fc7798';
+import {applyTerrainAtmosphere} from './alps-terrain117.js?v=gal1&phoneperf=20261103';
 // Authored Laon woodland emplacement, anchored to the actual gun foundation.
 // This renderer owns scenery only: no RNG, camera, collision or mission clock.
 export const LAON_GROUND=Object.freeze({size:1536,sourceWidth:1254,sourceHeight:1254,foundationX:625,foundationY:820});
-export const LAON_TERRAIN_ASSETS=Object.freeze({map:'./terrain-laon1918.webp',forest:'./asset-bank/terrain/argonne_forest.webp'});
+export const LAON_TERRAIN_ASSETS=Object.freeze({map:'./terrain-laon1918.webp?art=combat-scale-20261109',forest:'./asset-bank/terrain/argonne_forest.webp'});
 let images={},loading=null,source=null,patch=null,forestSource=null,patterns=new WeakMap();
 const ready=im=>im?.complete&&im.naturalWidth>0;
 export function releaseLaonTerrain(){images={};loading=null;source=null;patch=null;forestSource=null;patterns=new WeakMap();}

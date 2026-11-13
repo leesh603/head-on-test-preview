@@ -2,7 +2,7 @@
 // sample objects: only fixed histograms and bounded ten-second summaries.
 const BIN_MS=.5,MAX_BIN_MS=1000,BIN_COUNT=2002;
 const METRICS=['rafGapMs','drawGapMs','frameJsMs','updateMs','drawMs'];
-const SKIPS=['limiter','hidden','inactive','transition','capture','error','other'];
+const SKIPS=['limiter','hidden','paused','upgrade','inactive','transition','capture','error','other'];
 const SETTINGS=['hiFpsMode','batterySaver','userZoom','muted','sfxOff','bgmOff','worldWidth','worldHeight','targetFps','mobileDisplay'];
 const finite=value=>typeof value==='number'&&Number.isFinite(value);
 const rounded=value=>Number.isFinite(value)?Math.round(value*1000)/1000:0;
@@ -101,7 +101,7 @@ export function createFlightRecorder({now=()=>performance.now(),context=()=>({})
   if(timestamp<nextContextAt)return;nextContextAt=timestamp+1000;
   let value;try{value=snapshot(context())}catch{value={contextError:true}}
   if(!value||typeof value!=='object')value={};
-  const key=String(value.stage??value.stageNumber??'')+':'+String(value.region??'');
+  const key=[value.loop,value.stage??value.stageNumber,value.region,value.phase].join(':');
   if(sceneKey!==null&&key!==sceneKey){closeBucket();current.firstContext=current.lastContext=null;current.contextPeaks={};current.settingsMask=0;}
   if(!recording)return;sceneKey=key;lastContext=value;
   applyContext(total,value,total.firstContext);applyContext(current,value,total.firstContext);
@@ -162,7 +162,10 @@ export function createFlightRecorder({now=()=>performance.now(),context=()=>({})
    return{schemaVersion:1,metadata:snapshot(metadata),status:recording?'recording':reason==='not-started'?'idle':'stopped',reason,activeMs:rounded(total.activeMs),
     wallMs:rounded(reason==='not-started'?0:Math.max(0,(recording?now():stoppedAt)-startedAt)),summary:summarize(total),buckets:rows,
     limits:{bucketMs,maxBuckets,maxActiveMs:bucketMs*maxBuckets,histogramBinMs:BIN_MS,histogramMaxMs:MAX_BIN_MS},
-    definitions:{drawFps:'Completed game canvas draw intervals / active native-rAF time. Not physical panel presentation FPS.',
+    definitions:{objects:'Managed object count covers own game arrays with object entries; nested objects and native graphics memory are outside this estimate.',
+     memory:'heapBytes is Chromium JS heap when supported; terrainBufferBytes is a backing-store estimate. Neither represents total device memory.',
+     assets:'Image load, queue and decode durations are cumulative boot-gate wall times and may overlap. Decode measures explicit decode() calls; implicit raster or GPU upload is not measured.',
+     drawFps:'Completed game canvas draw intervals / active native-rAF time. Not physical panel presentation FPS.',
      activeMs:'Only consecutive visible playing callbacks; pause, hidden, transition and game-switch gaps are excluded.',
      drawCadenceFps:'1000 / mean completed-draw interval; use drawFps to include active time with no completed drawing.',
      onePercentLowFps:'1000 / mean of slowest ceil(1% of draw intervals); histogram boundary bin is approximated by its actual mean.',

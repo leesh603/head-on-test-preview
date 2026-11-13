@@ -1,6 +1,6 @@
 const recipe=(id,body,catalysts,ranks,extra,icon,ko,en,detail)=>Object.freeze({id,body,catalysts,ranks,extra,icon,ko,en,detail});
 export const SECRET_WEAPONS=Object.freeze([
- recipe('fokkerLeimberger',['quadLewis'],['maximBelt'],{GUN:5},{},'secret_fokker_leimberger.webp','포커-라임베르거','Fokker–Leimberger',['쿼드 루이스의 사선에 고속 회전 기관총 탄류를 추가합니다.','Adds a high-speed rotary stream to the Quad Lewis firing lanes.']),
+ recipe('fokkerLeimberger',['quadLewis'],['maximBelt'],{GUN:5},{},'secret_fokker_leimberger_12barrel.webp','포커-라임베르거','Fokker–Leimberger',['쿼드 루이스의 사선에 고속 회전 기관총 탄류를 추가합니다.','Adds a high-speed rotary stream to the Quad Lewis firing lanes.']),
  recipe('vickersPomPom',['cow37'],['buckinghamBelt'],{GUN:5,EXPLOSIVE:3},{},'secret_vickers_pompom.webp','빅커스 폼폼 기관포','Vickers Pom-Pom',['중량 포탄을 연속 발사합니다. 포탄은 직격하거나 비행 후 공중에서 파편을 흩뿌립니다.','Rapid heavy shells scatter fragments on contact or after a short flight.']),
  recipe('eliteAirWing',['aceWingman'],[],{FORMATION:5},{wings:2,cooldown:3},'secret_elite_air_wing.webp','정예 전투비행단','Elite Air Wing',['상설 편대기에 에이스 조종사와 전용 능력을 배치합니다.','Assigns distinct ace pilots and abilities to permanent wingmen.']),
  recipe('longRangeBombers',['goeringBaton','fighterSupply'],['cooperRack'],{FORMATION:5,EXPLOSIVE:3},{wings:2,bomber:1},Object.freeze({central:'secret_bombers_central.webp',entente:'secret_bombers_entente.webp'}),'장거리 폭격전대','Long-Range Bomber Squadron',['상설 편대기가 진영별 중폭격기로 바뀌어 시차 폭격을 가합니다.','Permanent wingmen become faction heavy bombers and deliver staggered strikes.']),
@@ -31,6 +31,26 @@ const familyCounts=upgrades=>{
  for(const [id,family] of Object.entries(PICK_FAMILY))counts[family]+=Math.max(0,Math.floor(Number(upgrades?.[id])||0));
  return counts;
 };
+// Draft guidance shares the evolution recipes. Do not steer a committed build
+// toward a recipe whose missing ordinary families can no longer be acquired.
+export function secretWeaponMaterialLinks(p,id,familyLimit=3){
+ const upgrades=p?.upgrades||{},ranks=familyCounts(upgrades),slots=p?.secretWeaponState?.slots||{};
+ const committed=Object.keys(ranks).filter(f=>ranks[f]>0),links=new Set();
+ for(const r of SECRET_WEAPONS){
+  if(Object.values(slots).includes(r.id))continue;
+  const bodies=r.body.filter(body=>!slots[body]&&(body!=='fighterSupply'||p?.permanentWingman>0)),groups=[bodies,...r.catalysts.map(c=>[c])];
+  const group=groups.findIndex(ids=>ids.includes(id));
+  if(group<0||!bodies.length||groups[group].some(key=>upgrades[key]))continue;
+  const required=new Set([...committed,...Object.keys(r.ranks)]);
+  for(const [key,n] of Object.entries(r.extra)){
+   if(key==='wings'){if((p.permanentWingman||0)<n&&!upgrades.goeringBaton)required.add('FORMATION');}
+   else if((upgrades[key]||0)<n&&PICK_FAMILY[key])required.add(PICK_FAMILY[key]);
+  }
+  if(required.size>familyLimit)continue;
+  for(let i=0;i<groups.length;i++)if(i!==group)for(const key of groups[i])if(upgrades[key])links.add(key);
+ }
+ return [...links];
+}
 function ranksReachedFirst(p,a,b){
  const ledger=p.equipmentLedger,initial=familyCounts(ledger?.baseline?.upgrades),history=ledger?.history||[];
  if(initial[a]>=3&&initial[b]>=3)return a;

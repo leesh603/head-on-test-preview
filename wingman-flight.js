@@ -1,6 +1,6 @@
-import {aceWingFlightTuning,noteAceWingTurn} from './ace-wingman-pilots.js?v=b3bf991d11fc7798';
-import {aceEscortStation} from './enemy-ace-tactics.js?v=b3bf991d11fc7798';
-import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js?v=b3bf991d11fc7798';
+import {aceWingFlightTuning,noteAceWingTurn} from './ace-wingman-pilots.js';
+import {aceEscortStation} from './enemy-ace-tactics.js';
+import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js';
 // Formation stations are steering goals, never positions to interpolate toward.
 // Shared by solo, co-op, ace escorts and authored pilot formations.
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
@@ -20,7 +20,7 @@ export function advanceEscortFlight(world,wing,dt){
 }
 export function advanceWingFlight(wing,owner,station,dt,options={}){
  if(!Number.isFinite(dt)||dt<=0||wing.carrierHidden)return false;
- const tuning=wing.aceWingman?aceWingFlightTuning(wing):null;
+ const tuning=wing.aceWingman||wing.secretAce?aceWingFlightTuning(wing):null;
  const cruise=Math.max(80,(options.cruiseSpeed??(owner.speed??170)*clamp(owner.airframeSpeed??1,.4,1.5))*(tuning?.speed??1));
  const handling=clamp(wing.personality?.highSpeedHandling??1,.75,1.25);
  const turn=clamp((options.turnRate??2.2)*handling*(tuning?.turn??1),1.4,3.2);
@@ -39,7 +39,7 @@ export function advanceWingFlight(wing,owner,station,dt,options={}){
   const desired=clamp(cruise+along*.65,cruise*.6,ceiling)*(Math.abs(error)>1.2?.85:1);
   wing.flightSpeed+=clamp(desired-wing.flightSpeed,-acceleration*step,acceleration*step);
   wing.a+=bank;
-  if(wing.aceWingman)noteAceWingTurn(wing,bank/step);
+  if(wing.aceWingman||wing.secretAce)noteAceWingTurn(wing,bank/step);
   wing.x+=Math.cos(wing.a)*wing.flightSpeed*step;
   wing.y+=Math.sin(wing.a)*wing.flightSpeed*step;
   remaining-=step;

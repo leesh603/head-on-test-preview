@@ -1,55 +1,55 @@
-import {combatStatTime,combatDamageTime} from './front-performance.js?v=b3bf991d11fc7798';
-import {doverCombatTarget,doverRoundImpact,damageDoverBomber} from './dover-breakthrough.js?v=b3bf991d11fc7798';
-import {installEnemyAceCoopTactics} from './enemy-ace-tactics.js?v=b3bf991d11fc7798';
-import {admitEnemyArrivals} from './enemy-arrivals.js?v=b3bf991d11fc7798';
-import {isFinalArenaTargetProxy} from './final-arena-budget.js?v=b3bf991d11fc7798';
-import {installFinalArenaGuards} from './final-arena-host.js?v=b3bf991d11fc7798';
-import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js?v=b3bf991d11fc7798';
-import {allowFacilityAmbient} from './ground-facility-missions.js?v=b3bf991d11fc7798';
-import {tickBishopGloves,bishopGlovesInterval,bishopGlovesLifetime,resetBishopGloves} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
-import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js?v=b3bf991d11fc7798';
-import {equipmentCruiseMultiplier,equipmentRepairPickup} from './equipment-flight-balance.js?v=b3bf991d11fc7798';
-import {correctWimperisPilotRocket,correctWimperisBomb} from './flight-equipment.js?v=b3bf991d11fc7798';
-import {tickGuynemerBarrage} from './guynemer-barrage.js?v=b3bf991d11fc7798';
-import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=b3bf991d11fc7798';
-import {momentumTier,recordMomentumKill} from './ace-momentum.js?v=b3bf991d11fc7798';
-import {coastalBalloonAllowed,placeCoastalBalloon,placeCoastalGround} from './air-threat-placement.js?v=b3bf991d11fc7798';
-import {configureBalloon,configureAA} from './air-threat-profiles.js?v=b3bf991d11fc7798';
-import {fireAirThreatVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js?v=b3bf991d11fc7798';
-import {installConceptCombatHooks} from './aircraft-concept-combat.js?v=b3bf991d11fc7798';
-import {AUGMENTATION_OVERHAUL_BALANCE as AUGMENTATION_BALANCE} from './augmentation-overhaul150.js?v=b3bf991d11fc7798';
-import {beginRareHit,finishRareHit} from './rare-specializations.js?v=b3bf991d11fc7798';
-import {airbrakeMovement,resetFlightEquipment} from './flight-equipment.js?v=b3bf991d11fc7798';
-import {tickWWIEquipment,wwiWingTarget,wwiProjectileDamageMultiplier} from './wwi-equipment.js?v=b3bf991d11fc7798';
-import {directorCombatTarget} from './battle-director169.js?v=b3bf991d11fc7798';
-import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=b3bf991d11fc7798';
-import {missionTargetSteering} from './mission-target-break.js?v=b3bf991d11fc7798';
-import {combatImpactResult,projectileHitFlash,recordPlayerDamage,withDamageOrigin} from './combat-impact-result.js?v=b3bf991d11fc7798';
-import {emitSynthesisActiveRocket,primaryCount,tickSynthesisWing,synthesisWing,emitSynthesisGunRound,prepareSynthesisBomb} from './weapon-synthesis.js?v=b3bf991d11fc7798';
-import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js?v=b3bf991d11fc7798';
-import {nextTacticalPrompt,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=b3bf991d11fc7798';
-import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=b3bf991d11fc7798';
-import {prepareHeavyRound,ammunitionTargetKey,advanceSteelRound} from './heavy-ammunition.js?v=b3bf991d11fc7798';
-import {projectileContactTime} from './projectile-contacts.js?v=b3bf991d11fc7798';
-import {bomberRoundImpact,bomberContactPadding,tickFriendlyBomb} from './bomber-transfer.js?v=b3bf991d11fc7798';
-import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=b3bf991d11fc7798';
-import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=b3bf991d11fc7798';
-import {steerJutlandBoundary,containJutlandPlayer} from './jutland-route.js?v=b3bf991d11fc7798';
-import {advanceExplosionFx} from './explosion-profiles.js?v=b3bf991d11fc7798';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=b3bf991d11fc7798';
-import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=b3bf991d11fc7798';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=b3bf991d11fc7798';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=b3bf991d11fc7798';
-import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=b3bf991d11fc7798';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=b3bf991d11fc7798';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=b3bf991d11fc7798';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=b3bf991d11fc7798';
-import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAttackTarget} from './engagement-flow174.js?v=b3bf991d11fc7798';
-import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=b3bf991d11fc7798';
-import {initializeWingDurability,formationWingRoundTarget,tickWingWithdrawal} from './wingman-durability.js?v=b3bf991d11fc7798';
-import {secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
-import {installCloudCover} from './cloud-cover1.js?v=b3bf991d11fc7798';
-import {tickCityDefense} from './city-defense.js?v=b3bf991d11fc7798';
+import {combatStatTime,combatDamageTime} from './front-performance.js';
+import {doverCombatTarget,doverRoundImpact,damageDoverBomber} from './dover-breakthrough.js';
+import {installEnemyAceCoopTactics} from './enemy-ace-tactics.js';
+import {admitEnemyArrivals} from './enemy-arrivals.js';
+import {isFinalArenaTargetProxy} from './final-arena-budget.js';
+import {installFinalArenaGuards} from './final-arena-host.js';
+import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js';
+import {allowFacilityAmbient} from './ground-facility-missions.js';
+import {tickBishopGloves,bishopGlovesInterval,bishopGlovesLifetime,resetBishopGloves} from './equipment-flight-balance.js';
+import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js';
+import {equipmentCruiseMultiplier,equipmentRepairPickup} from './equipment-flight-balance.js';
+import {correctWimperisPilotRocket,correctWimperisBomb} from './flight-equipment.js';
+import {tickGuynemerBarrage} from './guynemer-barrage.js';
+import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {momentumTier,recordMomentumKill} from './ace-momentum.js';
+import {coastalBalloonAllowed,placeCoastalBalloon,placeCoastalGround} from './air-threat-placement.js';
+import {configureBalloon,configureAA} from './air-threat-profiles.js';
+import {fireAirThreatVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js';
+import {installConceptCombatHooks} from './aircraft-concept-combat.js';
+import {AUGMENTATION_OVERHAUL_BALANCE as AUGMENTATION_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025&fai=20261108';
+import {beginRareHit,finishRareHit} from './rare-specializations.js';
+import {airbrakeMovement,resetFlightEquipment} from './flight-equipment.js';
+import {tickWWIEquipment,wwiWingTarget,wwiProjectileDamageMultiplier} from './wwi-equipment.js';
+import {directorCombatTarget} from './battle-director169.js?v=formations20261022&airbattle=20261025&momentum=20261027&fai=20261108&ci=20261111';
+import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {missionTargetSteering} from './mission-target-break.js?v=20261109';
+import {combatImpactResult,projectileHitFlash,recordPlayerDamage,withDamageOrigin} from './combat-impact-result.js';
+import {emitSynthesisActiveRocket,primaryCount,tickSynthesisWing,synthesisWing,emitSynthesisGunRound,prepareSynthesisBomb} from './weapon-synthesis.js';
+import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
+import {nextTacticalPrompt,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
+import {prepareHeavyRound,ammunitionTargetKey,advanceSteelRound} from './heavy-ammunition.js';
+import {projectileContactTime} from './projectile-contacts.js';
+import {bomberRoundImpact,bomberContactPadding,tickFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
+import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=pandemonium394r2';
+import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
+import {steerJutlandBoundary,containJutlandPlayer} from './jutland-route.js?v=pandemonium394r2';
+import {advanceExplosionFx} from './explosion-profiles.js?v=fx5';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
+import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=descent20261022';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1&burn=1022&momentum=20261027';
+import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027&raid=20261103-art1&zb=20261103&naval=20261106&bd=20261110&ci=20261111&ho=20261111';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1&art=pilot-recovery2';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
+import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal1&airbattle=20261025&afc=1&td4=20261026';
+import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=flight20261023';
+import {initializeWingDurability,formationWingRoundTarget,tickWingWithdrawal} from './wingman-durability.js';
+import {secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget} from './secret-weapon-combat.js';
+import {installCloudCover} from './cloud-cover1.js?v=gal1&perf=1029&depth=20261111';
+import {tickCityDefense} from './city-defense.js?v=tame3';
 
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -183,7 +183,7 @@ export class CoopGame {
   const source={x:origin.x,y:origin.y,a:0,fieldRegion:region,life:7,maxLife:7};placeCoastalGround(this,source);configureAA(this,source,66);configureFlakSource(source,this.bullets.slice(start),66);this.flakBursts.push(source);this.burst(source.x+source.muzzleOffsetX,source.y+source.muzzleOffsetY,'#efb35d',12);this.event('flak','대공포 발사! 탄막을 피하세요');
  }
  reserveEnemySlots(){/* Do not delete existing enemies. */}
- enemyCombatTarget(e){const escorted=e.operationEscortTarget;if(escorted?.hp>0&&escorted.life>0&&this.patrols.includes(escorted))return escorted;const convoy=doverCombatTarget(this,e);if(convoy)return convoy;const decoy=this.revisionDecoyTarget(e);if(decoy)return decoy;const patrol=e.patrolTarget;if(patrol?.hp>0&&patrol.life>0&&this.patrols.includes(patrol)&&this.patrolCanEngage(e,patrol))return patrol;const current=this.player(e.targetPlayerId);let closest=null;for(const p of this.players)if(live(p)&&(p.kaiserFogTime||0)<=0&&(!closest||squared(p,e)<squared(closest,e)))closest=p;if(current&&live(current)&&(current.kaiserFogTime||0)<=0&&closest&&squared(current,e)<squared(closest,e)*1.6)closest=current;e.targetPlayerId=closest?.id;return (closest?.pilot==='ball'&&closest.ballCloak>0&&closest.ballGhost?closest.ballGhost:closest)||{x:e.x+Math.cos(e.a)*420,y:e.y+Math.sin(e.a)*420,a:e.a,fogHidden:true}}
+ enemyCombatTarget(e){if(e.battleCoverUntil>this.t&&e.battleCoverTargetId!=null){const chased=this.players.find(p=>p.id===e.battleCoverTargetId&&p.hp>0&&p.status!=='downed');if(chased)return chased;}const escorted=e.operationEscortTarget;if(escorted?.hp>0&&escorted.life>0&&this.patrols.includes(escorted))return escorted;const convoy=doverCombatTarget(this,e);if(convoy)return convoy;const decoy=this.revisionDecoyTarget(e);if(decoy)return decoy;const patrol=e.patrolTarget;if(patrol?.hp>0&&patrol.life>0&&this.patrols.includes(patrol)&&this.patrolCanEngage(e,patrol))return patrol;const current=this.player(e.targetPlayerId);let closest=null;for(const p of this.players)if(live(p)&&(p.kaiserFogTime||0)<=0&&(!closest||squared(p,e)<squared(closest,e)))closest=p;if(current&&live(current)&&(current.kaiserFogTime||0)<=0&&closest&&squared(current,e)<squared(closest,e)*1.6)closest=current;e.targetPlayerId=closest?.id;return (closest?.pilot==='ball'&&closest.ballCloak>0&&closest.ballGhost?closest.ballGhost:closest)||{x:e.x+Math.cos(e.a)*420,y:e.y+Math.sin(e.a)*420,a:e.a,fogHidden:true}}
  sunStrikeContains(e){return this.players.some(p=>live(p)&&p.sunStrikeContains(e))}
  resolveHostileRound(b,x0,y0){
   if(!Number.isFinite(x0)||!Number.isFinite(y0)||!Number.isFinite(b.x)||!Number.isFinite(b.y)){b.life=0;return;}
@@ -231,14 +231,14 @@ export class CoopGame {
  }
  spawnFleet(){const count=Math.min(3-this.enemies.filter(e=>e.navalVessel&&e.hp>0).length,COOP_BALANCE.enemyCap-this.enemies.length);for(let i=0;i<count;i++){const e=this.spawnEnemy('bomber',{scale:false});if(!e)break;Object.assign(e,{a:-Math.PI/2,speed:0,stationary:true,surface:true,navalVessel:true,hitRadius:65,hullLength:150,hullWidth:38,hp:230,maxHp:230,fire:2+i*.7,ace:false,escortPlane:undefined,life:55,coopHpApplied:1})}if(count>0)this.event('flak','적 함대 접근 · 함선의 대공 탄막을 피하세요')}
  spawnFieldUnit(kind){if(kind==='balloon'&&!coastalBalloonAllowed(this))return null;if([1,16,17].includes(this.region)||this.region===4||this.enemies.some(e=>e.hp>0&&e.fieldUnit===kind))return null;const e=this.spawnEnemy('scout',{scale:false});if(!e)return null;const rail=kind==='railgun',sprite=rail?'railgun':e.faction==='central'?'drachen':'caquot';Object.assign(e,{type:kind,fieldUnit:kind,fieldSprite:sprite,name:rail?'중열차포':sprite==='drachen'?'드라헨 관측기구':'캉코 관측기구',a:-Math.PI/2,speed:0,stationary:true,surface:rail,ace:false,escortPlane:undefined,hp:rail?600:780,maxHp:rail?600:780,hitRadius:rail?74:114,hullLength:rail?92:170,hullWidth:rail?52:72,fire:2.5,fieldRegion:this.region,coopHpApplied:1});if(!rail){configureBalloon(this,e);placeCoastalBalloon(this,e);}if(rail){e.rail={x:e.x,y:e.y,angle:Math.floor(this.rng()*4)*Math.PI/4,half:180,progress:0,direction:1,speed:42};e.a=e.rail.angle}this.event('flak',e.name+' 출현');return e}
- enemyVolley(e,followup=false){if(e.aceSortieManaged&&!this.aceCoopFireReady(e))return;if(this.sunStrikeContains(e)||this.living().every(p=>(p.kaiserFogTime||0)>0))return;if(fireAirThreatVolley(this,e,followup))return;const heavy=e.heavyBomber,bomber=e.type==='bomber',n=heavy?7:e.type==='boss'?7:e.type==='zeppelin'?15:bomber?3:1,contact=this.enemyCombatTarget(e),fighter=ordinaryFighter(e);if(!contact||!Number.isFinite(contact.x)||!Number.isFinite(contact.y)||!Number.isFinite(e.x)||!Number.isFinite(e.y)||!Number.isFinite(e.a))return;if(fighter&&!fighterShotReady(this,e,contact))return;const targetAngle=Number.isFinite(contact.a)?contact.a:null;const aimed=e.type==='zeppelin'?Math.atan2(contact.y-e.y,contact.x-e.x):bomber?Math.atan2(contact.y+(targetAngle===null?0:Math.sin(targetAngle)*22)-e.y,contact.x+(targetAngle===null?0:Math.cos(targetAngle)*22)-e.x):e.a,aim=followup&&!fighter?(e.gunAim??aimed):aimed,speed=fighter?fighterRoundSpeed(this):heavy?235:bomber?210:185,power=1+combatDamageTime(this)/240,offsets=e.type==='zeppelin'?[-95,0,95]:heavy?[-42,42]:[0];const smokeAim=nungesserAimOffset(contact,e,this.rng);if(!Number.isFinite(aim)||!Number.isFinite(smokeAim)||!Number.isFinite(speed))return;e.muzzleFlash=.14;e.gunAim=aim;for(let j=0;j<n;j++){const offset=offsets[j%offsets.length],a=aim+smokeAim+(j-(n-1)/2)*(heavy?.13:.15)+(fighter?0:followup?.035:0);this.bullets.push({x:e.x+(e.type==='zeppelin'?Math.cos(e.a)*offset:Math.cos(e.a)*22-Math.sin(e.a)*offset),y:e.y+(e.type==='zeppelin'?Math.sin(e.a)*offset:Math.sin(e.a)*22+Math.cos(e.a)*offset),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:fighter?2:4,enemy:true,sourceX:e.x,sourceY:e.y,heavy,sourcePilot:e.bossPilot||null,sourcePlane:e.escortPlane||e.bossPlane||e.bankAircraft,ammoVisual:e.bossPilot?'boss':e.elite?'elite':undefined,visualType:e.type==='boss'||e.bossPilot?'boss':heavy?'heavyBomber':e.type,damage:Math.round(Math.round((ambientBomberAttack(e)?.damage??(heavy?14:9))*power*(e.aceDamageMultiplier||1))*(fighter&&followup?1+clamp((combatDamageTime(this)-30)/120,0,1)*.16:1)),targetPlayerId:contact.id})}this.event(heavy?'heavyShot':'enemyShot','')}
+ enemyVolley(e,followup=false){if(e.aceSortieManaged&&!this.aceCoopFireReady(e))return;if(this.sunStrikeContains(e)||this.living().every(p=>(p.kaiserFogTime||0)>0))return;if(fireAirThreatVolley(this,e,followup))return;const heavy=e.heavyBomber,bomber=e.type==='bomber',n=heavy?7:e.type==='boss'?7:e.type==='zeppelin'?15:bomber?3:1,contact=this.enemyCombatTarget(e),fighter=ordinaryFighter(e);if(!contact||!Number.isFinite(contact.x)||!Number.isFinite(contact.y)||!Number.isFinite(e.x)||!Number.isFinite(e.y)||!Number.isFinite(e.a))return;if(fighter&&!fighterShotReady(this,e,contact))return;const targetAngle=Number.isFinite(contact.a)?contact.a:null;const aimed=e.type==='zeppelin'?Math.atan2(contact.y-e.y,contact.x-e.x):bomber?Math.atan2(contact.y+(targetAngle===null?0:Math.sin(targetAngle)*22)-e.y,contact.x+(targetAngle===null?0:Math.cos(targetAngle)*22)-e.x):e.a,aim=followup&&!fighter?(e.gunAim??aimed):aimed,speed=fighter?fighterRoundSpeed(this):heavy?235:bomber?210:185,power=1+combatDamageTime(this)/240,offsets=e.type==='zeppelin'?[-95,0,95]:heavy?[-42,42]:[0];const smokeAim=nungesserAimOffset(contact,e,this.rng);if(!Number.isFinite(aim)||!Number.isFinite(smokeAim)||!Number.isFinite(speed))return;e.muzzleFlash=.14;e.gunAim=aim;for(let j=0;j<n;j++){const offset=offsets[j%offsets.length],a=aim+smokeAim+(j-(n-1)/2)*(heavy?.13:.15)+(fighter?0:followup?.035:0);this.bullets.push({x:e.x+(e.type==='zeppelin'?Math.cos(e.a)*offset:Math.cos(e.a)*22-Math.sin(e.a)*offset),y:e.y+(e.type==='zeppelin'?Math.sin(e.a)*offset:Math.sin(e.a)*22+Math.cos(e.a)*offset),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:fighter?2:4,enemy:true,strafe:fighter&&e.burstInterval?true:undefined,sourceX:e.x,sourceY:e.y,heavy,sourcePilot:e.bossPilot||null,sourcePlane:e.escortPlane||e.bossPlane||e.bankAircraft,ammoVisual:e.bossPilot?'boss':e.elite?'elite':undefined,visualType:e.type==='boss'||e.bossPilot?'boss':heavy?'heavyBomber':e.type,damage:Math.round(Math.round((ambientBomberAttack(e)?.damage??(heavy?14:9))*power*(e.aceDamageMultiplier||1))*(fighter&&followup?1+clamp((combatDamageTime(this)-30)/120,0,1)*.16:1)),targetPlayerId:contact.id})}this.event(heavy?'heavyShot':'enemyShot','')}
  fireEnemy(e){if(e.aceSortieManaged&&!this.aceCoopFireReady(e)){e.fire=.15;return;}if(regionalAircraftEligible(e)&&!regionalShotReady(this,e,this.enemyCombatTarget(e))){e.fire=Math.max(e.fire||0,.12);return;}if(e.directorSquad&&!this.directorShotReady(e))return;if(e.cityUnit){e.fire=3;return}if(this.sunStrikeContains(e)||this.living().every(p=>(p.kaiserFogTime||0)>0)){e.fire=.35;return}const target=this.enemyCombatTarget(e);if(e.fieldUnit){const rail=e.fieldUnit==='railgun';e.fire=rail?5.8:6.6*(e.airThreatFireFactor||1);e.fieldSalvoAim=Math.atan2(target.y-e.y,target.x-e.x);e.fieldBurstIndex=0;e.fieldSalvoLeft=2;e.fieldSalvoDelay=rail?.26:.38;this.fieldVolley(e);return}if(e.navalVessel){e.fire=3.4;const aim=Math.atan2(target.y-e.y,target.x-e.x);e.gunAim=aim;e.muzzleFlash=.16;for(const along of [-95,0,95])for(let i=-2;i<=2;i++){const a=aim+i*.17;this.bullets.push({x:e.x+Math.cos(e.a)*along,y:e.y+Math.sin(e.a)*along,vx:Math.cos(a)*205,vy:Math.sin(a)*205,life:4.2,enemy:true,heavy:true,naval:true,hazardRegion:1,damage:Math.round(13*(1+combatDamageTime(this)/260))})}this.event('enemyShot','');return}if(fireFighterBurst(this,e))return;e.fire=ambientBomberAttack(e)?.interval??(e.heavyBomber?2.8:e.type==='boss'?.65/(e.aceAttackRate||1):e.type==='zeppelin'?3.2*(e.airThreatFireFactor||1):e.type==='bomber'?1.5:2.5);this.enemyVolley(e);if(e.heavyBomber){e.burstLeft=2;e.burstDelay=.2}else if(e.type==='zeppelin'){e.burstLeft=1;e.burstDelay=.3}}
  aceAttack(e){if(this.sunStrikeContains(e))return;if(e.bossPilot==='berthold'){e.ironWillUntil=this.t+5;return}if(e.bossPilot==='hawker'){e.rapidFireUntil=this.t+5;this.enemyVolley(e);return}const id=e.bossPilot,p=this.enemyCombatTarget(e),aim=Math.atan2(p.y-e.y,p.x-e.x);if(['baron','voss','baracca','immelmann'].includes(id)){e.a=aim;e.bossDash=1.1}if(id==='goering')for(let i=0;i<2;i++){const wing=this.spawnEnemy('hunter',{scale:false});if(!wing)break;Object.assign(wing,{hp:80*(1+combatStatTime(this)/180),maxHp:80*(1+combatStatTime(this)/180),escortPlane:'white-fokkerdv55',fire:.3});attachAircraftPersonality(PLANES,wing,wing.escortPlane,{retuneCruise:true});this.scaleEnemyHp(wing)}if(id==='bishop'){const f=Math.max(80,(p.baseSpeed||this.speed)*.8),ca=Math.cos(p.a),sa=Math.sin(p.a);for(let i=0;i<8;i++){const row=Math.floor(i/4),lane=i%4-1.5,delay=.9+(i%4)*.16+row*.18;this.bombZones.push({x:p.x+ca*(f+row*92)-sa*lane*72,y:p.y+sa*(f+row*92)+ca*lane*72,sx:e.x,sy:e.y,delay,maxDelay:delay,radius:50,damage:25*(e.aceDamageMultiplier||1),maxHpFraction:.04})}}if(id==='guynemer'){for(let i=0;i<9;i++){const a=aim+(i-4)*.05;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*230,vy:Math.sin(a)*230,life:3,enemy:true,hostileRocket:true,sourcePilot:e.bossPilot,aceSpecial:true,damage:20*(e.aceDamageMultiplier||1)})}}else if(id==='fonck')this.bullets.push({x:e.x,y:e.y,vx:Math.cos(aim)*360,vy:Math.sin(aim)*360,life:2,enemy:true,heavy:true,visualType:'boss',sourcePilot:e.bossPilot,aceSpecial:true,damage:30*(e.aceDamageMultiplier||1)});else{this.enemyVolley(e);if(['udet','boelcke','goering'].includes(id)){e.burstLeft=3;e.burstDelay=.18}}this.event('wave',e.name+' · '+PILOTS[id].skill)}
  updateEnemies(dt){
   for(const e of this.enemies){if(this.state==='lost')return;if(e.doverBomber||e.airArrival||e.finalArenaTarget||e.stageBossBody||e.bossMinion)continue;if(e.crashing){advanceAircraftCrash(this,e,dt);continue}if(e.hp<=0)continue;stepTimer(e,'hitFlash',dt);stepTimer(e,'muzzleFlash',dt);e.smokeTimer=(e.smokeTimer||0)-dt;if(e.hp<e.maxHp&&e.smokeTimer<=0){this.smoke(e.x,e.y,e.hp/e.maxHp<.4);e.smokeTimer=e.hp/e.maxHp<.4?.07:.16}if(e.type==='zeppelin'&&!e.summonDone&&e.hp<=e.maxHp*.52){e.summonDone=true;this.event('wave','비행선 호위 함대 전개');this._escortSummon=true;for(let i=0;i<4;i++){const z=this.spawnEnemy('zeppelin',{scale:false});if(z){const za=e.a+i*Math.PI/2+Math.PI/4;z.x=e.x+Math.cos(za)*170;z.y=e.y+Math.sin(za)*170;z.faction=e.faction;z.summonDone=true;z.fire=2.2+i*.6}}this._escortSummon=false}
-   const sun=this.sunStrikeContains(e),p=this.enemyCombatTarget(e),energySpeed=(e.energySpeed??1)*navarreEnemySpeedMultiplier(this,e),turn=sun||e.stationary||e.bossDash>0?0:e.heavyBomber?.3:e.type==='boss'?2:e.type==='hunter'?1.7:e.type==='zeppelin'?.42:.85;if(!advanceEscortFlight(this,e,dt)){const steering=e.type==='bomber'?(this.directorBomberSteering?.(e,p,dt,turn)||{turn:turn>0?(e.heavyBomber?.12:.16):0,delta:e.directorIntentUntil>this.t?angleDiff(e.combatPassHeading??e.a,e.a):Math.cos(this.t*.6+e.wobble)*(turn>0?(e.heavyBomber?.12:.16):0)*dt}):missionTargetSteering(this,e,p,turn,this.dogfightSteering(e,p,dt,turn));e.a+=clamp(steering.delta,-steering.turn*dt,steering.turn*dt);e.x+=Math.cos(e.a)*e.speed*energySpeed*(e.aceTactics?(e.aceDashFactor??1):(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1))*(sun?SUN_STRIKE.speedMultiplier:1)*dt;e.y+=Math.sin(e.a)*e.speed*energySpeed*(e.aceTactics?(e.aceDashFactor??1):(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1))*(sun?SUN_STRIKE.speedMultiplier:1)*dt;}
+   const sun=this.sunStrikeContains(e),p=this.enemyCombatTarget(e),energySpeed=(e.energySpeed??1)*navarreEnemySpeedMultiplier(this,e),turn=sun||e.stationary||e.bossDash>0?0:e.heavyBomber?.3:e.type==='boss'?2:e.type==='hunter'?1.7:e.type==='zeppelin'?.42:.85;if(!advanceEscortFlight(this,e,dt)){const steering=e.mapMissionId&&e.frontRoute?{turn:Math.min(turn,.35),delta:angleDiff(Math.atan2(e.frontRoute.y-e.y,e.frontRoute.x-e.x),e.a)}:e.type==='bomber'?(this.directorBomberSteering?.(e,p,dt,turn)||{turn:turn>0?(e.heavyBomber?.12:.16):0,delta:e.directorIntentUntil>this.t?angleDiff(e.combatPassHeading??e.a,e.a):Math.cos(this.t*.6+e.wobble)*(turn>0?(e.heavyBomber?.12:.16):0)*dt}):missionTargetSteering(this,e,p,turn,this.dogfightSteering(e,p,dt,turn));e.a+=clamp(steering.delta,-steering.turn*dt,steering.turn*dt);e.x+=Math.cos(e.a)*e.speed*energySpeed*(e.aceTactics?(e.aceDashFactor??1):(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1))*(sun?SUN_STRIKE.speedMultiplier:1)*dt;e.y+=Math.sin(e.a)*e.speed*energySpeed*(e.aceTactics?(e.aceDashFactor??1):(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1))*(sun?SUN_STRIKE.speedMultiplier:1)*dt;}
    if(e.rail){const r=e.rail;r.progress+=r.direction*r.speed*dt*(sun?SUN_STRIKE.speedMultiplier:1);if(r.progress>r.half){r.progress=2*r.half-r.progress;r.direction=-1}else if(r.progress< -r.half){r.progress=-2*r.half-r.progress;r.direction=1}e.x=r.x+Math.cos(r.angle)*r.progress;e.y=r.y+Math.sin(r.angle)*r.progress}
-   if(!sun){const start=this.bullets.length;e.fire-=dt;if(e.fire<0&&!(e.directorFireHoldUntil>this.t)){this.fireEnemy(e);if(e.rapidFireUntil>this.t)e.fire=Math.min(e.fire,.22)};const pressure=clamp((this.t-30)/120,0,1);for(const b of this.bullets.slice(start)){b.damage=Math.round(b.damage*(1+pressure*.16));if(!ordinaryFighter(e)){b.vx*=1+pressure*.05;b.vy*=1+pressure*.05}}if(e.burstLeft>0){e.burstDelay-=dt;if(e.burstDelay<=0){e.burstLeft--;e.burstDelay=.2;this.enemyVolley(e,true)}}if(e.fieldSalvoLeft>0){e.fieldSalvoDelay-=dt;if(e.fieldSalvoDelay<=0){e.fieldSalvoLeft--;e.fieldSalvoDelay=e.fieldUnit==='railgun'?.26:.38;this.fieldVolley(e)}}
+   if(!sun){const start=this.bullets.length;e.fire-=dt;if(e.fire<0&&!(e.directorFireHoldUntil>this.t)){this.fireEnemy(e);if(e.rapidFireUntil>this.t)e.fire=Math.min(e.fire,.22)};const pressure=clamp((this.t-30)/120,0,1);for(const b of this.bullets.slice(start)){b.damage=Math.round(b.damage*(1+pressure*.16));if(!ordinaryFighter(e)){b.vx*=1+pressure*.05;b.vy*=1+pressure*.05}}if(e.burstLeft>0){e.burstDelay-=dt;if(e.burstDelay<=0){e.burstLeft--;e.burstDelay=e.burstInterval||.2;this.enemyVolley(e,true)}}if(e.fieldSalvoLeft>0){e.fieldSalvoDelay-=dt;if(e.fieldSalvoDelay<=0){e.fieldSalvoLeft--;e.fieldSalvoDelay=e.fieldUnit==='railgun'?.26:.38;this.fieldVolley(e)}}
     if(e.heavyBomber&&!e.airArrival){e.bombTimer=(e.bombTimer??3)-dt;if(e.bombTimer<=0&&Math.hypot(e.x-p.x,e.y-p.y)<650){const attack=ambientBomberAttack(e);e.bombTimer=attack?.coopBombInterval??6;for(let i=0;i<3;i++){const delay=1.5+i*.22;this.bombZones.push({x:p.x+Math.cos(p.a)*(i-1)*95,y:p.y+Math.sin(p.a)*(i-1)*95,sx:e.x,sy:e.y,delay,maxDelay:delay,radius:52,damage:(attack?.bombDamage??22)+Math.floor(combatDamageTime(this)/90)})}this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요')}}
     if(e.bossPilot){stepTimer(e,'bossDash',dt);e.abilityTimer-=dt;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
    }
@@ -314,7 +314,7 @@ export class CoopGame {
    const x=b.x,y=b.y;if(b.enemy){b.sourceX??=x;b.sourceY??=y;}b.previousX=x;b.previousY=y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life<=0)continue;if(b.enemy){this.resolveHostileRound(b,x,y);continue}
    prepareHeavyRound(owner,b);b.hit??=new Set();for(const e of this.projectileCandidates(b)){const hitKey=ammunitionTargetKey(b,e);if(e.hp<=0||e.deathHandled||e.operationRailCar==='cargo'||b.hit.has(hitKey)||e.eliteKind&&owner&&!owner.canHitTarget(e,b)||!secretRoundAllowsTarget(b,e)||(b.fieryGrapnel||b.flechette||b.secretAirRound)&&owner&&!owner.canHitTarget(e,b)||b.patrol&&!b.fireZone&&!this.patrolCanEngage(e,b))continue;if(this.targetCollision(e,b.x,b.y,b)){damageStageBoss(this,e,b,b.damage*(b.steelCoreDamage??1)*(b.patrol?1:(owner?.globalDamageMult||1)*(owner?.legendaryDamageMultiplier()||1)*(owner?.roundDamageMultiplier(b,e)||1))*wwiProjectileDamageMultiplier(b,e,owner));if(!b.patrol)e.playerHit=true;const feedbackHit=combatImpactResult(b,e);if(feedbackHit?.damage>0&&!e.eliteKind)e.hitFlash=projectileHitFlash(e,b,feedbackHit);if(feedbackHit?.damage>0||hitKey===e)b.hit.add(hitKey);owner?.specialRoundImpact(b,e);if(b.steelCoreRemaining!=null)advanceSteelRound(this,b,projectileContactTime(b,e,enemyAircraftHitRadius));if(e.eliteKind){this.eliteEnemies?.host.onProjectileImpact?.(e,b);if(!b.pierce)b.life=0;if(!b.pierce||b.life<=0)break;continue;}if(feedbackHit?.damage>0)this.event('impact','');{const discard=this.combatPresentation||!(feedbackHit?.damage>0),start=this.particles.length;this.burst(b.x,b.y,b.specialColor||'#fff0bb',3,undefined,discard);if(discard)this.particles.length=start;}if(!b.pierce)b.life=0;if(!e.eliteKind)this.handleDeath(e,b);if(!b.pierce||b.life<=0)break}}if(b.actualExplosion){this.routeEliteExplosion?.(b);b.life=0}
   }
-  this.bullets=this.bullets.filter(b=>b.life>0);this.enemies=this.enemies.filter(e=>{if(e.crashed)return false;if(e.crashing)return Math.hypot(e.x-this.x,e.y-this.y)<1300;if(e.movingShip&&e.hp<=0)return !e.expired;if(e.hp<=0&&Math.hypot(e.x-this.x,e.y-this.y)<1300&&startEnemyCrash(e,()=>this.rng()))return true;return e.hp>0&&!e.expired&&(e.missionTarget||e.doverEscort||e.doverInterceptor||e.finalArenaTarget||e.stageBossBody||(e.photoReconId&&!e.photoReconRetreat)||(e.transportCarrier&&!e.transportRetreat)||e.type==='boss'||((e.bossMinion||e.eliteHunter)&&Math.hypot(e.x-this.x,e.y-this.y)<1600)||Math.hypot(e.x-this.x,e.y-this.y)<Math.max(1100,Math.hypot(this.viewWidth,this.viewHeight)/this.camera.zoom))});
+  this.bullets=this.bullets.filter(b=>b.life>0);this.enemies=this.enemies.filter(e=>{if(e.crashed)return false;if(e.crashing)return Math.hypot(e.x-this.x,e.y-this.y)<1300;if(e.movingShip&&e.hp<=0)return !e.expired;if(e.hp<=0&&Math.hypot(e.x-this.x,e.y-this.y)<1300&&startEnemyCrash(e,()=>this.rng()))return true;return e.hp>0&&!e.expired&&((e.arrasInterceptor&&this.mapMission?.region===9&&this.mapMission.status==='active'&&e.mapMissionId===this.mapMission.id&&e.operationEscortTarget)||e.missionTarget||e.doverEscort||e.doverInterceptor||e.finalArenaTarget||e.stageBossBody||(e.photoReconId&&!e.photoReconRetreat)||(e.transportCarrier&&!e.transportRetreat)||e.type==='boss'||((e.bossMinion||e.eliteHunter)&&Math.hypot(e.x-this.x,e.y-this.y)<1600)||Math.hypot(e.x-this.x,e.y-this.y)<Math.max(1100,Math.hypot(this.viewWidth,this.viewHeight)/this.camera.zoom))});
  }
  updateDrops(dt){let xp=0;for(const d of this.drops){if(d.dead)continue;if(d.supply){d.x+=(d.vx||0)*dt;d.y+=(d.vy||0)*dt;d.life-=dt;if(d.mccuddenSupply&&d.fallTime>0){d.fallTime=Math.max(0,d.fallTime-dt);if(!d.fallTime){d.x=d.landX;d.y=d.landY;d.vx=d.vy=0}}}const p=this.living().reduce((best,p)=>!best||squared(p,d)<squared(best,d)?p:best,null);if(!p)continue;const dist=Math.hypot(d.x-p.x,d.y-p.y);if(!d.mccuddenSupply&&(!d.supply||d.heal)&&dist<p.magnet*(d.heal?1.45:1)){const a=Math.atan2(p.y-d.y,p.x-d.x),travel=Math.min(dist,330*(1+Math.max(0,Math.min(360,p.magnet-120))/360)*dt);d.x+=Math.cos(a)*travel;d.y+=Math.sin(a)*travel}if(dist<(d.heal&&!d.mccuddenSupply?26:20)&&!(d.fallTime>0)){if(d.mccuddenSupply)p.mccuddenRepairFlash=.4;d.dead=true;xp+=d.value||0;if(d.heal){p.hp=Math.min(p.maxHp,p.hp+p.maxHp*(d.healFraction??DURABILITY_BALANCE.repairPickupFraction));equipmentRepairPickup(p);}if(d.specialAmmo)p.giveSpecialAmmo(d.specialAmmo,d.rounds)}}this.drops=this.drops.filter(d=>!d.dead&&(d.life===undefined||d.life>0)&&Math.hypot(d.x-this.x,d.y-this.y)<1800).slice(-250);if(xp)for(const p of this.players)p.xp+=xp*COOP_BALANCE.xp*(p.xpGainMult||1)*(PLANES[p.plane].xpGainMultiplier??1);}
  update(dt,inputs={}){
@@ -351,19 +351,19 @@ const regionalCoopTarget=CoopGame.prototype.enemyCombatTarget;
 CoopGame.prototype.enemyCombatTarget=function(e){return directorCombatTarget(this,e,regionalCombatTarget(this,e,regionalCoopTarget.call(this,e)));};
 installCloudCover(CoopGame);
 
-import {installNineCoop} from './pilot-nine-combat.js?v=b3bf991d11fc7798';
+import {installNineCoop} from './pilot-nine-combat.js?v=bomber20';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=b3bf991d11fc7798';
+import {installCoopFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
 
 installCoopFleet(CoopGame,Game);
 
 installAchievementTracking(CoopGame,{coop:true});
 
-import {installUdetCoop} from './udet-acrobatics.js?v=b3bf991d11fc7798';
+import {installUdetCoop} from './udet-acrobatics.js';
 installUdetCoop(CoopGame);
 
-import {installEscortCoopFx} from './escort-command-fx.js?v=b3bf991d11fc7798';
+import {installEscortCoopFx} from './escort-command-fx.js?v=escortfx1';
 installEscortCoopFx(CoopGame);
 
 
@@ -373,10 +373,10 @@ installConceptCombatHooks(CoopGame);
 
 
 // Co-op owns its update/fire methods; install the same host-authoritative adapter.
-import {installPhotoReconEncounters} from './photo-recon-encounters.js?v=b3bf991d11fc7798';
+import {installPhotoReconEncounters} from './photo-recon-encounters.js';
 installPhotoReconEncounters(CoopGame);
 
-import {installTransportConvoy} from './transport-convoy.js?v=b3bf991d11fc7798';
+import {installTransportConvoy} from './transport-convoy.js';
 installTransportConvoy(CoopGame);
 
 
@@ -388,9 +388,9 @@ installFinalArenaGuards(CoopGame);
 const updateEnemyArrivalFrame=CoopGame.prototype.update;
 CoopGame.prototype.update=function(...args){if(this.state!=='playing')return updateEnemyArrivalFrame.apply(this,args);this.arrivalFrameActive=true;try{const result=updateEnemyArrivalFrame.apply(this,args);if(this.state==='playing')admitEnemyArrivals(this);return result;}finally{delete this.arrivalFrameActive;}};
 
-import {installWhiteFlightCoopFx} from './goering-whiteflight-fx.js?v=b3bf991d11fc7798';
+import {installWhiteFlightCoopFx} from './goering-whiteflight-fx.js';
 installWhiteFlightCoopFx(CoopGame);
 
 installEnemyAceCoopTactics(CoopGame,{WEAPONS});
-import {installSquadronPatrols} from './squadron-patrols.js?v=b3bf991d11fc7798';
+import {installSquadronPatrols} from './squadron-patrols.js';
 installSquadronPatrols(CoopGame);

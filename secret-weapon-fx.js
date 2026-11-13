@@ -1,12 +1,22 @@
-import {planeSprite} from './aircraft.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {drawFlakAirburst} from './flak-airburst-art.js?v=b3bf991d11fc7798';
-import {drawIncendiaryFire} from './incendiary-fire.js?v=b3bf991d11fc7798';
-import {prepareSandVortexArt} from './sand-vortex-art.js?v=b3bf991d11fc7798';
-import {KETTERING_DIVE} from './secret-weapon-combat.js?v=b3bf991d11fc7798';
+import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111';
+import {outlineSmallAirframe,drawSmallAirframe} from './aircraft-rim.js';
+import {fx} from './fx-art.js?v=tame3';
+import {drawFlakAirburst} from './flak-airburst-art.js';
+import {drawIncendiaryFire} from './incendiary-fire.js';
+import {prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
+import {KETTERING_DIVE} from './secret-weapon-combat.js';
 
 const sprites=Object.create(null);
-let bombShadow,bugShadow,badinVortex;
+let bombShadow,bugShadow,badinVortex,ketteringFrames;
+function prepareKetteringFrames(image){
+ const w=image.naturalWidth,h=image.naturalHeight,l=Math.round(w*.45),r=w-l;
+ const top=Math.round(h*.116),bottom=Math.round(h*.68),wingHeight=bottom-top;
+ return {
+  full:outlineSmallAirframe(image),
+  wings:[outlineSmallAirframe(image,[[0,top,l,wingHeight]]),outlineSmallAirframe(image,[[r,top,l,wingHeight]])],
+  body:outlineSmallAirframe(image,[[0,0,w,top],[l,top,r-l,wingHeight],[0,bottom,w,h-bottom]])
+ };
+}
 export const secretWeaponArtReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all(
  ['sn1650','grunkreuz-stencil','kettering','ranken'].map(key=>new Promise(resolve=>{
   const image=new Image();
@@ -18,7 +28,10 @@ export const secretWeaponArtReady=typeof Image==='undefined'?Promise.resolve(fal
     const shadow=silhouette.getContext('2d');
     shadow.drawImage(image,0,0);shadow.globalCompositeOperation='source-in';
     shadow.fillStyle='#161912';shadow.fillRect(0,0,silhouette.width,silhouette.height);
-    if(key==='sn1650')bombShadow=silhouette;else bugShadow=silhouette;
+    if(key==='sn1650')bombShadow=silhouette;else{
+     bugShadow=silhouette;
+     ketteringFrames=prepareKetteringFrames(image);
+    }
    }
    resolve(true);
   };
@@ -75,30 +88,26 @@ function drawStrategicFall(c,b,{sx,sy,z,visible},faction){
 
 function drawKettering(c,b,{sx,sy,z,visible}){
  const image=sprites.kettering;
- if(!image||!visible(b.x,b.y,110))return;
+ if(!image||!ketteringFrames||!visible(b.x,b.y,110))return;
  const a=b.a,x=sx(b.x),y=sy(b.y),dive=clamp(1-b.life/KETTERING_DIVE);
  const width=52*z,height=width*image.naturalHeight/image.naturalWidth;
  paint(c,'bugShadow',x+z*(14-11*dive),y+z*(18-15*dive),width*(.83+.10*dive),height,a+Math.PI/2,.18+.37*dive);
  if(!dive){
   const d=14+Math.sin(b.life*30)*2;
   fx(c,'smokeWisp',x-Math.cos(a)*d*z,y-Math.sin(a)*d*z,24*z,8*z,a,.45);
-  paint(c,'kettering',x,y,width,height,a+Math.PI/2);
+  c.save();c.translate(x,y);c.rotate(a+Math.PI/2);
+  drawSmallAirframe(c,ketteringFrames.full,width);c.restore();
   return;
  }
- const iw=image.naturalWidth,ih=image.naturalHeight,l=Math.round(iw*.45),r=iw-l;
- const top=Math.round(ih*.116),bottom=Math.round(ih*.68),k=width/iw;
  c.save();c.translate(x,y);c.rotate(a+Math.PI/2);
- // The intact sprite supplies both wing panels and the separate falling body.
+ // Separate rims keep the exposed edges readable after the wing release.
  for(const side of [-1,1]){
   c.save();c.translate(side*width*dive*.7,height*dive*.7);c.rotate(side*dive*1.6);c.globalAlpha*=1-dive*.85;
-  const sx=side<0?0:r;
-  c.drawImage(image,sx,top,l,bottom-top,sx*k-width/2,top*k-height/2,l*k,(bottom-top)*k);
+  drawSmallAirframe(c,ketteringFrames.wings[side<0?0:1],width);
   c.restore();
  }
  c.scale(1-.18*dive,1-.58*dive);
- for(const [u,v,w,h] of [[0,0,iw,top],[l,top,r-l,bottom-top],[0,bottom,iw,ih-bottom]]){
-  c.drawImage(image,u,v,w,h,u*k-width/2,v*k-height/2,w*k,h*k);
- }
+ drawSmallAirframe(c,ketteringFrames.body,width);
  c.restore();
 }
 

@@ -1,5 +1,5 @@
-import {updateBasicBarrage,breakSilence} from './boss-basic-barrage.js?v=b3bf991d11fc7798';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=b3bf991d11fc7798';
+import {updateBasicBarrage,breakSilence} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021&close=20261107';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
 // Where a pilot will be after t seconds if it keeps doing what it is doing:
 // straight flight, or the turn it is in (omega rad/s, set by the boss runtime).
 export function predictPilot(p,t){
@@ -50,7 +50,7 @@ export class BaseBoss {
         }
       }
       if(event.type==='body-defeated'||event.type==='part-destroyed'){emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire',pendingOnly:event.type==='part-destroyed'});this.basicClock=Math.max(this.basicClock||0,.65);}
-      emit(event);
+      return emit(event);
     };
     if(new Set(parts.map(p=>p.id)).size!==parts.length)throw new Error('Duplicate part ID');
     this.parts=new Map(parts.map(p=>[p.id,p instanceof BossPart?p:new BossPart(p)]));
@@ -140,10 +140,10 @@ export class BossEncounter {
     if(!id||!bodies?.length||new Set(bodies.map(b=>b.id)).size!==bodies.length)throw new Error('Invalid encounter');
     Object.assign(this,{id,bossId});this.bodies=new Map(bodies.map(b=>[b.id,b]));
     this.clock=0;this.breath=null;this.breathCfg=BREATHERS[bossId]||null;this.breathNext=this.breathCfg?.every||0;
-    this.maxHpBudget=bodies.reduce((n,b)=>n+b.maxHp,0);
+    this.maxHpBudget=bodies.reduce((n,b)=>n+(b.formationBudget??b.maxHp),0);
     for(const b of bodies)b.encounter=this;
   }
-  get completed(){return this.bodies.size>0&&[...this.bodies.values()].every(b=>b.dead);}
+  get completed(){return this.bodies.size>0&&[...this.bodies.values()].every(b=>b.dead&&(!b.formationBoss129||!b.liveWingmen().length));}
   noteHazard(e){if(e.kind==='searchlight'||e.kind==='net')return;const life=e.kind==='projectile'?Math.min(e.duration??2.2,2.2):Math.min(e.duration??.5,1.2);this.lastResolve=Math.max(this.lastResolve||0,this.clock+(e.delay||0)+(e.warning||0)+life);}
   // Objective bombing (a raid on a city district) is not gunnery and runs on its own clock.
   breathBlocks(e){const b=this.breath;if(!b||this.clock<b.blockFrom||this.clock>=b.until||e.objective||e.silenceBreak)return false;return e.type==='hazard'?e.kind!=='searchlight'&&e.kind!=='net':BREATH_BLOCKED.has(e.type);}
@@ -158,7 +158,7 @@ export class BossEncounter {
   pendingAttack(){this.pendingShown=(this.pendingShown||[]).filter(q=>q.h.active&&q.h.generation===q.generation&&!q.h.activated);return this.pendingShown.some(q=>q.start>=(this.gate?.openAt||0));}
   gateBand(){return this.maxHpBudget*.04;}
   // Lines drawn on the boss bar: a rail gun's own schedule, otherwise the shared gates.
-  gateLines(){const live=[...this.bodies.values()].filter(b=>!b.dead);if(live.length===1&&live[0].ruralRailBoss)return [];if(live.length===1&&typeof live[0].showSchedule==='function')return [...live[0].showSchedule().hull.map(([,f])=>f),.06];return this.gate?.released?[]:GUARD_LINES.slice(this.gate?.line||0);}
+  gateLines(){const live=[...this.bodies.values()].filter(b=>!b.dead);if([...this.bodies.values()].some(b=>b.formationBoss129)||live.length===1&&(live[0].ruralRailBoss||live[0].kind==='hma23'))return [];if(live.length===1&&typeof live[0].showSchedule==='function')return [...live[0].showSchedule().hull.map(([,f])=>f),.06];return this.gate?.released?[]:GUARD_LINES.slice(this.gate?.line||0);}
   gateHeld(){return !!this.gateHold&&this.clock<this.gateHold.until;}
   guardFloor(b){
     if(b.dead)return 0;
@@ -226,7 +226,12 @@ export class BossEncounter {
     let hp=0,aliveParts=0,totalParts=0,shielded=false,formationAlive=0,formationTotal=0;const phases=[];
     for(const b of this.bodies.values()){
       hp+=Math.max(0,b.hp);shielded||=!b.dead&&!b.coreVulnerable;phases.push(b.phase);
-      if(b.formationTotal){formationTotal+=b.formationTotal;formationAlive+=b.dead?0:1+(b.formationStatus129?.().length||0);}
+      if(b.formationBoss129){
+        const wings=b.liveWingmen(),pending=b.dead?0:b.wingmen.length-b.wingsLaunched;
+        formationTotal+=b.formationTotal;formationAlive+=Number(!b.dead)+wings.length;
+        hp+=pending*b.formationWingHp;
+        for(const wing of wings)hp+=Math.max(0,wing.hp??b.formationWingHp);
+      }else if(b.formationTotal){formationTotal+=b.formationTotal;formationAlive+=b.dead?0:1+(b.formationStatus129?.().length||0);}
       for(const p of b.parts.values()){totalParts++;if(!p.destroyed)aliveParts++;}
     }
     return{id:this.id,bossId:this.bossId,hp,maxHp:this.maxHpBudget,shielded,aliveParts,totalParts,formationAlive,formationTotal,phases,completed:this.completed};

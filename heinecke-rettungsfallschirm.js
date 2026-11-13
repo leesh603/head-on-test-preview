@@ -1,11 +1,11 @@
-import {drawHeineckeCloth} from './equipment-finishing-fx.js?v=b3bf991d11fc7798';
-import {resetFlightEquipment} from './flight-equipment.js?v=b3bf991d11fc7798';
+import {drawHeineckeCloth} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
+import {resetFlightEquipment} from './flight-equipment.js';
 // Heinecke Rettungsfallschirm: one independent survival insurance per sortie.
 // aircraft.js is loaded lazily: it touches DOM APIs at import time, so a static
 // import would crash the module-less test environment.
 let aircraftModule;
 const aircraftSprites=()=>{
- aircraftModule??=import('./aircraft.js?v=b3bf991d11fc7798').then(m=>aircraftModule=m);
+ aircraftModule??=import('./aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111').then(m=>aircraftModule=m);
  return aircraftModule?.then?null:aircraftModule;
 };
 export const HEINECKE=Object.freeze({escape:3,returnHp:.4,invulnerability:2,cooldown:180,maxUses:2,reentryDistance:270});

@@ -1,6 +1,6 @@
-import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js?v=b3bf991d11fc7798';
-import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js?v=b3bf991d11fc7798';
-import {equipmentTargets,wimperisTarget} from './flight-equipment.js?v=b3bf991d11fc7798';
+import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
+import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js';
+import {equipmentTargets,wimperisTarget} from './flight-equipment.js';
 
 const ownerId=p=>p.id||'p1';
 const worldOf=p=>p.combatWorld?.()||p.world||p;

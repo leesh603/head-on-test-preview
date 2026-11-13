@@ -53,6 +53,7 @@ body:not(.playing) #flightStack151{display:none}
 #modal.overlay{z-index:50}
 #modalActions .reinforcement-card151>*{grid-column:1!important;min-width:0;max-width:100%}
 #modalActions .reinforcement-card151>b:before{display:none!important}
+#modalActions .secret-choice-hint{min-width:0;max-width:100%;color:#f0d79e;font-size:10px;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 #modalActions .rarity-legendary:after{display:block}
 @media(min-width:721px){.coop-playing #build151{grid-template-columns:repeat(2,minmax(0,1fr))}}
 

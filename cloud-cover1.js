@@ -1,5 +1,5 @@
-import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=b3bf991d11fc7798';
-import {fxsHas,fxsImage} from './fx-sample-preview.js?v=b3bf991d11fc7798';
+import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=tame3&perf=1029&decode=1';
+import {fxsHas,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
 export const CLOUD_TYPES=Object.freeze({
@@ -44,6 +44,9 @@ export function installCloudCover(Game){
  P.cloudDepthAt=function(x,y){
   let d=0;
   for(const c of this.clouds||[]){const t=CLOUD_TYPES[c.type];if(!t)continue;const dx=(x-c.x)/t.rx,dy=(y-c.y)/t.ry;if(dx*dx+dy*dy<=1&&t.dense>d)d=t.dense}
+  if(d<1)for(const p of this.players||[this]){
+   if(p.synthesisZones?.some(z=>z.secretSmoke&&z.life>0&&(x-z.x)**2+(y-z.y)**2<z.gasRadius**2))return 1;
+  }
   return d;
  };
  P.inCloudType=function(x,y,type){
@@ -131,6 +134,33 @@ function cloudBitmap(img,mirror,rot,w,h){
  const cs=Math.abs(Math.cos(rot)),sn=Math.abs(Math.sin(rot)),bw=Math.ceil(w*cs+h*sn)+2,bh=Math.ceil(w*sn+h*cs)+2;if(bw*bh>4e6)return null;
  const cv=document.createElement('canvas');cv.width=bw;cv.height=bh;const g=cv.getContext?.('2d');if(!g)return null;g.translate(bw/2,bh/2);if(mirror)g.scale(-1,1);g.rotate(rot);g.drawImage(img,-w/2,-h/2,w,h);
  e={cv,w:bw,h:bh};if(cloudCache.size>24)cloudCache.delete(cloudCache.keys().next().value);cloudCache.set(key,e);return e;
+}
+// 20261111 cloud shadows. Every cloud throws a soft shadow onto the ground, far enough off
+// to say "this is high above the aircraft". Reuses the cloud's own pre-rendered bitmap as a
+// quarter-size dark silhouette (cached with it), so a shadow is one cheap blit under the
+// aircraft layer. Picture only: concealment and tracking read nothing from it.
+export const CLOUD_SHADOW=Object.freeze({offsetX:105,offsetY:165,alpha:.36,nightAlpha:.14,grow:1.1});
+function cloudShadowBitmap(pre){
+ if(pre.shadow!==undefined)return pre.shadow;
+ const w=Math.max(8,Math.ceil(pre.w/4)),h=Math.max(8,Math.ceil(pre.h/4)),cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext?.('2d');
+ if(!g)return pre.shadow=null;
+ g.imageSmoothingEnabled=true;g.drawImage(pre.cv,0,0,w,h);g.globalCompositeOperation='source-in';g.fillStyle='#101a14';g.fillRect(0,0,w,h);
+ return pre.shadow=cv;
+}
+export function drawCloudShadows(c,game,{point,scale=1,region}){
+ if(typeof document==='undefined')return;
+ const cw=c.canvas.width,ch=c.canvas.height,S=CLOUD_SHADOW,night=region===15||region===17,a0=c.globalAlpha,smooth=c.imageSmoothingEnabled;
+ c.imageSmoothingEnabled=true;
+ for(const cl of game.clouds||[]){
+  const t=CLOUD_TYPES[cl.type];if(!t)continue;
+  const [px,py]=point(cl.x,cl.y),sx=px+S.offsetX*scale,sy=py+S.offsetY*scale,w=t.rx*2*scale,h=t.ry*2*scale;
+  if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
+  const img=cloudImg(night&&cl.type!=='wispy'?'dark':cl.type,cl.seed);if(!img||!img.naturalWidth)continue;
+  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h),shadow=pre&&cloudShadowBitmap(pre);if(!shadow)continue;
+  c.globalAlpha=a0*(night?S.nightAlpha:S.alpha)*Math.min(1,t.alpha+.1)*(t.dense<1?.55:1);
+  c.drawImage(shadow,sx-pre.w*S.grow/2,sy-pre.h*S.grow/2,pre.w*S.grow,pre.h*S.grow);
+ }
+ c.globalAlpha=a0;c.imageSmoothingEnabled=smooth;
 }
 export function drawCloudCover(c,game,{point,scale=1,region}){
  const cw=c.canvas.width,ch=c.canvas.height;

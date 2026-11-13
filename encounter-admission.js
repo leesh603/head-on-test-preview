@@ -3,6 +3,10 @@
 const live=e=>e?.hp>0&&!e.expired&&!e.crashing&&!e.rivalEscaped;
 export function majorEncounterBlocked(g,kind){
  if(g.online&&!g.host||g.operationBattle)return true;
+ // Arras already has a mandatory ace formation. An optional ace admitted
+ // before wave two can hold that formation off until the escort is over.
+ // Keep its reservation; do not stack it over the native mission encounter.
+ if(kind==='ace'&&g.stageBoss?.stages?.stageIndex===9&&g.mapMission?.region===9&&g.mapMission.status==='active')return true;
  const now=g.t||0,d=g.battleDirector;
  if(g.state!=='playing'||g.stageBoss?.stages?.phase==='boss'||g.stageCombatWindow?.ready||
     (g.battleRecoveryUntil||0)>now||(d?.fireResumeAt||0)>now||d?.pattern==='RECOVERY'&&d.endsAt>now)return true;
@@ -17,3 +21,4 @@ export function majorEncounterBlocked(g,kind){
  if(kind!=='ace'&&(g.enemies||[]).some(e=>live(e)&&(e.bossPilot||e.type==='boss')))return true;
  return false;
 }
+

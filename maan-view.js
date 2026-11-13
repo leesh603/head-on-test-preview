@@ -1,13 +1,13 @@
-import {maanHullFrame,drawMaanHullFrame,maanBarrelMotion,drawMaanBarrels} from './maan-hull-art.js?v=b3bf991d11fc7798';
-import {drawPartFuelFire} from './explosion-profiles.js?v=b3bf991d11fc7798';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=b3bf991d11fc7798';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=b3bf991d11fc7798';
-import {sandOpacity} from './maan-weather.js?v=b3bf991d11fc7798';
-import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {drawTracerBolt} from './projectiles.js?v=b3bf991d11fc7798';
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=b3bf991d11fc7798';
-import {drawShellFlight} from './boss-rounds.js?v=b3bf991d11fc7798';
+import {maanHullFrame,drawMaanHullFrame,maanBarrelMotion,drawMaanBarrels} from './maan-hull-art.js?v=20261022';
+import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
+import {sandOpacity} from './maan-weather.js?v=regionalair2';
+import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
+import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018&strafe=20261111';
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null,settledWorkshop=null;
 const _filterBakes=new WeakMap();
@@ -192,7 +192,7 @@ export function drawMaanHazard(c,h){
 export function handleMaanCue(g,event,body){
  if(event.type==='maan-entry'){
   const wusten=body?.kind==='wustenpanzer';
-  const messages=wusten?{alarm:'마안 철도공창 · 내부 경보',ignition:'거대 기관 시동 · 증기압 상승',doors:'공창 붕괴 · 육상순양함 돌파',reveal:'Wüstenpanzer · 사막 육상순양함 출격',engaged:'냉각장치와 궤도 공략'}:{alarm:'사막 능선 너머 포격',ignition:'롤스로이스 장갑차 · 선행 정찰',doors:'모래먼지 속 거대한 육상함 접근',reveal:'Sinai Landship · 호위부대 전개',engaged:'측면 일제사격 · 호위 장갑차 주의'};
+  const messages=wusten?{alarm:'마안 철도공창 · 내부 경보',ignition:'거대 기관 시동 · 증기압 상승',doors:'공창 붕괴 · 육상순양함 돌파',reveal:'사막 육상순양함 출격',engaged:'냉각장치와 궤도 공략'}:{alarm:'사막 능선 너머 포격',ignition:'롤스로이스 장갑차 · 선행 정찰',doors:'모래먼지 속 거대한 육상함 접근',reveal:'시나이 육상함 · 호위부대 전개',engaged:'측면 일제사격 · 호위 장갑차 주의'};
   g.event('wave',messages[event.stage]||'');g.event('bossSound',event.stage==='alarm'?'approachWarning':event.stage==='doors'&&wusten?'metalBreak':event.stage==='engaged'?'bossSting':'heavyShot');
   if(!wusten&&event.stage==='alarm')for(const dx of [-190,20,185]){const y=body.entryTarget.y-230-Math.abs(dx)*.2;g.combatBlast(body.entryTarget.x+dx,y,35,'enemy','shell');g.smoke?.(body.entryTarget.x+dx,y,false);}
   if(event.stage==='doors'&&wusten)g.shake=Math.max(g.shake,5);

@@ -1,13 +1,13 @@
 // HUD silhouette strips for objective stages that use the boss slot: a low
 // night silhouette that is itself the gauge (lights go out, shapes break and
 // burn as the objective is damaged).
-//  - City air-raid defense: three districts with their landmarks.
+//  - City air-raid defense: the four protected facilities.
 //  - Laon, Entente: Paris under the Paris Gun's shells.
 //  - Laon, Central: the Paris Gun on its rail mount, breaking part by part.
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=tame3';
 
-const LANDMARKS={entente:{west:'spire',docks:'dome',east:'clock'},central:{west:'twin',docks:'dome',east:'tower'},
- paris:[[.16,'notredame'],[.47,'eiffel'],[.8,'sacre']]};
+const CITY_LANDMARKS={entente:{west:'spire',docks:'dome',east:'clock',south:'twin'},central:{west:'twin',docks:'dome',east:'tower',south:'clock'}};
+const PARIS_LANDMARKS=[[.16,'notredame'],[.47,'eiffel'],[.8,'sacre']];
 const WIDTH={dome:.2,twin:.14,spire:.08,clock:.08,tower:.08,eiffel:.07,notredame:.1,sacre:.14};
 const HEIGHT={dome:.62,eiffel:1.3,sacre:.7,notredame:.72};
 const ROOFS={city:['flat','gable','gable','chimney','flat','mansard'],paris:['mansard','mansard','chimney','mansard','flat','gable']};
@@ -95,23 +95,25 @@ function hitFlash(c,key,value,time,x0,pw,h){
  const last=hits.get(key)||{v:value,at:-9};if(value<last.v)last.at=time;last.v=value;hits.set(key,last);
  const f=Math.max(0,1-(time-last.at)/.5);if(f>0){c.fillStyle=`rgba(255,140,70,${.28*f})`;c.fillRect(x0,0,pw,h);}
 }
-function label(c,h,x,text,color,align='left',alpha=1){
+function label(c,h,x,text,color,align='left',alpha=1,y=3,maxWidth){
  const fs=Math.max(9,Math.min(11,Math.round(h*.3)));c.font=`600 ${fs}px system-ui,sans-serif`;c.textBaseline='top';c.textAlign=align;c.shadowColor='#000';c.shadowBlur=2;c.globalAlpha=alpha;
- c.fillStyle=color;c.fillText(text,x,3);const width=c.measureText(text+' ').width;c.globalAlpha=1;c.shadowBlur=0;c.textAlign='left';return width;
+ c.fillStyle=color;if(maxWidth===undefined)c.fillText(text,x,y);else c.fillText(text,x,y,maxWidth);
+ const width=c.measureText(text+' ').width;c.globalAlpha=1;c.shadowBlur=0;c.textAlign='left';return width;
 }
 
-// City air-raid defense (city-air-raid.js): three districts.
-export function drawCityRaidStrip(c,districts,w,h,time,locale='ko',side='entente',inboundBy={}){
+export function drawCityRaidStrip(c,districts,w,h,time,locale='ko',inboundBy={},side='entente'){
  c.clearRect(0,0,w,h);if(!districts?.length)return false;
  const en=locale==='en',pw=w/districts.length;
  sky(c,w,h,1-districts.reduce((n,d)=>n+Math.max(0,d.hp),0)/districts.reduce((n,d)=>n+d.maxHp,0));
  for(const [i,d] of districts.entries()){
-  const frac=Math.max(0,d.hp)/d.maxHp,ruined=d.hp<=0,x0=i*pw,mark=LANDMARKS[side]?.[d.id];
-  paintSkyline(c,skyline(side+d.id+i,mark?[[.38+((i*37)%24)/100,mark]]:[]),x0,pw,h,{damage:1-frac,ruined,time,index:i});
+  const frac=Math.max(0,d.hp)/d.maxHp,ruined=d.hp<=0,x0=i*pw;
+  const landmark=CITY_LANDMARKS[side]?.[d.id];
+  const buildings=skyline(side+d.id+i,landmark?[[.38+((i*37)%24)/100,landmark]]:[]);
+  paintSkyline(c,buildings,x0,pw,h,{damage:1-frac,ruined,time,index:i});
   hitFlash(c,d,d.hp,time,x0,pw,h);
-  const name=en?d.en.split(' ')[0]:d.name.split(' ')[0],nw=label(c,h,x0+5,name,'#bdb3a0');
-  label(c,h,x0+5+nw,ruined?(en?'ruined':'붕괴'):Math.ceil(frac*100)+'%',ruined?'#e0806a':frac*3<=1?'#f0a35a':'#e6dcc6');
-  const inbound=inboundBy?.[d.id]||0;if(inbound&&!ruined)label(c,h,x0+pw-5,(en?'Bombers ':'폭격기 ')+inbound,'#ff8a66','right',.7+.3*Math.sin(time*6));
+  label(c,h,x0+pw/2,en?d.en:d.name,'#e6dcc6','center',1,2,pw-6);
+  label(c,h,x0+4,ruined?(en?'0%':'붕괴'):Math.ceil(frac*100)+'%',ruined?'#e0806a':frac<=.5?'#f0a35a':'#e6dcc6','left',1,h-13);
+  const inbound=inboundBy?.[d.id]||0;if(inbound&&!ruined)label(c,h,x0+pw-4,'×'+inbound,'#ff8a66','right',.7+.3*Math.sin(time*6),h-13);
   if(i){c.fillStyle='rgba(120,100,70,.35)';c.fillRect(Math.round(x0),3,1,h-6);}
  }
  return true;
@@ -168,7 +170,7 @@ const PARIS_RUIN_SHOTS=6,PARIS_KEY={};
 export function drawParisStrip(c,{shotCount=0,gunHp=1,phase='',time=0,locale='ko'},w,h){
  c.clearRect(0,0,w,h);const en=locale==='en',damage=Math.min(1,shotCount/PARIS_RUIN_SHOTS),left=0;
  sky(c,w,h,damage*.8);
- paintSkyline(c,skyline('paris',LANDMARKS.paris,'paris',.8),left,w-left,h,{damage,ruined:false,time,maxFires:Math.min(6,shotCount*2)});
+ paintSkyline(c,skyline('paris',PARIS_LANDMARKS,'paris',.8),left,w-left,h,{damage,ruined:false,time,maxFires:Math.min(6,shotCount*2)});
  hitFlash(c,PARIS_KEY,-shotCount,time,left,w-left,h);
  const nw=label(c,h,left+5,en?'Paris':'파리','#bdb3a0');label(c,h,left+5+nw,shotCount?(en?`hit ${shotCount}`:`피격 ${shotCount}`):(en?'untouched':'무사'),shotCount?'#f0a35a':'#e6dcc6');
  if(phase==='ready')label(c,h,w-5,en?'Shell inbound':'포격 임박','#ff7a5c','right',.65+.35*Math.sin(time*10));

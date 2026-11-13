@@ -1,47 +1,91 @@
-import {REGIONAL_ART} from './regional-boss-art-data352.js?v=b3bf991d11fc7798';
-import {drawRailTrack} from './rail-render129.js?v=b3bf991d11fc7798';
+import {drawRailTrack} from './rail-render129.js?v=gal1';
+import {SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
 
 const load = file => {
  if (typeof Image === 'undefined') return null;
  const image = new Image();
+ image.decoding = 'async';
  image.src = new URL(file, import.meta.url).href;
  return image;
 };
-let atlas, track;
-const frames = REGIONAL_ART['boss-fliegerzug-parts352'];
+let atlas, track, trainReady;
+const CAR_FRAME_WIDTH = 330, CAR_FRAME_HEIGHT = 114;
+const exitSignalUrl = new URL('./mission-exit-signal.webp', import.meta.url).href;
+let exitSignal;
+const missionView = game => game?.online&&!game.host?game.mapMissionSnapshot:game?.mapMission;
+
+export function prepareMapExitSignal() {
+ if (!exitSignal && typeof Image !== 'undefined') {
+  exitSignal = new Image();
+  exitSignal.decoding = 'async';
+  exitSignal.src = exitSignalUrl;
+ }
+}
+
+export function drawMapExitSignals(ctx, game, view) {
+ const mission = missionView(game);
+ if (!mission || mission.region !== game.stageBoss?.stages.stageIndex) return;
+ if (mission.exitSignal) drawSignal(mission.exitSignal);
+ if (mission.status === 'active') for (const point of mission.guides || []) {
+  if (point.kind === 'exit') drawSignal(point);
+ }
+ function drawSignal(point) {
+  const width = 172;
+  if (Math.abs(point.x-view.x)>view.width/2+width/2 || Math.abs(point.y-view.y)>view.height/2+width/2) return;
+  prepareMapExitSignal();
+  if (!exitSignal?.naturalWidth) return;
+  const height = width*exitSignal.naturalHeight/exitSignal.naturalWidth;
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(exitSignal,point.x-width/2,point.y-height/2,width,height);
+  ctx.restore();
+ }
+}
+
+export function prepareSpecialOperationTrain() {
+ if (trainReady || typeof Image === 'undefined') return trainReady;
+ atlas = load('./operation-cargo-train.webp');
+ track = load('./boss-bruno-train115.webp');
+ return trainReady = Promise.all([atlas,track].map(image=>image.decode?.().catch(()=>{})));
+}
 
 export function drawSpecialOperationTrain(ctx, game, width, height) {
  const train = game?.operationBattle?.train || game?.operationSnapshot?.battle?.train;
  if (!train) return;
- atlas ??= load('./boss-fliegerzug-parts352.webp');
- track ??= load('./boss-bruno-train115.webp');
- if (!atlas?.naturalWidth) return;
+ prepareSpecialOperationTrain();
  const zoom = game.mode === 'coop2' ? game.camera?.zoom || 1 : 1;
  const start = train.originX, sign = train.sign;
  ctx.save();
  ctx.translate(width / 2, height / 2);
  ctx.scale(zoom, zoom);
  ctx.translate(-game.x, -game.y);
- drawRailTrack(ctx, {from:{x:start,y:train.y},axis:{x:sign,y:0},railTarget:{x:start+sign*8800,y:train.y}}, track);
+ ctx.save();
+ ctx.translate(0,train.y);
+ ctx.scale(1,.5);
+ drawRailTrack(ctx, {from:{x:start,y:0},axis:{x:sign,y:0},railTarget:{x:start+sign*8800,y:0}}, track);
+ ctx.restore();
  const cars = train.cars || [train.engine, train.flak, train.cargo].map(car => car && ({hp:car.hp, maxHp:car.maxHp}));
- for (const [slot, part] of ['loco', 'flak', 'hangar'].entries()) {
-  const car = cars[slot], x = train.x - sign * slot * 110;
-  if (!car || Math.abs(x-game.x)>width / zoom / 2 + 110) continue;
+ if (atlas?.naturalWidth) for (const [slot,car] of cars.entries()) {
+  const length = SPECIAL_OPERATION_RAIL_CAR_LENGTH;
+  const x = train.x - sign * slot * length;
+  if (!car || Math.abs(x-game.x)>width / zoom / 2 + length) continue;
   const damaged = car.hp <= 0;
-  const frame = frames[part + (damaged ? '-wreck' : '-normal')];
   ctx.save();
   ctx.translate(x, train.y);
-  ctx.rotate(Math.PI / 2 * sign);
-  ctx.filter=slot===2&&!damaged?'sepia(.25) saturate(.68)':'none';
-  ctx.drawImage(atlas,...frame,-27,-53,54,106);
+  if(sign<0)ctx.rotate(Math.PI);
+  ctx.imageSmoothingEnabled=true;
+  const height = length * CAR_FRAME_HEIGHT / CAR_FRAME_WIDTH;
+  ctx.drawImage(atlas,slot*CAR_FRAME_WIDTH,damaged?CAR_FRAME_HEIGHT:0,CAR_FRAME_WIDTH,CAR_FRAME_HEIGHT,-length/2,-height/2,length,height);
   ctx.restore();
  }
  ctx.restore();
 }
 
-export function drawOperationTargets(ctx, game, width, height, en = false) {
+// guideTop: lowest edge of the top HUD (canvas px), so mission guides never slide under the cards.
+export function drawOperationTargets(ctx, game, width, height, en = false, guideTop = 0) {
  const battle = game?.operationBattle || game?.operationSnapshot?.battle;
- if (!battle) return;
+ const mission=missionView(game);
+ if (!battle&&!mission) return;
  const zoom = game.mode === 'coop2' ? game.camera?.zoom || 1 : 1;
  ctx.save();
  ctx.textAlign = 'center';
@@ -49,20 +93,30 @@ export function drawOperationTargets(ctx, game, width, height, en = false) {
  ctx.font = '600 11px system-ui, sans-serif';
  ctx.lineWidth = 3;
  ctx.strokeStyle = 'rgba(20,17,13,.85)';
- function label(entity, text, color, guide = false) {
-  let x = width / 2 + (entity.x - game.x) * zoom, y = height / 2 + (entity.y - game.y) * zoom - 25;
-  if (x < 50 || x > width - 50 || y < 42 || y > height - 42) {
+ const guidePositions=[];
+ function label(entity, text, color, guide = false, missionGuide = false) {
+  let x = width / 2 + (entity.x - game.x) * zoom, y = height / 2 + (entity.y - game.y) * zoom;
+  const exit = missionGuide && entity.kind === 'exit';
+  if (!exit) y -= 25;
+  const side=missionGuide?Math.min(width/2,Math.max(68,ctx.measureText(text).width/2+16)):50,top=missionGuide?Math.max(Math.min(155,height*.22),guideTop):42,bottom=height-(missionGuide?105:42);
+  if (x < side || x > width - side || y < top || y > bottom) {
    if (!guide) return;
-   const horizontal = x < 50 ? '‹ ' : x > width - 50 ? ' ›' : '';
-   text = horizontal === '‹ ' ? horizontal + text : text + (horizontal || (y < 42 ? ' ↑' : ' ↓'));
-   x = Math.max(50, Math.min(width - 50, x));
-   y = Math.max(42, Math.min(height - 42, y));
-  }
+   const horizontal = x < side ? '‹ ' : x > width - side ? ' ›' : '';
+   text = horizontal === '‹ ' ? horizontal + text : text + (horizontal || (y < top ? ' ↑' : ' ↓'));
+   x = Math.max(side, Math.min(width - side, x));
+   y = Math.max(top, Math.min(bottom, y));
+  } else if (exit) y = Math.max(top, y - Math.max(25, 66*zoom));
+  if(missionGuide){const direction=y>height/2?-1:1;for(let i=0;i<6&&guidePositions.some(p=>Math.abs(p.x-x)<side*2&&Math.abs(p.y-y)<18);i++)y=Math.max(top,Math.min(bottom,y+direction*20));guidePositions.push({x,y});}
   ctx.fillStyle = color;
   ctx.strokeText(text, x, y);
   ctx.fillText(text, x, y);
  }
  const friendly = '#dbecc2', danger = '#ffc19d';
+ if(mission?.status==='active'&&mission.region===game.stageBoss?.stages.stageIndex)for(const point of (mission.guides||[]).slice(0,6)){
+  const distance=Math.round(Math.hypot(point.x-game.x,point.y-game.y)/10)*10;
+  label(point,(point.label?.[en?1:0]||'')+' · '+distance+'m',point.kind==='exit'?'#ffe6a8':point.kind==='ally'?friendly:danger,true,true);
+ }
+ if(!battle){ctx.restore();return;}
  const patrols = (game.patrols || []).filter(patrol => patrol.operationTarget && patrol.hp > 0 && patrol.life !== 0);
  let nearest;
  for (const patrol of patrols) {

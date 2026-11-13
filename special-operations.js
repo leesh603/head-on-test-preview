@@ -20,7 +20,8 @@ export const SPECIAL_OPERATION_WAVES = Object.freeze([0, 14, 28, 42]);
 export const SPECIAL_OPERATION_EXIT_AT = 46;
 // The train reaches its tunnel: shorter, so the chase is a chase.
 export const SPECIAL_OPERATION_TRAIN_ESCAPE = 62;
-export const SPECIAL_OPERATION_CARGO_HOLD = 3;
+export const SPECIAL_OPERATION_CARGO_HOLD = 5;
+export const SPECIAL_OPERATION_RAIL_CAR_LENGTH = 162;
 // Seconds the demolition flight needs to blow a stopped cargo car.
 export const SPECIAL_OPERATION_DEMOLITION = 14;
 

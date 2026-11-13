@@ -1,13 +1,13 @@
-import {drawFlakAirburst} from './flak-airburst-art.js?v=b3bf991d11fc7798';
-import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=b3bf991d11fc7798';
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=b3bf991d11fc7798';
-import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {drawTracerBolt} from './projectiles.js?v=b3bf991d11fc7798';
-import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=b3bf991d11fc7798';
-import {drawShellFlight} from './boss-rounds.js?v=b3bf991d11fc7798';
-import {drawAADefense} from './aa-defense-art.js?v=b3bf991d11fc7798';
-import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=b3bf991d11fc7798';
+import {drawFlakAirburst} from './flak-airburst-art.js';
+import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=20261023';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
+import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=20261021';
+import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018&strafe=20261111';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
+import {drawAADefense} from './aa-defense-art.js?v=gal1';
+import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=tame3&somme=20261021';
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}
 export async function prepareSommeAssets(){await prepareSommeDetailArt();for(const key of Object.keys(SOMME_SHEETS)){if(sommeDetailReady()&&['schwaben-body','schwaben-support','mark1-hulls'].includes(key))continue;load(key);}const loaded=await Promise.all(Object.values(pending));prepareSommeTreads(images['mark1-hardware']);return loaded;}

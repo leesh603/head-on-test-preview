@@ -1,12 +1,12 @@
-import {drawGuynemerRocketSmoke} from './guynemer-rocket-smoke.js?v=b3bf991d11fc7798';
-import {drawGuynemerStork} from './guynemer-stork-fx.js?v=b3bf991d11fc7798';
-import {roleImage} from './fx-role3.js?v=b3bf991d11fc7798';
+import {drawGuynemerRocketSmoke} from './guynemer-rocket-smoke.js';
+import {drawGuynemerStork} from './guynemer-stork-fx.js';
+import {roleImage} from './fx-role3.js?v=tame3&perf=1029&decode=1';
 // Guynemer's actual ordnance and Bishop's existing altitude/bombing run.
 // All observations use the existing bounded signature queue; no new projectiles.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=b3bf991d11fc7798';
-import {drawBishopPassive} from './pilot-passive-art.js?v=b3bf991d11fc7798';
-import {bombFallPose} from './bomb-sprites.js?v=b3bf991d11fc7798';
-import {combatVisualPose} from './combat-feedback.js?v=b3bf991d11fc7798';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {drawBishopPassive} from './pilot-passive-art.js';
+import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112';
 export const ORDNANCE_PILOTS=new Set(['guynemer','bishop']);
 const INSTALLED=Symbol.for('headon.ordnance-pilot-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

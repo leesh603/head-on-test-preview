@@ -193,6 +193,7 @@ body.astra-ui #modal.settings-modal151.settings421 .settings-tabs151 button[aria
    pinned to the bottom, and the same outlined return button on every tab. */
 @media (max-width:560px){
  body.astra-ui #modal.settings-modal151.settings421 .modal-card{display:flex!important;flex-direction:column;height:min(660px,calc(100dvh - 24px))!important}
+ body.astra-ui #modal.settings-modal151.settings421 .modal-card::before{flex:none}
  body.astra-ui #modal.settings-modal151.settings421 .modal-card>#modalActions{flex:1 1 auto;min-height:0;display:flex!important;flex-direction:column;overflow-y:auto}
  body.astra-ui #modal.settings-modal151.settings421 .modal-card>#modalActions>.settings-return151{margin-top:auto!important;flex:none}
  body.astra-ui #modal.settings-modal151.settings421.tactical-codex-modal .modal-card>#modalActions{flex:none}
@@ -200,3 +201,15 @@ body.astra-ui #modal.settings-modal151.settings421 .settings-tabs151 button[aria
  body.astra-ui #modal.overlay.settings-modal151.settings421.tactical-codex-modal:not(.choice-modal151):not(.build-modal151) .modal-card{width:100%!important;max-height:calc(100dvh - 24px)!important;padding:12px 16px max(16px,env(safe-area-inset-bottom))!important}
 }
 body.astra-ui #modal.settings-modal151.settings421 #modalActions button.settings-return151.settings-return151.settings-return151{background:#ffffff0b!important;color:#efe9da!important;box-shadow:inset 0 0 0 1px #e8e2d42a!important}
+
+/* ---- desktop: one card that holds still across tabs ------------------------
+   Tabs used to resize and re-centre the card (480 wide, codex 760), so the tab
+   strip jumped on every click. All tabs share one width and the card hangs from
+   a fixed top, so only the body below the tabs changes. */
+@media (min-width:721px) and (min-height:521px){
+ body.astra-ui:not(.playing) #modal.overlay.settings-modal151.settings421{align-items:flex-start!important;padding-top:clamp(24px,9vh,96px)!important}
+ body.astra-ui #modal.settings-modal151.settings421 .modal-card,
+ body.astra-ui #modal.overlay.settings-modal151.settings421.tactical-codex-modal:not(.choice-modal151):not(.build-modal151) .modal-card{width:min(600px,calc(100vw - 48px))!important;max-width:none!important;margin-top:0!important}
+ body.astra-ui #modal.overlay.settings-modal151.settings421.tactical-codex-modal .tactical-index{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.astra-ui #modal.overlay.settings-modal151.settings421.tactical-codex-modal .tactical-codex{height:min(540px,calc(100dvh - 360px))}
+}

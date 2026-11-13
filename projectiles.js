@@ -1,13 +1,13 @@
-import {canvasCullView,outsideCanvas} from './render-culling.js?v=b3bf991d11fc7798';
-import {drawWhiteFlightRound} from './goering-whiteflight-fx.js?v=b3bf991d11fc7798';
-import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js?v=b3bf991d11fc7798';
-import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=b3bf991d11fc7798';
-import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js?v=b3bf991d11fc7798';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=b3bf991d11fc7798';
+import {canvasCullView,outsideCanvas} from './render-culling.js';
+import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
+import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
+import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=b3bf991d11fc7798';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=tame3';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -164,7 +164,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
  if(FXS&&kind!=='railgun'&&kind!=='rocket'&&fxReady('tracerCore')){
-  const p=hostileGunAppearance(b),k=kind==='boss'?Math.max(1,1/Math.max(.45,screenScale)):1,strong=b.raidHeavy?1.3:1,len=p.length*strong,wid=p.width*(b.raidHeavy?1.3:1);c.scale(k,k);
+  const p=hostileGunAppearance(b),k=kind==='boss'?Math.max(1,1/Math.max(.45,screenScale)):1,strong=b.raidHeavy?1.3:b.strafe?1.7:1,len=p.length*strong,wid=p.width*(b.raidHeavy?1.3:b.strafe?1.25:1);c.scale(k,k);
   fxTint(c,'tracerGlow',p.color,-len*.5,0,len*1.12,wid*2.1,0,.42);
   fxTint(c,'tracerCore',p.color,-len*.5,0,len,wid,0,1);
   fxTint(c,'tracerCore',p.core,-len*.2,0,len*.4,wid*.48,0,.96);

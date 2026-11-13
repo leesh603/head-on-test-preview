@@ -1,10 +1,13 @@
 // Map objectives observe the existing fleet's motion, hull damage and ordnance.
 // The host owns stage completion, rewards and pause; there is no second fleet update.
-import {SHIP_TYPES} from './fleet-naval1.js?v=b3bf991d11fc7798';
-import {vacantShipPose} from './naval-spacing.js?v=b3bf991d11fc7798';
+import {SHIP_TYPES} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
+import {vacantShipPose} from './naval-spacing.js?v=pandemonium394r2';
 
 const regions=new Set([1,16]);
-export const NAVAL_MISSION_BALANCE=Object.freeze({blockadeSectors:3,raiders:6,raidersStopped:4,jutlandShips:6,jutlandGoal:4});
+export const NAVAL_MISSION_BALANCE=Object.freeze({
+ blockadeSectors:4,blockadeSeconds:45,raiderWaves:3,raidersPerWave:3,raiderGap:18,raidersStopped:7,
+ jutlandShips:6,jutlandGoal:4
+});
 const B=NAVAL_MISSION_BALANCE;
 const opposite=f=>f==='central'?'entente':'central';
 const live=e=>e&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed;
@@ -38,30 +41,65 @@ function deploy(g,m,side,cls,s,lane,heading,name,extra={}){
  }
  return null;
 }
+
+function deployBlockade(g,m){
+ const n=m.naval,r=n.route;
+ for(const [i,sector] of n.sectors.entries()){
+  const lane=(i%2?1:-1)*430;
+  for(const [slot,cls] of ['aa','dd'].entries()){
+   if(sector.ships[slot])continue;
+   const e=deploy(g,m,'entente',cls,sector.s,slot?Math.sign(lane)*940:lane,r.a+Math.PI/2,
+    slot?'봉쇄 구축함':'봉쇄 순양함',{moored:true,fire:3+i*.6});
+   if(e)sector.ships[slot]=e;
+  }
+ }
+}
+
+function deployRaiderWave(g,m){
+ const n=m.naval;
+ if(n.raiderWave>=B.raiderWaves||m.age<n.nextRaiderAt)return;
+ const end=(n.raiderWave+1)*B.raidersPerWave;
+ while(n.ships.length<end){
+  const i=n.ships.length%B.raidersPerWave;
+  const e=deploy(g,m,'central',i===1?'aa':'dd',700+n.raiderWave*300,(i-1)*425,n.route.a,'습격 함대');
+  if(!e){n.nextRaiderAt=m.age+.5;return;}
+  n.ships.push(e);
+ }
+ n.raiderWave++;
+ n.nextRaiderAt=m.age+B.raiderGap;
+ g.event?.('wave',`습격 함대 ${n.raiderWave}/${B.raiderWaves}차 전열 접근`);
+}
+
 function initialize(g,m){
  if(m.region===1&&g.intrusionBoss&&g.intrusionBoss.phase!=='resolved')return false;
  const r=m.region===16?g.jutlandRoute:{x:g.x,y:g.y,a:m.heading};
  if(!r)return false;
+ // The escort battle starts at fleet contact, not while the pilot is still
+ // crossing the approach. Preserve the interception side's existing opening.
+ if(m.region===16&&m.faction==='central'){
+  m.awaitContact=true;
+  const contact=point(r,4680);
+  if(!reached(g,contact,1500)){
+   m.task=['철수 함대에 합류하세요','Join the withdrawing fleet'];
+   m.detail=['함대 합류 후 호위 제한시간 시작','Escort clock starts at fleet contact'];
+   m.guides=[guide(contact,['철수 함대','Withdrawing fleet'],'ally')];
+   return false;
+  }
+  m.contactAt=m.age;
+ }
  const n=m.naval={route:r,ships:[],threats:[],serial:0,bombers:[],bombs:[],wave:0,nextRaid:18};
  const central=m.faction==='central';
  if(m.region===1){
-  n.exitS=2520;n.sectors=[];
-  for(let i=0;i<B.blockadeSectors;i++){
-   const s=680+i*470,lane=(i%2?1:-1)*430;
-   const a=deploy(g,m,'entente','aa',s,lane,r.a+Math.PI/2,'봉쇄 순양함',{moored:true,fire:3+i*.6});
-   const b=deploy(g,m,'entente','dd',s,lane>0?1080:-1080,r.a+Math.PI/2,'봉쇄 구축함',{moored:true,fire:3+i*.6});
-   n.sectors.push({position:point(r,s),ships:[a,b].filter(Boolean)});
-  }
-  for(let i=0;i<B.raiders;i++){
-   const lane=(i%3-1)*425,s=310-Math.floor(i/3)*370;
-   const e=deploy(g,m,'central',i%3===1?'aa':'dd',s,lane,r.a,'습격 함대');
-   if(e)n.ships.push(e);
-  }
-  n.exit=point(r,n.exitS);m.limit=m.age+125;
+  n.exitS=2520;n.exit=point(r,4350);n.openedAt=m.age;
+  n.sectors=Array.from({length:B.blockadeSectors},(_,i)=>({s:680+i*880,ships:[null,null]}));
+  n.raiderWave=0;n.nextRaiderAt=m.age;
+  m.limit=m.age+125;
  }else{
-  n.exitS=5920;n.exit=point(r,n.exitS);n.protect=central;
+  n.exitS=5920;n.exit=point(r,n.exitS);n.protect=central;n.nextRaid=m.age+18;
   for(let i=0;i<B.jutlandShips;i++){
-   const lane=(i%3-1)*575,s=4680-Math.floor(i/3)*420;
+   // The slower cruisers use outer withdrawal lanes clear of the flagship's
+   // central maneuvering hull; interception-side deployment is unchanged.
+   const lane=central&&i%3===1?(i<3?-1:1)*1350:(i%3-1)*575,s=4680-Math.floor(i/3)*420;
    const e=deploy(g,m,'central',i%3===1?'aa':'dd',s,lane,r.a,`철수 전열 ${i+1}`,{fire:3+i*.55});
    if(e)n.ships.push(e);
   }
@@ -69,7 +107,7 @@ function initialize(g,m){
    const e=deploy(g,m,'entente','dd',5350+i*300,lane,r.a,'추격 구축함',{fire:7,moored:true});
    if(e)n.threats.push(e);
   }
-  m.limit=135;
+  m.limit=(central?m.age:0)+135;
  }
  g.event?.('wave',m.title?.[0]);
  return true;
@@ -131,21 +169,27 @@ function observeFleet(g,n){
 }
 
 function adriaticObjective(g,m){
+ deployBlockade(g,m);
+ deployRaiderWave(g,m);
  const n=m.naval,{escaped,sunk,active}=observeFleet(g,n);
- const batteries=n.sectors.flatMap(s=>s.ships),holding=batteries.filter(live).length;
+ const batteries=n.sectors.flatMap(s=>s.ships).filter(Boolean),holding=batteries.filter(live).length;
  if(m.faction==='central'){
-  const cleared=n.sectors.filter(q=>q.ships.length===2&&q.ships.every(s=>s.hp<=0)).length;
-  m.task=[`봉쇄 구역 제압 ${cleared}/${B.blockadeSectors}`,`Blockade sectors silenced ${cleared}/${B.blockadeSectors}`];
-  m.detail=['봉쇄함 포격을 끊고 돌파 지점을 통과하세요','Silence the batteries and cross the blockade'];
-  m.guides=cleared===B.blockadeSectors?[guide(n.exit,['해협 돌파','Cross the strait'],'exit')]:
-   batteries.filter(live).map(e=>guide(e,[e.name,'Blockade battery'],'target'));
-  if(cleared===B.blockadeSectors&&reached(g,n.exit,220))return result(true,'봉쇄선 돌파','Blockade breached');
+  const cleared=n.sectors.filter(q=>q.ships.every(s=>s&&s.hp<=0)).length,allClear=cleared===B.blockadeSectors;
+  m.task=allClear?['해협 돌파 지점을 통과하세요','Fly through the strait exit']:
+   [`봉쇄 구역 제압 ${cleared}/${B.blockadeSectors}`,`Blockade sectors silenced ${cleared}/${B.blockadeSectors}`];
+  m.detail=allClear?['돌파 지점 너머로 적 기함 접근 중','The enemy flagship is beyond the blockade']:
+   ['구역마다 순양함과 구축함을 모두 격침하세요','Sink the cruiser and destroyer in each sector'];
+  m.guides=allClear?[guide(n.exit,['해협 돌파','Cross the strait'],'exit')]:
+   batteries.filter(live).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y)).map(e=>guide(e,[e.name,'Blockade ship'],'target'));
+  if(allClear&&reached(g,n.exit,220))return result(true,'봉쇄선 돌파','Blockade breached');
  }else{
+  const total=B.raiderWaves*B.raidersPerWave,unlaunched=total-n.ships.length;
   m.task=[`습격 함정 저지 ${sunk}/${B.raidersStopped} · 봉쇄함 ${holding}`,`Raiders sunk ${sunk}/${B.raidersStopped} · Blockade ships ${holding}`];
-  m.detail=['봉쇄선을 지키며 적의 돌파를 막으세요','Hold the blockade against the raiding fleet'];
+  m.detail=[`습격 ${n.raiderWave}/${B.raiderWaves}차 · 3척 돌파 시 실패`,`Raid ${n.raiderWave}/${B.raiderWaves} · Three breakthroughs fail`];
   m.guides=active.map(e=>guide(e,[e.name,'Raider'],'target'));
-  if(!holding||escaped>B.raiders-B.raidersStopped||sunk+active.length<B.raidersStopped)return result(false,'봉쇄선 방어 실패','Blockade lost');
-  if(sunk>=B.raidersStopped)return result(true,'습격 함대 저지','Raid stopped');
+  if((!holding&&batteries.length===B.blockadeSectors*2)||escaped>total-B.raidersStopped||sunk+active.length+unlaunched<B.raidersStopped)
+   return result(false,'봉쇄선 방어 실패','Blockade lost');
+  if(sunk>=B.raidersStopped&&n.raiderWave===B.raiderWaves)return result(true,'습격 함대 저지','Raid stopped');
  }
  return null;
 }
@@ -158,7 +202,8 @@ function jutlandObjective(g,m){
   [`퇴각 함정 저지 ${sunk}/${goal}`,`Retreating ships sunk ${sunk}/${goal}`];
  m.detail=[`이탈 ${escaped}/${B.jutlandShips} · 손실 ${sunk}`,`Through ${escaped}/${B.jutlandShips} · Sunk ${sunk}`];
  m.guides=active.map(e=>guide(e,[e.name,n.protect?'Friendly ship':'Target ship'],n.protect?'ally':'target'));
- if(progress>=goal&&g.stageBoss?.stages.encounter){
+ const encounter=g.stageBoss?.stages.encounter;
+ if(progress>=goal&&encounter&&!encounter.arrivalPending){
   return n.protect?result(true,'주력 함대 철수 완료','Fleet withdrawal complete'):result(true,'적 함대의 퇴각 저지','Enemy withdrawal stopped');
  }
  if(progress+active.length<goal)return result(false,'함대 작전 실패','Fleet operation failed');

@@ -51,7 +51,13 @@ export function drawBrackets(c, x, y, gap, tone, width = 2, arm = 9) {
 
 // Pill label centred at (x, y). Optional `icon(c, cx, cy, size, tone)` on the left,
 // optional `progress` (0..1) drawn as a hairline under the text.
+// Optional DOM sink (hud-tags): canvas text is pixel-upscaled and smears on phones, so the
+// game can take the pill label as a crisp DOM tag. Returns true when it handled the pill.
+let pillSink = null;
+export function setEngagementPillSink(fn) { pillSink = typeof fn === 'function' ? fn : null; }
+
 export function drawPill(c, x, y, text, tone, { icon = null, progress = null, alpha = 1 } = {}) {
+  if (!icon && pillSink && pillSink(text, x, y, tone, progress, alpha)) return { w: 0, h: 22 };
   c.save();
   c.globalAlpha *= alpha;
   c.font = `700 11.5px ${family()}`;

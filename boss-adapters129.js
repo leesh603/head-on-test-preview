@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {RailBossController} from './rail-boss129.js?v=b3bf991d11fc7798';
-import {StuttgartSupport} from './stuttgart129.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {RailBossController} from './rail-boss129.js?v=tame3';
+import {StuttgartSupport} from './stuttgart129.js?v=tame3&boss=20261020b';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -89,9 +89,9 @@ export class StuttgartAdapter extends BaseBoss {
  // Deck crews rearming between final sorties: hull and parts take 1.5x.
  counterWindow(){return this.support129?.rearming?1.5:1;}
  constructor(o){super({...o,maxHp:o.tuning.maxHp});this.t=o.tuning;this.kind='sms-stuttgart';this.faction=o.faction;this.ownsMotion129=true;
-  this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,fireScale:this.t.fireScale||1,minionCap:6,rotationSpeed:.08*(this.t.motionMultiplier||1),navigation:true,motionMultiplier:this.t.motionMultiplier||1},x:this.x,y:this.y,width:500,height:750,
+  this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,fireScale:this.t.fireScale||1,minionCap:12,rotationSpeed:.08*(this.t.motionMultiplier||1),navigation:true,motionMultiplier:this.t.motionMultiplier||1},x:this.x,y:this.y,width:500,height:750,
    onDamage:(playerId,damage,source)=>this.emit({type:'support-damage',bossId:this.id,playerId,damage,source}),
-   spawnSeaplane:s=>{this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'seaplane',...s,a:s.angle});return true;},
+   spawnSeaplane:s=>this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'seaplane',...s,a:s.angle}),
    countSeaplanes:()=>this.countMinions129?.()||0,
    clearOwned:()=>this.emit({type:'support-cleanup',bossId:this.id}),onCleared:()=>{},onCue:e=>this.emit({...e,bossId:this.id})});
   for(const p of this.support129.parts.values()){const support=this.support129;this.parts.set(p.id,{id:p.id,maxHp:p.maxHp,get hp(){return p.hp},get destroyed(){return p.hp<=0},get hittable(){return support.hittable(p)},x:p.nx*support.width,y:p.ny*support.height,radius:p.rx*support.width});}

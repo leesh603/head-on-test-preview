@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=b3bf991d11fc7798';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=tame3&cityart=20261022';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
@@ -8,6 +8,12 @@ export const CITY_HULLS={
  'drachen-net':[[145,211,100,46],[454,159,242,71],[641,325,83,49]]
 };
 export const CITY_GUNS={'london-apron':[[123,193],[384,199],[646,193]],'drachen-net':[[154,295],[441,292],[641,432]]};
+// Gondola receiver pivots and barrel reach in the same plane as the rig sprite.
+export const DRACHEN_MG=[[135,294,17],[465,292,22],[624,430,17]];
+export function drachenMuzzle(index,angle,recoil=0){
+ const [x,y,reach]=DRACHEN_MG[index],length=reach-2.4*recoil;
+ return [x+Math.cos(angle)*length,y+Math.sin(angle)*length];
+}
 export const DRACHEN_MINES=[[[116,425],[189,425]],[[316,397],[443,456],[590,397]],[[607,509],[678,509]]];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
@@ -84,10 +90,16 @@ class CityAirships extends BaseBoss{
 export class LondonApron extends CityAirships{
  constructor(o){super(o,'london-apron');this.apronTime=0;this.apronStarted=false;this.apronState='corridor-formation';this.apronStateAge=0;this.apronCycle=0;this.apronCaught=false;this.apronTargetId=null;this.ownsNativeApron=true;}
  counterWindow(){return this.apronState==='relief'?1.4:super.counterWindow();}
+ apronVertices(index,pose){return apronPanelHull(index,pose,this.apronScale,this.x,this.y);}
+ apronWeaponOrigin(part){
+  if(!part.id.startsWith('airship-'))return {x:this.x+part.x,y:this.y+part.y};
+  const index=Number(part.id.at(-1));
+  return this.point(...CITY_GUNS[this.cityArtKind][index],index);
+ }
  rigHit(s){
   const pose=this.apronPoseOverride||apronPose(this.apronTime,3-this.live().length),dx=s.x-(s.previousX??s.x),dy=s.y-(s.previousY??s.y),steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/10));
   for(const p of this.live()){
-   const index=Number(p.id.at(-1)),v=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
+   const index=Number(p.id.at(-1)),v=this.apronVertices(index,pose);
    for(let i=0;i<=Math.min(steps,32);i++){const q=i/Math.min(steps,32);if(netContact({x:s.x-dx*(1-q),y:s.y-dy*(1-q),radius:s.radius||0},v))return{partId:'net-'+index};}
   }return null;
  }
@@ -95,26 +107,32 @@ export class LondonApron extends CityAirships{
   const live=this.live();if(!live.length)return;
   if(state==='corridor-formation'){this.apronCaught=false;this.apronTargetId=null;this.command('apron-corridor',{cycle:this.apronCycle});}
   if(state==='light-catch'){
+   this.apronExposure=0;
    const target=players.filter(p=>p.alive)[this.apronCycle%Math.max(1,players.filter(p=>p.alive).length)];if(!target)return;
-   const light=this.parts.get('light'),source=light?(light.destroyed?null:light):live[this.apronCycle%live.length];if(!source)return;const partId=source.id,index=partId.startsWith('airship-')?Number(partId.at(-1)):1;
-   const from=partId.startsWith('airship-')?this.point(...CITY_GUNS[this.cityArtKind][index],index):{x:this.x+source.x,y:this.y+source.y};
-   const angle=Math.atan2(target.y-from.y,target.x-from.x);this.apronTargetId=target.id;
+   const light=this.parts.get('light'),source=light?(light.destroyed?null:light):live[this.apronCycle%live.length];if(!source)return;const partId=source.id;
+   const from=this.apronWeaponOrigin(source,target);
+   const angle=from.angle??Math.atan2(target.y-from.y,target.x-from.x);this.apronTargetId=target.id;
    this.hazard('searchlight',{...from,angle,angularSpeed:0,halfAngle:.15,radius:720,duration:2.35,warning:.55,damage:0,visual:'searchlight',tag:partId==='light'?'raid-light':'apron-light-'+partId,sourcePartId:partId});
   }
   if(state==='bombard')this.apronBombard(players);
  }
+ apronStrikePoints(target){
+  const speed=Math.hypot(target.vx||0,target.vy||0),nx=speed>8?-(target.vy||0)/speed:1,ny=speed>8?(target.vx||0)/speed:0;
+  const cx=target.x+(target.vx||0)*.55,cy=target.y+(target.vy||0)*.55;
+  return [-1,1,0].map(side=>({x:cx+nx*side*72,y:cy+ny*side*72,radius:side?50:88}));
+ }
  apronBombard(players){const target=players.find(p=>p.alive&&p.id===this.apronTargetId)||players.find(p=>p.alive);if(!target)return;
   const gun=this.parts.get('gun'),live=this.live(),source=gun?(gun.destroyed?null:gun):live[this.apronCycle%Math.max(1,live.length)];if(!source)return;
-  const index=source.id.startsWith('airship-')?Number(source.id.at(-1)):1,from=source.id.startsWith('airship-')?this.point(...CITY_GUNS[this.cityArtKind][index],index):{x:this.x+source.x,y:this.y+source.y};
-  const speed=Math.hypot(target.vx||0,target.vy||0),nx=speed>8?-(target.vy||0)/speed:1,ny=speed>8?(target.vx||0)/speed:0,cx=target.x+(target.vx||0)*.55,cy=target.y+(target.vy||0)*.55,tag=source.id==='gun'?'raid-gun':'apron-bombard-'+source.id;
-  for(const [i,side]of [-1,1,0].entries())this.hazard('circle',{x:cx+nx*side*72,y:cy+ny*side*72,sourceX:from.x,sourceY:from.y,sourcePartId:source.id,radius:side?50:88,warning:1.15+i*.42,duration:.23,once:true,damage:this.t.damage*(side?1:1.8),raidHeavy:side===0,visual:'black-flak',tag});
+  const strikes=this.apronStrikePoints(target),from=this.apronWeaponOrigin(source,strikes.at(-1));
+  const tag=source.id==='gun'?'raid-gun':'apron-bombard-'+source.id;
+  for(const [i,point]of strikes.entries())this.hazard('circle',{...point,sourceX:from.x,sourceY:from.y,sourcePartId:source.id,warning:1.15+i*.42,duration:.23,once:true,damage:this.t.damage*(i===2?1.8:1),raidHeavy:i===2,visual:'black-flak',tag});
   this.command('muzzle',{...from,partId:source.id});
  }
  update(dt,{players,isIlluminated}){
   if(this.dead)return;this.tickCityArt(dt);this.basicHoldUntil=(this.combatTime||0)+dt+.1;this.apronTime+=dt;
   const pose=this.apronPoseOverride||apronPose(this.apronTime,3-this.live().length);
   for(const p of this.live()){
-   const index=Number(p.id.at(-1)),tag='apron-'+p.id,vertices=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
+   const index=Number(p.id.at(-1)),tag='apron-'+p.id,vertices=this.apronVertices(index,pose);
    if(!this.apronStarted)this.hazard('net',{x:this.x,y:this.y,vertices,warning:this.apronEntryRemaining??1.5,duration:3600,tickInterval:.8,damage:this.t.damage*.5,blocks:true,visual:'apron-attached',tag});
    this.command('apron-pose',{x:this.x,y:this.y,vertices,tag});
   }this.apronStarted=true;if(this.encounter?.breath)return;
@@ -124,7 +142,9 @@ export class LondonApron extends CityAirships{
   const alive=players.filter(p=>p.alive);if(!alive.length)return;this.apronStateAge+=dt;
   if(this.apronState==='corridor-formation'&&this.apronStateAge>=2.4)this.setApronState('light-catch',players);
   else if(this.apronState==='light-catch'){
-   const target=alive.find(p=>p.id===this.apronTargetId);if(target)this.apronCaught||=typeof isIlluminated==='function'?!!isIlluminated(target):true;
+   const target=alive.find(p=>p.id===this.apronTargetId),lit=target&&(typeof isIlluminated==='function'?isIlluminated(target):true);
+   this.apronExposure=lit?this.apronExposure+dt:0;
+   this.apronCaught||=!!lit&&this.apronExposure>=(this.apronLockSeconds||0);
    if(this.apronStateAge>=2.55)this.setApronState(this.apronCaught?'bombard':'relief',players);
   }else if(this.apronState==='bombard'&&this.apronStateAge>=2.35)this.setApronState('relief',players);
   else if(this.apronState==='relief'&&this.apronStateAge>=2.25){this.apronCycle++;this.setApronState('corridor-formation',players);}
@@ -134,13 +154,45 @@ export class LondonApron extends CityAirships{
 export class DrachenMineNet extends CityAirships{
  constructor(o){super(o,'drachen-net');this.mineQueue=[];this.burstQueue=[];this.mineSerial=0;this.driftTime=0;this.cityRigOffsets=[[0,0],[0,0],[0,0]];this.netState='mines';this.netStateAge=0;this.netStateFresh=true;this.mineSupportIndex=null;this.aimSupportIndex=null;
   this.cityArtScale=1.5*Math.max(.32,Math.min(1.62,((this.t.regionalViewWidth||960)-60)/790*1.2,((this.t.regionalViewHeight||700)-150)/720*1.2));
-  this.regionalScale=this.apronScale=this.cityArtScale;this.syncRigs();this.timers.set('mine-lay',1.0);}
+  this.regionalScale=this.apronScale=this.cityArtScale;this.syncRigs();this.timers.set('mine-lay',1.0);
+  for(const p of this.parts.values())p.angle=Math.PI/2;
+ }
+ guns(dt,players){
+  const targets=players.filter(p=>p.alive),live=this.live();
+  const interval=[3.8,5.2,6.5][live.length-1],speed=Math.max(245,this.t.bulletSpeed*.95);
+  for(const p of live){
+   const index=Number(p.id.at(-1)),[px,py]=DRACHEN_MG[index],pivot=this.point(px,py,index);
+   const target=targets[(this.gunCursor||0)%targets.length];
+   const aim=target?Math.atan2(target.y+(target.vy||0)*.18-pivot.y,target.x+(target.vx||0)*.18-pivot.x):p.angle;
+   const burst=p.drachenBurst;
+   const delta=(burst?.angle??aim)-p.angle;
+   p.angle+=clamp(Math.atan2(Math.sin(delta),Math.cos(delta)),-dt*4.5,dt*4.5);
+   if(burst){
+    burst.left-=dt;if(burst.left>1e-8)continue;
+    const [mx,my]=drachenMuzzle(index,p.angle,1),from=this.point(mx,my,index);
+    for(let j=0;j<7;j++){
+     if(j===2+burst.row)continue;
+     const a=p.angle+(j-3)*.18;
+     this.hazard('projectile',{...from,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:3,damage:this.t.damage*.32,
+      duration:4.2,visual:'city-mg',tag:'gun-'+index,sourcePartId:p.id,lockedAim:true,
+      sourceOffsetX:from.x-this.x-p.x,sourceOffsetY:from.y-this.y-p.y});
+    }
+    this.command('muzzle',{...from,partId:p.id,angle:p.angle});
+    if(++burst.row===3)p.drachenBurst=null;else burst.left+=.42;
+   }else if(target&&this.due('gun-'+index,dt,interval)){
+    this.gunCursor=(this.gunCursor||0)+1;
+    p.drachenBurst={left:.8,angle:aim,row:0};
+    const from=this.point(...drachenMuzzle(index,aim),index);
+    this.command('charge-warning',{...from,partId:p.id,targetX:from.x+Math.cos(aim)*480,targetY:from.y+Math.sin(aim)*480,seconds:.8});
+   }
+  }
+ }
  point(x,y,index=1){const o=this.cityRigOffsets?.[index]||[0,0];return{x:this.x+(x-384+o[0])*this.cityArtScale,y:this.y+(y-288+o[1])*this.cityArtScale};}
  syncRigs(){for(const [i,p] of [...this.parts.values()].entries()){if(p.destroyed)continue;const [x,y,rx,ry]=CITY_HULLS['drachen-net'][i],q=this.point(x,y,i),s=this.cityArtScale;Object.assign(p,{x:q.x-this.x,y:q.y-this.y,radius:Math.max(rx,ry)*s,hitRadiusX:rx*s,hitRadiusY:ry*s});}}
  drift(dt){this.driftTime+=dt;for(let i=0;i<3;i++)if(!this.parts.get('airship-'+i).destroyed)this.cityRigOffsets[i]=[Math.sin(this.driftTime*.38+i*1.7)*12-Math.sin(i*1.7)*12,Math.sin(this.driftTime*.52+i)*9-Math.sin(i)*9];this.syncRigs();}
 
  rigHit(s){for(const p of this.live()){const index=Number(p.id.at(-1));for(const [x,y]of DRACHEN_MINES[index]){const q=this.point(x,y,index);if(intersectsEllipse(s,q.x,q.y,24*this.cityArtScale,24*this.cityArtScale))return{partId:'rig-'+index};}}return null;}
- onPartDestroyed(p){super.onPartDestroyed(p);const index=Number(p.id.at(-1));this.mineQueue=this.mineQueue.filter(q=>q.index!==index);this.burstQueue=this.burstQueue.filter(q=>q.index!==index);this.command('cancel-hazards',{tag:'drachen-support-'+index});if(this.mineSupportIndex===index)this.mineSupportIndex=null;if(this.aimSupportIndex===index)this.aimSupportIndex=null;}
+ onPartDestroyed(p){super.onPartDestroyed(p);p.drachenBurst=null;p.gunFlash=0;const index=Number(p.id.at(-1));this.mineQueue=this.mineQueue.filter(q=>q.index!==index);this.burstQueue=this.burstQueue.filter(q=>q.index!==index);this.command('cancel-hazards',{tag:'drachen-support-'+index});if(this.mineSupportIndex===index)this.mineSupportIndex=null;if(this.aimSupportIndex===index)this.aimSupportIndex=null;}
  setNetState(state){this.netState=state;this.netStateAge=0;this.netStateFresh=true;this.phase='drachen-'+state;this.command('phase-change',{phase:this.phase});}
  planMines(target,live,bounds){if(!target||!live.length)return;const owner=live[this.netWave%live.length],index=Number(owner.id.at(-1));this.mineSupportIndex=index;
   this.timers.set('mine-lay',2.5/(this.t.patternMultiplier||1));
@@ -168,7 +220,7 @@ export class DrachenMineNet extends CityAirships{
    this.command('spawn-minefield',{points:[{x:q.x,y:q.y}],sourceX:from.x,sourceY:from.y,warning:q.warning,life:12,maxMines:26,rigIndex:q.index,sourcePartId:'airship-'+q.index,fuse:q.fuse,blastRadius:q.blastRadius,blastHeavy:q.blastHeavy});this.command('aa-effect',{...from,kind:'aaWinchSpark',size:30*this.cityArtScale,life:.22});}
   this.mineQueue=this.mineQueue.filter(q=>q.delay>0);
   for(const q of this.burstQueue)q.delay-=dt;for(const q of this.burstQueue.filter(q=>q.delay<=0)){const part=this.parts.get('airship-'+q.index);if(part?.destroyed)continue;const from=this.point(...CITY_GUNS[this.cityArtKind][q.index],q.index);
-   this.hazard('circle',{x:q.x,y:q.y,sourceX:from.x,sourceY:from.y,sourcePartId:part.id,radius:q.radius,warning:1.05,duration:.25,once:true,damage:this.t.damage*(q.heavy?1.8:1),raidHeavy:q.heavy,visual:'observer-shell',tag:'drachen-support-'+q.index});this.command('muzzle',{...from,partId:part.id});}
+   this.hazard('circle',{x:q.x,y:q.y,sourceX:from.x,sourceY:from.y,sourcePartId:part.id,radius:q.radius,warning:1.05,duration:.25,once:true,damage:this.t.damage*(q.heavy?1.8:1),raidHeavy:q.heavy,visual:'observer-shell',tag:'drachen-support-'+q.index});this.command('aa-effect',{...from,kind:'aaMuzzle',size:23*this.cityArtScale,life:.12});}
   this.burstQueue=this.burstQueue.filter(q=>q.delay>0);
  }
  update(dt,{players,bounds}){

@@ -1,5 +1,6 @@
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {impactMark} from './tactical-marks.js?v=b3bf991d11fc7798';
+import {blackSilhouette} from './silhouette.js';
+import {fx} from './fx-art.js?v=tame3';
+import {impactMark} from './tactical-marks.js?v=tame3';
 // Painted layers measured in art-delivery/layer-metadata.json (1800 x 900).
 // No class methods: the same renderer accepts a plain coop snapshot.
 const images=new Map(),loads=new Map();
@@ -97,7 +98,7 @@ export function drawRIIReleasedBombs(c,b,{effect,images:bank}={}){
  for(const drop of b.visualBombs||[]){const life=drop.maxlife??drop.maxLife??1.6;if((drop.age||0)>=life||!Number.isFinite(drop.x)||!Number.isFinite(drop.y))continue;
   const p=riiBombPose(drop,scaleOf(b)),w=Math.min(43,80*p.size),h=w*RII_BOMB_ART.height/RII_BOMB_ART.width;
   c.save();try{
-   c.translate(p.groundX+3,p.groundY+5);c.rotate(p.angle);c.globalAlpha*=.32;c.filter='brightness(0)';c.drawImage(bomb,-w/2,-h/2,w,h);
+   c.translate(p.groundX+3,p.groundY+5);c.rotate(p.angle);c.globalAlpha*=.32;const dark=blackSilhouette(bomb);if(!dark)c.filter='brightness(0)';c.drawImage(dark||bomb,-w/2,-h/2,w,h);
   }finally{c.restore();}
   c.save();try{c.translate(p.x,p.y);c.rotate(p.angle);
    // Existing nose-right PuW artwork, unchanged colours and native aspect.

@@ -42,6 +42,14 @@ export const ENEMY_ACE_PROFILES=Object.freeze({
  lufbery:profile('CIRCLE_COVER',185,.55,1.8,1.8,.2,{defense:'CIRCLE'})
 });
 
+// 20261111 pressed break. A pursuer sitting close astern and landing hits used to get a free
+// kill: the ace finished its scripted defence, then flew a straight recovery for seconds.
+// Now it breaks hard toward the pursuer's side with the airframe's real turn rate, bleeds
+// speed as any defensive turn does (the overshoot is the player's risk) and comes back round
+// to re-engage. No speed, health, damage or accuracy change; pilots with a signature defence
+// (scissors, roll, reversal, rear gun, circle, yo-yo) keep flying it, only sooner.
+export const ACE_PRESSED_BREAK=Object.freeze({range:260,hitWindow:.6,cooldown:2.6,duration:1,maxDuration:2.4,turn:1.5,throttle:.6,snapCone:.9,closeRange:170,turnCap:3.2});
+const OWN_DEFENSE=new Set(['SCISSORS','ROLL','REVERSAL','REAR_GUN','CIRCLE','YOYO']);
 export function tacticalAce(e){return !!(alive(e)&&ENEMY_ACE_PROFILES[e.bossPilot]&&!e.stageBossBody&&!e.bossMinion&&!e.encounterId&&!e.escortLeaderId&&!e.formationLeader)}
 const authoritative=g=>!(g.online&&g.host===false||g.onlineRole==='guest'||g.onlineCoop?.role==='guest'||g.isOnlineGuest);
 const bypass=(g,e)=>!authoritative(g)||!tacticalAce(e)||e.stationary||g.sunStrikeContains?.(e)||e.rivalEscaping||e.aceRetreat||e.defensivePressure||e.aceEntryUntil>(g.t||0);
@@ -134,6 +142,13 @@ function decide(g,e,s,p,q){
   s.defenseReady=now+4.5+p.recovery;
   enter(g,e,s,'DEFEND',p.defense==='SCISSORS'?1.65:1.05,e.a+s.side*.75);return;
  }
+ if(q.pursued&&q.d<ACE_PRESSED_BREAK.range&&now-s.lastHit<ACE_PRESSED_BREAK.hitWindow&&now>=(s.breakReady||0)&&
+  (s.state!=='DEFEND'||!s.pressedBreak&&p.defense==='EXTEND')){
+  s.breakReady=now+ACE_PRESSED_BREAK.cooldown;s.pressedBreak=true;
+  // Break toward the side the pursuer sits on: the turn opens the angle fastest.
+  s.side=Math.sign(diff(q.bearing,e.a))||s.side;
+  enter(g,e,s,'DEFEND',OWN_DEFENSE.has(p.defense)?(p.defense==='SCISSORS'?1.65:1.05):ACE_PRESSED_BREAK.duration,e.a+s.side*.75);return;
+ }
  if(now+1e-7<s.until)return;
  switch(s.state){
   case 'APPROACH':case 'REENGAGE':enter(g,e,s,'SETUP',p.setup);break;
@@ -153,6 +168,16 @@ function decide(g,e,s,p,q){
   case 'DEFEND':
    // The Eindecker must finish the turn with its real, limited nose rate.
    if(p.tactic==='REVERSAL'&&Math.abs(diff(s.heading+s.side*Math.PI,e.a))>.2&&now-s.since<4){s.until=now+.25;break}
+   // A pressed break ends nose-on to the attacker, not in another straight recovery.
+   if(s.pressedBreak){
+    // Hold the braking turn until the pursuer has actually gone past (bounded), then take
+    // the snapshot the overshoot offers instead of flying off to a new station.
+    if((q.pursued||q.d<ACE_PRESSED_BREAK.closeRange&&q.angle>ACE_PRESSED_BREAK.snapCone)&&now-s.since<ACE_PRESSED_BREAK.maxDuration){s.until=now+.25;break}
+    s.pressedBreak=false;
+    if(q.d<340&&q.angle<ACE_PRESSED_BREAK.snapCone&&readySlot(g,e))enter(g,e,s,'ATTACK',Math.min(p.attack,1.1),q.bearing);
+    else enter(g,e,s,'REENGAGE',.7,q.bearing);
+    break;
+   }
    enter(g,e,s,p.tactic==='REVERSAL'?'REENGAGE':'RECOVER',p.recovery,q.bearing+s.side*.4);break;
   case 'DISENGAGE':enter(g,e,s,'RECOVER',p.recovery,e.a);break;
   case 'RECOVER':s.side*=-1;enter(g,e,s,'REENGAGE',.7,q.bearing);break;
@@ -170,6 +195,7 @@ function desiredHeading(g,e,s,p,q){
  if(s.state==='DISENGAGE')return s.heading;
  if(s.state==='RECOVER')return d<620?s.heading:bearing+side*.35;
  if(s.state==='DEFEND'){
+  if(s.pressedBreak&&!OWN_DEFENSE.has(p.defense))return q.pursued?e.a+side*ACE_PRESSED_BREAK.turn:bearing;
   if(p.defense==='SCISSORS'||p.defense==='ROLL')return s.heading+side*Math.sin((now-s.since)*4)*1.05;
   if(p.defense==='REVERSAL')return s.heading+side*Math.PI;
   if(p.defense==='REAR_GUN')return o.a+side*.25;
@@ -247,10 +273,15 @@ export function aceTacticalSteering(g,e,contact,dt,baseTurn,planes){
  const handling=(personality.lowSpeedHandling??1)*(1-s.energy)+(personality.highSpeedHandling??1)*s.energy;
  const defensiveSkill=s.signatureUntil>now&&['HUNT','SCISSORS','ACROBAT','REVERSAL'].includes(p.tactic);
  const authority=baseTurn===0&&e.bossDash>0&&defensiveSkill?2:baseTurn;
- const turn=Math.min(2.25,Math.max(0,authority)*(e.aceTurnMultiplier||1),Math.max(.45,(h.turn??plane.turn??3)*.66)*clamp(handling,.75,1.12)*(delta<0?(h.left??1):1)*(e.aceTurnMultiplier||1));
+ // In a pressed break the pilot flies the airframe toward its own listed turn rate (the
+ // figure the player's copy of that aircraft uses) instead of the cruise-combat 66%, capped
+ // well under a player's real rate (~4-4.6 rad/s) so the tail can still be held by flying.
+ const pressedBreak=s.state==='DEFEND'&&s.pressedBreak&&baseTurn>0,airframeTurn=h.turn??plane.turn??3;
+ const turn=pressedBreak?Math.min(ACE_PRESSED_BREAK.turnCap,Math.max(.45,airframeTurn)*clamp(handling,.75,1.12)*(delta<0?(h.left??1):1))
+  :Math.min(2.25,Math.max(0,authority)*(e.aceTurnMultiplier||1),Math.max(.45,airframeTurn*.66)*clamp(handling,.75,1.12)*(delta<0?(h.left??1):1)*(e.aceTurnMultiplier||1));
  const effort=turn>0?clamp(Math.abs(delta)/Math.max(.001,turn*step),0,1):0;
- const slowing=s.state==='DEFEND'&&p.defense!=='EXTEND'?.8:s.state==='SETUP'&&p.tactic==='PRECISION'?.9:1;
- const target=clamp(slowing-(h.drag??.18)*effort*effort,.65,1),rate=target<s.energy?1.8:(h.recovery??1)*(personality.acceleration??1);
+ const slowing=pressedBreak?ACE_PRESSED_BREAK.throttle:s.state==='DEFEND'&&p.defense!=='EXTEND'?.8:s.state==='SETUP'&&p.tactic==='PRECISION'?.9:1;
+ const target=clamp(slowing-(h.drag??.18)*effort*effort,pressedBreak?ACE_PRESSED_BREAK.throttle-.05:.65,1),rate=target<s.energy?1.8:(h.recovery??1)*(personality.acceleration??1);
  s.energy+=(target-s.energy)*(1-Math.exp(-rate*step));e.energySpeed=s.energy;
  // Retain the existing short dash budget, with finite acceleration/deceleration.
  const dashTarget=e.bossDash>0&&!defensiveSkill?3:1;

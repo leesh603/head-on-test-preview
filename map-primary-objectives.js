@@ -1,8 +1,9 @@
 // Required battlefield objectives. The existing stage owner advances the front;
 // this module only observes native parts, pilots and mission-owned units.
-import {tickAirMapMission} from './map-air-missions.js?v=b3bf991d11fc7798';
-import {tickNavalMapMission} from './map-naval-missions.js?v=b3bf991d11fc7798';
-import {tickAlpsObservation} from './alps-observation-mission.js?v=b3bf991d11fc7798';
+import {tickAirMapMission} from './map-air-missions.js';
+import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js';
+import {tickAlpsObservation} from './alps-observation-mission.js';
+import {harborPoint} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
 
 export const PRIMARY_MAPS=Object.freeze([0,1,2,5,6,7,8,9,10,12,13,14,15,16]);
 const BOSS_OBJECTIVES={
@@ -21,9 +22,18 @@ const dead=(b,id)=>!!b&&(b.dead||b.parts?.get(id)?.destroyed===true||b.parts?.ge
 const bodies=g=>[...g.stageBoss?.stages.encounter?.bodies?.values?.()||[]];
 const stageKey=g=>{const s=g.stageBoss.stages;return `${s.loopIndex}:${s.orderPosition}:${s.stageIndex}`;};
 const say=(g,text)=>g.event?.('wave',text);
+// 20261109 HUD copy: the card reads title / what to do now with its count /
+// time left and the one way it can fail. Before contact each map already
+// names its real objective instead of a generic "find the target".
+const PREVIEW={0:['열차포를 찾아 선로·탄약차 파괴','Find the rail gun: cut track and ammunition'],2:['적 전차를 찾아 멈추세요','Find the tank and stop it'],8:['적 주포를 부숴 돌파로를 여세요','Break the enemy guns to open the breach'],10:['전방 적 강점·전차를 저지하세요','Stop the strongpoint and tanks ahead'],12:['관측소와 보급로 포대를 찾으세요','Find the observation post and road batteries'],15:['파리 상공의 표적을 찾으세요','Find the target over Paris']};
+const PREVIEW_META=['표적과 교전하면 제한시간 시작','The clock starts at first contact'];
 const won=(ko,en)=>({success:true,reason:[ko,en]});
 const lost=(ko,en)=>({success:false,reason:[ko,en]});
 const guide=(m,q,ko,en,kind='target')=>{if(q&&Number.isFinite(q.x)&&Number.isFinite(q.y))m.guides.push({...q,label:[ko,en],kind});};
+function keepReachedExit(m){
+ const point=m.guides.find(q=>q.kind==='exit');
+ if(point)m.exitSignal={x:point.x,y:point.y};
+}
 const partGuide=(m,b,id,ko,en)=>{const p=b?.parts?.get(id);if(p&&!dead(b,id))guide(m,{x:b.x+p.x,y:b.y+p.y},ko,en);};
 
 export function clearMapMission(g){
@@ -51,8 +61,8 @@ export function ensureMapMission(g){
 
 function exit(g,m,ko='귀환선',en='Exit',distance=950,reverse=true){
  if(!m.exit){m.exit=at(lead(g)||m.origin,m.heading+(reverse?Math.PI:0),distance);say(g,ko+' 개방 · 표시된 지점으로 이탈하세요');}
- guide(m,m.exit,ko,en,'exit');m.task=[ko+'에 도달하세요',`Reach the ${en.toLowerCase()}`];
- m.detail=['남은 적을 모두 격파할 필요는 없습니다','Remaining enemies may be left behind'];
+ guide(m,m.exit,ko,en,'exit');m.task=[ko+'으로 이동하세요',`Fly to the ${en.toLowerCase()}`];
+ m.detail=['목표 달성 · 남은 적은 무시해도 됩니다','Objective done · remaining enemies may be ignored'];
  return near(g,m.exit)?won('작전 완료 · 전장 이탈','Objective complete · leaving battlefield'):null;
 }
 function combatBody(g,m){
@@ -87,7 +97,7 @@ function interceptCounterattack(g,m,dt){
 }
 
 function tickParts(g,m,dt){
- const b=combatBody(g,m);if(!b){m.task=['전방의 주요 표적을 찾으세요','Locate the main target ahead'];return null;}
+ const b=combatBody(g,m);if(!b){m.task=PREVIEW[m.region]||['전방 표적을 찾으세요','Find the target ahead'];m.detail=PREVIEW_META;return null;}
  const parts=[...b.parts?.values()||[]];
  if(m.region===0){
   const rail=!!b.rail129?.broken||dead(b,'rail'),ammo=dead(b,'car-front');
@@ -96,7 +106,7 @@ function tickParts(g,m,dt){
   if(b.dead||rail&&ammo)return exit(g,m,'전방 돌파 지점','Forward breach',1050,false);
  }else if(m.region===2){
   const stopped=b.dead||dead(b,'engine-deck')||dead(b,'track-left')&&dead(b,'track-right');
-  m.task=['궤도 양쪽 또는 엔진을 파괴해 돌파로를 여세요','Break both tracks or the engine to open a passage'];m.detail=['차체가 멈추면 전방 돌파 지점으로 이동','When the hull stops, reach the forward exit'];
+  m.task=[`전차 정지 · 궤도 ${['track-left','track-right'].filter(id=>dead(b,id)).length}/2 또는 엔진`,`Stop the tank · tracks ${['track-left','track-right'].filter(id=>dead(b,id)).length}/2 or engine`];m.detail=['멈추면 전방 돌파 지점 개방','Stopping it opens the breakthrough'];
   partGuide(m,b,'track-left','좌측 궤도','Left track');partGuide(m,b,'track-right','우측 궤도','Right track');
   if(stopped)return exit(g,m,'돌파 지점','Breakthrough',1100,false);
  }else if(m.region===8){
@@ -104,7 +114,7 @@ function tickParts(g,m,dt){
   const done=b.dead||ids.every(id=>dead(b,id));
   if(!m.breach&&done){m.breach=at({x:b.x,y:b.y},m.heading,450);m.limit=Math.max(m.limit,m.age+45);say(g,'돌파로 개방 · 적 장갑 반격대가 접근합니다');}
   if(m.breach)return interceptCounterattack(g,m,dt);
-  m.task=[b.kind==='fliegerzug'?'발진 객차 2량을 파괴하세요':'주포를 파괴해 돌파로를 여세요',b.kind==='fliegerzug'?'Destroy both launch cars':'Destroy the turret to open the breach'];m.detail=['공격 성공 후 역습까지 막아야 승리','Open the breach, then stop the counterattack'];
+  m.task=[b.kind==='fliegerzug'?`발진 객차 파괴 ${ids.filter(id=>dead(b,id)).length}/2`:'주포를 파괴해 돌파로 개방',b.kind==='fliegerzug'?`Launch cars destroyed ${ids.filter(id=>dead(b,id)).length}/2`:'Destroy the turret to open the breach'];m.detail=['돌파로를 연 뒤 역습기까지 막아야 승리','After the breach, stop the counterattack to win'];
   for(const id of ids)partGuide(m,b,id,b.kind==='fliegerzug'?'발진 객차':'주포',b.kind==='fliegerzug'?'Launch car':'Turret');
  }else if(m.region===10){
   const tanks=bodies(g).filter(q=>q.kind==='mark4-wedge');
@@ -123,7 +133,7 @@ function tickParts(g,m,dt){
    if(stopped>=goal)return won('랜드쉽 돌파대 저지 · 전선 사수','Landship breakthrough stopped');
   }else{
    const ids=['gun-left','gun-right','twin-aa'],n=ids.filter(id=>dead(b,id)).length;
-   m.task=[`강점 화기 제압 ${n}/3`,`Strongpoint weapons silenced ${n}/3`];m.detail=['보루의 중화기를 끊은 뒤 열린 전선으로 진격','Silence the strongpoint and advance through the opening'];
+   m.task=[`강점 화기 제압 ${n}/3`,`Strongpoint weapons silenced ${n}/3`];m.detail=['모두 제압하면 진격 지점 개방','All silenced opens the advance'];
    for(const id of ids)partGuide(m,b,id,'강점 포대','Strongpoint gun');
    if(b.dead||n===3)return exit(g,m,'진격 지점','Advance point',1000,false);
   }
@@ -131,13 +141,13 @@ function tickParts(g,m,dt){
   const control=b.kind==='fort-douaumont'?'control':'observer';
   const guns=b.kind==='fort-douaumont'?['heavy-left','heavy-right']:['bunker-left','bunker-right'];
   const n=guns.filter(id=>dead(b,id)).length,blind=dead(b,control);
-  m.task=[`관측망 ${blind?'차단':'제압'} · 보급로 위협 포대 ${n}/2`,`Observation ${blind?'cut':'active'} · road batteries ${n}/2`];m.detail=['관측소와 양측 포대를 끊고 보급로를 확보하세요','Silence observation and both batteries covering the supply route'];
+  m.task=[`관측소 ${blind?'파괴됨':'남음'} · 보급로 포대 ${n}/2`,`Observation ${blind?'cut':'active'} · road batteries ${n}/2`];m.detail=['모두 제압하면 보급로 확보 지점 개방','All silenced opens the supply route'];
   partGuide(m,b,control,'포병 관측소','Artillery observation');for(const id of guns)partGuide(m,b,id,'보급로 위협 포대','Road-covering battery');
   if(b.dead||blind&&n===2)return exit(g,m,'보급로 확보 지점','Supply route',1000,false);
  }else if(m.region===15){
   const defend=m.faction!=='central',ids=defend?['bomb-bay-left','bomb-bay-right']:['generator-left','generator-right'];
   const n=ids.filter(id=>dead(b,id)).length;
-  m.task=[`${defend?'폭탄창':'발전기'} 무력화 ${n}/2`,`${defend?'Bomb bays':'Generators'} disabled ${n}/2`];m.detail=[defend?'투하 능력을 없애면 도시 방어 성공':'방공망을 소등시킨 뒤 파리에서 이탈',defend?'Remove bombing capability to save the city':'Black out the defenses, then leave Paris'];
+  m.task=[`${defend?'폭탄창':'방공 발전기'} 파괴 ${n}/2`,`${defend?'Bomb bays':'Defense generators'} destroyed ${n}/2`];m.detail=[defend?'파리 피해가 한도에 닿으면 실패':'모두 끄면 야간 귀환 지점 개방',defend?'Paris damage at its limit fails the mission':'Both dark opens the night exit'];
   for(const id of ids)partGuide(m,b,id,defend?'폭탄창':'발전기',defend?'Bomb bay':'Generator');
   if(g.parisBattle?.role==='defend'&&g.parisBattle.cityDamage>=g.parisBattle.damageLimit)return lost('파리 방어 실패','Paris defense failed');
   if(b.dead||n===2){if(g.parisBattle)g.parisBattle.cleared=true;return defend?won('폭격 능력 상실 · 파리 방어 성공','Bombing capability destroyed · Paris defended'):exit(g,m,'야간 귀환 지점','Night exit',1500);}
@@ -149,26 +159,78 @@ function tickAdriatic(g,m,dt){
  if(!m.blockadeCleared){
   const opening=tickNavalMapMission(g,m,dt);
   if(!opening?.success)return opening;
+  keepReachedExit(m);
   m.blockadeCleared=true;m.guides=[];
-  say(g,opening.reason[0]+' · 적 기함 접근 중');
+  m.bossApproachAt=Math.max(m.age,m.naval.openedAt+NAVAL_MISSION_BALANCE.blockadeSeconds);
+  say(g,opening.reason[0]);
  }
  if(m.faction==='entente'&&!m.naval.sectors.some(s=>s.ships.some(live)))return lost('봉쇄선 방어 실패','Blockade lost');
  const encounter=g.stageBoss.stages.encounter;
  m.task=['적 기함 격침','Sink the enemy flagship'];
- m.detail=encounter?['기함을 격침하면 작전 완료','Sink the flagship to complete the operation']:['적 기함 접근 중','Enemy flagship approaching'];
+ const wait=Math.ceil(m.bossApproachAt-m.age);
+ m.detail=encounter?['기함을 격침하면 작전 완료','Sink the flagship to complete the operation']:
+  wait>0?[`적 기함 포착까지 ${wait}초`,`Flagship contact in ${wait}s`]:['적 기함 접근 중','Enemy flagship approaching'];
  return encounter?.completed?won('적 기함 격침 · 아드리아해 작전 완료','Flagship sunk · Adriatic operation complete'):null;
+}
+
+function tickHarborObjective(g,m,encounter){
+ const route=g.navalRoute,convoy=g.zeebruggeRaid;
+ const support=convoy?.mapMissionId===m.id
+  ?(convoy.done&&!convoy.scuttled?['폐색선 전멸','Blockships lost']:
+   [`폐색선 자침 ${convoy.scuttled}/3`,`Blockships scuttled ${convoy.scuttled}/3`])
+  :null;
+ const detail=(ko,en)=>m.detail=support?[ko+' · '+support[0],en+' · '+support[1]]:[ko,en];
+ if(!encounter){
+  const along=route?.maxForward||0;
+  m.task=along<4200?['외해 함대를 지나 항만으로 진입','Fly past the fleet toward the harbor']:
+   ['내항으로 진입해 요새 포대를 제압','Enter the inner harbor and silence its guns'];
+  detail('최종 목표 · 장갑 항만요새 격파','Destroy the armored harbor fortress');
+  if(route)guide(m,along>=9000&&route.fortressPreview?route.fortressPreview:at(route,route.a,along+1600),'요새 접근로','Fortress approach');
+  return null;
+ }
+ if(encounter.completed)return won(...BOSS_OBJECTIVES[7]);
+ const b=bodies(g)[0];if(!b)return null;
+ const guns=['gun-front-left','gun-front-right','gun-left','gun-right'],silenced=guns.filter(id=>dead(b,id)).length;
+ if(b.coreVulnerable){
+  m.task=['노출된 요새 핵심부를 파괴하세요','Destroy the exposed fortress core'];
+  detail(`해안포 ${silenced}/4문 제압`,`Coastal batteries silenced ${silenced}/4`);
+  guide(m,harborPoint(b,0,-44),'요새 핵심부','Fortress core');
+ }else{
+  const breached=b.parts.get('crane-pivot')?.hittable;
+  m.task=breached?['크레인 기반을 부숴 핵심부 노출','Break the crane base to expose the core']:
+   ['해안포와 항만설비를 무력화하세요','Silence the guns and disable the harbor facilities'];
+  detail(`해안포 ${silenced}/4문 제압`,`Coastal batteries silenced ${silenced}/4`);
+  if(breached)partGuide(m,b,'crane-pivot','크레인 기반','Crane base');
+  partGuide(m,b,'ammo-storage','탄약고 · 포격과 기뢰','Ammunition · guns and mines');
+  partGuide(m,b,'seaplane-facility','격납고 · 수상기 출격','Hangar · seaplane sorties');
+  partGuide(m,b,'crane-arm','크레인 · 기뢰 투척','Crane · mine throws');
+ }
+ for(const id of guns)partGuide(m,b,id,'해안포','Coastal battery');
+ return null;
 }
 
 function tickBossObjective(g,m){
  const encounter=g.stageBoss.stages.encounter;
+ if(m.region===7)return tickHarborObjective(g,m,encounter);
  m.task=BOSS_OBJECTIVES[m.region];
  m.detail=encounter?['요새의 실제 파괴로 작전을 완료하세요','Destroy the fortress to finish the operation']:
   ['전방의 요새에 접근하세요','Approach the fortress ahead'];
- if(m.region===7&&encounter&&!encounter.completed){
-  const b=bodies(g)[0],guns=['gun-front-left','gun-front-right','gun-left','gun-right'];
-  const active=guns.filter(id=>!dead(b,id));
-  m.detail=[`접근로 해안포 ${active.length}/4문 가동`,`Approach batteries active ${active.length}/4`];
-  for(const id of active)partGuide(m,b,id,'해안포','Coastal battery');
+ if(!encounter&&m.region===14){
+  const r=g.gallipoliRoute;
+  if(r)guide(m,at(r,r.a,Math.max(0,r.maxForward||0)+1600),'요새 접근로','Fortress approach');
+ }
+ if(m.region===14&&encounter&&!encounter.completed){
+  const b=bodies(g)[0];
+  if(b?.coreVulnerable){
+   m.detail=['지휘포대 노출 · 마지막 표적을 파괴하세요','Command exposed · destroy the final target'];
+   guide(m,b,'지휘포대','Command post');
+  }else if(b){
+   m.detail=['탄약고를 부수면 해당 구역 포대 수리가 멈춥니다','Destroy ammunition depots to stop sector repairs'];
+   const p=lead(g),parts=[...b.parts.values()].filter(q=>!q.destroyed&&q.hp>0);
+   const ammo=parts.filter(q=>q.kind==='supply'),targets=ammo.length?ammo:parts.filter(q=>['gun','aa'].includes(q.kind));
+   targets.sort((a,c)=>Math.hypot(b.x+a.x-p.x,b.y+a.y-p.y)-Math.hypot(b.x+c.x-p.x,b.y+c.y-p.y));
+   for(const q of targets.slice(0,6))partGuide(m,b,q.id,q.kind==='supply'?'탄약고':'포대',q.kind==='supply'?'Ammunition depot':'Battery');
+  }
  }
  return encounter?.completed?won(...BOSS_OBJECTIVES[m.region]):null;
 }
@@ -187,20 +249,22 @@ export function tickMapMission(g,dt){
  else result=tickParts(g,m,Math.min(dt,.12));
  if(!result&&!m.blockadeCleared&&(!m.awaitContact||m.contactAt!=null)&&m.age>=m.limit)result=lost('제한시간 초과 · 작전 실패','Time expired · operation failed');
  if(result){
-  m.resolved=true;m.success=!!result.success;m.status=m.success?'succeeded':'failed';m.resolvedAt=m.age;m.reason=result.reason;m.task=result.reason;m.detail=m.success?['다음 전장으로 이동합니다','Proceeding to the next battlefield']:['필수 목표를 달성하지 못했습니다','The required objective was not achieved'];
-  if(m.success)say(g,result.reason[0]);
+  m.resolved=true;m.success=!!result.success;m.status=m.success?'succeeded':'failed';m.resolvedAt=m.age;m.reason=result.reason;m.task=result.reason;m.detail=m.success?['작전 성공 · 다음 전장으로 이동','Mission complete · moving to the next battlefield']:['작전 실패','Mission failed'];
+  if(m.success){keepReachedExit(m);say(g,result.reason[0]);}
   else{g.state='lost';g.score=(g.kills||0)*100+Math.floor(g.t||0)*10;g.event?.('end',result.reason[0]);}
  }
  return m;
 }
 export function mapMissionCard(g,en=false){
- if(g?.online&&!g.host){const c=g.mapMissionSnapshot?.cards?.[en?'en':'ko'];return c?{title:c[0],objective:c[1],meta:c[2],urgent:c[3]}:null;}
+ if(g?.online&&!g.host){const c=g.mapMissionSnapshot?.cards?.[en?'en':'ko'];return c?{title:c[0],objective:c[1],meta:c[2],urgent:c[3],clock:c[4]||'',time:c[5]??null,fail:c[6]||'',state:c[7]||'active'}:null;}
  const m=g?.mapMission;if(!m||m.region!==g.stageBoss?.stages.stageIndex)return null;
  const lang=en?1:0,remaining=Math.max(0,Math.ceil(m.limit-m.age)),timed=Number.isFinite(m.limit)&&!m.blockadeCleared&&(!m.awaitContact||m.contactAt!=null);
- return {title:(m.title||TITLES[m.region])[lang],objective:m.task?.[lang]||'',meta:(timed&&!m.resolved?`${remaining}s · `:'')+(m.detail?.[lang]||''),urgent:timed&&!m.resolved&&remaining<=20};
+ const clock=`${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')}`;
+ const active=timed&&!m.resolved;
+ return {title:(m.title||TITLES[m.region])[lang],objective:m.task?.[lang]||'',meta:(active?(en?`${clock} left · `:`남은 ${clock} · `):'')+(m.detail?.[lang]||''),urgent:active&&remaining<=20,clock:active?clock:'',time:active?Math.round(Math.max(0,Math.min(1,(m.limit-m.age)/Math.max(1,m.limit-(m.contactAt??0))))*100)/100:null,fail:m.detail?.[lang]||'',state:m.resolved?(m.success?'success':'failed'):'active'};
 }
 export function snapshotMapMission(g){
  const m=g?.mapMission;if(!m)return null;
- const card=en=>{const c=mapMissionCard(g,en);return c?[c.title,c.objective,c.meta,c.urgent]:null;};
- return {id:m.id,region:m.region,status:m.status,cards:{ko:card(false),en:card(true)},guides:m.guides.slice(0,6).map(q=>({x:q.x,y:q.y,label:q.label,kind:q.kind}))};
+ const card=en=>{const c=mapMissionCard(g,en);return c?[c.title,c.objective,c.meta,c.urgent,c.clock,c.time,c.fail,c.state]:null;};
+ return {id:m.id,region:m.region,status:m.status,cards:{ko:card(false),en:card(true)},guides:m.guides.slice(0,6).map(q=>({x:q.x,y:q.y,label:q.label,kind:q.kind})),exitSignal:m.exitSignal??null};
 }

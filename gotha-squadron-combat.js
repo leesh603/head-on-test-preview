@@ -1,5 +1,5 @@
-import {tickBomberWings} from './bomber-wing-damage.js?v=b3bf991d11fc7798';
-import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js?v=b3bf991d11fc7798';
+import {tickBomberWings} from './bomber-wing-damage.js';
+import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js';
 // City Gotha flights: guided forward flight, never slot-position interpolation.
 const TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -66,7 +66,7 @@ function gun(b,p,bounds,dt,allowed,startAllowed){
  if(partId==='rear-gun'&&Math.abs(wrap(angle-b.a))<1.1)return;
  b.gothaVolley={partId,left:warning,angle,speed};part.aimAngle=angle;cue(b,b.gothaVolley);
 }
-function bomb(b,p,bounds,cycle,allowed,londonTargets){
+function bomb(b,p,bounds,cycle,allowed){
  if(!allowed||b.parts.get('bomb-bay')?.destroyed||!b.engines())return;
  const visible=gothaOnScreen(b,bounds);
  if(!visible&&!b.runTarget)return;
@@ -79,26 +79,32 @@ function bomb(b,p,bounds,cycle,allowed,londonTargets){
  // Lock once at release: turning after this tell wins, not an endless chase.
  for(let i=0;visible&&i<count;i++){const x=tx+Math.cos(a)*i*70,y=ty+Math.sin(a)*i*70;
   b.hazard('circle',{x,y,radius:42,warning:warning+i*.2,duration:.22,once:true,damage:b.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:b.id+'-payload',lockedAim:true});}
+ releaseCityBomb(b,q);
+}
+export function releaseCityBomb(b,q){
  const t=b.runTarget;
  if(t){
   b.command('city-bomb',{runId:b.runId,targetId:t.id,x:t.x,y:t.y,sourceX:q.x,sourceY:q.y,seconds:1.1,damage:6});
   b.hazard('circle',{x:t.x,y:t.y,radius:42,warning:1.1,duration:.22,once:true,damage:b.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,objective:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:b.id+'-payload',lockedAim:true});
-  b.runTarget=null;b.runRemaining=0;
+  b.runTarget=null;b.runRemaining=0;b.onBombLine=false;
  }
 }
-function cityPlan(b,targets,bounds,time,active){
- const beat=time%8,key=Math.floor(time/8),release=b.engines()===2?5.3:5.55;
+export function abortCityBomb(b){
+ if(b.runTarget)b.command('city-bomb-abort',{runId:b.runId});
+ b.runTarget=null;b.runRemaining=0;b.onBombLine=false;
+}
+export function planCityBomb(b,targets,time,active,period,release){
+ const beat=time%period,key=Math.floor(time/period);
  if(b.runTarget){
   b.runRemaining=Math.max(0,release-beat);
-  if(!active||beat>=5.8||b.parts.get('bomb-bay')?.destroyed||!b.engines()||b.runTarget.hp<=0){
-   b.command('city-bomb-abort',{runId:b.runId});b.runTarget=null;b.runRemaining=0;
-  }
+  b.onBombLine=b.runRemaining<=.4;
+  if(!active||beat>=release+.5||b.parts.get('bomb-bay')?.destroyed||!b.engines()||b.runTarget.hp<=0)abortCityBomb(b);
  }
- if(!active||beat<3.8||beat>=5.3||b.gothaCityPlan===key||b.parts.get('bomb-bay')?.destroyed||!b.engines())return;
+ if(!active||beat<release-1.5||beat>=release||b.cityPlanCycle===key||b.parts.get('bomb-bay')?.destroyed||!b.engines())return;
  // City districts are fixed world objectives; moving the camera must not
  // protect them or cancel a warned bombing run.
- const available=targets.filter(q=>q.hp>0),t=available[b.slot%3%available.length];if(!t)return;
- b.gothaCityPlan=key;b.runTarget=t;b.runId=b.id+':city:'+key;b.runRemaining=release-beat;
+ const available=targets.filter(q=>q.hp>0),slot=b.slot%3+(targets.length>3?key:0),t=available[slot%available.length];if(!t)return;
+ b.cityPlanCycle=key;b.runTarget=t;b.runId=b.id+':city:'+key;b.runRemaining=release-beat;
  b.command('city-bomb-warning',{runId:b.runId,targetId:t.id,x:t.x,y:t.y,seconds:b.runRemaining});
 }
 export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
@@ -132,8 +138,9 @@ export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
  if(b.gothaVolley)reserveArrivalFlight(b,0);
 
  if(!fighting)b.gothaVolley=null;
- cityPlan(b,londonTargets,bounds,time,isActive);
- bomb(b,p,bounds,time,isActive&&beat>=(engines===2?5.3:5.55)&&beat<5.8,londonTargets);
+ const release=engines===2?5.3:5.55;
+ planCityBomb(b,londonTargets,time,isActive,8,release);
+ bomb(b,p,bounds,time,isActive&&beat>=release&&beat<5.8);
  b.bayOpen=Math.max(0,b.bayOpen-dt*.5);
 }
 

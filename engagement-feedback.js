@@ -1,5 +1,6 @@
-import {drawHeadOnEngagement} from './engagement-hud410.js?v=b3bf991d11fc7798';
-// Presentation only: no damage, steering, or target-lock changes.
+import {drawHeadOnEngagement} from './engagement-hud410.js?v=tame3&pill=20261110';
+// Presentation only: the head-on damage rule itself lives in head-on-bonus.js.
+import {HEAD_ON_BALANCE} from './head-on-bonus.js';
 export function headOnTarget(player,enemies){
  if(!player||player.hp<=0||player.status&&player.status!=='alive')return null;
  const px=Math.cos(player.a),py=Math.sin(player.a);let nearest=null,best=420;
@@ -35,7 +36,7 @@ export function drawHeadOnFeedback(ctx,game,width,height,play){
   // Mark the enemy nose-on, in the same bracket + pill grammar as the tail marker.
   const target=headOnTarget(p,game.enemies),anchor=target||p;
   const x=(anchor.x-game.x)*zoom+width/2,y=(anchor.y-game.y)*zoom+height/2;
-  const label=coop?(p.id?.toUpperCase()||'')+' · HEAD-ON':'HEAD-ON';
+  const bonus=' ×'+HEAD_ON_BALANCE.damageMultiplier.toFixed(2),label=coop?(p.id?.toUpperCase()||'')+' · HEAD-ON'+bonus:'HEAD-ON'+bonus;
   drawHeadOnEngagement(ctx,x,target?y:y-10,label,feedback.age,Math.min(1,feedback.left/.2),!!target);
  }
 }

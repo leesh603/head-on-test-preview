@@ -1,17 +1,24 @@
-import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=b3bf991d11fc7798';
-import {gothaCrashPose} from './aircraft-crash.js?v=b3bf991d11fc7798';
-import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=b3bf991d11fc7798';
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=b3bf991d11fc7798';
-import {impactMark,aimLine} from './tactical-marks.js?v=b3bf991d11fc7798';
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {drawAttachedApron} from './london-apron369.js?v=b3bf991d11fc7798';
-import {drawCityFacility,releaseCityFacilityArt} from './city-protected-facilities.js?v=b3bf991d11fc7798';
-const paths={districtDamage:'./city-raid-district-damage-20261103.webp',gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
-let art={},artLoadP=null;
-export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();releaseCityBalloonArt();releaseCityFacilityArt();}
-export function prepareLondonArt(daylightCity=false){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).filter(([key])=>!daylightCity||key!=='districtDamage').map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
-const londonImage=key=>{const im=art[key];if(im?.naturalWidth)return im;if(!artLoadP)artLoadP=prepareLondonArt();return null;};
-function installation(c,key,x,y,size,ruined=false){const im=londonImage(key);if(!im)return;c.save();c.imageSmoothingEnabled=true;c.globalAlpha*=ruined?.32:1;c.drawImage(im,x-size/2,y-size/2,size,size);c.restore();if(ruined)fx(c,'smokeDark',x,y-18,50,50,0,.6);}
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
+import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
+import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {fx} from './fx-art.js?v=tame3';
+import {drawRaidApron} from './london-apron369.js?v=tame3&cityart=20261022';
+import {APRON_GROUND} from './london-apron-ground.js';
+import {drawCityFacility,releaseCityFacilityArt} from './city-protected-facilities.js';
+const paths={districtDamage:'./city-raid-district-damage-20261103.webp',gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
+let art={},pending={};
+export function releaseLondonArt(){art={};pending={};releaseGothaDetailArt();releaseCityBalloonArt();releaseCityFacilityArt();}
+function loadLondonImage(key,path){
+ if(pending[key])return pending[key];
+ const im=new Image();art[key]=im;im.decoding='async';
+ pending[key]=new Promise(resolve=>{im.onerror=resolve;im.onload=()=>Promise.resolve(im.decode?.()).catch(()=>{}).finally(resolve);});
+ im.src=path;
+ return pending[key];
+}
+export function prepareLondonArt(daylightCity=false){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).filter(([key])=>!daylightCity||key!=='districtDamage').map(([key,path])=>loadLondonImage(key,path))]);}
+const londonImage=key=>{if(!art[key])prepareLondonArt();return art[key]?.naturalWidth?art[key]:null;};
 export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const crash=b.destroying?gothaCrashPose(b,b.destructionAge,b.destructionDuration):null,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
  c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??a);c.imageSmoothingEnabled=true;if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
  const cell=(wreck=false)=>c.drawImage(im,wreck?cw:0,0,cw,ch,-105,-105,210,210);
@@ -26,8 +33,12 @@ export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGoth
  c.restore();
 }
 export function drawLondonRaidApron(c,b){
- const intact=londonImage('apron');if(intact)drawAttachedApron(c,b,intact,londonImage('apronDamage')||intact);
- for(const p of b.parts||[])if(p.id==='light'||p.id==='gun')installation(c,p.id,b.x+p.x,b.y+p.y,70*(b.apronScale||1),p.destroyed);
+ for(const p of b.parts||[]){
+  const installation=APRON_GROUND[p.id];if(!installation)continue;
+  drawGroundEnemy(c,{...p,faction:'entente',stageBossBody:true,scanA:p.angle,gunAim:p.angle},
+   b.x+p.x,b.y+p.y,installation.size,installation.kind,'entente',11);
+ }
+ drawRaidApron(c,b,londonImage('apron'),londonImage('apronDamage'));
 }
 const districtDamageColumns={west:0,docks:1,east:2};
 function drawDistrictDamage(c,d){

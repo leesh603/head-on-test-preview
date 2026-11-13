@@ -1,4 +1,4 @@
-import {armorRotate} from './trench-armor-layout.js?v=b3bf991d11fc7798';
+import {armorRotate} from './trench-armor-layout.js?v=tame3&ai=1018';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const approach=(v,w,step)=>v+clamp(w-v,-step,step);
 export function initArmorDrive(b){
@@ -8,15 +8,15 @@ export function initArmorDrive(b){
 // rotate the actual chassis, with the same pose used by mounts and collision.
 export function stepArmorDrive(b,dt,{speed=0,turn=0,brake=false,bounds}={}){
  const s=b.t.geometryScale||1,gauge=b.layout.trackX*2*s,lost=b.trackLoss(),engine=b.parts.get('engine-deck').destroyed;
- const mobility=engine?(b.kind==='a7v-flak'?0:.18):1,turnLimit=(lost===2?0:lost===1?.14:b.layout.turnRate||.68)*mobility;
+ const mobility=engine?(b.kind==='a7v-flak'?0:.18):1,turnLimit=(lost===2?0:lost===1?.45:b.layout.turnRate||.68)*mobility;
  const omega=clamp(turn,-turnLimit,turnLimit),v=engine?clamp(speed*mobility,-6,6):speed*mobility;
  let left=v+omega*gauge/2,right=v-omega*gauge/2;
- if(lost){const limit=gauge*.14*mobility;if(b.parts.get('track-left').destroyed){left=0;right=clamp(right,-limit,limit);}if(b.parts.get('track-right').destroyed){right=0;left=clamp(left,-limit,limit);}}
+ if(lost){const limit=gauge*.45*mobility;if(b.parts.get('track-left').destroyed){left=0;right=clamp(right,-limit,limit);}if(b.parts.get('track-right').destroyed){right=0;left=clamp(left,-limit,limit);}}
  const accel=(brake?160:engine?8:(b.driveAccel||34))*dt,prevLeft=b.leftTrack.speed,prevRight=b.rightTrack.speed;
  b.leftTrack.speed=approach(b.leftTrack.speed,left,accel);b.rightTrack.speed=approach(b.rightTrack.speed,right,accel);
  if(b.parts.get('track-left').destroyed||!mobility)b.leftTrack.speed=0;
  if(b.parts.get('track-right').destroyed||!mobility)b.rightTrack.speed=0;
- if(lost){const limit=gauge*.14*mobility;b.leftTrack.speed=clamp(b.leftTrack.speed,-limit,limit);b.rightTrack.speed=clamp(b.rightTrack.speed,-limit,limit);}
+ if(lost){const limit=gauge*.45*mobility;b.leftTrack.speed=clamp(b.leftTrack.speed,-limit,limit);b.rightTrack.speed=clamp(b.rightTrack.speed,-limit,limit);}
  let forward=(b.leftTrack.speed+b.rightTrack.speed)/2,angular=(b.leftTrack.speed-b.rightTrack.speed)/gauge;
  const yaw=b.hullYaw+angular*dt,nx=b.x+Math.sin(yaw)*forward*dt,ny=b.y-Math.cos(yaw)*forward*dt;
  // Brake at a bounded route edge; no camera-relative teleport or sliding.
