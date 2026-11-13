@@ -215,7 +215,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
    const effHp=Math.round(maxHp*(bossTuning.hpScale||1));
-   return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp:effHp,partHp:effHp*.12,damage:Math.round(18*(1+tuningTime/240)*balance.damage),bulletSpeed:270,coreRadius:150,
+   return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp:effHp,partHp:effHp*.12,damage:Math.round(18*(1+combatDamageTime(g)/240)*balance.damage),bulletSpeed:270,coreRadius:150,
     mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1.4+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:4,waterInterval:2.8,launchInterval:2.2,enrageInterval:.85,broadsideInterval:1.4/density,mortarInterval:1.35,chargeInterval:2,suppressiveInterval:2.3/density,suppressiveCount:8,
     parts:{truss:{x:24,y:-80},muzzle:{x:0,y:-92},hangar:{x:0,y:38},crane:{x:42,y:-25},
      front:{x:0,y:-86},rear:{x:0,y:91},left:{x:-57,y:0},right:{x:57,y:0}},...bossTuning};
@@ -374,10 +374,13 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   },
   onEncounterCleared({id,bossId}){
    const city=cityRaidBattle(g);
+   const rewardHero=players(g).find(alive)||players(g)[0]||g;
    if(city)city.cleared=true;
    const fortresses=[...g.stageBoss?.stages.encounter?.bodies.values()||[]].filter(b=>b.fortressBoss);
    if(fortresses.length)g.verdunWrecks=[...(g.verdunWrecks||[]),...fortresses];
-   if(g.londonBattle){g.londonBattle.cleared=true;if(g.londonBattle.role==='defend')for(const d of g.londonBattle.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:d.x,y:d.y,value:24,bossReward:true});}
+   if(g.londonBattle)g.londonBattle.cleared=true;
+   const defendedCity=city||g.londonBattle;
+   if(defendedCity?.role==='defend')for(const d of defendedCity.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:rewardHero.x,y:rewardHero.y,value:24,bossReward:true});
    if(g.parisBattle)g.parisBattle.cleared=true;
    g.kills++;awardPriorityKill(g,{stageBossBody:true});achievementBossClear(g,{id,bossId});const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
    g.event('kill','');g.event('wave',city?`도심 방어 성공 · 폭격대 격퇴 · 보호시설 ${city.districts.filter(d=>d.hp>0).length}/${city.districts.length}곳 사수`:BOSS_CATALOG[bossId].name+(g.doverMission?' 격파 · 폭격기 임무 계속':g.laonBattle?.role==='defend'?' 격파 · 파리포 방어 계속':g.mapMission&&!g.mapMission.resolved?' 격파 · 남은 작전 목표를 완료하세요':' 격파 · 다음 지역 진입'));

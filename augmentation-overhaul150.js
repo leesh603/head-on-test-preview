@@ -6,7 +6,7 @@ import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js'
 import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
 import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
 import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
-import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,previewSecretWeapons} from './secret-weapons.js';
+import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,secretWeaponOrdinaryProgress,previewSecretWeapons} from './secret-weapons.js';
 import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js';
 import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
 import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
@@ -195,7 +195,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    (u.id!=='armor'||armorAvailable(g))&&(u.id!=='regen'||(g.regen||0)<DURABILITY_BALANCE.regenCap-1e-9)&&(u.id!=='rate'||g.rate>.045+1e-9)&&(u.id!=='cooldown'||g.cooldownMult>.5+1e-9)&&
    (u.id!=='turn'||(g.turnUpgradeBonus||0)<AUGMENT_BALANCE.turnCap-1e-9||(g.speedUpgradeBonus||0)<AUGMENT_BALANCE.speedCap-1e-9)&&
    (u.id!=='explosives'||g.bomberTransfer&&!g.bomberTransfer.kind||g.rockets||g.mineCount||g.bomberLevel||g.motorCannon||g.cow37||g.upgrades.rankinShell||g.legendaryMineTrail||g.upgrades.cooperRack||['bishop','guynemer'].includes(g.pilot))&&
-   (u.id!=='command'||manualAvailable(g)&&(g.permanentWingman||['goering','collishaw','mannock'].includes(g.pilot)));
+   (u.id!=='command'||manualAvailable(g)&&(g.permanentWingman||g.upgrades.aceWingman||g.rescuedAcePilotId||['goering','collishaw','mannock'].includes(g.pilot)));
  };
  const shuffledPick=(g,pool)=>{if(!pool.length)return null;const weights=pool.map(u=>tacticalFollowupWeight(g,u.id,buildIdentityFor(u.id)));let ticket=g.rng()*weights.reduce((a,b)=>a+b,0);for(let i=0;i<pool.length;i++){ticket-=weights[i];if(ticket<0)return pool[i]}return pool[pool.length-1]};
  const normalPick=function(g,rarity,picks,previous=[]){const used=new Set(picks.map(u=>u.id)),eligible=UPGRADES.filter(u=>!used.has(u.id)&&normalAllowed(g,u,rarity)),fresh=eligible.filter(u=>!previous.includes(u.id));return shuffledPick(g,fresh.length?fresh:eligible)};
@@ -231,6 +231,17 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    const fresh=eligible.filter(u=>!(this.lastChoices||[]).includes(u.id));
    const followup=shuffledPick(this,fresh.length?fresh:eligible);
    if(followup)picks[slot]={...followup,rarity};
+  }
+  // Keep one route from owned materials to their ordinary requirements. Replace
+  // only a same-rarity card, and never remove the sole invested-family option.
+  if(!picks.some(u=>secretWeaponOrdinaryProgress(this,u.id,BUILD_IDENTITY_LIMIT))){
+   for(let slot=picks.length-1;slot>=0;slot--){
+    const old=picks[slot],rarity=old.rarity;
+    const soleInvested=committed.has(buildIdentityFor(old.id))&&!picks.some((u,i)=>i!==slot&&committed.has(buildIdentityFor(u.id)));
+    const eligible=UPGRADES.filter(u=>!picks.some(p=>p.id===u.id)&&normalAllowed(this,u,rarity)&&secretWeaponOrdinaryProgress(this,u.id,BUILD_IDENTITY_LIMIT)&&(!soleInvested||committed.has(buildIdentityFor(u.id))));
+    const fresh=eligible.filter(u=>!(this.lastChoices||[]).includes(u.id)),next=shuffledPick(this,fresh.length?fresh:eligible);
+    if(next){picks[slot]={...next,rarity};break;}
+   }
   }
   const offers=this.legendaryOffers??(this.legendaryOffered?1:0),cooldown=this.specialDraftCooldownIds||[],pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id));
   if(!forceRarity&&!this.mission?.unarmed&&offers<EQUIPMENT_OFFER_LEVELS.length&&this.level>=EQUIPMENT_OFFER_STARTS[offers]&&this.legendaryCount()<4&&pool.length>=3&&pool.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))&&(this.rng()<this.legendaryChance()||this.level>=EQUIPMENT_OFFER_LEVELS[offers])){

@@ -31,6 +31,22 @@ const familyCounts=upgrades=>{
  for(const [id,family] of Object.entries(PICK_FAMILY))counts[family]+=Math.max(0,Math.floor(Number(upgrades?.[id])||0));
  return counts;
 };
+// Materials commit a direction too. Reuse recipe requirements to connect their
+// ordinary prerequisites, without changing rarity or unlocking a fourth family.
+export function secretWeaponOrdinaryProgress(p,id,familyLimit=3){
+ const family=PICK_FAMILY[id];if(!family)return false;
+ const u=p?.upgrades||{},ranks=familyCounts(u),slots=p?.secretWeaponState?.slots||{};
+ const committed=Object.keys(ranks).filter(f=>ranks[f]>0);
+ return SECRET_WEAPONS.some(r=>{
+  if(Object.values(slots).includes(r.id)||!r.body.some(b=>!slots[b])||![...r.body,...r.catalysts].some(b=>u[b]))return false;
+  const required=new Set([...committed,...Object.keys(r.ranks)]);
+  for(const [key,n] of Object.entries(r.extra))if(key==='wings'?(p.permanentWingman||0)<n:(u[key]||0)<n){const f=key==='wings'?'FORMATION':PICK_FAMILY[key];if(f)required.add(f);}
+  if(required.size>familyLimit)return false;
+  return (r.ranks[family]||0)>ranks[family]||
+   (r.extra[id]||0)>(u[id]||0)||id==='wingman'&&(r.extra.wings||0)>(p.permanentWingman||0)||
+   r.body.includes(id)&&!r.body.some(b=>u[b])||r.catalysts.includes(id)&&!u[id];
+ });
+}
 // Draft guidance shares the evolution recipes. Do not steer a committed build
 // toward a recipe whose missing ordinary families can no longer be acquired.
 export function secretWeaponMaterialLinks(p,id,familyLimit=3){

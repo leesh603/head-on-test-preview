@@ -1,11 +1,11 @@
-import {PANDEMONIUM_DEPLOYMENT,finalArenaBosses} from './pandemonium-registry.js?v=b3bf991d11fc7798';
-import {createVariant,listVariantParts,damageVariantPart,updateVariant,advanceVariantDefeat} from './final-arena-variant-bridge.js?v=b3bf991d11fc7798';
-import {beginFortressDefeat,advanceFortressDefeat,FORTRESS_DEFEAT_DURATION} from './fortress-defeat.js?v=b3bf991d11fc7798';
-import {awardPriorityKill,achievementPandemoniumClear} from './achievements.js?v=b3bf991d11fc7798';
-import {createFortressBattle,updateFortressBattle,damageFortressZone,FORTRESS_ZONES} from './fortress-systems.js?v=b3bf991d11fc7798';
-import {localToWorld,worldToLocal,damageFortress} from './fortress-mechanics.js?v=b3bf991d11fc7798';
-import {disposeIntrusion} from './intrusion-bosses.js?v=b3bf991d11fc7798';
-import {recordCombatImpact} from './combat-impact-result.js?v=b3bf991d11fc7798';
+import {PANDEMONIUM_DEPLOYMENT,finalArenaBosses} from './pandemonium-registry.js';
+import {createVariant,listVariantParts,damageVariantPart,updateVariant,advanceVariantDefeat} from './final-arena-variant-bridge.js';
+import {beginFortressDefeat,advanceFortressDefeat,FORTRESS_DEFEAT_DURATION} from './fortress-defeat.js';
+import {awardPriorityKill,achievementPandemoniumClear} from './achievements.js?v=pandemonium394r2';
+import {createFortressBattle,updateFortressBattle,damageFortressZone,FORTRESS_ZONES} from './fortress-systems.js';
+import {localToWorld,worldToLocal,damageFortress} from './fortress-mechanics.js';
+import {disposeIntrusion} from './intrusion-bosses.js';
+import {recordCombatImpact} from './combat-impact-result.js';
 export const FINAL_ARENA_FORMS=Object.freeze(PANDEMONIUM_DEPLOYMENT.map(p=>p.variant));
 export const FINAL_ARENA=Object.freeze({size:2600,scale:.5,playerLimit:1125,bossLimit:300,intro:2.2,victory:FORTRESS_DEFEAT_DURATION,coreHp:8000,partHp:1000});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -28,6 +28,10 @@ export function beginFinalArena(g){
   const scale=(1+.35*(stages.loopIndex||0))*(g.players?1.6:1);
   g.finalArena={token:route.token,variant:'trio',formToken:String(route.token)+':trio',phase:'entry',elapsed:0,bosses,hpScale:scale,nextAircraft:11,rewarded:false,previousRegion:g.region};g.zeroDistrict=true;
   clearArenaTraffic(g);pilots(g).forEach((p,i)=>{p.x=(i?1:-1)*90;p.y=0;p.a=-Math.PI/2;p.invuln=Math.max(p.invuln||0,1);});
+  // The arena moves pilots to a new coordinate system. Carry only earned boss
+  // rewards with them; otherwise the next pickup pass culls the capital loot.
+  const rewardPilot=pilots(g).find(p=>p.hp>0&&(!p.status||p.status==='alive'))||pilots(g)[0];
+  (g.drops||[]).filter(d=>d.bossReward&&!d.dead).forEach((d,i)=>{d.x=rewardPilot.x+Math.cos(i*2.4)*45;d.y=rewardPilot.y+Math.sin(i*2.4)*45;});
   g.finalArena.entryPositions=pilots(g).map(p=>({id:p.id||'p1',x:p.x,y:p.y}));if(g.camera){g.camera.x=0;g.camera.y=0;}g.region=0;
   g.event?.('wave','제로 구역 · 잿빛 의회 비밀병기공장');
  }

@@ -1,5 +1,6 @@
 import {createFront,frontLength} from './dynamic-front.js';
-// Solo checkpoints contain entry-time pilot/build data, never a live battlefield.
+// Solo checkpoints contain entry-time pilot/build data and uncollected victory
+// rewards, never the live battlefield or ordinary combat drops.
 import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=pandemonium394r2';
 import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {STAGES} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111';
@@ -13,6 +14,9 @@ const objects=new Set(['weapon','ammo','upgrades','upgradeRarities','weaponMods'
 const recordObjects=new Set(['clears','missions','missionTypes','routeClears','routeOrder','sessionAwards','low','recoveries','packet','rapid','escortKinds']);
 const excluded=new Set(['state','mode','online','testMode','region','stageStartTime','stageStartDistance','zeroDistrict','finalArenaVisible','checkpointSaved']);
 const scalar=v=>v===null||['string','number','boolean'].includes(typeof v);
+function victoryDrops(drops=[]){
+ return drops.filter(d=>d?.bossReward&&!d.dead&&(d.life===undefined||d.life>0)&&Number.isFinite(d.x)&&Number.isFinite(d.y)&&Number.isFinite(d.value)&&d.value>=0).map(d=>({x:d.x,y:d.y,value:d.value,heal:!!d.heal,bossReward:true,...(typeof d.intrusionRewardId==='string'?{intrusionRewardId:d.intrusionRewardId}:{}),...(Number.isFinite(d.healFraction)?{healFraction:d.healFraction}:{})}));
+}
 function pack(v,depth=0){
  if(depth>12)return undefined;
  if(typeof v==='number'&&!Number.isFinite(v))return {$number:String(v)};
@@ -78,6 +82,7 @@ export function saveStageCheckpoint(g,storage=checkpointStorage()){
   const stage={stageIndex:stages.stageIndex,loopIndex:stages.loopIndex,order:[...stages.order],orderPosition:stages.orderPosition,capitalRound:stages.capitalRound,phase:stages.phase,operationsEnabled:!!stages.operationsEnabled,operation:pack(stages.operation),front:pack(stages.front),finalArena:pack(stages.finalArena)};
   if(stage.phase==='final-arena')stage.finalArena.phase='pending';
   const snapshot={version:VERSION,savedAt:Date.now(),pilot:g.pilot,plane:g.plane,runId:g.stageBoss.runId,player:captureFields(g,objects),stage,addon:{time:g.stageBoss.time,serial:g.stageBoss.serial},achievements:r?captureFields(r,recordObjects):null,unlocks:us?captureFields(us,recordObjects):null,unlockRunId:u?.runId};
+  snapshot.bossRewardDrops=victoryDrops(g.drops);
   const raw=JSON.stringify(snapshot);if(raw.length>MAX_BYTES)return false;cache.set(g,raw);return persistStageCheckpoint(g,storage);
  }catch(error){console.error('[HEAD-ON] Stage checkpoint failed',error);return false;}
 }
@@ -105,6 +110,9 @@ export function restoreStageCheckpoint(g,s){
   if(stages.front&&stages.operation?.stageIndex!=null)stages.front.operationStage=stages.operation.stageIndex;
   // Rebuild routes, hazards and map owners through the existing stage adapter.
   addon.hooks.onStageChange({stageIndex:stages.stageIndex,loopIndex:stages.loopIndex});
+  // Replace, rather than append, so restoring the same entry never duplicates
+  // rewards. Older checkpoints simply have no pending victory drops.
+  g.drops=[...(g.drops||[]).filter(d=>!d.bossReward),...victoryDrops(Array.isArray(s.bossRewardDrops)?s.bossRewardDrops:[])];
   if(stages.phase==='final-arena')addon.hooks.onFinalArenaPending();
   g.events=[];g.state=['front-complete','operation-offer'].includes(stages.phase)?stages.phase:'playing';
   if(g.state==='front-complete')g.frontCompletion={loopIndex:stages.loopIndex,score:g.frontScore||0,stageCount:frontLength(stages.front),specialOperations:!!stages.operation};g.invuln=Math.max(g.invuln||0,1.5);
