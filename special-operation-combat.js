@@ -1,6 +1,7 @@
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js';
-import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
+import {enqueueCapturedEquipmentReward} from './intrusion-equipment-rewards.js?v=earned-rewards-7ccfad1b-20261114';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js?v=elite-hunt-604-f250e04a-20261109';
+import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=arras-cargo-icons-4529781a-20261112';
 
 const live = entity => entity && entity.hp > 0 && !entity.expired && !entity.crashing && entity.life !== 0;
 const pilots = game => game.players || [game];
@@ -439,7 +440,7 @@ export function applyOperationReward(game, battle) {
    game.operationManufacturing = true;
    return '신형기 양산';
   case 'cargo':
-   return player.grantCapturedEquipment()?.name || null;
+   return enqueueCapturedEquipmentReward(game,player,'cargo:'+game.stageBoss.stages.loopIndex+':'+game.stageBoss.stages.orderPosition)?'노획 장비 확보 · 다음 출격 전에 선택':null;
   case 'squadron':
    game.operationReinforcement = battle.unit;
    return FAMOUS_WING_BALANCE[battle.unit].faction === 'central' ? '야스타 18 합류' : '라파예트 합류';
@@ -527,3 +528,4 @@ export function operationMissionCard(game, en = false) {
   timeLeft <= 15 ? (en ? `${timeLeft} s left` : `${timeLeft}초 남음`) : threats ? (en ? `${threats} hostile` : `적기 ${threats}`) : null].filter(Boolean).join(' · ');
  return {title: CARD_TITLES[battle.id][L], objective, meta, urgent: left != null && left > 0 && left <= 3};
 }
+

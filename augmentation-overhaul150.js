@@ -1,22 +1,22 @@
-import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js';
-import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js';
-import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
-import {EQUIPMENT_COPY} from './equipment-copy.js';
-import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
-import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
-import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
-import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
-import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,secretWeaponOrdinaryProgress,previewSecretWeapons} from './secret-weapons.js';
-import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js';
-import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
-import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js?v=secret-weapons-cc6879c-20261109';
+import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {EQUIPMENT_COPY} from './equipment-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js?v=core-experience-b5d0890e-20261113';
+import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=earned-rewards-7ccfad1b-20261114';
+import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,secretWeaponOrdinaryProgress,previewSecretWeapons} from './secret-weapons.js?v=core-experience-b5d0890e-20261113';
+import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js?v=core-experience-b5d0890e-20261113';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=secret-weapons-d6a07ab3-20261110';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js?v=core-experience-b5d0890e-20261113';
+import {fighterAim} from './dogfight-pass165.js?v=map-visual-9169b9aa-20261111';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=core-experience-b5d0890e-20261113';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=core-experience-b5d0890e-20261113';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=core-experience-b5d0890e-20261113';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=core-experience-b5d0890e-20261113';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -269,6 +269,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.upgrade=function(id,rarity='normal'){
   if(this.state!=='upgrade'&&this._capturedEquipmentGrant!==id||this.pendingTacticalChoice)return false;migrateAugmentationState(this);const u=UPGRADES.find(x=>x.id===id),limit=4;
   if(!this._equipmentReplay){
+  const rewardDraft=this.world?.activeUpgrade||this.activeIntrusionEquipmentReward;
+  if(rewardDraft?.captured&&this._capturedEquipmentGrant!==id)return false;
   if(rarity==='unique'&&u)rarity=u.legendary?'legendary':'rare';
   if(this.activeIntrusionEquipmentReward&&!this.activeIntrusionEquipmentReward.choices.some(c=>c.id===id&&c.rarity===rarity))return false;
   if(!u||u.specialDoctrine||u.rareOnly&&rarity!=='rare'||!u.legendary&&!['normal','magic','rare'].includes(rarity)||u.legendary&&(rarity!=='legendary'||!specialAllowed(this,u)||(this.legendaryCount()>=limit&&this._capturedEquipmentGrant!==id)))return false;
@@ -351,12 +353,15 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   return true;
  };
 
- Game.prototype.grantCapturedEquipment=function(){
-  if(this.state!=='playing'||this.capturedEquipmentId||this.pendingTacticalChoice||this.activeIntrusionEquipmentReward)return null;
+ Game.prototype.grantCapturedEquipment=function(selectedId=null){
+  const draft=this.world?.activeUpgrade||this.activeIntrusionEquipmentReward;
+  const chosen=selectedId&&draft?.captured&&draft.choices?.some(c=>c.id===selectedId&&c.rarity==='legendary');
+  if((this.state!=='playing'&&!chosen)||this.capturedEquipmentId||this.pendingTacticalChoice||this.activeIntrusionEquipmentReward&&!chosen||selectedId&&!chosen)return null;
   const pool=LEGENDARIES.filter(u=>specialAllowed(this,u));
   if(!pool.length)return null;
-  let ticket=this.rng()*pool.reduce((sum,u)=>sum+specialSynergyWeight(this,u),0);
-  const choice=pool.find(u=>(ticket-=specialSynergyWeight(this,u))<0)||pool.at(-1);
+  let ticket=selectedId?0:this.rng()*pool.reduce((sum,u)=>sum+specialSynergyWeight(this,u),0);
+  const choice=selectedId?pool.find(u=>u.id===selectedId):pool.find(u=>(ticket-=specialSynergyWeight(this,u))<0)||pool.at(-1);
+  if(!choice)return null;
   this._capturedEquipmentGrant=choice.id;
   try{
    if(!this.upgrade(choice.id,'legendary'))return null;

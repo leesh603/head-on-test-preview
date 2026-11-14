@@ -1,9 +1,9 @@
 // Required battlefield objectives. The existing stage owner advances the front;
 // this module only observes native parts, pilots and mission-owned units.
-import {tickAirMapMission} from './map-air-missions.js';
-import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js';
-import {tickAlpsObservation} from './alps-observation-mission.js';
-import {harborPoint} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
+import {tickAirMapMission} from './map-air-missions.js?v=arras-cargo-icons-4529781a-20261112';
+import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js?v=earned-rewards-7ccfad1b-20261114';
+import {tickAlpsObservation} from './alps-observation-mission.js?v=late-open-prs-5900a138-20261113';
+import {harborPoint} from './harbor-crane-layout.js?v=quality-audit-596-c6ea4cf8-20261109';
 
 export const PRIMARY_MAPS=Object.freeze([0,1,2,5,6,7,8,9,10,12,13,14,15,16]);
 const BOSS_OBJECTIVES={

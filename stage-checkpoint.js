@@ -1,16 +1,16 @@
-import {createFront,frontLength} from './dynamic-front.js';
+import {createFront,frontLength} from './dynamic-front.js?v=map-victory-f1e15a1f-20261110';
 // Solo checkpoints contain entry-time pilot/build data and uncollected victory
 // rewards, never the live battlefield or ordinary combat drops.
-import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=pandemonium394r2';
-import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
-import {STAGES} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111';
-import {SPECIAL_OPERATIONS,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=tension20261107';
-import {reconcileSecretWeapons} from './secret-weapons.js';
+import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=earned-rewards-7ccfad1b-20261114';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=earned-rewards-7ccfad1b-20261114';
+import {STAGES} from './headon-stageboss-patterns.js?v=late-open-prs-5900a138-20261113';
+import {SPECIAL_OPERATIONS,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=arras-cargo-icons-4529781a-20261112';
+import {reconcileSecretWeapons} from './secret-weapons.js?v=core-experience-b5d0890e-20261113';
 export const STAGE_CHECKPOINT_KEY='headon.stage-checkpoint.v1';
 const STAGE_PHASES=['explore','final-arena','front-complete','operation-offer','operation-active'];
 const VERSION=1,MAX_BYTES=512*1024,cache=new WeakMap();
 const unsafe=new Set(['__proto__','prototype','constructor','g','p','world','book','target','leader','members','_netCarrierFocus','_netCarrierGuard']);
-const objects=new Set(['weapon','ammo','upgrades','upgradeRarities','weaponMods','weaponModSelections','weaponModCounts','buildIdentities','equipmentLedger','secretWeaponState','bomberTransfer','pilotIdentity','pilotSignatureState','specialAmmoQueue','allies','formationWings','bossDeck','aceSortie','rivalAce','pilotChallengeRecord']);
+const objects=new Set(['weapon','ammo','upgrades','upgradeRarities','weaponMods','weaponModSelections','weaponModCounts','buildIdentities','equipmentLedger','secretWeaponState','bomberTransfer','pilotIdentity','pilotSignatureState','specialAmmoQueue','allies','formationWings','bossDeck','aceSortie','rivalAce','pilotChallengeRecord','pilotUnlockProgressStart']);
 const recordObjects=new Set(['clears','missions','missionTypes','routeClears','routeOrder','sessionAwards','low','recoveries','packet','rapid','escortKinds']);
 const excluded=new Set(['state','mode','online','testMode','region','stageStartTime','stageStartDistance','zeroDistrict','finalArenaVisible','checkpointSaved']);
 const scalar=v=>v===null||['string','number','boolean'].includes(typeof v);
@@ -83,6 +83,7 @@ export function saveStageCheckpoint(g,storage=checkpointStorage()){
   if(stage.phase==='final-arena')stage.finalArena.phase='pending';
   const snapshot={version:VERSION,savedAt:Date.now(),pilot:g.pilot,plane:g.plane,runId:g.stageBoss.runId,player:captureFields(g,objects),stage,addon:{time:g.stageBoss.time,serial:g.stageBoss.serial},achievements:r?captureFields(r,recordObjects):null,unlocks:us?captureFields(us,recordObjects):null,unlockRunId:u?.runId};
   snapshot.bossRewardDrops=victoryDrops(g.drops);
+  snapshot.capturedRewards=(g.intrusionEquipmentRewards||[]).filter(r=>r.captured&&['pending','offered'].includes(r.status)).map(r=>({encounterId:r.encounterId,playerId:g.id||null,status:'pending',captured:true}));
   const raw=JSON.stringify(snapshot);if(raw.length>MAX_BYTES)return false;cache.set(g,raw);return persistStageCheckpoint(g,storage);
  }catch(error){console.error('[HEAD-ON] Stage checkpoint failed',error);return false;}
 }
@@ -113,6 +114,9 @@ export function restoreStageCheckpoint(g,s){
   // Replace, rather than append, so restoring the same entry never duplicates
   // rewards. Older checkpoints simply have no pending victory drops.
   g.drops=[...(g.drops||[]).filter(d=>!d.bossReward),...victoryDrops(Array.isArray(s.bossRewardDrops)?s.bossRewardDrops:[])];
+  delete g.activeIntrusionEquipmentReward;
+  g.intrusionEquipmentRewards=(Array.isArray(s.capturedRewards)?s.capturedRewards:[]).filter(r=>r.captured&&typeof r.encounterId==='string').slice(0,1).map(r=>({encounterId:r.encounterId,playerId:g.id||null,status:'pending',captured:true}));
+  g.intrusionEquipmentReceipts=Object.fromEntries(g.intrusionEquipmentRewards.map(r=>[r.encounterId,true]));
   if(stages.phase==='final-arena')addon.hooks.onFinalArenaPending();
   g.events=[];g.state=['front-complete','operation-offer'].includes(stages.phase)?stages.phase:'playing';
   if(g.state==='front-complete')g.frontCompletion={loopIndex:stages.loopIndex,score:g.frontScore||0,stageCount:frontLength(stages.front),specialOperations:!!stages.operation};g.invuln=Math.max(g.invuln||0,1.5);
@@ -125,3 +129,4 @@ export function clearStageCheckpoint(g,storage=checkpointStorage()){
  if(g&&!solo(g))return false;
  try{storage?.removeItem(STAGE_CHECKPOINT_KEY);if(g)cache.delete(g);return true;}catch{return false;}
 }
+

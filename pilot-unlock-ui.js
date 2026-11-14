@@ -1,4 +1,4 @@
-import {PILOT_CHALLENGES,pilotUnlocked,pilotUnlockProgress} from './pilot-unlocks.js?v=b3bf991d11fc7798';
+import {PILOT_CHALLENGES,pilotUnlocked,pilotUnlockProgress,pilotUnlockSortieProgress} from './pilot-unlocks.js?v=earned-rewards-7ccfad1b-20261114';
 
 const challenge=id=>Array.isArray(PILOT_CHALLENGES)?PILOT_CHALLENGES.find(d=>d.id===id):PILOT_CHALLENGES[id];
 const node=(doc,tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
@@ -28,7 +28,7 @@ export function renderPilotUnlockDetails({id,pilots,getLocale=()=> 'ko',getPilot
 
 export function installPilotUnlockUI({book,getGame,getSelected,pilots,getLocale=()=> 'ko',getPilotName=(id,fallback)=>fallback,portraitSource=()=>null,onUnlock,sound,document:doc=globalThis.document}={}){
  if(!doc||!book)return null;
- const link=node(doc,'link');link.rel='stylesheet';link.href='./pilot-unlocks.css?v=pilotunlock8';doc.head.append(link);
+ const link=node(doc,'link');link.rel='stylesheet';link.href='./pilot-unlocks.css?v=earned-rewards1';doc.head.append(link);
  const toast=node(doc,'aside','pilot-unlock-toast');toast.id='pilotUnlockToast';toast.hidden=true;toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');doc.body.append(toast);
  let queue=[],timer=0,run=null,lastResult='',pendingRender=0;const seen=new Set();
  const render=()=>{pendingRender=0;if(getSelected)renderPilotUnlockDetails({id:getSelected(),pilots,getLocale,getPilotName,document:doc})};
@@ -39,6 +39,17 @@ export function installPilotUnlockUI({book,getGame,getSelected,pilots,getLocale=
  // and the mobile grid's child list, so our own badge/detail changes do not recurse.
  const observer=typeof MutationObserver==='function'?new MutationObserver(records=>{if(records.some(r=>r.type==='childList'&&[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('.lobby-aces-panel,[data-pick]')||n.querySelector?.('.lobby-aces-panel,[data-pick]')))))scheduleRender()}):null;
  observer?.observe(doc.body,{childList:true,subtree:true});
- function sync(){const g=getGame?.();if(g!==run){run=g;lastResult='';doc.getElementById('pilotUnlockResult')?.remove()}if(!g||!['lost','won'].includes(g.state))return;const sessions=g.pilotUnlockSession||{},own=g.online?g.localPlayerId:null,ids=[...new Set(own?sessions[own]||[]:Object.values(sessions).flat())];const signature=ids.join(',')+':'+getLocale();const modal=doc.getElementById('modal');if(!ids.length||!modal||modal.classList.contains('hidden'))return;if(signature===lastResult&&doc.getElementById('pilotUnlockResult'))return;lastResult=signature;let box=doc.getElementById('pilotUnlockResult');if(!box){box=node(doc,'section','pilot-unlock-result');box.id='pilotUnlockResult';doc.getElementById('modalText')?.after(box)}box.replaceChildren(node(doc,'b',null,getLocale()==='en'?'Joined the squadron this sortie':'이번 출격에 합류한 파일럿'));for(const id of ids){const item=node(doc,'span');const source=portraitSource(id);if(source){const img=node(doc,'img');img.src=source;img.alt='';item.append(img)}item.append(node(doc,'span',null,getPilotName(id,pilots[id]?.name||id)));box.append(item)}}
+ function sync(){
+  const g=getGame?.();if(g!==run){run=g;lastResult='';doc.getElementById('pilotUnlockResult')?.remove()}
+  if(!g||!['lost','won'].includes(g.state))return;
+  const sessions=g.pilotUnlockSession||{},own=g.online?g.localPlayerId:null,ids=[...new Set(own?sessions[own]||[]:Object.values(sessions).flat())];
+  const progress=pilotUnlockSortieProgress(g),en=getLocale()==='en',signature=JSON.stringify([ids,progress,en]),modal=doc.getElementById('modal');
+  if((!ids.length&&!progress.length)||!modal||modal.classList.contains('hidden'))return;
+  if(signature===lastResult&&doc.getElementById('pilotUnlockResult'))return;lastResult=signature;
+  let box=doc.getElementById('pilotUnlockResult');if(!box){box=node(doc,'section','pilot-unlock-result');box.id='pilotUnlockResult';doc.getElementById('modalText')?.after(box)}box.replaceChildren();
+  if(ids.length){box.append(node(doc,'b',null,en?'Joined the squadron this sortie':'이번 출격에 합류한 파일럿'));for(const id of ids){const item=node(doc,'span'),source=portraitSource(id);if(source){const img=node(doc,'img');img.src=source;img.alt='';item.append(img)}item.append(node(doc,'span',null,getPilotName(id,pilots[id]?.name||id)));box.append(item)}}
+  if(progress.length){box.append(node(doc,'b',null,en?'Progress kept from this sortie':'이번 출격에 남긴 진척'));for(const row of progress){const item=node(doc,'div','pilot-sortie-progress');item.append(node(doc,'strong',null,getPilotName(row.id,pilots[row.id]?.name||row.id)+(row.sortie?(en?' · Best sortie':' · 출격 최고 기록'):'')));for(const p of row.goals.filter(p=>p.value>p.before))item.append(node(doc,'small',null,(en?(p.labelEn??p.label):p.label)+' '+p.before.toLocaleString()+' → '+p.value.toLocaleString()+' / '+p.goal.toLocaleString()));box.append(item)}}
+ }
+
  link.onload=scheduleRender;globalThis.addEventListener?.('resize',scheduleRender);render();return{sync,refresh:scheduleRender,dispose(){unsubscribe();observer?.disconnect();globalThis.removeEventListener?.('resize',scheduleRender);clearTimeout(timer);if(pendingRender)globalThis.cancelAnimationFrame?.(pendingRender);toast.remove();link.remove();doc.getElementById('pilotUnlockResult')?.remove()}};
 }

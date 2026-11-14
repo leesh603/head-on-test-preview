@@ -1,5 +1,5 @@
-import {cleanNavarreFrommherzVisual} from './navarre-frommherz-view.js?v=b3bf991d11fc7798';
-import {cleanCapitalPilotsVisual} from './capital-pilots-view.js?v=b3bf991d11fc7798';
+import {cleanNavarreFrommherzVisual} from './navarre-frommherz-view.js?v=earned-rewards-7ccfad1b-20261114';
+import {cleanCapitalPilotsVisual} from './capital-pilots-view.js?v=core-experience-b5d0890e-20261113';
 export const NET_HZ=15;
 export const MAX_TETHER=1100;
 export function seededRandom(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
@@ -42,3 +42,4 @@ export class FieldDelta {
 export function applyFields(target,delta){if(!delta)return;for(const key of delta.remove||[])if(!FORBIDDEN.has(key))delete target[key];for(const [key,value] of Object.entries(delta.set||{}))if(!FORBIDDEN.has(key))target[key]=key==='navarreFrommherzVisual'?cleanNavarreFrommherzVisual(value):key==='capitalPilotsVisual'?cleanCapitalPilotsVisual(value):unpack(value);}
 export function pose(entity){return [entity.x||0,entity.y||0,entity.a||0,entity.vx??Math.cos(entity.a||0)*(entity.speed||entity.baseSpeed||0),entity.vy??Math.sin(entity.a||0)*(entity.speed||entity.baseSpeed||0)].map(n=>Math.round(n*100)/100);}
 export function mixAngle(a,b,t){return a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t;}
+

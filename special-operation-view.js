@@ -1,5 +1,74 @@
-import {drawRailTrack} from './rail-render129.js?v=gal1';
-import {SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
+import {drawRailTrack} from './rail-render129.js?v=rail-exit-icon-c8bbf960-20261111';
+import {operationBattleProgress,operationMissionCard} from './special-operation-combat.js?v=earned-rewards-7ccfad1b-20261114';
+import {SPECIAL_OPERATIONS, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=arras-cargo-icons-4529781a-20261112';
+
+const englishTitles = {prototype: 'Prototype escort', cargo: 'Secret cargo raid', squadron: 'Squadron rescue', ace: 'Ace rescue'};
+const seconds = (remaining, en) => Math.max(0, Math.ceil(remaining)) + (en ? 's' : '초');
+
+export function operationHudModel(progress, en) {
+ const {id, elapsed, wave, hp, threats, routeComplete, exitProgress, train} = progress;
+ const engineActive = train?.cars[0]?.hp > 0;
+ const deadline = engineActive ? SPECIAL_OPERATION_TRAIN_ESCAPE : SPECIAL_OPERATION_LIMIT;
+ const title = (en ? englishTitles[id] : SPECIAL_OPERATIONS[id].title) + ' · ' + seconds(deadline - elapsed, en);
+ const health = (en ? (train ? 'Cargo ' : 'Escort ') : (train ? '화물 ' : '호위기 ')) + hp + '%';
+ if (train) {
+  const car = (index, label) => label + ' ' + (train.cars[index]?.hp > 0
+   ? Math.ceil(100 * train.cars[index].hp / train.cars[index].maxHp) + '%' : (en ? 'down' : '격파'));
+  const detail = [car(0, en ? 'Engine' : '기관차'), car(1, en ? 'Flak' : '대공차'), health].join(' · ');
+  const secured = Math.min(SPECIAL_OPERATION_CARGO_HOLD, Math.floor(train.secured || 0));
+  const hint = engineActive || train.cars[1]?.hp > 0
+   ? (en ? 'Disable the engine and flak. Spare the cargo.' : '기관차와 대공차를 공격하고 화물차는 보존')
+   : (train.inRange ? (en ? 'Securing ' : '화물 확보 중 ') : (en ? 'Approach cargo · ' : '화물차에 접근 · ')) +
+     secured + '/' + seconds(SPECIAL_OPERATION_CARGO_HOLD, en);
+  return {title, detail, hint, hp};
+ }
+ const detail = health + ' · ' + (en ? 'Pursuers ' : '추격기 ') + (threats ?? 0) + (en ? '' : '기') +
+  ' · ' + (en ? 'Wave ' : '공세 ') + wave + '/' + SPECIAL_OPERATION_WAVES.length;
+ const hint = routeComplete ? (en ? 'Escort clear · defeat remaining pursuers' : '호위기 이탈 완료 · 남은 추격기 격퇴')
+  : elapsed < SPECIAL_OPERATION_EXIT_AT
+   ? (en ? 'Escape run in ' : '이탈 시작까지 ') + seconds(SPECIAL_OPERATION_EXIT_AT - elapsed, en)
+   : (en ? 'Escape route ' : '이탈 진행 ') + Math.floor(100 * (exitProgress || 0)) + '%';
+ return {title, detail, hint, hp};
+}
+
+export function updateOperationHud(game, locale) {
+ const slot = document.getElementById('stageBossHud');
+ const battle = game && !['lost', 'won', 'operation-result'].includes(game.state)
+  ? game.operationBattle || game.operationSnapshot?.battle : null;
+ const progress = game?.operationBattle && battle ? operationBattleProgress(battle) : battle;
+ if (!progress && slot.dataset.operationHud) {
+  delete slot.dataset.operationHud;
+  slot.setAttribute('aria-label', locale === 'en' ? 'Regional boss health' : '지역 보스 내구도');
+ }
+ if (!progress) return false;
+ const model = operationHudModel(progress, locale === 'en');
+ const card = operationMissionCard(game, locale === 'en');
+ if (card) {model.detail = card.meta;model.hint = card.objective;}
+ if (!slot.dataset.operationHud) {
+  slot.dataset.operationHud = 'true';
+  slot.querySelectorAll('.gate-tick').forEach(node => node.remove());
+  delete document.getElementById('stageBossHp').parentElement.dataset.gateEnc;
+ }
+ slot.classList.remove('hidden', 'gate-armored');
+ const bar = document.getElementById('stageBossHp');
+ bar.style.width = model.hp + '%';
+ slot.setAttribute('aria-valuenow', String(model.hp));
+ slot.setAttribute('aria-valuemax', '100');
+ slot.setAttribute('aria-label', progress.id === 'squadron'
+  ? (locale === 'en' ? 'Squadron survival' : '편대 생존율')
+  : (locale === 'en' ? 'Protected target health' : '보호 대상 내구도'));
+ document.getElementById('stageBossTitle').textContent = model.title;
+ document.getElementById('stageBossParts').textContent = model.detail;
+ let hint = document.getElementById('stageBossTactic');
+ if (!hint) {
+  hint = document.createElement('small');
+  hint.id = 'stageBossTactic';
+  slot.append(hint);
+ }
+ hint.textContent = model.hint;
+ document.body.classList.add('stageboss-playing');
+ return true;
+}
 
 const load = file => {
  if (typeof Image === 'undefined') return null;

@@ -1,13 +1,13 @@
-import {majorEncounterBlocked} from './encounter-admission.js';
-import {mapCombatMissionPool,automaticMapMissionsAllowed,prioritizeMapConvoy} from './map-combat-roles.js';
-import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {activeFronts,tickRuralFronts} from './rural-fronts.js';
-import {achievementMission} from './achievements.js?v=pandemonium394r2';
-import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {JUTLAND_ROUTE} from './jutland-route.js?v=pandemonium394r2';
-import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027&raid=20261103-art1&zb=20261103&naval=20261106&bd=20261110&ci=20261111&ho=20261111';
+import {majorEncounterBlocked} from './encounter-admission.js?v=map-visual-9169b9aa-20261111';
+import {mapCombatMissionPool,automaticMapMissionsAllowed,prioritizeMapConvoy} from './map-combat-roles.js?v=map-victory-f1e15a1f-20261110';
+import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {intrusionActive} from './intrusion-bosses.js?v=earned-rewards-7ccfad1b-20261114';
+import {activeFronts,tickRuralFronts} from './rural-fronts.js?v=earned-rewards-7ccfad1b-20261114';
+import {achievementMission} from './achievements.js?v=earned-rewards-7ccfad1b-20261114';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=late-open-prs-5900a138-20261113';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=earned-rewards-7ccfad1b-20261114';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
  HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY',TRANSPORT_CONVOY:'TRANSPORT_CONVOY'

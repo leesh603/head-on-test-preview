@@ -1,15 +1,15 @@
-import {combatDamageTime} from './front-performance.js';
-import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=dover3';
-import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js';
-import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles,guardFleetSubmarineMovement} from './naval-spacing.js?v=pandemonium394r2';
-import {drawShipWater,recordShipWake} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
-import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=tame3';
+import {combatDamageTime} from './front-performance.js?v=map-objectives-605-86bd0e7c-20261109';
+import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {fleetGunStations} from './naval-faction-atlas.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=late-open-prs-5900a138-20261113';
+import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles,guardFleetSubmarineMovement} from './naval-spacing.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {drawShipWater,recordShipWake} from './naval-water.js?v=merged-open-prs-e3ec1580-20261113';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=quality-audit-596-c6ea4cf8-20261109';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
-import {fx} from './fx-art.js?v=tame3';
+import {PLANES} from './engine.js?v=earned-rewards-7ccfad1b-20261114';
+import {fx} from './fx-art.js?v=quality-audit-596-c6ea4cf8-20261109';
 
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},

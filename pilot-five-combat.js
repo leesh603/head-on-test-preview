@@ -1,10 +1,10 @@
 // Five authored attacks on the existing shot/impact/wing hooks. No new input or FX renderer.
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
-import {wwiWingTarget,analyzedEquipmentTarget,equipmentBurn,equipmentTargets,wwiBurnPoint} from './wwi-equipment.js';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
-import {isReplacementPrimary} from './pilot-primary.js';
-import {secretWingGun} from './secret-weapon-combat.js';
-import {prepareSynthesisBomb} from './weapon-synthesis.js';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {wwiWingTarget,analyzedEquipmentTarget,equipmentBurn,equipmentTargets,wwiBurnPoint} from './wwi-equipment.js?v=core-experience-b5d0890e-20261113';
+import {advanceWingFlight} from './wingman-flight.js?v=earned-rewards-7ccfad1b-20261114';
+import {isReplacementPrimary} from './pilot-primary.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {secretWingGun} from './secret-weapon-combat.js?v=core-experience-b5d0890e-20261113';
+import {prepareSynthesisBomb} from './weapon-synthesis.js?v=core-experience-b5d0890e-20261113';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));

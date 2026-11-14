@@ -1,6 +1,6 @@
-import {isAlbatrosHunter} from './albatros-hunter-fx.js';
-import {fx as pilotTexture} from './fx-art.js?v=tame3';
-import {createPilotReadability} from './pilot-readability-fx.js?v=gal1';
+import {isAlbatrosHunter} from './albatros-hunter-fx.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {fx as pilotTexture} from './fx-art.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {createPilotReadability} from './pilot-readability-fx.js?v=quality-audit-596-c6ea4cf8-20261109';
 const pilotReadability=createPilotReadability(pilotTexture);
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
 // In-world effects rather than HUD marks. Purely visual: reads the engine's existing
@@ -10,7 +10,7 @@ const pilotReadability=createPilotReadability(pilotTexture);
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=earned-rewards-7ccfad1b-20261114';
 
 
 const memo = new WeakMap();

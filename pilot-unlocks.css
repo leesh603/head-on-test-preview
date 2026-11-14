@@ -130,3 +130,6 @@ html body.astra-ui:not(.playing) .lobby-aces-panel .lap-info .pilot-unlock-goals
 html body.astra-ui:not(.playing) .lobby-aces-panel .lap-info .pilot-unlock-status{line-height:1.35;font-size:10.5px!important}
 /* The locked sortie label sat below centre (font-size:0 button keeps its line box). */
 html body.astra-ui:not(.playing) .lobby-aces-panel.pilot-locked-preview .lap-go{display:flex!important;align-items:center;justify-content:center;line-height:1!important}
+
+
+.pilot-sortie-progress{margin:5px 0;text-align:left;overflow-wrap:anywhere}.pilot-sortie-progress strong,.pilot-sortie-progress small{display:block}.pilot-sortie-progress small{color:#c5c4b4;font-variant-numeric:tabular-nums}

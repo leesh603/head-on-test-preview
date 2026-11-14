@@ -1,6 +1,6 @@
-import {PILOT_UNLOCK_COPY} from './pilot-unlock-copy.js?v=b3bf991d11fc7798';
-import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
-import {getAircraftMeta} from './aircraft-master.js?v=b3bf991d11fc7798';
+import {PILOT_UNLOCK_COPY} from './pilot-unlock-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {combatImpactResult} from './combat-impact-result.js?v=combat-growth-598-149cc4b5-20261109';
+import {getAircraftMeta} from './aircraft-master.js?v=quality-audit-596-c6ea4cf8-20261109';
 // Challenge records start at this update. Service medals and aircraft kill totals
 // are deliberately never used as retroactive pilot clearance.
 export const DEFAULT_PILOTS=Object.freeze(['immelmann','udet','brumowski','hawker','baracca','lufbery']);
@@ -73,6 +73,13 @@ const unlockSession=globalThis[Symbol.for('headon.pilot-unlocks.v1')]??={book:nu
 export function setPilotUnlockBook(value){unlockSession.book=value;if(unlockSession.book)unlockSession.book.data.pilotUnlocks=cleanPilotUnlocks(unlockSession.book.data.pilotUnlocks)}
 export const pilotUnlocked=id=>DEFAULT_PILOTS.includes(id)||!!unlockSession.book?.data.pilotUnlocks?.unlocked?.[id];
 export const pilotUnlockProgress=id=>(definitions.get(id)?.goals||[]).map(g=>({...g,value:Math.min(g.goal,(definitions.get(id)?.sortie?unlockSession.book?.data.pilotUnlocks?.best?.[id]?.[g.key]:unlockSession.book?.data.pilotUnlocks?.metrics?.[g.key])||0)}));
+export function pilotUnlockSortieProgress(g){
+ if(!g?.pilotUnlockProgressStart||!eligibleForPilotUnlocks(g))return [];
+ return PILOT_CHALLENGES.filter(d=>!pilotUnlocked(d.id)).map(d=>{
+  const goals=pilotUnlockProgress(d.id).map((p,i)=>({...p,before:g.pilotUnlockProgressStart[d.id]?.[i]??p.value}));
+  return {id:d.id,sortie:d.sortie,goals,progress:Math.min(...goals.map(p=>p.value/p.goal))};
+ }).filter(d=>d.goals.some(p=>p.value>p.before)).sort((a,b)=>b.progress-a.progress).slice(0,3);
+}
 const central=new Set(['friedrich_karl','frommherz','baron','voss','boelcke','goering','huffzky','berthold','wolff','loewenhardt','jacobs','gontermann','lothar','sachsenberg','schleich',...DEFAULT_PILOTS.slice(0,3)]);
 export function pilotUnlockFallback(id,faction){if(pilotUnlocked(id))return id;return (faction|| (central.has(id)?'central':'entente'))==='central'?'immelmann':'hawker'}
 export const eligibleForPilotUnlocks=g=>!!g&&!g.testMode&&!g.developmentMode&&!g.debugMode&&g.mode!=='campaign'&&!(typeof location!=='undefined'&&/[?&](?:\w*qa|test|debug)(?:[=&]|$)/i.test(location.search));
@@ -93,6 +100,7 @@ const runtimes=unlockSession.runtimes;
 export function pilotUnlockRun(world){const g=world?.world||world;if(!unlockSession.book||!eligibleForPilotUnlocks(g)||g.online&&!g.host)return null;let r=runtimes.get(g);if(!r){r=new PilotUnlockRun(g);runtimes.set(g,r)}return r}
 function applyPacket(g,p,packet){
  if(!unlockSession.book||!eligibleForPilotUnlocks(g)||g.online&&pid(p)!==g.localPlayerId||!packet||!validId(packet.id))return;
+ g.pilotUnlockProgressStart??=Object.fromEntries(PILOT_CHALLENGES.map(d=>[d.id,pilotUnlockProgress(d.id).map(p=>p.value)]));
  const d=unlockSession.book.data.pilotUnlocks??=emptyPilotUnlocks(),old=d.receipts[packet.id]||{},next={...old};let changed=false;
  for(const [k,v]of Object.entries(packet.add||{}))if(keys.has(k)){const n=number(v),delta=Math.max(0,n-(old[k]||0));if(delta){d.metrics[k]=number((d.metrics[k]||0)+delta);changed=true}next[k]=Math.max(n,old[k]||0)}
  for(const [k,v]of Object.entries(packet.max||{}))if(keys.has(k)&&number(v)>(d.metrics[k]||0)){d.metrics[k]=number(v);changed=true}

@@ -1,28 +1,29 @@
-import {operationMissionCard} from './special-operation-combat.js?v=tension20261107';
-import {snapshotMapMission} from './map-primary-objectives.js';
-import {holdRuralTrackArt} from './rural-rail-track-art.js';
+import {operationMissionCard} from './special-operation-combat.js?v=earned-rewards-7ccfad1b-20261114';
+import {snapshotMapMission} from './map-primary-objectives.js?v=earned-rewards-7ccfad1b-20261114';
+import {holdRuralTrackArt} from './rural-rail-track-art.js?v=rural-rail-presentation-518d2b7b-20261110';
 // Compact tuples avoid the protocol's reserved simulation key "objective".
 const operationCardSnapshot=(game,en)=>{const c=operationMissionCard(game,en);return c?[c.title,c.objective,c.meta,c.urgent]:null;};
-import {pruneCriticalFeedback} from './aircraft-criticals.js';
-import {LegacyProjectileStream} from './legacy-projectile-stream.js';
-import {snapshotLaonBattle} from './laon-battle.js';
-import {legacySquadronSnapshot} from './legacy-squadron-adapter.js';
-import {advanceNungesserReplica,NUNGESSER_BALANCE} from './nungesser-combat.js';
-import {navarreSuppressionVisual} from './navarre-frommherz-combat.js';
-import * as finalArenaAchievementGate from './achievements.js?v=pandemonium394r2';
-import {receiveIntrusionVisual,advanceIntrusionVisual} from './intrusion-network-visual.js';
-import {captureNavarreFrommherzVisual} from './navarre-frommherz-view.js';
-import {captureCapitalPilotsVisual} from './capital-pilots-view.js';
-import {capitalPilotsFlightModifiers} from './capital-pilots-combat.js';
-import {equipmentCruiseMultiplier} from './equipment-flight-balance.js';
-import {momentumTier} from './ace-momentum.js';
-import {syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
-import {airbrakeMovement} from './flight-equipment.js';
-import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
-import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111';
-import {BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {stageBossSpeed} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027&raid=20261103-art1&zb=20261103&naval=20261106&bd=20261110&ci=20261111&ho=20261111';
-import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=pandemonium394r2';
+import {pruneCriticalFeedback} from './aircraft-criticals.js?v=combat-growth-598-149cc4b5-20261109';
+import {LegacyProjectileStream} from './legacy-projectile-stream.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {snapshotLaonBattle} from './laon-battle.js?v=late-open-prs-5900a138-20261113';
+import {operationBattleProgress} from './special-operation-combat.js?v=earned-rewards-7ccfad1b-20261114';
+import {legacySquadronSnapshot} from './legacy-squadron-adapter.js?v=earned-rewards-7ccfad1b-20261114';
+import {advanceNungesserReplica,NUNGESSER_BALANCE} from './nungesser-combat.js?v=core-experience-b5d0890e-20261113';
+import {navarreSuppressionVisual} from './navarre-frommherz-combat.js?v=earned-rewards-7ccfad1b-20261114';
+import * as finalArenaAchievementGate from './achievements.js?v=earned-rewards-7ccfad1b-20261114';
+import {receiveIntrusionVisual,advanceIntrusionVisual} from './intrusion-network-visual.js?v=late-open-prs-5900a138-20261113';
+import {captureNavarreFrommherzVisual} from './navarre-frommherz-view.js?v=earned-rewards-7ccfad1b-20261114';
+import {captureCapitalPilotsVisual} from './capital-pilots-view.js?v=core-experience-b5d0890e-20261113';
+import {capitalPilotsFlightModifiers} from './capital-pilots-combat.js?v=core-experience-b5d0890e-20261113';
+import {equipmentCruiseMultiplier} from './equipment-flight-balance.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {momentumTier} from './ace-momentum.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {syncPilotUnlocks} from './pilot-unlocks.js?v=earned-rewards-7ccfad1b-20261114';
+import {airbrakeMovement} from './flight-equipment.js?v=secret-weapons-d6a07ab3-20261110';
+import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {CoopGame} from './coop-engine.js?v=earned-rewards-7ccfad1b-20261114';
+import {BossEncounter} from './headon-stageboss-core.js?v=late-open-prs-5900a138-20261113';
+import {stageBossSpeed} from './stageboss-host.js?v=earned-rewards-7ccfad1b-20261114';
+import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=earned-rewards-7ccfad1b-20261114';
 
 const LANES=['friendlyShips','enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
 const WORLD=['ruralRailGround','secretWeaponFx','criticalFeedback','operationSnapshot','operationReinforcement','frontCompletion','frontScore','frontBriefing','laonBattle','doverMission','legacySquadronVisual','squadronArrival','zeroDistrict','finalArena','groundFacilities','photoReconDirector','intrusionBoss','intrusionDirector','t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','cityDefenseRaid','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
@@ -221,12 +222,7 @@ export class OnlineCoopGame extends CoopGame {
   this.legacySquadronVisual=legacySquadronSnapshot(this,!legacyDelta);
   const operation=this.stageBoss?.stages?.operation;
   const battle=this.operationBattle;
-  const target=battle?.train?.cargo||battle?.patrols?.[0];
-  const train=battle?.train;
-  this.operationSnapshot=operation?{operation,cards:battle?{ko:operationCardSnapshot(this,false),en:operationCardSnapshot(this,true)}:null,result:this.operationResult||null,battle:battle?{
-   id:battle.id,elapsed:battle.elapsed,wave:battle.wave,hp:Math.max(0,Math.ceil(100*(target?.hp||0)/(target?.maxHp||1))),
-   train:train?{x:train.x,y:train.y,originX:train.originX,sign:train.sign,cars:[train.engine,train.flak,train.cargo].map(car=>car?{hp:car.hp,maxHp:car.maxHp}:null)}:null
-  }:null}:null;
+  this.operationSnapshot=operation?{operation,cards:battle?{ko:operationCardSnapshot(this,false),en:operationCardSnapshot(this,true)}:null,result:this.operationResult||null,battle:battle?operationBattleProgress(battle):null}:null;
   pruneCriticalFeedback(this);
   this.mapMissionSnapshot=snapshotMapMission(this);
   const world={mapMissionSnapshot:pack(this.mapMissionSnapshot)};for(const key of WORLD)if(this[key]!==undefined)world[key]=key==='finalArena'?packFinalArenaSnapshot(this[key]):key==='laonBattle'?pack(snapshotLaonBattle(this)):pack(this[key]);

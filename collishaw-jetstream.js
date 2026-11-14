@@ -1,6 +1,6 @@
 // Player Black Flight: the leader remains under player control. Existing two
 // personal wingmen flank a shared target, make two finite burst passes, then rejoin.
-import {advanceWingFlight} from './wingman-flight.js?v=b3bf991d11fc7798';
+import {advanceWingFlight} from './wingman-flight.js?v=earned-rewards-7ccfad1b-20261114';
 const runs=new WeakMap();
 const owner=p=>p.id||'p1',angle=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const live=p=>p?.pilot==='collishaw'&&p.hp>0&&p.status!=='downed'&&p.skillTime>0;

@@ -1,55 +1,55 @@
-import {combatStatTime,combatDamageTime} from './front-performance.js';
-import {doverCombatTarget,doverRoundImpact,damageDoverBomber} from './dover-breakthrough.js';
-import {installEnemyAceCoopTactics} from './enemy-ace-tactics.js';
-import {admitEnemyArrivals} from './enemy-arrivals.js';
-import {isFinalArenaTargetProxy} from './final-arena-budget.js';
-import {installFinalArenaGuards} from './final-arena-host.js';
-import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js';
-import {allowFacilityAmbient} from './ground-facility-missions.js';
-import {tickBishopGloves,bishopGlovesInterval,bishopGlovesLifetime,resetBishopGloves} from './equipment-flight-balance.js';
-import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js';
-import {equipmentCruiseMultiplier,equipmentRepairPickup} from './equipment-flight-balance.js';
-import {correctWimperisPilotRocket,correctWimperisBomb} from './flight-equipment.js';
-import {tickGuynemerBarrage} from './guynemer-barrage.js';
-import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
-import {momentumTier,recordMomentumKill} from './ace-momentum.js';
-import {coastalBalloonAllowed,placeCoastalBalloon,placeCoastalGround} from './air-threat-placement.js';
-import {configureBalloon,configureAA} from './air-threat-profiles.js';
-import {fireAirThreatVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js';
-import {installConceptCombatHooks} from './aircraft-concept-combat.js';
-import {AUGMENTATION_OVERHAUL_BALANCE as AUGMENTATION_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025&fai=20261108';
-import {beginRareHit,finishRareHit} from './rare-specializations.js';
-import {airbrakeMovement,resetFlightEquipment} from './flight-equipment.js';
-import {tickWWIEquipment,wwiWingTarget,wwiProjectileDamageMultiplier} from './wwi-equipment.js';
-import {directorCombatTarget} from './battle-director169.js?v=formations20261022&airbattle=20261025&momentum=20261027&fai=20261108&ci=20261111';
-import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
-import {missionTargetSteering} from './mission-target-break.js?v=20261109';
-import {combatImpactResult,projectileHitFlash,recordPlayerDamage,withDamageOrigin} from './combat-impact-result.js';
-import {emitSynthesisActiveRocket,primaryCount,tickSynthesisWing,synthesisWing,emitSynthesisGunRound,prepareSynthesisBomb} from './weapon-synthesis.js';
-import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
-import {nextTacticalPrompt,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
-import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
-import {prepareHeavyRound,ammunitionTargetKey,advanceSteelRound} from './heavy-ammunition.js';
-import {projectileContactTime} from './projectile-contacts.js';
-import {bomberRoundImpact,bomberContactPadding,tickFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
-import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=pandemonium394r2';
-import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
-import {steerJutlandBoundary,containJutlandPlayer} from './jutland-route.js?v=pandemonium394r2';
-import {advanceExplosionFx} from './explosion-profiles.js?v=fx5';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
-import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=descent20261022';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1&burn=1022&momentum=20261027';
-import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027&raid=20261103-art1&zb=20261103&naval=20261106&bd=20261110&ci=20261111&ho=20261111';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1&art=pilot-recovery2';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
-import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal1&airbattle=20261025&afc=1&td4=20261026';
-import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=flight20261023';
-import {initializeWingDurability,formationWingRoundTarget,tickWingWithdrawal} from './wingman-durability.js';
-import {secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget} from './secret-weapon-combat.js';
-import {installCloudCover} from './cloud-cover1.js?v=gal1&perf=1029&depth=20261111';
-import {tickCityDefense} from './city-defense.js?v=tame3';
+import {combatStatTime,combatDamageTime} from './front-performance.js?v=map-objectives-605-86bd0e7c-20261109';
+import {doverCombatTarget,doverRoundImpact,damageDoverBomber} from './dover-breakthrough.js?v=map-victory-f1e15a1f-20261110';
+import {installEnemyAceCoopTactics} from './enemy-ace-tactics.js?v=rail-combat-intelligence-b88e839f-20261111';
+import {admitEnemyArrivals} from './enemy-arrivals.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {isFinalArenaTargetProxy} from './final-arena-budget.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {installFinalArenaGuards} from './final-arena-host.js?v=earned-rewards-7ccfad1b-20261114';
+import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js?v=combat-growth-598-149cc4b5-20261109';
+import {allowFacilityAmbient} from './ground-facility-missions.js?v=map-victory-f1e15a1f-20261110';
+import {tickBishopGloves,bishopGlovesInterval,bishopGlovesLifetime,resetBishopGloves} from './equipment-flight-balance.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js?v=earned-rewards-7ccfad1b-20261114';
+import {equipmentCruiseMultiplier,equipmentRepairPickup} from './equipment-flight-balance.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {correctWimperisPilotRocket,correctWimperisBomb} from './flight-equipment.js?v=secret-weapons-d6a07ab3-20261110';
+import {tickGuynemerBarrage} from './guynemer-barrage.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=earned-rewards-7ccfad1b-20261114';
+import {momentumTier,recordMomentumKill} from './ace-momentum.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {coastalBalloonAllowed,placeCoastalBalloon,placeCoastalGround} from './air-threat-placement.js?v=late-open-prs-5900a138-20261113';
+import {configureBalloon,configureAA} from './air-threat-profiles.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {fireAirThreatVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js?v=map-victory-f1e15a1f-20261110';
+import {installConceptCombatHooks} from './aircraft-concept-combat.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {AUGMENTATION_OVERHAUL_BALANCE as AUGMENTATION_BALANCE} from './augmentation-overhaul150.js?v=earned-rewards-7ccfad1b-20261114';
+import {beginRareHit,finishRareHit} from './rare-specializations.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {airbrakeMovement,resetFlightEquipment} from './flight-equipment.js?v=secret-weapons-d6a07ab3-20261110';
+import {tickWWIEquipment,wwiWingTarget,wwiProjectileDamageMultiplier} from './wwi-equipment.js?v=core-experience-b5d0890e-20261113';
+import {directorCombatTarget} from './battle-director169.js?v=earned-rewards-7ccfad1b-20261114';
+import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=map-visual-9169b9aa-20261111';
+import {missionTargetSteering} from './mission-target-break.js?v=map-objectives-605-86bd0e7c-20261109';
+import {combatImpactResult,projectileHitFlash,recordPlayerDamage,withDamageOrigin} from './combat-impact-result.js?v=combat-growth-598-149cc4b5-20261109';
+import {emitSynthesisActiveRocket,primaryCount,tickSynthesisWing,synthesisWing,emitSynthesisGunRound,prepareSynthesisBomb} from './weapon-synthesis.js?v=core-experience-b5d0890e-20261113';
+import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js?v=core-experience-b5d0890e-20261113';
+import {nextTacticalPrompt,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=core-experience-b5d0890e-20261113';
+import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {prepareHeavyRound,ammunitionTargetKey,advanceSteelRound} from './heavy-ammunition.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {projectileContactTime} from './projectile-contacts.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {bomberRoundImpact,bomberContactPadding,tickFriendlyBomb} from './bomber-transfer.js?v=core-experience-b5d0890e-20261113';
+import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=earned-rewards-7ccfad1b-20261114';
+import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {steerJutlandBoundary,containJutlandPlayer} from './jutland-route.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {advanceExplosionFx} from './explosion-profiles.js?v=combat-growth-598-149cc4b5-20261109';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=arras-cargo-icons-4529781a-20261112';
+import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=combat-growth-598-149cc4b5-20261109';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=earned-rewards-7ccfad1b-20261114';
+import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=earned-rewards-7ccfad1b-20261114';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=earned-rewards-7ccfad1b-20261114';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAttackTarget} from './engagement-flow174.js?v=earned-rewards-7ccfad1b-20261114';
+import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=earned-rewards-7ccfad1b-20261114';
+import {initializeWingDurability,formationWingRoundTarget,tickWingWithdrawal} from './wingman-durability.js?v=capital-wingmen-ca58973-20261109';
+import {secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget} from './secret-weapon-combat.js?v=core-experience-b5d0890e-20261113';
+import {installCloudCover} from './cloud-cover1.js?v=map-visual-9169b9aa-20261111';
+import {tickCityDefense} from './city-defense.js?v=city-defense-602-9230b9a7-20261109';
 
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -134,7 +134,7 @@ export class CoopGame {
  chooseUpgrade(itemId,id){
   const item=this.activeUpgrade;if(this.state!=='upgrade'||!item||item.id!==itemId)return false;
   const choice=item.choices.find(c=>c.id===id);if(!choice)return false;const p=this.player(item.playerId);
-  if(item.kind==='intrusion-equipment'&&item.replacement){
+  if(item.kind==='intrusion-equipment'&&(item.replacement||item.captured)){
    const result=chooseIntrusionEquipmentReward(p,id);if(!result)return false;
    if(result==='pending'){this.events.push({type:'upgrade',item});return true;}
    if(!live(p))p.hp=0;this.pendingLevelUps.shift();this.activeUpgrade=null;this.openUpgrade();return true;
@@ -208,7 +208,7 @@ export class CoopGame {
   if(interceptOwner&&interceptAt<first){consumeNungesserInterception(interceptOwner,b,x0,y0,interceptAt);return;}
   if(hit){if(hitKind===3)damageDoverBomber(this,hit,b.damage,b);else if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage,b);else this.hitFormationAlly(hit,b.damage);b.life=0}
  }
- handleDeath(e,b){if(e.finalArenaTarget||e.groundFacility||e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;noteAirThreatObserverDown(this,e);const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;achievementEnemyDefeated(this,e,b);if(owner){owner.kills++;recordMomentumKill(owner,e);}if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))awardPriorityKill(this,e,b.ownerId)}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){this.dropXpReward(e,{healChance:.03});Game.prototype.dropObservationRepair.call(this,e)}}
+ handleDeath(e,b){if(e.finalArenaTarget||e.groundFacility||e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;noteAirThreatObserverDown(this,e);const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;achievementEnemyDefeated(this,e,b);if(owner){owner.kills++;recordMomentumKill(owner,e);}if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))awardPriorityKill(this,e,b.ownerId)}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited||b.operationReinforcement)this.dropXpReward(e,{healChance:credited?.03:0});if(credited)Game.prototype.dropObservationRepair.call(this,e)}
  updateSchedules(dt){
   const wave=this.t<60?1:this.t<120?2:3;if(wave!==this.wave){this.wave=wave;this.event('wave',wave===1?'2인 협동 · 서로의 꼬리를 지켜주세요':wave===2?'제2파 · 추격기 접근':'제3파 · 전선 돌파')}
   this.eventTimer-=dt;if(this.eventTimer<=0){this.eventTimer=22+this.rng()*20;const roll=this.rng(),quiet=this.mobSpawnsSuppressed();if(roll<.35&&!quiet){for(let i=0;i<3;i++)this.spawnRegular('hunter');this.event('wave','기습! 고속 추격 편대')}else if(roll<.6&&!quiet){this.spawnRegular('bomber');this.spawnRegular('bomber');this.event('wave','폭격 편대 통과')}else if(roll<.8||quiet){this.drops.push({x:this.x+Math.cos(this.a)*180,y:this.y+Math.sin(this.a)*180,value:0,heal:true,supply:true,vx:0,vy:0,life:14});this.event('wave','전방 수리 보급품!')}}
@@ -351,19 +351,19 @@ const regionalCoopTarget=CoopGame.prototype.enemyCombatTarget;
 CoopGame.prototype.enemyCombatTarget=function(e){return directorCombatTarget(this,e,regionalCombatTarget(this,e,regionalCoopTarget.call(this,e)));};
 installCloudCover(CoopGame);
 
-import {installNineCoop} from './pilot-nine-combat.js?v=bomber20';
+import {installNineCoop} from './pilot-nine-combat.js?v=quality-audit-596-c6ea4cf8-20261109';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
+import {installCoopFleet} from './fleet-naval1.js?v=earned-rewards-7ccfad1b-20261114';
 
 installCoopFleet(CoopGame,Game);
 
 installAchievementTracking(CoopGame,{coop:true});
 
-import {installUdetCoop} from './udet-acrobatics.js';
+import {installUdetCoop} from './udet-acrobatics.js?v=quality-audit-596-c6ea4cf8-20261109';
 installUdetCoop(CoopGame);
 
-import {installEscortCoopFx} from './escort-command-fx.js?v=escortfx1';
+import {installEscortCoopFx} from './escort-command-fx.js?v=merged-open-prs-e3ec1580-20261113';
 installEscortCoopFx(CoopGame);
 
 
@@ -373,10 +373,10 @@ installConceptCombatHooks(CoopGame);
 
 
 // Co-op owns its update/fire methods; install the same host-authoritative adapter.
-import {installPhotoReconEncounters} from './photo-recon-encounters.js';
+import {installPhotoReconEncounters} from './photo-recon-encounters.js?v=quality-audit-596-c6ea4cf8-20261109';
 installPhotoReconEncounters(CoopGame);
 
-import {installTransportConvoy} from './transport-convoy.js';
+import {installTransportConvoy} from './transport-convoy.js?v=quality-audit-596-c6ea4cf8-20261109';
 installTransportConvoy(CoopGame);
 
 
@@ -388,9 +388,9 @@ installFinalArenaGuards(CoopGame);
 const updateEnemyArrivalFrame=CoopGame.prototype.update;
 CoopGame.prototype.update=function(...args){if(this.state!=='playing')return updateEnemyArrivalFrame.apply(this,args);this.arrivalFrameActive=true;try{const result=updateEnemyArrivalFrame.apply(this,args);if(this.state==='playing')admitEnemyArrivals(this);return result;}finally{delete this.arrivalFrameActive;}};
 
-import {installWhiteFlightCoopFx} from './goering-whiteflight-fx.js';
+import {installWhiteFlightCoopFx} from './goering-whiteflight-fx.js?v=quality-audit-596-c6ea4cf8-20261109';
 installWhiteFlightCoopFx(CoopGame);
 
 installEnemyAceCoopTactics(CoopGame,{WEAPONS});
-import {installSquadronPatrols} from './squadron-patrols.js';
+import {installSquadronPatrols} from './squadron-patrols.js?v=earned-rewards-7ccfad1b-20261114';
 installSquadronPatrols(CoopGame);

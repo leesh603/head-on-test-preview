@@ -1,16 +1,16 @@
-import {portraitThumbnailSource} from './portraits.js?v=crew20261024&opt=1';
+import {portraitThumbnailSource} from './portraits.js?v=quality-audit-596-c6ea4cf8-20261109';
 /* Phone lobby (420). Presentation only: the key art and logo own the screen,
    the selected aircraft is named under them, then mode tabs, the sortie
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111';
-import {hangarArt, hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=arras-cargo-icons-4529781a-20261112';
+import {hangarArt, hangarArtLayout} from './hangar-art.js?v=capital-wingmen-ca58973-20261109';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
-import {aircraftFeelRatings} from './aircraft-feel174.js?v=gal1';
-import {t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {waitForLobbyIcons} from './lobby-assets-ready.js?v=lobbygate2';
+import {PLANES} from './engine.js?v=earned-rewards-7ccfad1b-20261114';
+import {aircraftFeelRatings} from './aircraft-feel174.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {t} from './i18n.js?v=core-experience-b5d0890e-20261113';
+import {waitForLobbyIcons} from './lobby-assets-ready.js?v=quality-audit-596-c6ea4cf8-20261109';
 const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';
@@ -44,14 +44,15 @@ function mobilePilotName420(id, label, locale) {
 
 // Fit the complete painted crew inside its frame; heads alone must never
 // determine a crop that cuts away a person's shoulders or face.
-const MOBILE_CREW_BOUNDS420 = {huffzky:{box:[0,105,1254,1235],heads:[195,1110]},mckeever:{box:[0,107,1254,1254],heads:[185,1120]}};
+const MOBILE_CREW_BOUNDS420 = {huffzky:{box:[0,105,1254,1235],heads:[140,1110]},mckeever:{box:[0,107,1254,1254],heads:[145,1140]}};
 function mobileCrewPortraitLayout420(id, width, height) {
   const bounds = MOBILE_CREW_BOUNDS420[id];
   if (!bounds || !(width > 0 && height > 0)) return null;
-  const [left, top, right, bottom] = bounds.box, center = (left + right) / 2;
+  const [, top, , bottom] = bounds.box;
+  const [left, right] = bounds.heads, center = (left + right) / 2;
   const fit = Math.min(width, height) / 1254;
-  const scale = Math.min(height * .90 / (bottom - top), width * .90 / (right - left)) / fit;
-  return {scale, x: -(center - 627) * fit * scale, y: height * .05 - height / 2 - (top - 627) * fit * scale};
+  const scale = Math.min(height * .99 / (bottom - top), width * .96 / (right - left)) / fit;
+  return {scale, x: -(center - 627) * fit * scale, y: height / 2 - (bottom - 627) * fit * scale};
 }
 function fitMobileCrew420(image, id) {
   const layout = mobileCrewPortraitLayout420(id, image.clientWidth, image.clientHeight);

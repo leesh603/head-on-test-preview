@@ -1,0 +1,18 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON earned reward QA</title>
+<style>body{margin:0;background:#161b1e;color:#eee;font:14px Arial}header{padding:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}button{min-height:40px;padding:8px}iframe{border:0;display:block;margin:auto;width:100%;height:850px}output{display:block;padding:8px}</style>
+<header><b>PR655 · test-mode fixture</b><button id="cargo">화물 선택 검사</button><button id="squadron">구출 편대 전투 검사</button><button id="mobile">모바일 폭 390</button><button id="desktop">PC 폭 1280</button><button id="progress">실패 진척 화면 검사</button></header><output id="status">게임 로딩 중</output>
+<iframe id="game" src="./index.html?headonTest=1&region=8&pilot=baron&boss=1&invincible=1&candidate=7ccfad1b"></iframe>
+<script type="module">
+import {applyOperationReward,refreshOperationReinforcement} from './special-operation-combat.js?v=earned-rewards-7ccfad1b-20261114';
+import {flushIntrusionEquipmentRewards} from './intrusion-equipment-rewards.js?v=earned-rewards-7ccfad1b-20261114';
+import {installPilotUnlockUI} from './pilot-unlock-ui.js?v=earned-rewards-7ccfad1b-20261114';
+import {setPilotUnlockBook,emptyPilotUnlocks,pilotUnlockRun} from './pilot-unlocks.js?v=earned-rewards-7ccfad1b-20261114';
+const frame=document.getElementById('game'),status=document.getElementById('status');let ui;
+function run(){const w=frame.contentWindow,g=w.__HEADON_TEST__?.debug();if(!g?.testMode)throw Error('Test-mode sortie required');return g;}
+function restart(){frame.contentWindow.__HEADON_TEST__.start({region:8,pilot:'baron',boss:true,invincible:true});return run();}
+document.getElementById('cargo').onclick=()=>{try{const g=restart();for(const id of ['redScarf','ironCross','flightGloves','sparkPlug']){g.state='upgrade';g.upgrade(id,'legendary');}g.state='playing';applyOperationReward(g,{id:'cargo'});flushIntrusionEquipmentRewards(g);status.textContent='Fixture: native cargo reward, four owned items. Choose or decline in the real game modal.';}catch(e){status.textContent=e.stack;}};
+document.getElementById('squadron').onclick=()=>{try{const g=restart();applyOperationReward(g,{id:'squadron',unit:'jasta18'});refreshOperationReinforcement(g);status.textContent='Fixture: earned five-aircraft squadron. Native combat; invulnerable observer, not normal-run balance evidence.';}catch(e){status.textContent=e.stack;}};
+document.getElementById('mobile').onclick=()=>{frame.style.width='390px';frame.style.height='844px';};document.getElementById('desktop').onclick=()=>{frame.style.width='1280px';frame.style.height='800px';};
+document.getElementById('progress').onclick=()=>{try{const g=run();g.state='paused';const doc=frame.contentDocument;doc.getElementById('modal').classList.remove('hidden');const b={data:{pilotUnlocks:emptyPilotUnlocks()},clock:()=> 'fixture',persist(){},subscribe(){return()=>{}}};b.data.pilotUnlocks.metrics.balloons=10;setPilotUnlockBook(b);const model={pilot:'baron',plane:'fokker',hp:100,t:0,state:'playing'},r=pilotUnlockRun(model);r.publish(r.state(model),{});r.publish(r.state(model),{add:{balloons:2}});model.state='lost';ui?.dispose();ui=installPilotUnlockUI({book:b,getGame:()=>model,pilots:{luke:{name:'프랭크 루크'},gontermann:{name:'하인리히 곤터만'}},document:doc});ui.sync();status.textContent='Fixture: isolated in-memory record 10→12 balloons, actual result component. No saved account data changed.';}catch(e){status.textContent=e.stack;}};
+setInterval(()=>{try{const g=run();if(!status.textContent.startsWith('Fixture'))status.textContent='Ready · '+g.state+' · '+g.level;}catch{}},1000);
+</script></html>

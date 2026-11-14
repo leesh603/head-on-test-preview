@@ -1,12 +1,12 @@
-import {arrivalViewport} from './enemy-arrivals.js';
-import {facilityPlan} from './ground-facility-missions.js';
-import {transportConvoyActive} from './transport-convoy.js';
-import {photoReconActive} from './photo-recon-encounters.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {momentumCombatTarget} from './ace-momentum.js';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
+import {arrivalViewport} from './enemy-arrivals.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {facilityPlan} from './ground-facility-missions.js?v=map-victory-f1e15a1f-20261110';
+import {transportConvoyActive} from './transport-convoy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {photoReconActive} from './photo-recon-encounters.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {intrusionActive} from './intrusion-bosses.js?v=earned-rewards-7ccfad1b-20261114';
+import {momentumCombatTarget} from './ace-momentum.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=map-visual-9169b9aa-20261111';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=quality-audit-596-c6ea4cf8-20261109';
 
 export const FLIGHT_SUCCESSION=Object.freeze({deputyShock:1.2,deputyFor:4});
 export const FLIGHT_ALARM=Object.freeze({hitWindow:.5,range:300,cone:.3,react:.25,stagger:.12,memory:3});

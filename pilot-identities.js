@@ -1,15 +1,15 @@
-import {ammunitionVisualScale} from './heavy-ammunition.js';
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
-import {installPilotFeedback} from './pilot-feedback.js';
-import {wwiWingTarget} from './wwi-equipment.js';
-import {wingmanBossPass} from './engagement-flow174.js?v=gal1&airbattle=20261025&afc=1&td4=20261026';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
-import {headOnTarget} from './engagement-feedback.js?v=tame3';
-import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js';
-import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js';
-import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js';
-import {secretWingGun} from './secret-weapon-combat.js';
-import {prepareSynthesisBomb} from './weapon-synthesis.js';
+import {ammunitionVisualScale} from './heavy-ammunition.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {installPilotFeedback} from './pilot-feedback.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {wwiWingTarget} from './wwi-equipment.js?v=core-experience-b5d0890e-20261113';
+import {wingmanBossPass} from './engagement-flow174.js?v=earned-rewards-7ccfad1b-20261114';
+import {advanceWingFlight} from './wingman-flight.js?v=earned-rewards-7ccfad1b-20261114';
+import {headOnTarget} from './engagement-feedback.js?v=headon-livens-38d2a630-20261112';
+import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js?v=earned-rewards-7ccfad1b-20261114';
+import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {secretWingGun} from './secret-weapon-combat.js?v=core-experience-b5d0890e-20261113';
+import {prepareSynthesisBomb} from './weapon-synthesis.js?v=core-experience-b5d0890e-20261113';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
