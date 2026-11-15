@@ -10,16 +10,18 @@ export const VERDUN_AA_REPAIR_SECONDS=18;
 const size=v=>v*VERDUN_FORT_ENLARGEMENT;
 const freezeParts=parts=>Object.freeze(parts.map(p=>Object.freeze({...p,...Object.fromEntries(['x','y','w','h','rx','ry','muzzle'].map(k=>[k,size(p[k])]))})));
 export const VERDUN_FORT_LAYOUT=Object.freeze({
- 'fort-douaumont':Object.freeze({width:size(820),height:size(590),core:Object.freeze({x:0,y:size(10),rx:size(65),ry:size(58)}),parts:freezeParts([
-  {id:'heavy-left',x:-154,y:-87,w:146,h:164,rx:56,ry:58,fraction:.12,muzzle:103,art:'heavy',kind:'heavy'},
-  {id:'heavy-right',x:154,y:-87,w:146,h:164,rx:56,ry:58,fraction:.12,muzzle:103,art:'heavy',kind:'heavy'},
-  {id:'control',x:0,y:-156,w:112,h:90,rx:43,ry:33,fraction:.07,muzzle:0,art:'control',kind:'control'},
-  {id:'mg-left',x:-285,y:95,w:92,h:84,rx:33,ry:28,fraction:.06,muzzle:41,art:'mg',kind:'mg'},
-  {id:'mg-right',x:285,y:95,w:92,h:84,rx:33,ry:28,fraction:.06,muzzle:41,art:'mg',kind:'mg'},
-  {id:'aa-left',x:-276,y:-149,w:100,h:102,rx:36,ry:34,fraction:.06,muzzle:43,art:'aa',kind:'aa'},
-  {id:'aa-right',x:275,y:-149,w:100,h:102,rx:36,ry:34,fraction:.06,muzzle:43,art:'aa',kind:'aa'},
-  {id:'ammo-left',x:-154,y:110,w:132,h:100,rx:48,ry:35,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true},
-  {id:'ammo-right',x:154,y:110,w:132,h:100,rx:48,ry:35,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true}
+ // The historical upper works put the 75 mm turret north of the barracks
+ // and the 155 mm turret on the east flank. Keep the existing battery IDs.
+ 'fort-douaumont':Object.freeze({width:size(820),height:size(590),core:Object.freeze({x:0,y:size(153),rx:size(48),ry:size(34)}),parts:freezeParts([
+  {id:'heavy-left',x:-42,y:-139,w:100,h:76,rx:34,ry:34,fraction:.12,muzzle:41,art:'heavy',kind:'heavy'},
+  {id:'heavy-right',x:204,y:-1,w:118,h:90,rx:40,ry:40,fraction:.12,muzzle:48,art:'heavy',kind:'heavy'},
+  {id:'control',x:-150,y:-135,w:64,h:55,rx:28,ry:25,fraction:.07,muzzle:0,art:'control',kind:'control'},
+  {id:'mg-left',x:-227,y:-27,w:76,h:58,rx:26,ry:26,fraction:.06,muzzle:31,art:'mg',kind:'mg'},
+  {id:'mg-right',x:215,y:-82,w:76,h:58,rx:26,ry:26,fraction:.06,muzzle:31,art:'mg',kind:'mg'},
+  {id:'aa-left',x:-231,y:121,w:83,h:65,rx:32,ry:30,fraction:.06,muzzle:38,art:'aa',kind:'aa'},
+  {id:'aa-right',x:205,y:128,w:83,h:65,rx:32,ry:30,fraction:.06,muzzle:38,art:'aa',kind:'aa'},
+  {id:'ammo-left',x:-141,y:142,w:91,h:64,rx:43,ry:29,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true},
+  {id:'ammo-right',x:120,y:138,w:91,h:64,rx:43,ry:29,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true}
  ])}),
  'fort-souville':Object.freeze({width:size(900),height:size(540),core:Object.freeze({x:0,y:size(162),rx:size(72),ry:size(54)}),parts:freezeParts([
   {id:'bunker-left',x:-333,y:61,w:148,h:118,rx:58,ry:42,fraction:.08,muzzle:57,art:'bunker',kind:'bunker'},

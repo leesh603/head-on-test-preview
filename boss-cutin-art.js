@@ -11,7 +11,7 @@ export const REDRAWN_BOSS_CUTINS=Object.freeze({
   "mark4-wedge": "cutin-mark1-landships.webp",
   "morser-battery": "cutin-schwaben-fortress.webp",
   "gotha-squadron": "cutin-gotha-squadron.webp",
-  "fort-douaumont": "cutin-douaumont.webp",
+  "fort-douaumont": "cutin-douaumont-1916.webp",
   "fort-souville": "cutin-souville.webp",
   "wustenpanzer": "cutin-wustenpanzer.webp",
   "sinai-landship": "cutin-sinai-landship.webp",
