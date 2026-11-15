@@ -23,6 +23,12 @@ import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=crewbake1';
 const CREW_BAKE_MODE=typeof location!=='undefined'&&new URLSearchParams(location.search).get('crewbake')==='1';
 let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=crew-20261026');
 const crewNone=new Set(CREW_NONE),rimRepairs=new Set(AIRCRAFT_RIM_REPAIR_KEYS);
+// Reuse the approved crewed paintings and fit them to the stock NPC sprite footprint.
+const NPC_STOCK_CREW_ART={
+ bank_plane_sopwith_dolphin:{file:'dolphin.webp',scale:.82},
+ bank_plane_re8:{file:'re8.webp',scale:.79}
+};
+const crewArtFile=key=>NPC_STOCK_CREW_ART[key]?.file||CREW_BAKED[key];
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
@@ -131,11 +137,21 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  if(key==='support_staaken'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;const c=out.getContext('2d');c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';const w=146,h=w*img.naturalHeight/img.naturalWidth;c.drawImage(img,144-w/2,152-h/2,w,h);setPainted(key,out);finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./support-staaken-20261101.webp',import.meta.url).href;return;}
  if(key==='zero_sector_junkers_d1'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0,288,320);setPainted(key,outlineZeroSectorAircraft(out));finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./asset-bank/zero-district/junkers-d1.webp',import.meta.url).href;return;}
  // Pre-composited crewed sprite: the stored image is the final painted 288x320 canvas.
- const crewFile=!skipCrew&&!CREW_BAKE_MODE&&CREW_BAKED[key]&&new URLSearchParams(location.search).get('mech')!=='0'?CREW_BAKED[key]:null;
+ const crewFile=!skipCrew&&!CREW_BAKE_MODE&&new URLSearchParams(location.search).get('mech')!=='0'?crewArtFile(key):null;
  if(crewFile){let crewTries=0;const url=new URL(`./crew-baked/${crewFile}`,import.meta.url);
   if(key==='bomber-transfer-gotha')url.searchParams.set('v','gotha-native-20261112');
   // Decode off-thread before the copy: a sync decode inside drawImage is a mid-combat hitch.
-  img.onload=()=>{if(settled)return;(img.decode?img.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);commitPainted(out)}catch{finish(false)}})};
+  img.onload=()=>{if(settled)return;(img.decode?img.decode():Promise.resolve()).catch(()=>{}).then(()=>{
+   if(settled)return;
+   try{
+    const out=document.createElement('canvas');out.width=288;out.height=320;
+    const c=out.getContext('2d'),scale=NPC_STOCK_CREW_ART[key]?.scale??1;
+    c.drawImage(img,144*(1-scale),152*(1-scale),img.naturalWidth*scale,img.naturalHeight*scale);
+    // The shared paintings already have a black rim at the approved art scale.
+    if(NPC_STOCK_CREW_ART[key]){setPainted(key,out);finish(true);}
+    else commitPainted(out);
+   }catch{finish(false)}
+  })};
   img.onerror=()=>{if(++crewTries<4){url.searchParams.set('r',crewTries);img.src=url.href;return}img.onload=null;img.onerror=null;decodePainted(key,true).then(finish,()=>finish(false))};img.src=url.href;return;}
  // Crew step for art without a baked file: decide synchronously when the bake knows the key has no
  // crew; otherwise load the compositor lazily. Bake mode records the final painted canvas.
@@ -210,7 +226,7 @@ const paintedSource=key=>campaignSpriteAliases[key]||(key==='fokker_red'?'fokker
 // Exact same baked source as decodePainted; boot prioritization must not warm raw/foreign art.
 export function aircraftFlightSource(key){
  const source=paintedSource(key);if(albatrosD1Source(source))return new URL(albatrosD1Source(source),import.meta.url).href;if(SQUADRON_FLIGHT_ART[source])return new URL('./'+SQUADRON_FLIGHT_ART[source],import.meta.url).href;const mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
- if(!CREW_BAKE_MODE&&mech&&CREW_BAKED[source])return new URL(`./crew-baked/${CREW_BAKED[source]}`,import.meta.url).href;
+ if(!CREW_BAKE_MODE&&mech&&crewArtFile(source))return new URL(`./crew-baked/${crewArtFile(source)}`,import.meta.url).href;
  // The D.I reward keeps an approved raw master and uses decodePainted's
  // scan/crop path. Its preload URL must match that request as well.
  if(source==='prinz_friedrich_albatros_d1')return new URL(`./${mech}${source}.webp?v=gal1&b=347`,import.meta.url).href;

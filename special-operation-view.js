@@ -113,7 +113,7 @@ export function drawMapExitSignals(ctx, game, view) {
 
 export function prepareSpecialOperationTrain() {
  if (trainReady || typeof Image === 'undefined') return trainReady;
- atlas = load('./operation-cargo-train.webp');
+ atlas = load('./operation-cargo-train-ink-20261115.webp');
  track = load('./boss-bruno-train115.webp');
  return trainReady = Promise.all([atlas,track].map(image=>image.decode?.().catch(()=>{})));
 }

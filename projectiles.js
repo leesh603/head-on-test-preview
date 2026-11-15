@@ -206,11 +206,9 @@ export function drawCannonProjectile(c,b,x,y){
   fx(c,'smokeTrail',-20,0,37,8,0,.62);
   if(fx(c,'shellHeavy',0,0,32,10,0,1)){c.restore();return;}
  }
- const flightKey=cow?'cannonCow':'cannonMotor',oldKey=cow?'shellHeavy':'shellAuto';
- if(FX3&&(fxReady(flightKey)||fxReady(oldKey))){
-  fx(c,fxReady(flightKey)?flightKey:oldKey,0,0,cow?24:31,cow?8:7);
-  c.restore();return;
- }
+ // The COW's metal body stays legible without the white trail baked into its flight frame.
+ const drawn=FX3&&(cow?fx(c,'cowBody',0,0,24,8):fx(c,'cannonMotor',0,0,31,7)||fx(c,'shellAuto',0,0,31,7));
+ if(drawn){c.restore();return;}
  // Original cannon atlas remains the rollback and loading fallback.
  if(cannonAtlas&&cannonAtlas.complete&&cannonAtlas.naturalWidth){
   const sw=cannonAtlas.naturalWidth/2,sh=cannonAtlas.naturalHeight,dw=cow?24:20,dh=cow?56:49;

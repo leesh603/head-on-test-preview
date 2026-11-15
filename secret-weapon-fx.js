@@ -36,7 +36,8 @@ export const secretWeaponArtReady=typeof Image==='undefined'?Promise.resolve(fal
    resolve(true);
   };
   image.onerror=()=>resolve(false);
-  image.src=new URL('./secret-ordnance-'+key+'.webp',import.meta.url).href;
+  const artwork=key==='sn1650'?'secret-ordnance-sn1650-ink-20261115':`secret-ordnance-${key}`;
+  image.src=new URL('./'+artwork+'.webp',import.meta.url).href;
  }))
 ).then(results=>results.every(Boolean));
 

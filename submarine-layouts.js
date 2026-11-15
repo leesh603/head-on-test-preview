@@ -9,7 +9,8 @@ const layout=(id)=>{
  const gunSpec=src=>({src,x:gunX,y:gunY,pivot,width:size[0],height:size[1]});
  const head={src:'asset-bank/intrusion-bosses/submarines/periscope-intact.webp',x:gunX,y:-68,pivot:[9,12.5],drawSize:[18,25]};
  return {id,enabled:true,domain:'sea',hullBounds:{x:0,y:0,width:heavy?183.72:170.52,height:1472},width:heavy?184:171,height:1536,waterWidth:heavy?184:171,waterHeight:1536,
-  submarineArt:{surface:`${base}-hull-surface.webp`,diving:`${base}-hull-diving.webp`,periscope:null,width:384,height:1536,separated:true},
+  submarineArt:{surface:`${base}-hull-surface${heavy?'':'-ink-20261115'}.webp`,
+   diving:`${base}-hull-diving${heavy?'':'-ink-20261115'}.webp`,periscope:null,width:384,height:1536,separated:true},
   cutin:`${base}-cutin.webp`,parts:[
    {id:'deck_gun_sprite',kind:'turret_body',group:'deck_gun',x:gunX,y:gunY,pivot,angle:0,arc,dependencies:[],rotatesWithTurret:true,destroyedRotates:true,muzzle,
     artAvailability:{damaged:'runtime-fx-only',destroyed:heavy?'painted-destroyed':'unavailable-intact-retained'},
