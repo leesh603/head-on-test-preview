@@ -103,7 +103,7 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=map-visual-9169b9aa-20261111';
 import {drawEnemyDanger} from './enemy-danger-view.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {drawGas} from './gas-view.js?v=core-experience-b5d0890e-20261113';
-import {drawWarAmbience} from './war-ambience.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {drawWarAmbience,drawBurningFront,prepareBurningFront} from './war-ambience.js?v=burning-front-1255debb-20261115';
 import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=quality-audit-596-c6ea4cf8-20261109';
@@ -218,6 +218,7 @@ function transitionAssetPrep(region){
    jobs.push(preloadTerrainProfile(key),backgroundDressingReady);
    if(region===5)jobs.push(terrainAtlasReady);
    if(region===2&&!batterySaver&&renderScale>=.7)jobs.push(prepareTrenchDiorama());
+   if(region===3)jobs.push(prepareBurningFront());
   }
   if(region===7)jobs.push(preloadTerrainProfile('sea'),backgroundDressingReady,prepareZeebruggeTerrain());
   if((run?.stageBoss?.stages.operation?.id||run?.operationSnapshot?.battle?.id)==='cargo')jobs.push(prepareSpecialOperationTrain());
@@ -1098,11 +1099,6 @@ function paintZeebrugge(cx,cy,W,H){
  }
  ctx.stroke();ctx.restore();
 }
-function paintTrenchHellOverlay(cx,cy,W,H){
- ctx.save();ctx.fillStyle='#27181142';ctx.fillRect(0,0,W,H);
- // Retain the authored terrain tint without decorative ground fire or smoke.
- ctx.restore();
-}
 // Terrain stays in a world-anchored offscreen buffer: each frame blits one
 // integer-aligned slice instead of re-rasterizing every 768px tile + transform.
 // The buffer only repaints when the camera crosses its inner margin.
@@ -1196,7 +1192,7 @@ function paintRegion(region,cx,cy,width=W,height=H){
   const key=terrainKeys[region],detailDensity=mobileDisplay?(batterySaver?.45:.65):1;
   drawTerrainBuffered(key,cx,cy,W,H);
   if(region===2)drawTrenchDiorama(ctx,cx,cy,W,H,game?.trenchDioramaTime??game?.t??0,mobileDisplay,batterySaver||renderScale<.7,game?.trenchDioramaEnabled!==false);
-  if(region===3)paintTrenchHellOverlay(cx,cy,W,H);
+  if(region===3)drawBurningFront(ctx,cx,cy,W,H,game?.t??0,terrainAlpsRenderer.sizeFor(key),mobileDisplay||batterySaver||renderScale<.7);
   if(region===11){ctx.save();ctx.fillStyle='#101b2c45';ctx.fillRect(0,0,W,H);ctx.restore();}
   drawWarAmbience(ctx,region,cx,cy,W,H,(game?.t||0)+ambient,detailDensity,terrainAlpsRenderer.sizeFor(key));
   return;

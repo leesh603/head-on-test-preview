@@ -10,7 +10,7 @@ export const TERRAIN_PROFILES=Object.freeze({
  channel:{name:'영국 해협',cell:6,base:'#304a56',strength:.59},
  desert:{name:'중동 사막',cell:7,base:'#71634a',strength:.58},
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
- burning:{name:'불타는 전선',src:'./terrain-burning359r2.webp?v=r5&b=326',base:'#433d37',strength:1.25,tileSize:1254},
+ burning:{name:'불타는 전선',src:'./terrain-burning-front-20261115.webp',base:'#3b4142',strength:1.25,tileSize:1254},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
  cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=r5&b=326',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
@@ -25,7 +25,7 @@ export const TERRAIN_PROFILES=Object.freeze({
 // ground's contrast/chroma. Combat sprites and hazard markings are drawn later.
 export const TERRAIN_ATMOSPHERE=Object.freeze({
  rural:{color:'#8799a6',strength:.13},sea:{color:'#7192a6',strength:.12},
- trenches:{color:'#89959c',strength:.16},burning:{color:'#879095',strength:.17},
+ trenches:{color:'#89959c',strength:.16},burning:{color:'#81969e',strength:.18},
  city:{color:'#8293a1',strength:.16},sky:{color:'#91a8ba',strength:.05},
  alps:{color:'#91a5b4',strength:.11},zeebrugge:{color:'#7794a3',strength:.12},
  cambrai:{color:'#929eaa',strength:.10},arras:{color:'#96a7b4',strength:.04},
