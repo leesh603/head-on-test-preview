@@ -41,7 +41,7 @@ export function prepareBurningFront(){
 }
 
 function drawGroundFire(c,x,y,site,pulse){
- const width=site.size*(.78+.26*pulse),height=width*.625;
+ const width=site.size*(.82+.25*pulse),height=width*.7;
  c.save();c.translate(x,y-2);c.rotate(site.angle);
  c.globalAlpha=.66+.32*pulse;
  c.drawImage(burningFire,-width/2,-height/2,width,height);
@@ -50,14 +50,14 @@ function drawGroundFire(c,x,y,site,pulse){
 
 function drawGroundSmoke(c,x,y,site,t,seed,steps,turn,budget){
  const flame=site.angle!==undefined,cell=burningSmoke.naturalWidth/2,sh=burningSmoke.naturalHeight;
- const speed=flame?165:138,cycle=(flame?6.9:10.4)+seed*2;
+ const speed=flame?220:185,cycle=(flame?6.9:10.4)+seed*2;
  let count=0;
  for(let i=0;i<steps&&count<budget;i++){
   const age=(t/cycle+seed+i/steps)%1;
   const soot=flame&&i%3===0;
   const dx=age*speed*(soot?.58:1),dy=dx*turn+Math.sin(age*7+seed*9)*age*18;
-  const width=site.size*(.55+(soot?1.1:1.65)*age),height=width*.77;
-  c.globalAlpha=Math.sin(age*Math.PI)*(soot?.54:flame?.39:.25);
+  const width=site.size*(.72+(soot?1.45:2.1)*age),height=width*.76;
+  c.globalAlpha=Math.sin(age*Math.PI)*(soot?.64:flame?.54:.38);
   c.drawImage(burningSmoke,soot?cell:0,0,cell,sh,x+dx-width/2,y+dy-height/2,width,height);
   count++;
  }
@@ -69,11 +69,11 @@ export function drawBurningFront(c,cx,cy,W,H,t,tile,lowDetail=false){
  const left=cx-W/2,top=cy-H/2,steps=lowDetail?3:5,wind=-.34+Math.sin(t*.29)*.11;
  let smokeBudget=lowDetail?24:48;
  c.save();c.imageSmoothingEnabled=true;
- for(let iy=Math.floor((top-130)/tile);iy<=Math.floor((top+H+180)/tile);iy++){
-  for(let ix=Math.floor((left-290)/tile);ix<=Math.floor((left+W+130)/tile);ix++){
+ for(let iy=Math.floor((top-150)/tile);iy<=Math.floor((top+H+200)/tile);iy++){
+  for(let ix=Math.floor((left-340)/tile);ix<=Math.floor((left+W+150)/tile);ix++){
    for(let k=0;k<BURNING_SITES.length;k++){
     const site=BURNING_SITES[k],x=(ix+site.x)*tile-left,y=(iy+site.y)*tile-top;
-    if(x<-270||x>W+130||y<-125||y>H+175)continue;
+    if(x<-320||x>W+150||y<-150||y>H+200)continue;
     const seed=hash(ix,iy,k+1),flame=site.angle!==undefined;
     if(k!==2&&seed<.2)continue;
     if(flame&&burningFire&&x>=-45&&x<=W+45&&y>=-45&&y<=H+45){

@@ -103,7 +103,7 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=map-visual-9169b9aa-20261111';
 import {drawEnemyDanger} from './enemy-danger-view.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {drawGas} from './gas-view.js?v=core-experience-b5d0890e-20261113';
-import {drawWarAmbience,drawBurningFront,prepareBurningFront} from './war-ambience.js?v=burning-front-1255debb-20261115';
+import {drawWarAmbience,drawBurningFront,prepareBurningFront} from './war-ambience.js?v=burning-front-48624803-20261115';
 import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=quality-audit-596-c6ea4cf8-20261109';
