@@ -15,7 +15,7 @@ export function drawDressingSprite(c,kind,x,y,size,angle=0,alpha=.74){
 // [kind, normalized terrain x/y, footprint size, heading, context]. Roads,
 // trench shoulders and farm yards are checked against the unmodified masters.
 export const TERRAIN_DRESSING=Object.freeze({
- rural:[['farm',.806,.570,38,.08,'abandoned-yard'],['wagon',.739,.610,35,-.65,'farm-road'],['supplies',.853,.611,24,.1,'abandoned-yard']],
+ rural:[['farm',.757,.476,38,.08,'farm-yard'],['wagon',.615,.740,35,-.65,'farm-road'],['supplies',.215,.657,20,.1,'farm-yard']],
  trenches:[['gun',.194,.178,58,.32,'trench-shoulder'],['tank',.696,.697,56,-.55,'trench-approach'],['brokenGun',.493,.333,43,.8,'trench-shoulder']],
  burning:[['gun',.731,.444,57,.45,'trench-shoulder'],['tank',.267,.585,55,.35,'trench-approach'],['brokenGun',.524,.252,41,-.3,'trench-shoulder']],
  cambrai:[['tank',.457,.260,45,.2,'trench-approach'],['gun',.475,.683,44,-.3,'trench-shoulder']],
