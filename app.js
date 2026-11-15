@@ -44,7 +44,7 @@ import {activeFronts,FRONT_TYPES,frontLocation,frontBrief} from './rural-fronts.
 import {drawProjectileTactic} from './gun-signatures.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {prepareBossOrdnance} from './boss-ordnance-art.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {prepareTacticalIcons} from './tactical-icon-assets.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {selectPilotKeyart} from './pilot-keyart.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {selectPilotKeyart} from './pilot-keyart.js?v=pilot-sortie-9b529360-20261115';
 import {installFireDiveFx,drawMannockWing} from './fire-dive-fx.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {installPressureLinkFx,pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=quality-audit-596-c6ea4cf8-20261109';
 import {installDeathDefianceFx,defianceAirframePose} from './death-defiance-fx.js?v=core-experience-b5d0890e-20261113';

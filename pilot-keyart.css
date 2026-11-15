@@ -4,3 +4,8 @@
   background:linear-gradient(180deg,#0b0b0a66 0,#0b0b0a00 12%,#0b0b0a00 48%,#0b0b0ab3 68%,#0b0b0a 88%),var(--ho-keyart) 50% 0/100% auto no-repeat,#0b0b0a!important;
  }
 }
+
+:is(body.lobby420,body.lobby423pc) .lobby-aces-panel .lap-pt img[src*="/portrait-navarre.webp"]{
+ object-fit:contain;
+ object-position:center 12%;
+}
