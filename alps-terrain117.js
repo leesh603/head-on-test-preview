@@ -1,7 +1,7 @@
 import {applySeaColor} from './sea-colors.js?v=b3bf991d11fc7798';
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=b3bf991d11fc7798';
 export const TERRAIN_PROFILES=Object.freeze({
- rural:{name:'전원 지대',src:'./terrain-rural-low-alt-20261115.webp?v=low2',base:'#424b3b',strength:1.25,tileSize:1254},
+ rural:{name:'전원 지대',src:'./terrain-rural-hedgerows-20261115.webp',base:'#424b3b',strength:1.25,tileSize:1254},
  sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=r5&b=326',base:'#245d62',strength:1.11,tileSize:1254},
  trenches:{name:'참호 전선',src:'./terrain-trenches359r2.webp?v=r5&b=326',base:'#4c443b',strength:1.22,tileSize:1254},
  sky:{name:'창공',cell:3,base:'#3d5367',strength:1.25},
