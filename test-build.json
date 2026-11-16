@@ -1,1 +1,8 @@
-{"sha":"a09a7cbc62f4d4d863ce6140af386e78f278a4f5","ref":"feat/meadow-graphics-20261117","source_pr":686,"index_sha256":"55b8614aff77e7ab14566c147f0cb3a33e4047058a15eb483a86e1a40225ed32","method":"exact-commit-static-mirror"}
+{
+  "sha": "de719a53ee2774a85d7ef1b45c28b91b96fe0d7d",
+  "ref": "tools/development-qa-20261116",
+  "source_pr": 687,
+  "index_sha256": "55b8614aff77e7ab14566c147f0cb3a33e4047058a15eb483a86e1a40225ed32",
+  "method": "verified-identical-dist",
+  "runtime_source_sha": "a09a7cbc62f4d4d863ce6140af386e78f278a4f5"
+}
