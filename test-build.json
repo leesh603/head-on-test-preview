@@ -1,8 +1,1 @@
-{
-  "sha": "de719a53ee2774a85d7ef1b45c28b91b96fe0d7d",
-  "ref": "tools/development-qa-20261116",
-  "source_pr": 687,
-  "index_sha256": "55b8614aff77e7ab14566c147f0cb3a33e4047058a15eb483a86e1a40225ed32",
-  "method": "verified-identical-dist",
-  "runtime_source_sha": "a09a7cbc62f4d4d863ce6140af386e78f278a4f5"
-}
+{"sha":"b0c4e61d902f49e45056239db51dec36cd9389ea","ref":"fix/meadow-art-reference","source_pr":689,"index_sha256":"6866f6c2314e26c33f29be436ae2ed356e7ca05f56927934aa818cc8fd18577d","method":"exact-commit-static-mirror"}

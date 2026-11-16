@@ -1,11 +1,11 @@
-import {PLANES} from './engine.js?v=a09a7cbc62f4d4d8';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=d7a0cfcfc455802b';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=d7a0cfcfc455802b';
-import {SPRITE_ALIASES} from './campaign.js?v=a09a7cbc62f4d4d8';
+import {PLANES} from './engine.js?v=b0c4e61d902f49e4';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=b0c4e61d902f49e4';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=b0c4e61d902f49e4';
+import {SPRITE_ALIASES} from './campaign.js?v=b0c4e61d902f49e4';
 import {drawEquipment} from './equipment.js?v=d7a0cfcfc455802b';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=d7a0cfcfc455802b';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=b0c4e61d902f49e4';
 import {missionNavigation,navigationScreenPoint} from './navigation.js?v=d7a0cfcfc455802b';
 const _ptShare=[0,0],_twCache=new Map();
 const _tw=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=_twCache.get(k);if(w===undefined){w=c.measureText(txt).width;_twCache.set(k,w)}return w};

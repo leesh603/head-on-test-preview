@@ -1,6 +1,6 @@
 import {drawGroundSearchlight,prepareGroundSearchlights} from './ground-searchlight-art.js?v=d7a0cfcfc455802b';
 import {groundVisualSize} from './ground-perspective.js?v=d7a0cfcfc455802b';
-import {drawThreatAA} from './air-threat-art.js?v=d7a0cfcfc455802b';
+import {drawThreatAA} from './air-threat-art.js?v=b0c4e61d902f49e4';
 import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=d7a0cfcfc455802b';
 const images=new Map(),pending=new Map();
 function load(key){if(images.has(key))return images.get(key);const im=new Image();im.crossOrigin='anonymous';im.decoding='async';images.set(key,im);pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Ground enemy art '+key));}));im.src='./'+GROUND_SHEETS[key].replace(/\.webp$/,'-q92.webp')+'?v=r5';return im;}

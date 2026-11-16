@@ -15,8 +15,8 @@ import {tickBishopGloves,bishopGlovesInterval,bishopGlovesLifetime} from './equi
 import {installNavarreFrommherzCombat,navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js?v=d7a0cfcfc455802b';
 import {momentumTier,momentumDamage,recordMomentumKill} from './ace-momentum.js?v=d7a0cfcfc455802b';
 import {coastalBalloonAllowed,placeCoastalBalloon,placeCoastalGround} from './air-threat-placement.js?v=d7a0cfcfc455802b';
-import {configureBalloon,configureAA,aaMuzzle} from './air-threat-profiles.js?v=d7a0cfcfc455802b';
-import {fireAirThreatVolley,fireBalloonVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js?v=d7a0cfcfc455802b';
+import {configureBalloon,configureAA,aaMuzzle} from './air-threat-profiles.js?v=b0c4e61d902f49e4';
+import {fireAirThreatVolley,fireBalloonVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js?v=b0c4e61d902f49e4';
 import {frontTarget} from './rural-fronts.js?v=d7a0cfcfc455802b';
 import {airbrakeMovement,beginAirbrake,correctWimperisPilotRocket,correctWimperisBomb} from './flight-equipment.js?v=d7a0cfcfc455802b';
 import {equipmentCruiseMultiplier,equipmentRepairPickup,nearbyCoverCount} from './equipment-flight-balance.js?v=d7a0cfcfc455802b';
@@ -37,24 +37,24 @@ import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAtta
 import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=d7a0cfcfc455802b';
 import {initializeWingDurability,formationWingRoundTarget,withdrawFormationWing,tickWingWithdrawal} from './wingman-durability.js?v=d7a0cfcfc455802b';
 import {clearSecretWeaponTransient,tryFireSecretDavis,secretCannonImpact,secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget,secretRankenHullContact} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=d7a0cfcfc455802b';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=b0c4e61d902f49e4';
 import {installPilotIdentities} from './pilot-identities.js?v=d7a0cfcfc455802b';
 import {EnemyCollisionGrid} from './collision-grid.js?v=d7a0cfcfc455802b';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=d7a0cfcfc455802b';
-import {installRevision} from './rebalance103.js?v=a09a7cbc62f4d4d8';
-import {installCloudCover} from './cloud-cover1.js?v=a09a7cbc62f4d4d8';
-import {installFleet} from './fleet-naval1.js?v=a09a7cbc62f4d4d8';
+import {installRevision} from './rebalance103.js?v=b0c4e61d902f49e4';
+import {installCloudCover} from './cloud-cover1.js?v=b0c4e61d902f49e4';
+import {installFleet} from './fleet-naval1.js?v=b0c4e61d902f49e4';
 import {installTrenchWar} from './trench-war1.js?v=d7a0cfcfc455802b';
-import {installCityAir} from './city-air1.js?v=d7a0cfcfc455802b';
-import {installRegionDoctrine} from './region-doctrine1.js?v=a09a7cbc62f4d4d8';
-import {installLondonBattle} from './london-battle.js?v=d7a0cfcfc455802b';
+import {installCityAir} from './city-air1.js?v=b0c4e61d902f49e4';
+import {installRegionDoctrine} from './region-doctrine1.js?v=b0c4e61d902f49e4';
+import {installLondonBattle} from './london-battle.js?v=b0c4e61d902f49e4';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=d7a0cfcfc455802b';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=a09a7cbc62f4d4d8';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=b0c4e61d902f49e4';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=d7a0cfcfc455802b';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=d7a0cfcfc455802b';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=d7a0cfcfc455802b';
 import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=d7a0cfcfc455802b';
-import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=d7a0cfcfc455802b';
+import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=b0c4e61d902f49e4';
 import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=d7a0cfcfc455802b';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=d7a0cfcfc455802b';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible,ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst,fighterAim} from './dogfight-pass165.js?v=d7a0cfcfc455802b';
@@ -62,7 +62,7 @@ import {missionTargetSteering} from './mission-target-break.js?v=d7a0cfcfc455802
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=d7a0cfcfc455802b';
 import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=d7a0cfcfc455802b';
 import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=d7a0cfcfc455802b';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=a09a7cbc62f4d4d8';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=b0c4e61d902f49e4';
 import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=d7a0cfcfc455802b';
 import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=d7a0cfcfc455802b';
 
@@ -685,7 +685,7 @@ Game.prototype.spawnMinefield=function(){
  const x=this.x+Math.cos(a)*d,y=this.y+Math.sin(a)*d;
  const field={x,y,radius:230,warning:1.9,life:44,region:0,mines:[]};
  for(let i=0;i<11;i++){const angle=i*Math.PI*2/11+.25,r=95+this.rng()*80;field.mines.push({x:x+Math.cos(angle)*r,y:y+Math.sin(angle)*r,hp:18,dead:false})}
- this.hostileMinefields.push(field);this.event('flak','기뢰지대 발견 · 붉은 기뢰를 피하거나 사격으로 제거하세요');
+ this.hostileMinefields.push(field);this.event('flak','기뢰지대 발견 · 표시된 기뢰를 피하거나 사격으로 제거하세요');
 };
 Game.prototype.spawnFleet=function(){
  const live=this.enemies.filter(e=>e.navalVessel&&e.hp>0);

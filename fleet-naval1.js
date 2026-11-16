@@ -8,7 +8,7 @@ import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-si
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=a09a7cbc62f4d4d8';
+import {PLANES} from './engine.js?v=b0c4e61d902f49e4';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
 
 export const SHIP_TYPES=Object.freeze({

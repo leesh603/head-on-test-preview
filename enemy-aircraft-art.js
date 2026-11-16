@@ -1,4 +1,4 @@
-import {aircraftKey} from './aircraft.js?v=d7a0cfcfc455802b';
+import {aircraftKey} from './aircraft.js?v=b0c4e61d902f49e4';
 
 // Personal paint is a render key; simulation aircraft and ordinary squadron paint stay intact.
 export function enemyAircraftKey(e,fallback){

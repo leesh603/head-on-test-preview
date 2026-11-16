@@ -1,5 +1,6 @@
-import {groundVisualSize} from './ground-perspective.js?v=d7a0cfcfc455802b';
-import {airThreatMuzzles} from './air-threat-profiles.js?v=d7a0cfcfc455802b';
+import {drawMeadowContactShadow} from './meadow-graphics.js?v=b0c4e61d902f49e4';
+import {groundVisualSize,groundVisualRegion} from './ground-perspective.js?v=d7a0cfcfc455802b';
+import {airThreatMuzzles} from './air-threat-profiles.js?v=b0c4e61d902f49e4';
 import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=d7a0cfcfc455802b';
 // A small bounded cache, shared by solo/co-op and the asset-bank preview. No
 // canvas creation, pixel reads, filters, or network requests on the hot path.
@@ -78,7 +79,9 @@ export function drawThreatAA(c,e,x,y,size,kind='aa',contextRegion){
  // High-angle barrels are baked into the approved top-view art: rotating the
  // entire emplacement to aim would rotate sandbags/truck and misplace the muzzle.
  const k=size/Math.max(m.width,m.height),w=m.width*k,h=m.height*k;
- c.save();c.imageSmoothingEnabled=true;c.drawImage(item.image,x-w/2,y-h/2,w,h);c.restore();return true;
+ c.save();c.imageSmoothingEnabled=true;
+ if(id==='aa-rural-pedestal'&&groundVisualRegion(e,contextRegion)===0)drawMeadowContactShadow(c,item.image,x,y,w,h);
+ c.drawImage(item.image,x-w/2,y-h/2,w,h);c.restore();return true;
 }
 export function aaMuzzle(e,size=66,kind='aa'){
  size=groundVisualSize(e,size,kind);

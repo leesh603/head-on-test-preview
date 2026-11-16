@@ -401,7 +401,25 @@ function leanOverlay(sprite,key,right){
  g.globalCompositeOperation='source-in';g.fillStyle=grad;g.fillRect(0,0,144,160);
  if(leans.size>160)leans.delete(leans.keys().next().value);leans.set(id,cv);return cv;
 }
-export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0,damaged=false){
+// A canvas the size of the authored sprite carries the meadow's soft daylight.
+ // Source-atop keeps every alpha edge and the same pivot, scale and damage sprite.
+const meadowSurfaces=new WeakMap();
+function meadowAirframeSurface(sprite){
+ let surface=meadowSurfaces.get(sprite);
+ if(surface)return surface;
+ surface=document.createElement('canvas');surface.width=144;surface.height=160;
+ const g=surface.getContext('2d');
+ g.drawImage(sprite,0,0);
+ g.globalCompositeOperation='source-atop';
+ const daylight=g.createLinearGradient(12,8,150,153);
+ daylight.addColorStop(0,'rgba(235,211,165,.20)');
+ daylight.addColorStop(.48,'rgba(219,197,156,.045)');
+ daylight.addColorStop(1,'rgba(47,53,41,.15)');
+ g.fillStyle=daylight;g.fillRect(0,0,144,160);
+ meadowSurfaces.set(sprite,surface);
+ return surface;
+}
+export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0,damaged=false,meadow=false){
  const redAce=key==='fokker_red',variant=key==='fokker_voss',standard=key==='fokker';const cacheKey=redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key;
  const sourceKey=campaignSpriteAliases[key]||(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);
  // Never fall back to the retired procedural planes while the authored art is
@@ -416,7 +434,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
   // canvas filter, which Safari lacks). The draw stays a single drawImage.
   const R=SHADOW_SOFTNESS;for(let i=0;i<12;i++){const t=i/12*Math.PI*2,r=i%2?R:R*.5;sc.globalAlpha=.16;sc.drawImage(sprite,Math.cos(t)*r,Math.sin(t)*r,144,160)}
   sc.globalAlpha=.3;sc.drawImage(sprite,0,0,144,160);sc.globalAlpha=1;sc.globalCompositeOperation='source-in';sc.fillStyle='#14211a';sc.fillRect(0,0,144,160);shadows.set(cacheKey,sh)}c.globalAlpha*=.36;c.drawImage(shadows.get(cacheKey),-72,-76)}
- else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(sprite,-72,-76,144,160);{const lean=pendingLean;pendingLean=0;if(Math.abs(lean)>.04){const a0=c.globalAlpha;c.globalAlpha=a0*Math.abs(lean);c.drawImage(leanOverlay(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,lean>0),-72,-76);c.globalAlpha=a0}}if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+ else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(meadow?meadowAirframeSurface(sprite):sprite,-72,-76,144,160);{const lean=pendingLean;pendingLean=0;if(Math.abs(lean)>.04){const a0=c.globalAlpha;c.globalAlpha=a0*Math.abs(lean);c.drawImage(leanOverlay(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,lean>0),-72,-76);c.globalAlpha=a0}}if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
  c.restore();
 }
 

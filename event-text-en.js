@@ -14,7 +14,7 @@ const EXACT = {
   '관측기구 격추 · 적 포병 관측망 붕괴 — 12초간 관측포격 중단': 'Observation balloon down · enemy spotting net broken — no observed fire for 12s',
   '기관차 탈선 · 최종 코어 노출': 'Locomotive derailed · final core exposed',
   '기관차 폭주! · 선로에서 이탈하기 전에 추격하세요': 'Runaway locomotive! · Chase it down before it leaves the line',
-  '기뢰지대 발견 · 붉은 기뢰를 피하거나 사격으로 제거하세요': 'Minefield ahead · Avoid the red mines or shoot them',
+  '기뢰지대 발견 · 표시된 기뢰를 피하거나 사격으로 제거하세요': 'Minefield ahead · Avoid the marked mines or shoot them',
   '기습! 고속 추격 편대': 'Ambush! Fast pursuit flight',
   '대공포 발사! 탄막을 피하세요': 'Flak! Dodge the barrage',
   '도심 방공망 — 탐조등에 잡히면 집중 화망이 올라옵니다': 'City air defence — get caught in a searchlight and the guns converge',

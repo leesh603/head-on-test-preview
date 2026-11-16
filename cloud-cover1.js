@@ -25,7 +25,16 @@ const MAX_CLOUDS=9;
 const CLOUD_IMGS={cumulus:['fx-cloud-cumulus-0','fx-cloud-cumulus-1','fx-cloud-cumulus-2'],bank:['fx-cloud-bank-0','fx-cloud-bank-1'],dark:['fx-cloud-dark-0','fx-cloud-dark-1'],wispy:['fx-cloud-wispy-0','fx-cloud-wispy-1']};
 const _imgCache={};
 let _roleSettled=false;roleArtReady.finally(()=>_roleSettled=true);
-function cloudImg(type,seed){
+let meadowCumulus;
+function cloudImg(type,seed,meadow=false){
+ if(meadow&&type==='cumulus'&&typeof Image!=='undefined'){
+  if(!meadowCumulus){
+   meadowCumulus=new Image();
+   meadowCumulus.decoding='async';
+   meadowCumulus.src='./meadow-summer-cumulus.webp?v=1';
+  }
+  if(meadowCumulus.naturalWidth)return meadowCumulus;
+ }
  const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
  const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
  if(fxsHas(key))return fxsImage(key);
@@ -173,8 +182,8 @@ export function drawCloudShadows(c,game,{point,scale=1,region,visible}){
   const meadow=region===0,height=meadow?meadowHeight[cl.type]:1;
   const [px,py]=point(cl.x,cl.y),sx=px+S.offsetX*height*scale,sy=py+S.offsetY*height*scale,w=t.rx*2*scale,h=t.ry*2*scale;
   if(visible?!visible(sx,sy,Math.max(w,h)):sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
-  const img=cloudImg(night&&cl.type!=='wispy'?'dark':cl.type,cl.seed);if(!img||!img.naturalWidth)continue;
-  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow),shadow=pre&&cloudShadowBitmap(pre);if(!shadow)continue;
+  const img=cloudImg(night&&cl.type!=='wispy'?'dark':cl.type,cl.seed,meadow);if(!img||!img.naturalWidth)continue;
+  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow&&img!==meadowCumulus),shadow=pre&&cloudShadowBitmap(pre);if(!shadow)continue;
   c.globalAlpha=a0*(night?S.nightAlpha:meadow?.24:S.alpha)*Math.min(1,t.alpha+.1)*(t.dense<1?.55:1);
   c.drawImage(shadow,sx-pre.w*S.grow/2,sy-pre.h*S.grow/2,pre.w*S.grow,pre.h*S.grow);
  }
@@ -187,12 +196,12 @@ export function drawCloudCover(c,game,{point,scale=1,region}){
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
   if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
-  const img=cloudImg((region===15||region===17)&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
+  const img=cloudImg((region===15||region===17)&&cl.type!=='wispy'?'dark':cl.type,cl.seed,region===0);
   if(!img||!img.naturalWidth)continue;
   // Each cloud is pre-rotated/mirrored once at its drawn size; per frame it is a plain blit
   // (rotated, scaled big alpha images were a heavy raster pass every frame).
-  const meadow=region===0,pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow),a0=c.globalAlpha;
-  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:meadow?.55:1);
+  const meadow=region===0,pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow&&img!==meadowCumulus),a0=c.globalAlpha;
+  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:meadow?(img===meadowCumulus?.66:.55):1);
   if(pre)c.drawImage(pre.cv,sx-pre.w/2,sy-pre.h/2,pre.w,pre.h);
   else{c.save();c.translate(sx,sy);if(cl.mirror)c.scale(-1,1);c.rotate(Math.sin(cl.seed)*.14);c.drawImage(img,-w/2,-h/2,w,h);c.restore();}
   c.globalAlpha=a0;

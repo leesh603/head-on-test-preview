@@ -1,30 +1,32 @@
 import {FACILITY_ART} from './ground-facility-profiles.js?v=d7a0cfcfc455802b';
 import {configureFacilityArtReady,facilityStageKey} from './ground-facility-missions.js?v=d7a0cfcfc455802b';
+import {drawMeadowContactShadow} from './meadow-graphics.js?v=b0c4e61d902f49e4';
 const images=new Map();
-const meadowShadows=new WeakMap();
+const BESSONNEAU='meadow-bessonneau-hangar.webp';
+const ENTENTE_AIRFIELD=FACILITY_ART['rural-airfield-entente'].file;
 function load(file){if(typeof Image==='undefined')return null;if(images.has(file))return images.get(file);const im=new Image();im.decoding='async';im.src='./'+file;images.set(file,im);return im;}
-configureFacilityArtReady(file=>{const im=load(file);load('asset-bank/ground-facilities/rubble.webp');return !!im?.naturalWidth;});
-function meadowFacilityShadow(c,im,x,y,w,h){
- let shadow=meadowShadows.get(im);
- if(!shadow){
-  shadow=document.createElement('canvas');
-  shadow.width=104;shadow.height=Math.round(im.naturalHeight*96/im.naturalWidth)+8;
-  const ink=shadow.getContext('2d');
-  ink.filter='blur(1px)';ink.drawImage(im,4,4,96,shadow.height-8);ink.filter='none';
-  ink.globalCompositeOperation='source-in';ink.fillStyle='#272015a0';ink.fillRect(0,0,shadow.width,shadow.height);
-  meadowShadows.set(im,shadow);
- }
- const pad=w/24;
- c.drawImage(shadow,x-w/2-pad+4,y-h/2-pad+6,w+pad*2,h+pad*2);
-}
+configureFacilityArtReady(file=>{
+ const original=load(file);
+ load('asset-bank/ground-facilities/rubble.webp');
+ if(file===ENTENTE_AIRFIELD)load(BESSONNEAU);
+ return !!original?.naturalWidth;
+});
 export function drawGroundFacilities(c,g,{point=(x,y)=>[x,y]}={}){
  const state=g?.groundFacilities;if(!state||state.stageKey!==facilityStageKey(g))return;
  for(const site of state.sites)for(const e of site.targets){
   const spec=FACILITY_ART[e.facilityArt],im=spec&&load(spec.file);if(!im?.naturalWidth)continue;
   const [x,y]=point(e.x,e.y),w=e.width,h=e.height;c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality="high";
-  if(state.region===0&&!spec.source&&e.facilityArt.startsWith('rural-airfield-'))meadowFacilityShadow(c,im,x,y,w,h);
-  if(spec.source)c.drawImage(im,...spec.source,x-w/2,y-h/2,w,h);else c.drawImage(im,x-w/2,y-h/2,w,h);
-  if(spec.flag){const flag=load(spec.flag);if(flag?.naturalWidth)c.drawImage(flag,x+w/2-10,y-h/2,10,12.5);}
+  const meadow=state.region===0&&e.facilityArt.startsWith('rural-airfield-');
+  if(!meadow||!e.destroyed){
+   const newRoof=meadow&&spec.file===ENTENTE_AIRFIELD?load(BESSONNEAU):null;
+   if(newRoof?.naturalWidth)c.drawImage(newRoof,x-w*.54,y-h*.56,w*1.12,h*1.14);
+   else{
+    if(meadow&&!spec.source)drawMeadowContactShadow(c,im,x,y,w,h);
+    if(spec.source)c.drawImage(im,...spec.source,x-w/2,y-h/2,w,h);
+    else c.drawImage(im,x-w/2,y-h/2,w,h);
+   }
+   if(spec.flag){const flag=load(spec.flag);if(flag?.naturalWidth)c.drawImage(flag,x+w/2-10,y-h/2,10,12.5);}
+  }
   if(e.destroyed){
    const rubble=load('asset-bank/ground-facilities/rubble.webp');
    if(rubble?.naturalWidth){const r=spec.rubble||[65,142,1666,603];c.drawImage(rubble,...r,x+e.hitOffsetX-e.hitWidth*.57,y+e.hitOffsetY-e.hitHeight*.57,e.hitWidth*1.14,e.hitHeight*1.14);}
