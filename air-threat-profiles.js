@@ -1,6 +1,6 @@
 import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=d7a0cfcfc455802b';
-import {airThreatArtReady} from './air-threat-art.js?v=b0c4e61d902f49e4';
-export {selectAAArt,aaMuzzle} from './air-threat-art.js?v=b0c4e61d902f49e4';
+import {airThreatArtReady} from './air-threat-art.js?v=1091f4e17a46a92b';
+export {selectAAArt,aaMuzzle} from './air-threat-art.js?v=1091f4e17a46a92b';
 export const AIR_THREAT_ROLE_PROFILES=Object.freeze({
  recon:Object.freeze({length:280,hp:.72,speed:1.08,fire:1.4}),
  bomber:Object.freeze({length:340,hp:.9,speed:.88,fire:1.2}),

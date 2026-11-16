@@ -5,7 +5,7 @@ import {resetFlightEquipment} from './flight-equipment.js?v=d7a0cfcfc455802b';
 // import would crash the module-less test environment.
 let aircraftModule;
 const aircraftSprites=()=>{
- aircraftModule??=import('./aircraft.js?v=b0c4e61d902f49e4').then(m=>aircraftModule=m);
+ aircraftModule??=import('./aircraft.js?v=1091f4e17a46a92b').then(m=>aircraftModule=m);
  return aircraftModule?.then?null:aircraftModule;
 };
 export const HEINECKE=Object.freeze({escape:3,returnHp:.4,invulnerability:2,cooldown:180,maxUses:2,reentryDistance:270});

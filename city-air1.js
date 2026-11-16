@@ -1,6 +1,6 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=b0c4e61d902f49e4';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=1091f4e17a46a92b';
 import {impactMark,aimLine} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=b0c4e61d902f49e4';
+import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=1091f4e17a46a92b';
 import {getLocale} from './i18n.js?v=d7a0cfcfc455802b';
 import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=d7a0cfcfc455802b';
 // City and Berlin ground units; region 5 wind streams.

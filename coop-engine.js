@@ -14,8 +14,8 @@ import {tickGuynemerBarrage} from './guynemer-barrage.js?v=d7a0cfcfc455802b';
 import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=d7a0cfcfc455802b';
 import {momentumTier,recordMomentumKill} from './ace-momentum.js?v=d7a0cfcfc455802b';
 import {coastalBalloonAllowed,placeCoastalBalloon,placeCoastalGround} from './air-threat-placement.js?v=d7a0cfcfc455802b';
-import {configureBalloon,configureAA} from './air-threat-profiles.js?v=b0c4e61d902f49e4';
-import {fireAirThreatVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js?v=b0c4e61d902f49e4';
+import {configureBalloon,configureAA} from './air-threat-profiles.js?v=1091f4e17a46a92b';
+import {fireAirThreatVolley,configureFlakSource,tickAirThreatObservation,noteAirThreatObserverDown} from './air-threat-combat.js?v=1091f4e17a46a92b';
 import {installConceptCombatHooks} from './aircraft-concept-combat.js?v=d7a0cfcfc455802b';
 import {AUGMENTATION_OVERHAUL_BALANCE as AUGMENTATION_BALANCE} from './augmentation-overhaul150.js?v=d7a0cfcfc455802b';
 import {beginRareHit,finishRareHit} from './rare-specializations.js?v=d7a0cfcfc455802b';
@@ -37,20 +37,20 @@ import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} f
 import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=d7a0cfcfc455802b';
 import {steerJutlandBoundary,containJutlandPlayer} from './jutland-route.js?v=d7a0cfcfc455802b';
 import {advanceExplosionFx} from './explosion-profiles.js?v=d7a0cfcfc455802b';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=b0c4e61d902f49e4';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=1091f4e17a46a92b';
 import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=d7a0cfcfc455802b';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=d7a0cfcfc455802b';
-import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=b0c4e61d902f49e4';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=b0c4e61d902f49e4';
+import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=1091f4e17a46a92b';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=1091f4e17a46a92b';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=d7a0cfcfc455802b';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=d7a0cfcfc455802b';
 import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAttackTarget} from './engagement-flow174.js?v=d7a0cfcfc455802b';
 import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=d7a0cfcfc455802b';
 import {initializeWingDurability,formationWingRoundTarget,tickWingWithdrawal} from './wingman-durability.js?v=d7a0cfcfc455802b';
 import {secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
-import {installCloudCover} from './cloud-cover1.js?v=b0c4e61d902f49e4';
-import {tickCityDefense} from './city-defense.js?v=b0c4e61d902f49e4';
+import {installCloudCover} from './cloud-cover1.js?v=1091f4e17a46a92b';
+import {tickCityDefense} from './city-defense.js?v=1091f4e17a46a92b';
 
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -356,7 +356,7 @@ installCloudCover(CoopGame);
 import {installNineCoop} from './pilot-nine-combat.js?v=d7a0cfcfc455802b';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=b0c4e61d902f49e4';
+import {installCoopFleet} from './fleet-naval1.js?v=1091f4e17a46a92b';
 
 installCoopFleet(CoopGame,Game);
 

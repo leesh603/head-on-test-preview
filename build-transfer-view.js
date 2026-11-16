@@ -1,5 +1,5 @@
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {planeSprite} from './aircraft.js?v=b0c4e61d902f49e4';
+import {planeSprite} from './aircraft.js?v=1091f4e17a46a92b';
 import {drawGameIcon} from './icons.js?v=d7a0cfcfc455802b';
 
 const clamp=n=>Math.max(0,Math.min(1,n));

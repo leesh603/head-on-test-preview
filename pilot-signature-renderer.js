@@ -21,7 +21,7 @@ import {drawMckeeverGuns} from './mckeever-crossfire-fx.js?v=d7a0cfcfc455802b';
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=d7a0cfcfc455802b';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
-import {bishopFlightHeight} from './engine.js?v=b0c4e61d902f49e4';
+import {bishopFlightHeight} from './engine.js?v=1091f4e17a46a92b';
 import {signatureWingPositions} from './pilot-signature-geometry.js?v=d7a0cfcfc455802b';
 import {drawTracerBolt} from './projectiles.js?v=a09a7cbc62f4d4d8';
 const TAU=Math.PI*2;

@@ -1,5 +1,5 @@
 // Both sides defend the same districts from the first raid to the final flight.
-import {ensureLondonBattle,createCityDistricts,hitCityDistrict,checkCityDefenseLoss} from './london-battle.js?v=b0c4e61d902f49e4';
+import {ensureLondonBattle,createCityDistricts,hitCityDistrict,checkCityDefenseLoss} from './london-battle.js?v=1091f4e17a46a92b';
 
 export const CITY_RAID=Object.freeze({
  waves:[2,3,3,6],firstAt:6,gap:16,maxLive:2,approach:1050,cityAhead:560,bombRadius:72,

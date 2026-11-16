@@ -2,7 +2,7 @@ import {LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS} from './laon
 import {LAON_ART_FRAMES} from './laon-art-frames.js?v=d7a0cfcfc455802b';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
 import {impactMark,aimLine} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {planeSprite,paintedReady} from './aircraft.js?v=b0c4e61d902f49e4';
+import {planeSprite,paintedReady} from './aircraft.js?v=1091f4e17a46a92b';
 import {prepareLaonTerrain,releaseLaonTerrain} from './laon-terrain.js?v=d7a0cfcfc455802b';
 import {paintSlotStrip,drawParisStrip,drawParisGunStrip} from './skyline-strip.js?v=d7a0cfcfc455802b';
 let images={},promise=null;

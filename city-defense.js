@@ -1,5 +1,5 @@
-import {aaMuzzle,configureAA} from './air-threat-profiles.js?v=b0c4e61d902f49e4';
-import {cityRaidBattle} from './city-air-raid.js?v=b0c4e61d902f49e4';
+import {aaMuzzle,configureAA} from './air-threat-profiles.js?v=1091f4e17a46a92b';
+import {cityRaidBattle} from './city-air-raid.js?v=1091f4e17a46a92b';
 // Co-op calls this once for the shared world, not per pilot.
 export const CITY_DEFENSE=Object.freeze({lockTime:1.2,beamHalf:.16,beamRange:520,warning:.65,reload:2.7,speed:250});
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));

@@ -409,7 +409,8 @@ function meadowAirframeSurface(sprite){
  if(surface)return surface;
  surface=document.createElement('canvas');surface.width=144;surface.height=160;
  const g=surface.getContext('2d');
- g.drawImage(sprite,0,0);
+ g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+ g.drawImage(sprite,0,0,144,160);
  g.globalCompositeOperation='source-atop';
  const daylight=g.createLinearGradient(12,8,150,153);
  daylight.addColorStop(0,'rgba(235,211,165,.20)');

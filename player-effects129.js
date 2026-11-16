@@ -9,13 +9,13 @@ import {combatVisualPose} from './combat-feedback.js?v=a09a7cbc62f4d4d8';
 import {drawMomentumTrail,momentumTier} from './ace-momentum.js?v=d7a0cfcfc455802b';
 import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=d7a0cfcfc455802b';
 import {nungesserCombatStatus} from './nungesser-combat.js?v=d7a0cfcfc455802b';
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=b0c4e61d902f49e4';
-import {createSignatureView} from './pilot-signature-view.js?v=b0c4e61d902f49e4';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=1091f4e17a46a92b';
+import {createSignatureView} from './pilot-signature-view.js?v=1091f4e17a46a92b';
 import {fx,fxTint} from './fx-art.js?v=d7a0cfcfc455802b';
-import {planeSprite,aircraftKey,aircraftTrailPalette} from './aircraft.js?v=b0c4e61d902f49e4';
+import {planeSprite,aircraftKey,aircraftTrailPalette} from './aircraft.js?v=1091f4e17a46a92b';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=d7a0cfcfc455802b';
 
-import {bishopFlightHeight} from './engine.js?v=b0c4e61d902f49e4';
+import {bishopFlightHeight} from './engine.js?v=1091f4e17a46a92b';
 import {udetRollPose} from './udet-acrobat-fx.js?v=d7a0cfcfc455802b';
 import {bomberEntryPose} from './bomber-transfer.js?v=d7a0cfcfc455802b';
 import {bombSprite} from './bomb-sprites.js?v=d7a0cfcfc455802b';
