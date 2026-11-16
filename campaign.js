@@ -1,5 +1,5 @@
 import {registerAircraftTiers} from './aircraft-tiers.js?v=d7a0cfcfc455802b';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=d7a0cfcfc455802b';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=2e24846ba2484c78';
 import {CAMPAIGN_DATA} from './campaign-data.js?v=d7a0cfcfc455802b';
 import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=d7a0cfcfc455802b';
 

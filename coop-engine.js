@@ -41,15 +41,15 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=d
 import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=d7a0cfcfc455802b';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=d7a0cfcfc455802b';
-import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=d7a0cfcfc455802b';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=d7a0cfcfc455802b';
+import {ambientBomberAttack,manufacturedBomberAirframe,Game,enemyAircraftHitRadius,bishopFlightHeight,bishopBombTarget,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=2e24846ba2484c78';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=2e24846ba2484c78';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=d7a0cfcfc455802b';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=d7a0cfcfc455802b';
 import {weaponModWingActive,wingmanEngagementStep,aceWingmanBossStep,wingmanAttackTarget} from './engagement-flow174.js?v=d7a0cfcfc455802b';
 import {advanceWingFlight,advanceEscortFlight} from './wingman-flight.js?v=d7a0cfcfc455802b';
 import {initializeWingDurability,formationWingRoundTarget,tickWingWithdrawal} from './wingman-durability.js?v=d7a0cfcfc455802b';
 import {secretRam,updateSecretWing,secretWingGun,secretKetteringLaunch,secretRoundAllowsTarget} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
-import {installCloudCover} from './cloud-cover1.js?v=d7a0cfcfc455802b';
+import {installCloudCover} from './cloud-cover1.js?v=2e24846ba2484c78';
 import {tickCityDefense} from './city-defense.js?v=d7a0cfcfc455802b';
 
 
@@ -356,7 +356,7 @@ installCloudCover(CoopGame);
 import {installNineCoop} from './pilot-nine-combat.js?v=d7a0cfcfc455802b';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=d7a0cfcfc455802b';
+import {installCoopFleet} from './fleet-naval1.js?v=2e24846ba2484c78';
 
 installCoopFleet(CoopGame,Game);
 
@@ -365,7 +365,7 @@ installAchievementTracking(CoopGame,{coop:true});
 import {installUdetCoop} from './udet-acrobatics.js?v=d7a0cfcfc455802b';
 installUdetCoop(CoopGame);
 
-import {installEscortCoopFx} from './escort-command-fx.js?v=d7a0cfcfc455802b';
+import {installEscortCoopFx} from './escort-command-fx.js?v=2e24846ba2484c78';
 installEscortCoopFx(CoopGame);
 
 

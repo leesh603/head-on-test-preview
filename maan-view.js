@@ -5,9 +5,9 @@ import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=d7a0cfcfc45
 import {sandOpacity} from './maan-weather.js?v=d7a0cfcfc455802b';
 import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=d7a0cfcfc455802b';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=d7a0cfcfc455802b';
+import {drawTracerBolt} from './projectiles.js?v=2e24846ba2484c78';
 import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {drawShellFlight} from './boss-rounds.js?v=d7a0cfcfc455802b';
+import {drawShellFlight} from './boss-rounds.js?v=2e24846ba2484c78';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null,settledWorkshop=null;
 const _filterBakes=new WeakMap();

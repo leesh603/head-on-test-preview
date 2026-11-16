@@ -2,7 +2,7 @@
 // Presentation observers only; projectile bodies and every combat rule stay intact.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
 import {headOnTarget} from './engagement-feedback.js?v=d7a0cfcfc455802b';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=d7a0cfcfc455802b';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=2e24846ba2484c78';
 export const CAVALRY_RACER_PILOTS=new Set(['baracca','rickenbacker']);
 const INSTALLED=Symbol.for('headon.cavalry-racer-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

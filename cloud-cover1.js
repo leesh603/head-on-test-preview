@@ -135,13 +135,20 @@ const cloudCache=new Map();
 // still waiting draws directly for that frame (and casts no shadow yet). Tilt is
 // rounded to .02 rad so clouds sharing an image share a bitmap.
 let lastCloudBuild=-Infinity;
-function cloudBitmap(img,mirror,rot,w,h){
+function cloudBitmap(img,mirror,rot,w,h,soft=false){
  if(typeof document==='undefined')return null;
  rot=Math.round(rot/.02)*.02;
- const key=(img.currentSrc||img.src)+'|'+mirror+'|'+rot.toFixed(3)+'|'+Math.round(w)+'|'+Math.round(h);let e=cloudCache.get(key);if(e)return e;
+ const key=(img.currentSrc||img.src)+'|'+mirror+'|'+rot.toFixed(3)+'|'+Math.round(w)+'|'+Math.round(h)+'|'+soft;let e=cloudCache.get(key);if(e)return e;
  const now=typeof performance!=='undefined'?performance.now():Date.now();if(now-lastCloudBuild<12)return null;lastCloudBuild=now;
- const cs=Math.abs(Math.cos(rot)),sn=Math.abs(Math.sin(rot)),bw=Math.ceil(w*cs+h*sn)+2,bh=Math.ceil(w*sn+h*cs)+2;if(bw*bh>4e6)return null;
- const cv=document.createElement('canvas');cv.width=bw;cv.height=bh;const g=cv.getContext?.('2d');if(!g)return null;g.translate(bw/2,bh/2);if(mirror)g.scale(-1,1);g.rotate(rot);g.drawImage(img,-w/2,-h/2,w,h);
+ const cs=Math.abs(Math.cos(rot)),sn=Math.abs(Math.sin(rot)),pad=soft?16:2;
+ const bw=Math.ceil(w*cs+h*sn)+pad,bh=Math.ceil(w*sn+h*cs)+pad;if(bw*bh>4e6)return null;
+ const cv=document.createElement('canvas');cv.width=bw;cv.height=bh;const g=cv.getContext?.('2d');if(!g)return null;g.translate(bw/2,bh/2);if(mirror)g.scale(-1,1);g.rotate(rot);
+ if(soft){
+  // Feather the painted silhouette once. The fringe and body stay in one bitmap.
+  g.filter='blur(4px)';g.globalAlpha=.38;g.drawImage(img,-w/2,-h/2,w,h);
+  g.filter='blur(1.3px)';g.globalAlpha=.82;
+ }
+ g.drawImage(img,-w/2,-h/2,w,h);
  e={cv,w:bw,h:bh};if(cloudCache.size>32)cloudCache.delete(cloudCache.keys().next().value);cloudCache.set(key,e);return e;
 }
 // 20261111 cloud shadows. Every cloud throws a soft shadow onto the ground, far enough off
@@ -149,6 +156,7 @@ function cloudBitmap(img,mirror,rot,w,h){
 // quarter-size dark silhouette (cached with it), so a shadow is one cheap blit under the
 // aircraft layer. Picture only: concealment and tracking read nothing from it.
 export const CLOUD_SHADOW=Object.freeze({offsetX:105,offsetY:165,alpha:.36,nightAlpha:.14,grow:1.1});
+const meadowHeight=Object.freeze({wispy:1.24,bank:.82,cumulus:1,dark:1.1});
 function cloudShadowBitmap(pre){
  if(pre.shadow!==undefined)return pre.shadow;
  const w=Math.max(8,Math.ceil(pre.w/4)),h=Math.max(8,Math.ceil(pre.h/4)),cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext?.('2d');
@@ -156,34 +164,35 @@ function cloudShadowBitmap(pre){
  g.imageSmoothingEnabled=true;g.drawImage(pre.cv,0,0,w,h);g.globalCompositeOperation='source-in';g.fillStyle='#101a14';g.fillRect(0,0,w,h);
  return pre.shadow=cv;
 }
-export function drawCloudShadows(c,game,{point,scale=1,region}){
+export function drawCloudShadows(c,game,{point,scale=1,region,visible}){
  if(typeof document==='undefined')return;
  const cw=c.canvas.width,ch=c.canvas.height,S=CLOUD_SHADOW,night=region===15||region===17,a0=c.globalAlpha,smooth=c.imageSmoothingEnabled;
  c.imageSmoothingEnabled=true;
  for(const cl of game.clouds||[]){
   const t=CLOUD_TYPES[cl.type];if(!t)continue;
-  const [px,py]=point(cl.x,cl.y),sx=px+S.offsetX*scale,sy=py+S.offsetY*scale,w=t.rx*2*scale,h=t.ry*2*scale;
-  if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
+  const meadow=region===0,height=meadow?meadowHeight[cl.type]:1;
+  const [px,py]=point(cl.x,cl.y),sx=px+S.offsetX*height*scale,sy=py+S.offsetY*height*scale,w=t.rx*2*scale,h=t.ry*2*scale;
+  if(visible?!visible(sx,sy,Math.max(w,h)):sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
   const img=cloudImg(night&&cl.type!=='wispy'?'dark':cl.type,cl.seed);if(!img||!img.naturalWidth)continue;
-  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h),shadow=pre&&cloudShadowBitmap(pre);if(!shadow)continue;
-  c.globalAlpha=a0*(night?S.nightAlpha:S.alpha)*Math.min(1,t.alpha+.1)*(t.dense<1?.55:1);
+  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow),shadow=pre&&cloudShadowBitmap(pre);if(!shadow)continue;
+  c.globalAlpha=a0*(night?S.nightAlpha:meadow?.24:S.alpha)*Math.min(1,t.alpha+.1)*(t.dense<1?.55:1);
   c.drawImage(shadow,sx-pre.w*S.grow/2,sy-pre.h*S.grow/2,pre.w*S.grow,pre.h*S.grow);
  }
  c.globalAlpha=a0;c.imageSmoothingEnabled=smooth;
 }
-export function drawCloudCover(c,game,{point,scale=1,region}){
+export function drawCloudCover(c,game,{point,scale=1,region,visible}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const cl of game.clouds||[]){
   const t=CLOUD_TYPES[cl.type];if(!t)continue;
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
-  if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
+  if(visible?!visible(sx,sy,Math.max(w,h)):sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
   const img=cloudImg((region===15||region===17)&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
   if(!img||!img.naturalWidth)continue;
   // Each cloud is pre-rotated/mirrored once at its drawn size; per frame it is a plain blit
   // (rotated, scaled big alpha images were a heavy raster pass every frame).
-  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h),a0=c.globalAlpha;
-  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:1);
+  const meadow=region===0,pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow),a0=c.globalAlpha;
+  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:meadow?.43:1);
   if(pre)c.drawImage(pre.cv,sx-pre.w/2,sy-pre.h/2,pre.w,pre.h);
   else{c.save();c.translate(sx,sy);if(cl.mirror)c.scale(-1,1);c.rotate(Math.sin(cl.seed)*.14);c.drawImage(img,-w/2,-h/2,w,h);c.restore();}
   c.globalAlpha=a0;

@@ -1,14 +1,14 @@
 import {combatDamageTime} from './front-performance.js?v=d7a0cfcfc455802b';
 import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=d7a0cfcfc455802b';
 import {fleetGunStations} from './naval-faction-atlas.js?v=d7a0cfcfc455802b';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=d7a0cfcfc455802b';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=2e24846ba2484c78';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles,guardFleetSubmarineMovement} from './naval-spacing.js?v=d7a0cfcfc455802b';
 import {drawShipWater,recordShipWake} from './naval-water.js?v=d7a0cfcfc455802b';
 import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=d7a0cfcfc455802b';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=d7a0cfcfc455802b';
+import {PLANES} from './engine.js?v=2e24846ba2484c78';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
 
 export const SHIP_TYPES=Object.freeze({

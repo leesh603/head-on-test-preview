@@ -1,6 +1,9 @@
 // Crisp text tags over the game canvas. The battlefield canvas renders at <=1 px per CSS px and
 // is upscaled with image-rendering:pixelated, so label text drawn into it breaks up on
 // high-DPI phones. Labels are pooled DOM nodes positioned in CSS px; shapes stay on the canvas.
+// Text updates rewrite the existing text node's data instead of replacing the node, which
+// keeps per-frame tag text from scheduling subtree style invalidations.
+const setText=(el,v)=>{v=String(v);const n=el.firstChild;if(v&&n&&n.nodeType===3&&!n.nextSibling){if(n.data!==v)n.data=v}else if(el.textContent!==v)el.textContent=v};
 export function createHudTags(host){
  const layer=document.createElement('div');layer.className='hud-tags';layer.setAttribute('aria-hidden','true');
  const vignette=host?.querySelector?.('.vignette');if(vignette)vignette.after(layer);else host?.append?.(layer);
@@ -14,11 +17,11 @@ export function createHudTags(host){
   // change shape (kind/name/detail); a distance tick re-measures at most every 30 frames.
   let shape=false;
   if(t.kind!==kind){t.kind=kind;t.el.className='hud-tag '+kind;shape=true}
-  if(t.name!==name){t.name=name;t.b.textContent=name;shape=true}
-  if(t.detail!==detail){t.detail=detail;t.sm.textContent=detail;shape=true}
+  if(t.name!==name){t.name=name;setText(t.b,name);shape=true}
+  if(t.detail!==detail){t.detail=detail;setText(t.sm,detail);shape=true}
   if(t.accent!==accent){t.accent=accent;t.el.style.setProperty('--tag-accent',accent)}
   // Target chips show the distance inside the title line (b::after), edge chips in <em>.
-  if(t.dist!==dist){t.dist=dist;if(kind==='target')t.b.dataset.dist=dist;else t.em.textContent=dist;t.stale=true}
+  if(t.dist!==dist){t.dist=dist;if(kind==='target')t.b.dataset.dist=dist;else setText(t.em,dist);t.stale=true}
   if(shape||t.stale&&frame-t.measuredAt>=30){t.w=t.el.offsetWidth;t.h=t.el.offsetHeight;t.measuredAt=frame;t.stale=false}
   const left=snap(Math.max(minX,Math.min(maxX-t.w,x-ax*t.w))),top=snap(y-ay*t.h);
   if(left!==t.left||top!==t.top){t.left=left;t.top=top;t.el.style.transform=`translate3d(${left}px,${top}px,0)`}

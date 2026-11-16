@@ -38,6 +38,7 @@ if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=r5';
 const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
 const boltCache=new Map();
 const tracerCache=new Map();
+const standardGunAppearance=friendlyGunAppearance({});
 // Code-drawn tracer round used wherever a projectile needs a tail: tinted glow
 // bed, colour-fading body, white-hot head. Cached per colour/size.
 export function tracerBolt(color,len=20,wid=5){
@@ -59,14 +60,14 @@ export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
 }
 // One ordinary MG view for solo and co-op. Special ammunition changes colour
 // and a little weight, never the old 6–12px luminous capsule thickness.
-export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
+export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0,meadow=false){
  const scale=b?.ammunitionScale||1;
- if(scale===1)return drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus);
+ if(scale===1)return drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus,meadow);
  c.save();c.translate(x,y);c.scale(scale,scale);
  const result=drawFriendlyGunTracerBody(c,b,0,0,gunUpgradeBonus);
  c.restore();return result;
 }
-function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus){
+function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus,meadow=false){
  if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
  if(drawNungesserBlackRound(c,b,x,y))return true;
  if(drawWhiteFlightRound(c,b,x,y,{tint:fxTint,ready:fxReady}))return true;
@@ -82,6 +83,11 @@ function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus){
  const appearance=friendlyGunAppearance(b);
  const tactical=tacticalTracerProfile(b);
  if(tactical&&fxReady('tracerCore')){const a=Math.atan2(b.vy,b.vx);fxTint(c,'tracerCore',color,x-Math.cos(a)*tactical.length*.5,y-Math.sin(a)*tactical.length*.5,tactical.length,tactical.width,a,.95);return true;}
+ if(meadow&&appearance===standardGunAppearance&&!b.specialColor&&!b.eagle&&!b.mauserRound&&!b.secretWeapon&&!b.tacticalStyle&&!b.telescopeGuided&&!b.wwiIncendiary){
+  const a=Math.atan2(b.vy,b.vx);
+  drawTracerBolt(c,x,y,a,color,17,1.6,.96);
+  return true;
+ }
  if(FXS&&fxReady('tracerCore')){const a=Math.atan2(b.vy,b.vx),q=appearance;fxTint(c,'tracerCore',color,x-Math.cos(a)*q.length*.5,y-Math.sin(a)*q.length*.5,q.length,q.width,a,.96);return true;}
  if(FXS&&fxsTracer(c,x,y,b.vx,b.vy,color,weight))return true;
  drawTracerBolt(c,x,y,Math.atan2(b.vy,b.vx),color,14+weight*2,1.8+weight*.4,.88);return true;

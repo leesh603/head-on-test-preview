@@ -7,7 +7,7 @@ import {queueCombatImpact,advanceReplicaImpactFx,pushExplosionFx,combatFxAge} fr
 import {playerAirframeModel} from './player-airframe-handling.js?v=d7a0cfcfc455802b';
 import {drawFuelFire} from './explosion-profiles.js?v=d7a0cfcfc455802b';
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=d7a0cfcfc455802b';
+import {drawTracerBolt} from './projectiles.js?v=2e24846ba2484c78';
 import {tacticalCueSound} from './tactical-combat-view.js?v=d7a0cfcfc455802b';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.

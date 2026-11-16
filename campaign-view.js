@@ -1,7 +1,7 @@
-import {PLANES} from './engine.js?v=d7a0cfcfc455802b';
+import {PLANES} from './engine.js?v=2e24846ba2484c78';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=d7a0cfcfc455802b';
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=d7a0cfcfc455802b';
-import {SPRITE_ALIASES} from './campaign.js?v=d7a0cfcfc455802b';
+import {SPRITE_ALIASES} from './campaign.js?v=2e24846ba2484c78';
 import {drawEquipment} from './equipment.js?v=d7a0cfcfc455802b';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);

@@ -1,7 +1,7 @@
 import {FIRE_DIVE_PILOTS} from './fire-dive-fx.js?v=d7a0cfcfc455802b';
-import {installEscortCommandFx,ESCORT_PILOTS} from './escort-command-fx.js?v=d7a0cfcfc455802b';
-import {installCavalryRacerFx,CAVALRY_RACER_PILOTS} from './cavalry-racer-fx.js?v=d7a0cfcfc455802b';
-import {installOrdnancePilotFx,ORDNANCE_PILOTS} from './ordnance-pilot-fx.js?v=d7a0cfcfc455802b';
+import {installEscortCommandFx,ESCORT_PILOTS} from './escort-command-fx.js?v=2e24846ba2484c78';
+import {installCavalryRacerFx,CAVALRY_RACER_PILOTS} from './cavalry-racer-fx.js?v=2e24846ba2484c78';
+import {installOrdnancePilotFx,ORDNANCE_PILOTS} from './ordnance-pilot-fx.js?v=2e24846ba2484c78';
 import {installCommandFlightFx,COMMAND_PILOTS} from './command-flight-fx.js?v=d7a0cfcfc455802b';
 // Install after the engine's final pilot layer. Existing working attacks stay intact.
 import {PILOT_SIGNATURES,signatureState,advancePilotSignature,activatePilotSignature,signatureCue,pilotSignatureReaction,signatureInterval} from './pilot-signature-state.js?v=d7a0cfcfc455802b';

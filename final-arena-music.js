@@ -1,5 +1,5 @@
 import {PANDEMONIUM_DEPLOYMENT,finalArenaBosses} from './pandemonium-registry.js?v=d7a0cfcfc455802b';
-import {createFortressDefeatAudio} from './fortress-defeat-audio.js?v=d7a0cfcfc455802b';
+import {createFortressDefeatAudio} from './fortress-defeat-audio.js?v=2e24846ba2484c78';
 // Final-area original score controller. Existing BattleMusic preferences remain authoritative.
 import {createFortressAudio} from './fortress-audio.js?v=d7a0cfcfc455802b';
 const ROOT=new URL('./asset-bank/zero-district/audio/',import.meta.url);

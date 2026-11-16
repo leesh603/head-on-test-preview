@@ -81,6 +81,31 @@ export function drawSpecialOperationTrain(ctx, game, width, height) {
  ctx.restore();
 }
 
+// Operation labels are shaped once into a cached bitmap (stroke + fill, font set by
+// drawOperationTargets) and blitted each frame; Korean text shaping per label per
+// frame was a steady phone cost. Distances are rounded to 10 m so keys stay few.
+const opLabelCache = new Map();
+function opLabelBlit(ctx, text, x, y, color) {
+ if (typeof ctx.getTransform !== 'function' || typeof ctx.drawImage !== 'function') { ctx.fillStyle = color; ctx.strokeText(text, x, y); ctx.fillText(text, x, y); return; }
+ const m = ctx.getTransform(), sc = Math.hypot(m.a, m.b) || 1, key = text + '\u0001' + color + '\u0001' + sc.toFixed(3);
+ let e = opLabelCache.get(key);
+ if (!e) {
+  const doc = globalThis.document;
+  if (!doc?.createElement) { ctx.fillStyle = color; ctx.strokeText(text, x, y); ctx.fillText(text, x, y); return; }
+  const c = doc.createElement('canvas'), g = c.getContext('2d');
+  if (!g) { ctx.fillStyle = color; ctx.strokeText(text, x, y); ctx.fillText(text, x, y); return; }
+  g.font = ctx.font; const w = Math.ceil(g.measureText(text).width + 8), h = 22;
+  c.width = Math.max(1, Math.ceil(w * sc)); c.height = Math.ceil(h * sc);
+  g.setTransform(sc, 0, 0, sc, 0, 0); g.font = ctx.font; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = ctx.lineWidth; g.strokeStyle = ctx.strokeStyle; g.fillStyle = color;
+  g.strokeText(text, w / 2, h / 2); g.fillText(text, w / 2, h / 2);
+  e = { c, w, h }; opLabelCache.set(key, e); if (opLabelCache.size > 64) opLabelCache.delete(opLabelCache.keys().next().value);
+ }
+ let dx = x - e.w / 2, dy = y - e.h / 2;
+ if (!m.b && !m.c) { dx = (Math.round(dx * m.a + m.e) - m.e) / m.a; dy = (Math.round(dy * m.d + m.f) - m.f) / m.d; }
+ ctx.drawImage(e.c, dx, dy, e.w, e.h);
+}
+
 // guideTop: lowest edge of the top HUD (canvas px), so mission guides never slide under the cards.
 export function drawOperationTargets(ctx, game, width, height, en = false, guideTop = 0) {
  const battle = game?.operationBattle || game?.operationSnapshot?.battle;
@@ -107,9 +132,7 @@ export function drawOperationTargets(ctx, game, width, height, en = false, guide
    y = Math.max(top, Math.min(bottom, y));
   } else if (exit) y = Math.max(top, y - Math.max(25, 66*zoom));
   if(missionGuide){const direction=y>height/2?-1:1;for(let i=0;i<6&&guidePositions.some(p=>Math.abs(p.x-x)<side*2&&Math.abs(p.y-y)<18);i++)y=Math.max(top,Math.min(bottom,y+direction*20));guidePositions.push({x,y});}
-  ctx.fillStyle = color;
-  ctx.strokeText(text, x, y);
-  ctx.fillText(text, x, y);
+  opLabelBlit(ctx, text, x, y, color);
  }
  const friendly = '#dbecc2', danger = '#ffc19d';
  if(mission?.status==='active'&&mission.region===game.stageBoss?.stages.stageIndex)for(const point of (mission.guides||[]).slice(0,6)){
