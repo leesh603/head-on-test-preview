@@ -7,7 +7,7 @@
 // fly a straight line. No streak lines are drawn.
 import {drawBossOrdnance} from './boss-ordnance-art.js?v=d7a0cfcfc455802b';
 import {fx,fxReady} from './fx-art.js?v=d7a0cfcfc455802b';
-import {drawEnemyProjectile,drawFlightRocket} from './projectiles.js?v=2e24846ba2484c78';
+import {drawEnemyProjectile,drawFlightRocket} from './projectiles.js?v=a09a7cbc62f4d4d8';
 const ROUND={
  'aa-shell':['ap-small',34],'zeppelin-flak':['ap-small',34],'airship-flak':['ap-small',34],'carrier-flak':['ap-small',34],'stuttgart-flak':['ap-small',28],'gallipoli-aa':['ap-small',34],'twin-aa':['ap-small',34],
  'zubian-shell':['he-shell',38],'harbor-shell':['he-shell',38],'l70-broadside':['he-shell',32],'wusten-shell':['he-shell',38],'jutland-shell':['he-shell',36],

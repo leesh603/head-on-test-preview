@@ -2,7 +2,7 @@ import {drawWhiteFlightMuzzle,drawWhiteFlightSignal,drawWhiteFlightManeuver} fro
 // Real flight positions and gunfire carry escort orders; healthy wings stay clean.
 // Observe actual owned wingmen, accepted support damage and accepted guard hits.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=2e24846ba2484c78';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=a09a7cbc62f4d4d8';
 export const ESCORT_PILOTS=new Set(['goering','brumowski']);
 const INSTALLED=Symbol.for('headon.escort-command-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

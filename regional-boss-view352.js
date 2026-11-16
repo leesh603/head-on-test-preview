@@ -3,7 +3,7 @@ import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?
 import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=d7a0cfcfc455802b';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
 import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {drawShellFlight} from './boss-rounds.js?v=2e24846ba2484c78';
+import {drawShellFlight} from './boss-rounds.js?v=a09a7cbc62f4d4d8';
 import {drawAADefense} from './aa-defense-art.js?v=d7a0cfcfc455802b';
 import {outlineSmallAirframe,drawSmallAirframe} from './aircraft-rim.js?v=d7a0cfcfc455802b';
 

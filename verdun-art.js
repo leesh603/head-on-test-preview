@@ -3,9 +3,9 @@ import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=d7a0cfcfc455802b';
 import {RURAL_TRACK_ART} from './rural-rail-track-art.js?v=d7a0cfcfc455802b';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=2e24846ba2484c78';
+import {drawTracerBolt} from './projectiles.js?v=a09a7cbc62f4d4d8';
 import {impactMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {drawShellFlight} from './boss-rounds.js?v=2e24846ba2484c78';
+import {drawShellFlight} from './boss-rounds.js?v=a09a7cbc62f4d4d8';
 import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=d7a0cfcfc455802b';
 import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=d7a0cfcfc455802b';
 

@@ -41,15 +41,15 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=d
 import {installPilotIdentities} from './pilot-identities.js?v=d7a0cfcfc455802b';
 import {EnemyCollisionGrid} from './collision-grid.js?v=d7a0cfcfc455802b';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=d7a0cfcfc455802b';
-import {installRevision} from './rebalance103.js?v=2e24846ba2484c78';
-import {installCloudCover} from './cloud-cover1.js?v=2e24846ba2484c78';
-import {installFleet} from './fleet-naval1.js?v=2e24846ba2484c78';
+import {installRevision} from './rebalance103.js?v=a09a7cbc62f4d4d8';
+import {installCloudCover} from './cloud-cover1.js?v=a09a7cbc62f4d4d8';
+import {installFleet} from './fleet-naval1.js?v=a09a7cbc62f4d4d8';
 import {installTrenchWar} from './trench-war1.js?v=d7a0cfcfc455802b';
 import {installCityAir} from './city-air1.js?v=d7a0cfcfc455802b';
-import {installRegionDoctrine} from './region-doctrine1.js?v=2e24846ba2484c78';
+import {installRegionDoctrine} from './region-doctrine1.js?v=a09a7cbc62f4d4d8';
 import {installLondonBattle} from './london-battle.js?v=d7a0cfcfc455802b';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=d7a0cfcfc455802b';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=2e24846ba2484c78';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=a09a7cbc62f4d4d8';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=d7a0cfcfc455802b';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=d7a0cfcfc455802b';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=d7a0cfcfc455802b';
@@ -62,7 +62,7 @@ import {missionTargetSteering} from './mission-target-break.js?v=d7a0cfcfc455802
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=d7a0cfcfc455802b';
 import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=d7a0cfcfc455802b';
 import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=d7a0cfcfc455802b';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=2e24846ba2484c78';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=a09a7cbc62f4d4d8';
 import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=d7a0cfcfc455802b';
 import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=d7a0cfcfc455802b';
 
@@ -1780,7 +1780,7 @@ Game.prototype.roundDamageMultiplier=Game.prototype._rdmDri;
 Game.prototype.skillDuration=Game.prototype._durAces1918;
 installPilotIdentities(Game,PILOTS);
 // Signature presentation is installed after the final legacy pilot overrides.
-import {installPilotSignatures} from './pilot-signatures.js?v=2e24846ba2484c78';
+import {installPilotSignatures} from './pilot-signatures.js?v=a09a7cbc62f4d4d8';
 import {nungesserSmokeStage,nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
 installPilotSignatures(Game);
 registerAircraftTiers(PLANES);

@@ -180,19 +180,19 @@ export function drawCloudShadows(c,game,{point,scale=1,region,visible}){
  }
  c.globalAlpha=a0;c.imageSmoothingEnabled=smooth;
 }
-export function drawCloudCover(c,game,{point,scale=1,region,visible}){
+export function drawCloudCover(c,game,{point,scale=1,region}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const cl of game.clouds||[]){
   const t=CLOUD_TYPES[cl.type];if(!t)continue;
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
-  if(visible?!visible(sx,sy,Math.max(w,h)):sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
+  if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
   const img=cloudImg((region===15||region===17)&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
   if(!img||!img.naturalWidth)continue;
   // Each cloud is pre-rotated/mirrored once at its drawn size; per frame it is a plain blit
   // (rotated, scaled big alpha images were a heavy raster pass every frame).
   const meadow=region===0,pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h,meadow),a0=c.globalAlpha;
-  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:meadow?.43:1);
+  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:meadow?.55:1);
   if(pre)c.drawImage(pre.cv,sx-pre.w/2,sy-pre.h/2,pre.w,pre.h);
   else{c.save();c.translate(sx,sy);if(cl.mirror)c.scale(-1,1);c.rotate(Math.sin(cl.seed)*.14);c.drawImage(img,-w/2,-h/2,w,h);c.restore();}
   c.globalAlpha=a0;

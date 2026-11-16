@@ -7,7 +7,7 @@ import {portraitThumbnailSource} from './portraits.js?v=d7a0cfcfc455802b';
 import {aircraftKey} from './aircraft.js?v=d7a0cfcfc455802b';
 import {hangarArt, hangarArtLayout} from './hangar-art.js?v=d7a0cfcfc455802b';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=2e24846ba2484c78';
+import {PLANES} from './engine.js?v=a09a7cbc62f4d4d8';
 import {aircraftFeelRatings} from './aircraft-feel174.js?v=d7a0cfcfc455802b';
 import {t} from './i18n.js?v=d7a0cfcfc455802b';
 import {waitForLobbyIcons} from './lobby-assets-ready.js?v=d7a0cfcfc455802b';

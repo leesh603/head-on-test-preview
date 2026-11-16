@@ -1,5 +1,5 @@
 import {operationMissionCard} from './special-operation-combat.js?v=d7a0cfcfc455802b';
-import {snapshotMapMission} from './map-primary-objectives.js?v=2e24846ba2484c78';
+import {snapshotMapMission} from './map-primary-objectives.js?v=a09a7cbc62f4d4d8';
 import {holdRuralTrackArt} from './rural-rail-track-art.js?v=d7a0cfcfc455802b';
 // Compact tuples avoid the protocol's reserved simulation key "objective".
 const operationCardSnapshot=(game,en)=>{const c=operationMissionCard(game,en);return c?[c.title,c.objective,c.meta,c.urgent]:null;};
@@ -19,9 +19,9 @@ import {momentumTier} from './ace-momentum.js?v=d7a0cfcfc455802b';
 import {syncPilotUnlocks} from './pilot-unlocks.js?v=d7a0cfcfc455802b';
 import {airbrakeMovement} from './flight-equipment.js?v=d7a0cfcfc455802b';
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js?v=d7a0cfcfc455802b';
-import {CoopGame} from './coop-engine.js?v=2e24846ba2484c78';
+import {CoopGame} from './coop-engine.js?v=a09a7cbc62f4d4d8';
 import {BossEncounter} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
-import {stageBossSpeed} from './stageboss-host.js?v=2e24846ba2484c78';
+import {stageBossSpeed} from './stageboss-host.js?v=a09a7cbc62f4d4d8';
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=d7a0cfcfc455802b';
 
 const LANES=['friendlyShips','enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];

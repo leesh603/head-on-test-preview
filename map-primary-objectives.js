@@ -1,7 +1,7 @@
 // Required battlefield objectives. The existing stage owner advances the front;
 // this module only observes native parts, pilots and mission-owned units.
 import {tickAirMapMission} from './map-air-missions.js?v=d7a0cfcfc455802b';
-import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js?v=2e24846ba2484c78';
+import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js?v=a09a7cbc62f4d4d8';
 import {tickAlpsObservation} from './alps-observation-mission.js?v=d7a0cfcfc455802b';
 import {VERDUN_SUPPORT_LABELS} from './verdun-battle.js?v=d7a0cfcfc455802b';
 import {harborPoint} from './harbor-crane-layout.js?v=d7a0cfcfc455802b';

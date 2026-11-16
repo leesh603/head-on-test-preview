@@ -1,13 +1,13 @@
 import {secretBomberAirframe,drawSecretAirframeHardware} from './secret-weapon-fx.js?v=d7a0cfcfc455802b';
-import {drawSpecialOperationTrain} from './special-operation-view.js?v=2e24846ba2484c78';
+import {drawSpecialOperationTrain} from './special-operation-view.js?v=a09a7cbc62f4d4d8';
 import {drawDoverConvoy} from './dover-breakthrough-view.js?v=d7a0cfcfc455802b';
 import {renderLegacySquadrons} from './legacy-squadron-adapter.js?v=d7a0cfcfc455802b';
 import {drawExpansionObjectives} from './expansion-objective-view.js?v=d7a0cfcfc455802b';
 import {drawRevisionDecoys} from './voss-decoy-fx.js?v=d7a0cfcfc455802b';
 import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js?v=d7a0cfcfc455802b';
-import {prepareMeadowGraphics,meadowMinefieldReady,drawMeadowMinefield,drawMeadowGunFlash,drawMeadowGroundImpact} from './meadow-graphics.js?v=2e24846ba2484c78';
-import {drawCloudCover,drawCloudShadows} from './cloud-cover1.js?v=2e24846ba2484c78';
-import {drawGroundFacilities} from './ground-facility-view.js?v=2e24846ba2484c78';
+import {prepareMeadowGraphics,meadowMinefieldReady,drawMeadowMinefield,drawMeadowGunFlash,drawMeadowGroundImpact} from './meadow-graphics.js?v=a09a7cbc62f4d4d8';
+import {drawCloudShadows} from './cloud-cover1.js?v=a09a7cbc62f4d4d8';
+import {drawGroundFacilities} from './ground-facility-view.js?v=a09a7cbc62f4d4d8';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js?v=d7a0cfcfc455802b';
 import {drawCapitalPilots} from './capital-pilots-view.js?v=d7a0cfcfc455802b';
 import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js?v=d7a0cfcfc455802b';
@@ -23,33 +23,33 @@ import {drawGroundEnemy} from './ground-enemy-art.js?v=d7a0cfcfc455802b';
 import {impactMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
 import {getLocale} from './i18n.js?v=d7a0cfcfc455802b';
 import {unitNameEN} from './event-text-en.js?v=d7a0cfcfc455802b';
-import {drawRegionalBug} from './regional-boss-view352.js?v=2e24846ba2484c78';
+import {drawRegionalBug} from './regional-boss-view352.js?v=a09a7cbc62f4d4d8';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=d7a0cfcfc455802b';
 import {drawGasCloud196} from './gas-cloud196.js?v=d7a0cfcfc455802b';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=d7a0cfcfc455802b';
 import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=d7a0cfcfc455802b';
 import {fx,fxReady,fxTint} from './fx-art.js?v=d7a0cfcfc455802b';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=d7a0cfcfc455802b';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=2e24846ba2484c78';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=a09a7cbc62f4d4d8';
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=d7a0cfcfc455802b';
 import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=d7a0cfcfc455802b';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=2e24846ba2484c78';
-import {drawStageBoss} from './stageboss-view.js?v=2e24846ba2484c78';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=a09a7cbc62f4d4d8';
+import {drawStageBoss} from './stageboss-view.js?v=a09a7cbc62f4d4d8';
 import {bombSprite} from './bomb-sprites.js?v=d7a0cfcfc455802b';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz','friedrich_karl','robinson']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {PLANES,BATTLEFIELD113} from './engine.js?v=2e24846ba2484c78';
+import {PLANES,BATTLEFIELD113} from './engine.js?v=a09a7cbc62f4d4d8';
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=d7a0cfcfc455802b';
 import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=d7a0cfcfc455802b';
 import {enemyAircraftKey} from './enemy-aircraft-art.js?v=d7a0cfcfc455802b';
 import {drawEquipment} from './equipment.js?v=d7a0cfcfc455802b';
-import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=2e24846ba2484c78';
+import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=a09a7cbc62f4d4d8';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=d7a0cfcfc455802b';
 import {drawSpecialAmmoIcon} from './icons.js?v=d7a0cfcfc455802b';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=2e24846ba2484c78';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=2e24846ba2484c78';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=a09a7cbc62f4d4d8';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=a09a7cbc62f4d4d8';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=d7a0cfcfc455802b';
 
 
@@ -143,7 +143,6 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  if(p.mauserFlash160>0){const ma=p.mauserAim156??p.a;fx(c,'muzzlePistol',p.x+Math.cos(ma)*22,p.y+Math.sin(ma)*22,26,26,ma,Math.min(1,p.mauserFlash160*8))}
  }
  for(const p of g.players){if(p.status!=='alive'||!p.tailTargetId)continue;const e=g.enemies.find(e=>e.hp>0&&e.tailId===p.tailTargetId);if(!e)continue;const progress=p.tailLockFraction(),color=p.id==='p1'?'#74d9fb':'#ffcd78';c.strokeStyle=p.tailLocked?'#ff7258':color;c.lineWidth=p.tailLocked?3:2;c.beginPath();c.arc(e.x,e.y,38,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();c.fillStyle=p.tailLocked?'#fff0c0':color;c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.tailLocked?'꼬리 우위 ×'+TAILING_BALANCE.damageMultiplier.toFixed(2):p.id.toUpperCase()+' 후방 '+Math.round(progress*100)+'%',e.x,e.y-48)}
- if(meadow)drawCloudCover(c,g,{point:worldPoint,region:0,visible});
  // The app defers hostile fire until after its weather layer. Standalone callers retain it.
  if(!deferHostile)for(const b of g.bullets)if(b.enemy&&b.life>0&&!cl(b.x,b.y,90))drawEnemyProjectile(c,b,b.x,b.y,t,z);
  c.restore();

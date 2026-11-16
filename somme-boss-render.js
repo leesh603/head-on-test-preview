@@ -3,9 +3,9 @@ import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,release
 import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=d7a0cfcfc455802b';
 import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=d7a0cfcfc455802b';
 import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=2e24846ba2484c78';
+import {drawTracerBolt} from './projectiles.js?v=a09a7cbc62f4d4d8';
 import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {drawShellFlight} from './boss-rounds.js?v=2e24846ba2484c78';
+import {drawShellFlight} from './boss-rounds.js?v=a09a7cbc62f4d4d8';
 import {drawAADefense} from './aa-defense-art.js?v=d7a0cfcfc455802b';
 import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=d7a0cfcfc455802b';
 const images={},pending={};

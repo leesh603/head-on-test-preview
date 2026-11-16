@@ -1,7 +1,7 @@
 import {getLocale} from './i18n.js?v=d7a0cfcfc455802b';
 const onlineCopy=(ko,en)=>getLocale()==='en'?en:ko;
 export function onlineReason(reason){return ['Host가 방을 나갔습니다.','방장이 방을 나갔습니다.'].includes(reason)?onlineCopy('방장이 방을 나갔습니다.','The host left the room.'):reason;}
-import {OnlineCoopGame} from './online-coop-game.js?v=2e24846ba2484c78';
+import {OnlineCoopGame} from './online-coop-game.js?v=a09a7cbc62f4d4d8';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');

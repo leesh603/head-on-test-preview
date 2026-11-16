@@ -5,9 +5,9 @@ import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue,drawNungesse
 import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=d7a0cfcfc455802b';
 import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=d7a0cfcfc455802b';
 import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=d7a0cfcfc455802b';
-import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=2e24846ba2484c78';
-import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=2e24846ba2484c78';
-import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=2e24846ba2484c78';
+import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=a09a7cbc62f4d4d8';
+import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=a09a7cbc62f4d4d8';
+import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=a09a7cbc62f4d4d8';
 import {COMMAND_PILOTS,drawCommandWorld,drawCommandLocal,drawCommandCue} from './command-flight-fx.js?v=d7a0cfcfc455802b';
 import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js?v=d7a0cfcfc455802b';
 import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js?v=d7a0cfcfc455802b';
@@ -21,9 +21,9 @@ import {drawMckeeverGuns} from './mckeever-crossfire-fx.js?v=d7a0cfcfc455802b';
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=d7a0cfcfc455802b';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
-import {bishopFlightHeight} from './engine.js?v=2e24846ba2484c78';
+import {bishopFlightHeight} from './engine.js?v=a09a7cbc62f4d4d8';
 import {signatureWingPositions} from './pilot-signature-geometry.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=2e24846ba2484c78';
+import {drawTracerBolt} from './projectiles.js?v=a09a7cbc62f4d4d8';
 const TAU=Math.PI*2;
 const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));

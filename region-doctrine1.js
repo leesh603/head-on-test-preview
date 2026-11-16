@@ -1,6 +1,6 @@
 // Regional enemy doctrine weights + regional battlefield events.
 // Wraps spawnComposition (keeps time-scaling) and offerBattlefieldEvent (keeps canOffer guards).
-import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=2e24846ba2484c78';
+import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=a09a7cbc62f4d4d8';
 import {mapRegionalMissionChance} from './map-combat-roles.js?v=d7a0cfcfc455802b';
 const AIR_TYPES=['scout','hunter','bomber','heavyBomber'];
 // weight = [scout,hunter,bomber,heavy,zeppelinShare]

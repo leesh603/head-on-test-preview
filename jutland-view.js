@@ -9,7 +9,7 @@ import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=d7a0cfcfc45
 import {jutlandMuzzle,jutlandRotate} from './jutland-boss.js?v=d7a0cfcfc455802b';
 import {JUTLAND_RECTS} from './jutland-atlas.js?v=d7a0cfcfc455802b';
 import {drawJutlandGun} from './jutland-gun-art.js?v=d7a0cfcfc455802b';
-import {drawShellFlight} from './boss-rounds.js?v=2e24846ba2484c78';
+import {drawShellFlight} from './boss-rounds.js?v=a09a7cbc62f4d4d8';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',flagship:'jutland-flagship.webp',parts:'jutland-parts.webp'});
 const images=new Map(),pending=new Map();
 let water=null,regionReady=null;

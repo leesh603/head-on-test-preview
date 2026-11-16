@@ -7,7 +7,7 @@ import {achievementMission} from './achievements.js?v=d7a0cfcfc455802b';
 import {doverFlightBounds} from './dover-patrol-chart.js?v=d7a0cfcfc455802b';
 import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=d7a0cfcfc455802b';
 import {JUTLAND_ROUTE} from './jutland-route.js?v=d7a0cfcfc455802b';
-import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=2e24846ba2484c78';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=a09a7cbc62f4d4d8';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
  HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY',TRANSPORT_CONVOY:'TRANSPORT_CONVOY'
