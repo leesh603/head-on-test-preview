@@ -1,4 +1,4 @@
-import {bertholdCounterThreshold} from './pilot-nine-combat.js?v=b3bf991d11fc7798';
+import {bertholdCounterThreshold} from './pilot-nine-combat.js?v=bomber20';
 
 // Visual-only, front-layer feedback from this pilot's real combat cues.
 // Never infer a counter from the active timer: only ironSalvo means shots fired.

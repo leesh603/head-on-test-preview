@@ -2,6 +2,9 @@ import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
 import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js';
 import {equipmentTargets,wimperisTarget} from './flight-equipment.js';
 
+import {tickSecretOrdnance,fireSecretDavis,secretOrdnanceContact,secretOrdnanceAllowsTarget,secretPuwImpact,clearSecretOrdnanceTransient} from './secret-ordnance.js';
+import {salamanderArmorContact,tickSiemensFeedback,clearSecretFlightTransient} from './secret-flight-fits.js';
+
 const ownerId=p=>p.id||'p1';
 const worldOf=p=>p.combatWorld?.()||p.world||p;
 const live=e=>e&&e.hp>0&&!e.crashing&&!e.expired&&!e.dead;
@@ -15,7 +18,7 @@ const dartSalvos=new WeakMap();
 const dartBursts=new WeakMap();
 const clip=(n,a,b)=>Math.min(b,Math.max(a,n));
 export const POM_AIRBURST=Object.freeze({fuse:.82,radius:103,splash:.38});
-export const SECRET_COMBAT=Object.freeze({cooperDamage:70,cooperRadius:66,signalDelay:2.65,chainInterval:6,wakeDelay:.35,wakeLife:.6,ramDelay:.8,armorDelay:15,bomberInterval:10});
+export const SECRET_COMBAT=Object.freeze({cooperDamage:70,cooperRadius:66,signalDelay:2.65,chainInterval:6,wakeDelay:.40,wakeLife:.85,ramDelay:.8,armorDelay:15,bomberInterval:10});
 
 function cue(p,kind,origin=p,extra={}){
  const g=worldOf(p),items=g.secretWeaponFx??=[];
@@ -35,6 +38,8 @@ function emit(p,round){
  const b={...round,enemy:false,ownerId:ownerId(p),hit:new Set()};
  (worldOf(p).bullets??=[]).push(b);return b;
 }
+const ordnanceEffects={cue,sound,emit};
+export function tryFireSecretDavis(p,damage){return fireSecretDavis(p,damage,ordnanceEffects);}
 const mgDamage=p=>(p.damage||1)*(p.normalGunMultiplier?.()||1)/Math.sqrt(Math.max(1,p.shots||1));
 const airTarget=e=>e.combatLayer?e.combatLayer==='air':!(e.surface||e.navalVessel||e.missionGround||e.fieldUnit||e.stationary);
 const aceTarget=e=>e.ace||e.bossPilot||e.type==='boss';
@@ -43,6 +48,7 @@ const newAirRound=(id,x,y,a,speed,life,damage,radius)=>({
  secretWeapon:id,secretAirRound:true,rangeExtended:true,sweptProjectile:true,heavyRoundPrepared:true,synthesisChild:true
 });
 export function secretRoundAllowsTarget(b,e){
+ if(!secretOrdnanceAllowsTarget(b,e))return false;
  if(!b?.secretAirRound)return true;
  const charge=dartBursts.get(b);
  const body=e.stageBossBody||e;
@@ -274,6 +280,8 @@ export function secretBombImpact(p,b){
   const g=worldOf(p);g.shake=Math.max(g.shake||0,6);
  }else if(b.secretWeapon==='explosiveArmor'){
   cue(p,'armorImpact',b,{a:b.releaseAngle,slot:b.secretArmorSlot,life:.7});sound(p,'secretArmorImpact');
+ }else if(b.secretWeapon==='puw50'){
+  secretPuwImpact(p,b,ordnanceEffects);
  }else if(b.secretWeapon==='longRangeBombers'){
   cue(p,'bomberImpact',b,{a:b.releaseAngle,slot:b.secretBomberSlot,life:2.3});sound(p,'secretBomberImpact');
  }
@@ -323,6 +331,7 @@ export function secretGrapnelContact(p,target,round,targets,point){
  sound(p,'secretChain');
 }
 export function secretWeaponContact(p,b,target){
+ if(secretOrdnanceContact(p,b,target,ordnanceEffects))return;
  const id=b.secretWingRound?'eliteAirWing':b.secretWeapon;
  if(id==='villarPerosa'){
   if(sameTargetReady(p,target,id,.055)){
@@ -358,33 +367,45 @@ export function secretWeaponContact(p,b,target){
  if(id==='fliegerpfeil')sound(p,'secretDartHit');
 }
 function tickWake(p,dt,previous){
- const speed=(p.equipmentCruiseSpeed||p.baseSpeed||p.speed||0)*(p.airframeSpeed??1);
- const state=secretWeaponEffect(p,'badinBreakthrough'),now=time(p),ratio=speed/(p.baseSpeed||p.speed||1);
- const active=(p.equipmentStraight||0)>=.99&&ratio>=1.08;
- if(!active){if(state.breakthrough){delete state.breakthrough;sound(p,'secretWakeEnd');}return;}
- if(!state.breakthrough){state.breakthrough=true;sound(p,'secretWakeStart');}
- const g=worldOf(p),x=previous?.x??p.x,y=previous?.y??p.y;
- const dx=p.x-x,dy=p.y-y;
- if(Math.hypot(dx,dy)>.25&&!(state.wakeAt>now)){
-  state.wakeAt=now+.12;
-  cue(p,'badinWake',{x,y,a:Math.atan2(dy,dx)},{life:SECRET_COMBAT.wakeLife,power:clip((ratio-1.08)*2.7,0,1)});
+ const state=secretWeaponEffect(p,'badinBreakthrough'),now=time(p);
+ const x=previous?.x??p.x,y=previous?.y??p.y,dx=p.x-x,dy=p.y-y;
+ const distance=Math.hypot(dx,dy),base=p.badinCruiseReference||p.baseSpeed||p.speed||1;
+ const cruise=(p.equipmentCruiseSpeed||p.baseSpeed||p.speed||0)*(p.airframeSpeed??1);
+ const speed=Math.min(cruise,distance/dt),charge=p.equipmentStraight||0;
+ const active=charge>=(state.breakthrough ? .25 : .55)&&speed>=base*(state.breakthrough ? .99 : 1.04)
+  &&distance<=cruise*dt*2&&!p.evadeTime&&!p.chargeTime&&!p.aceRetreat129;
+ if(active!==!!state.breakthrough){
+  if(active)state.breakthrough=true;else delete state.breakthrough;
+  sound(p,active?'secretWakeStart':'secretWakeEnd');
  }
- let trail=wakes.get(p);if(!trail){trail=[];wakes.set(p,trail);}
- trail.push({x,y,nx:p.x,ny:p.y,at:now});
+ let trail=wakes.get(p);
+ if(active){
+  if(!trail){trail=[];wakes.set(p,trail);}
+  const a=Math.atan2(dy,dx),last=trail.at(-1);
+  if(last&&last.nx===x&&last.ny===y&&now-last.at<.045){
+   last.nx=p.x;last.ny=p.y;
+  }else trail.push({x,y,nx:p.x,ny:p.y,at:now});
+  if(!(state.wakeAt>now)){
+   state.wakeAt=now+.10;
+   cue(p,'badinWake',{x,y,a},{life:SECRET_COMBAT.wakeLife});
+  }
+  if(!(state.soundAt>now)){state.soundAt=now+.46;sound(p,'secretWake');}
+ }
+ if(!trail)return;
  while(trail.length&&(now-trail[0].at>SECRET_COMBAT.wakeLife||trail.length>32))trail.shift();
- const width=(p.playerCollisionRadius??20)*2.5;
+ if(!trail.length){wakes.delete(p);return;}
+ const g=worldOf(p),halfWidth=58,reach=Math.max(base,cruise)*SECRET_COMBAT.wakeLife+halfWidth;
  for(const e of g.enemies||[]){
-  if(!live(e)||e.surface||e.stationary||e.stageBossBody||Math.hypot(e.x-p.x,e.y-p.y)>speed*.65+width)continue;
+  if(!live(e)||!airTarget(e)||e.stageBossBody||p.canHitTarget?.(e)===false||Math.hypot(e.x-p.x,e.y-p.y)>reach)continue;
   if(!trail.some(s=>{
-   const dx=s.nx-s.x,dy=s.ny-s.y,k=clip(((e.x-s.x)*dx+(e.y-s.y)*dy)/(dx*dx+dy*dy||1),0,1);
-   return Math.hypot(e.x-s.x-k*dx,e.y-s.y-k*dy)<=width/2;
+   const sx=s.nx-s.x,sy=s.ny-s.y,k=clip(((e.x-s.x)*sx+(e.y-s.y)*sy)/(sx*sx+sy*sy||1),0,1);
+   return (e.x-s.x-k*sx)**2+(e.y-s.y-k*sy)**2<=halfWidth**2;
   })||!sameTargetReady(p,e,'wake',SECRET_COMBAT.wakeDelay))continue;
-  direct(p,e,mgDamage(p)*2,'badinBreakthrough');
+  direct(p,e,mgDamage(p)*6,'badinBreakthrough');
   if(e.formationLeader)g.breakEnemyFormation?.(e,1.2);
-  else if(!e.bossPilot&&!e.bossMinion)e.a+=.16*Math.sign(Math.sin((e.a||0)-p.a)||1);
-  cue(p,'wake',e,{a:p.a,life:.56});
+  else if(!aceTarget(e)&&!e.bossMinion)e.a=(e.a||0)+.25*Math.sign(Math.sin((e.a||0)-p.a)||1);
+  cue(p,'wake',e,{a:p.a,life:.62});
  }
- if(!(state.soundAt>now)){state.soundAt=now+.46;sound(p,'secretWake');}
 }
 export function secretRam(p,target,damage){
  if(!hasSecretWeapon(p,'nesterovRam')||!live(target)||target.surface||target.stationary)return damage;
@@ -402,6 +423,7 @@ export function secretRamSpeed(p){
  return clip((speed-min)/Math.max(1,max-min),0,1);
 }
 export function secretArmorHit(p,before,prepare){
+ salamanderArmorContact(p,before,cue,sound);
  if(!(before>p.hp)||!ownerLive(p)||!hasSecretWeapon(p,'explosiveArmor'))return;
  const s=secretWeaponEffect(p,'explosiveArmor'),now=time(p);if(s.readyAt>now)return;
  s.readyAt=now+SECRET_COMBAT.armorDelay;
@@ -423,10 +445,14 @@ export function tickSecretWeapons(p,dt,previous){
  if(hasSecretWeapon(p,'badinBreakthrough'))tickWake(p,dt,previous);
  if(hasSecretWeapon(p,'villarPerosa'))tickVillar(p,dt);
  tickRankenCharges(p);
+ tickSecretOrdnance(p,dt,previous,ordnanceEffects);
+ tickSiemensFeedback(p,dt,cue,sound);
 }
 export function clearSecretWeaponTransient(p,stage=false){
  const state=p.secretWeaponState;
  if(!state)return;
+ clearSecretOrdnanceTransient(p);
+ clearSecretFlightTransient(p,stage);
  const rain=state.effects.fliegerpfeil;
  if(rain)delete rain.activeUntil;
  wakes.delete(p);

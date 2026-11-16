@@ -4,7 +4,7 @@ const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const TWO_SEAT_ARCHETYPES=new Set(['DEFENSIVE_TWO_SEATER','OFFENSIVE_TWO_SEATER']);
 
 function eligible(game,e){
- return !!(e?.personality&&e.airframeHandling&&game.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.bossPilot&&!e.formationLeader&&!e.missionTarget&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype));
+ return !!(e?.personality&&e.airframeHandling&&game.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.bossPilot&&(!e.formationLeader||e.directorFormation&&(e.defensivePressure||e.battleCoverUntil>(game.t||0)||(e.energySpeed??1)<.9999))&&!e.missionTarget&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype));
 }
 
 export function installEnergyCombat(Game){
@@ -15,7 +15,7 @@ export function installEnergyCombat(Game){
   const step=Math.max(0,dt||0),profile=e.airframeHandling,p=e.personality,current=e.energySpeed??1;
   const capacity=Math.max(.0001,baseTurn*step),actual=Math.min(Math.abs(result.delta||0),Math.max(0,result.turn||0)*step),effort=clamp(actual/capacity,0,1);
   e.energyTurnTime=effort>ENERGY_COMBAT_BALANCE.minimumTurnEffort?(e.energyTurnTime||0)+step:Math.max(0,(e.energyTurnTime||0)-step*2);
-  const committedEffort=e.energyTurnTime>=ENERGY_COMBAT_BALANCE.turnCommitTime?effort:0;
+  const committedEffort=!(e.formationLeader&&e.directorFormation&&!e.defensivePressure&&!(e.battleCoverUntil>(this.t||0)))&&e.energyTurnTime>=ENERGY_COMBAT_BALANCE.turnCommitTime?effort:0;
   const target=clamp(1-(profile.drag??.18)*committedEffort*committedEffort,ENERGY_COMBAT_BALANCE.minimumSpeedFactor,1);
   const recovery=(profile.recovery??1)*(p.acceleration??1),rate=target<current?ENERGY_COMBAT_BALANCE.lossRate:recovery;
   e.energySpeed=current+(target-current)*(1-Math.exp(-rate*step));

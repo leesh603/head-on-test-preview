@@ -1,16 +1,16 @@
-import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js?v=b3bf991d11fc7798';
-import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js?v=b3bf991d11fc7798';
-import {submarineLayers} from './submarine-intrusion.js?v=b3bf991d11fc7798';
-import {maritimeReveal} from './maritime-intrusion.js?v=b3bf991d11fc7798';
-import { intrusionLayout } from './intrusion-boss-layouts.js?v=b3bf991d11fc7798';
-export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js?v=b3bf991d11fc7798';
+import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js';
+import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js';
+import {submarineLayers} from './submarine-intrusion.js';
+import {maritimeReveal} from './maritime-intrusion.js';
+import { intrusionLayout } from './intrusion-boss-layouts.js';
+export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js';
 const banks=new Map();
 function browserLoader(src){return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error(`Intrusion texture failed: ${src}`));i.src=src;});}
 /** One decoded image per unique lossless texture. Reject failures; never draw a placeholder. */
 export function prepareIntrusionArt(id,options={}){
  const layout=intrusionLayout(id);if(!layout)return Promise.reject(new Error(`Unknown intrusion boss: ${id}`));
  if(banks.has(layout.id))return banks.get(layout.id).promise;
- const entry={images:new Map(),ready:false,promise:null};banks.set(layout.id,entry);
+ const entry={images:new Map(),detachedWings:new Map(),ready:false,promise:null};banks.set(layout.id,entry);
  const paths=new Set(layout.parts.flatMap(p=>Object.values(p.states).filter(Boolean).map(s=>s.src)));
  for(const src of layout.extraAssets||[])paths.add(src);
  if(layout.submarineArt)for(const key of ['surface','diving','periscope'])if(layout.submarineArt[key])paths.add(layout.submarineArt[key]);
@@ -19,7 +19,7 @@ export function prepareIntrusionArt(id,options={}){
  entry.promise=Promise.all([...paths].map(async src=>{const im=await(options.loadImage||browserLoader)((options.baseUrl||'')+src);if(banks.get(layout.id)===entry)entry.images.set(src,im);else im.close?.();})).then(()=>{if(banks.get(layout.id)===entry)entry.ready=true;return entry;}).catch(error=>{if(banks.get(layout.id)===entry)banks.delete(layout.id);throw error;});return entry.promise;
 }
 // Preserve a bank already warming in the host while retiring the previous encounter.
-export function releaseIntrusionArt(keepId){const keep=intrusionLayout(keepId)?.id;for(const [id,e] of banks){if(id===keep)continue;banks.delete(id);for(const im of e.images.values())im.close?.();e.images.clear();e.ready=false;}}
+export function releaseIntrusionArt(...keepIds){const keep=new Set(keepIds.map(id=>intrusionLayout(id)?.id));for(const [id,e] of banks){if(keep.has(id))continue;banks.delete(id);for(const im of e.images.values())im.close?.();e.images.clear();e.detachedWings.clear();e.ready=false;}}
 export function intrusionArtReady(id){return !!banks.get(intrusionLayout(id)?.id)?.ready;}
 export function intrusionPartState(encounter,group){
  const v=encounter.damage?.[group]??encounter.parts?.[group];
@@ -28,6 +28,51 @@ export function intrusionPartState(encounter,group){
  if(v?.destroyed||v?.hp<=0)return 'destroyed';
  if(v&&Number.isFinite(v.hp)&&Number.isFinite(v.maxHp)&&v.hp<v.maxHp*.55)return 'damaged';
  return 'intact';
+}
+function detachedWing(bank,part){
+ if(bank.detachedWings.has(part))return bank.detachedWings.get(part);
+ const full=part.states.intact,stub=part.states.destroyed;
+ if(!full||!stub||full.src===stub.src||typeof document==='undefined')return null;
+ const original=bank.images.get(full.src),remaining=bank.images.get(stub.src);
+ if(!original||!remaining)return null;
+ const canvas=document.createElement('canvas');
+ [canvas.width,canvas.height]=full.drawSize||[full.width,full.height];
+ const c=canvas.getContext('2d'),x=stub.x-stub.pivot[0]-full.x+full.pivot[0],y=stub.y-stub.pivot[1]-full.y+full.pivot[1];
+ if(stub.bounds){
+  const left=full.x<0,edge=x+stub.bounds[left?0:2],seam=canvas.width*.14;
+  // Keep gaps inside the surviving wing out of the separated panel.
+  c.beginPath();c.rect(left?0:edge-seam,0,left?edge+seam:canvas.width-edge+seam,canvas.height);c.clip();
+ }
+ c.drawImage(original,0,0,canvas.width,canvas.height);
+ c.globalCompositeOperation='destination-out';
+ // Remove the antialiased fringe of the remaining wing, too.
+ for(let i=0;i<3;i++)c.drawImage(remaining,x,y,...(stub.drawSize||[stub.width,stub.height]));
+ bank.detachedWings.set(part,canvas);
+ return canvas;
+}
+
+/** World-space pieces use the original painted modules and the pose at impact. */
+export function drawIntrusionDebris(c,e,point,z){
+ const layout=intrusionLayout(e.profileId),bank=layout&&banks.get(layout.id);
+ if(!bank?.ready)return;
+ const now=e.visualTime??e.age??0;
+ for(const p of layout.parts){
+  if(!['wing','engine','float'].includes(p.kind))continue;
+  const state=e.parts?.[p.group],age=now-state?.brokenAt,pose=state?.breakPose;
+  if(!(age>=0&&age<.85)||!pose)continue;
+  const full=p.states.intact;
+  const lost=p.kind==='wing'?detachedWing(bank,p):
+   (p.states.destroyed===null||p.dependencies.some(id=>intrusionPartState(e,id)==='destroyed')?bank.images.get(full?.src):null);
+  if(!lost||!full)continue;
+  const a=pose.a+Math.PI/2,cs=Math.cos(a),sn=Math.sin(a),side=Math.sign(full.x||p.x||1);
+  const x=e.scale*full.x+(p.kind==='wing'?52:28)*side*age,y=e.scale*full.y+age*32+age*age*32;
+  const at=point(pose.x+x*cs-y*sn,pose.y+x*sn+y*cs);
+  const scale=e.scale*z*(p.spriteScale||1)*(1-age*.19);
+  c.save();c.translate(at.x,at.y);c.rotate(a+p.angle+side*age*.98);c.scale(scale,scale);
+  c.globalAlpha*=Math.min(1,1.2-age*1.35);
+  c.drawImage(lost,-full.pivot[0],-full.pivot[1],...(full.drawSize||[full.width,full.height]));
+  c.restore();
+ }
 }
 /** point is screen center, scale is screen pixels per source pixel. Heading a=0 is east. */
 export function drawIntrusionBoss(ctx,encounter,point,scale){

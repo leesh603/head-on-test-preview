@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=b3bf991d11fc7798';
-import {fireFanSalvo} from './boss-salvo-geometry.js?v=b3bf991d11fc7798';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {segmentDistance} from './alps-geometry117.js?v=b3bf991d11fc7798';
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {segmentDistance} from './alps-geometry117.js?v=tame3';
 
 // Shared measured geometry for the authored fortress layers, hits and muzzles.
 // A fortress is one existing boss body; its core is the body's final hit route.
@@ -22,6 +22,14 @@ export const VERDUN_FORT_LAYOUT=Object.freeze({
   {id:'aa-right',x:205,y:128,w:83,h:65,rx:32,ry:30,fraction:.06,muzzle:38,art:'aa',kind:'aa'},
   {id:'ammo-left',x:-141,y:142,w:91,h:64,rx:43,ry:29,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true},
   {id:'ammo-right',x:120,y:138,w:91,h:64,rx:43,ry:29,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true}
+ ])}),
+ 'fort-vaux':Object.freeze({width:size(675),height:size(450),core:Object.freeze({x:0,y:size(115),rx:size(50),ry:size(31)}),parts:freezeParts([
+  {id:'bunker-left',x:-263,y:105,w:96,h:83,rx:43,ry:33,fraction:.105,muzzle:24,art:'bunker',kind:'bunker'},
+  {id:'bunker-right',x:263,y:105,w:96,h:83,rx:43,ry:33,fraction:.105,muzzle:24,art:'bunker',kind:'bunker'},
+  {id:'observer',x:0,y:-7,w:63,h:57,rx:31,ry:29,fraction:.105,muzzle:0,art:'observer',kind:'observer'},
+  {id:'aa-left',x:-207,y:-18,w:69,h:56,rx:28,ry:25,fraction:.085,muzzle:32,art:'aa',kind:'aa'},
+  {id:'aa-right',x:208,y:-18,w:69,h:56,rx:28,ry:25,fraction:.085,muzzle:32,art:'aa',kind:'aa'},
+  {id:'ammo',x:-87,y:95,w:84,h:61,rx:39,ry:27,fraction:.14,muzzle:0,art:'ammo',kind:'ammo',locked:true}
  ])}),
  'fort-souville':Object.freeze({width:size(900),height:size(540),core:Object.freeze({x:0,y:size(162),rx:size(72),ry:size(54)}),parts:freezeParts([
   {id:'bunker-left',x:-333,y:61,w:148,h:118,rx:58,ry:42,fraction:.08,muzzle:57,art:'bunker',kind:'bunker'},
@@ -61,7 +69,7 @@ export function verdunFortMuzzle(b,p){
  return{x:b.x+p.x+Math.cos(p.angle)*reach,y:b.y+p.y+Math.sin(p.angle)*reach};
 }
 export function verdunFortCollapseSites(b){
- const ids=b.kind==='fort-douaumont'?['mg-left','aa-right','heavy-left','ammo-right','control','heavy-right','ammo-left','mg-right','aa-left']:['bunker-left','pit-right','reserve-left','observer','bunker-right','command','reserve-right','pit-center','aa-left','ammo','aa-right','pit-left'];
+ const ids=b.kind==='fort-douaumont'?['mg-left','aa-right','heavy-left','ammo-right','control','heavy-right','ammo-left','mg-right','aa-left']:b.kind==='fort-vaux'?['bunker-left','aa-right','observer','aa-left','ammo','bunker-right']:['bunker-left','pit-right','reserve-left','observer','bunker-right','command','reserve-right','pit-center','aa-left','ammo','aa-right','pit-left'];
  const sites=ids.map((id,i)=>{const p=b.parts.get(id);return{partId:id,x:b.x+p.x,y:b.y+p.y,at:i*(3.51/Math.max(1,ids.length-1)),radius:Math.max(28,Math.min(72,p.drawWidth*.55))};});
  const k=b.regionalCore;sites.push({partId:null,x:b.x+k.x,y:b.y+k.y,at:4.15,radius:size(110)*b.fortScale,final:true});
  return sites;
@@ -365,6 +373,58 @@ export class FortSouville extends VerdunFortress{
    const weapons=['bunker-left','aa-right','bunker-right','aa-left'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed),target=this.target(players);if(!weapons.length||!target)return;
    const p=weapons[this.supportCursor++%weapons.length];this.aim(p,target,dt,1.2);
    if(p.kind==='bunker')this.burst(p,target,3,.09);else{const r=clamp(35*this.fortScale,23,35);this.shell(p,this.landing(target,bounds,.4,r),{radius:r,warning:1.55,damage:.8,visual:'verdun-aa-shell'});}
+  }
+ }
+}
+
+// June 1916: the disabled 75 mm turret is part of the ground art. The
+// flanking casemates carry small arms; air defence comes from outer mounts.
+export class FortVaux extends VerdunFortress{
+ constructor(o){
+  super(o,'fort-vaux');
+  this.phase='vaux-perimeter';
+  this.timers.set('vaux-support',5.6);
+  for(const [id,delay] of [['bunker-left',1.7],['bunker-right',3.4],['aa-left',2.6],['aa-right',5.1]])this.timers.set(id,delay);
+ }
+ onPartDestroyed(p){
+  this.cancel(p.id);
+  if(p.id==='observer')this.cancel('vaux-support');
+  const ammo=this.parts.get('ammo');
+  const breached=['bunker-left','bunker-right','observer'].every(id=>this.parts.get(id).destroyed);
+  if(breached&&!ammo.revealed){
+   ammo.revealed=true;ammo.hittable=true;this.changePhase('vaux-magazine');
+   this.command('fort-section-exposed',{partId:ammo.id,x:this.x+ammo.x,y:this.y+ammo.y});
+  }
+  if(p===ammo){
+   this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y});
+   this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.24);
+   this.changePhase('vaux-barracks');
+  }else if(p.id==='observer'&&!breached)this.changePhase('vaux-observation-lost');
+ }
+ update(dt,{players,bounds,paused}){
+  if(this.dead||paused||dt<=0)return;
+  this.tickParts(dt);
+  const nearby=players.filter(p=>p.alive&&Math.hypot(p.x-this.x,p.y-this.y)<940);
+  if(!nearby.length)return;
+  const observer=this.parts.get('observer');
+  const target=this.target(nearby);
+  for(const p of this.parts.values()){
+   if(p.destroyed||p.kind!=='aa'&&p.kind!=='bunker')continue;
+   this.aim(p,target,dt,1.55);
+   if(!this.due(p.id,dt,p.kind==='aa'?5.9:4.6))continue;
+   if(p.kind==='aa'){
+    const r=clamp(36*this.fortScale,26,36);
+    this.shell(p,this.landing(target,bounds,.55,r),{radius:r,warning:1.85,damage:.72,visual:'verdun-aa-shell'});
+   }else{
+    this.burst(p,target);
+   }
+  }
+  if(!observer.destroyed&&this.due('vaux-support',dt,this.approachSupplyCut?17:10.6)){
+   const r=clamp(44*this.fortScale,29,44);
+   const q=this.landing(target,bounds,this.approachObservationCut ? .15 : .6,r);
+   const x=clamp(q.x+(this.approachObservationCut?68:0),bounds.left+r,bounds.right-r);
+   this.hazard('circle',{x,y:q.y,radius:r,sourceX:this.x,sourceY:this.y-780,warning:2.25,damage:this.t.damage*.67,once:true,
+    visual:'verdun-offscreen-shell',sourcePartId:observer.id,tag:this.tag('vaux-support')});
   }
  }
 }

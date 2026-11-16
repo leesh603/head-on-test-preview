@@ -32,10 +32,10 @@ function tickArras(g,m){
  const encounter=g.stageBoss.stages.encounter;
  const formation=encounter?.bodies?.values().next().value;
  const contact=encounter&&!encounter.arrivalPending&&(!formation?.sortieMission||formation.entryComplete||formation.dead);
- // Bring up the last flight if the interceptors already stopped the first
- // two. The normal sortie spacing still applies while they are in flight.
- const earlyThird=!protect&&s.launched===2*B.arrasWave&&s.down>=B.arrasGoal&&contact;
- if(s.launched<B.arrasTotal&&(m.age>=s.nextAt||earlyThird)){
+ // A completed quota needs no ceremonial final launch. The native ace's
+ // arrival still gates completion, and surviving flights remain physical.
+ if((protect?s.home:s.down)>=B.arrasGoal&&contact)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
+ if((protect?s.home:s.down)<B.arrasGoal&&s.launched<B.arrasTotal&&m.age>=s.nextAt){
   const lane=(s.launched%B.arrasWave-1)*155;
   if(!protect&&s.launched%B.arrasWave===0){
    const approach=p.a??heading;
@@ -66,6 +66,8 @@ function tickArras(g,m){
   }
  }
  const active=s.planes.filter(q=>!q.result),progress=protect?s.home:s.down;
+ // An empty sky earns a short regroup, not the rest of a fixed wave timer.
+ if(!active.length&&s.launched%B.arrasWave===0&&s.launched<B.arrasTotal)s.nextAt=Math.min(s.nextAt,m.age+4);
  m.task=protect?['임무기 안전 귀환 '+progress+'/'+B.arrasGoal,'Mission aircraft returned '+progress+'/'+B.arrasGoal]:
   ['적 임무기 격추 '+progress+'/'+B.arrasGoal,'Mission aircraft intercepted '+progress+'/'+B.arrasGoal];
  m.detail=['임무기 출격 '+s.launched+'/'+B.arrasTotal,'Mission aircraft launched '+s.launched+'/'+B.arrasTotal];
@@ -82,7 +84,7 @@ function tickArras(g,m){
   e.operationEscortTarget=next?.e||null;
   if(!next)e.arrasInterceptor=false;
  }
- if(progress>=B.arrasGoal&&s.launched===B.arrasTotal&&contact)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
+ if(progress>=B.arrasGoal&&contact)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
  if(progress+active.length+B.arrasTotal-s.launched<B.arrasGoal)return finish(m,false,'아라스 제공 임무 실패','Arras air mission failed');
  return null;
 }
@@ -146,8 +148,14 @@ function tickRecon(g,m,dt){
  m.task=returning?['정찰기를 아군 전선까지 귀환시키세요','Escort the reconnaissance aircraft home']:[`촬영 ${s.photos}/3 · 정찰기가 촬영 구역에서 3초 체공`,`Photos ${s.photos}/3 · Keep the aircraft in each photo area for 3s`];
  m.detail=[`정찰기 ${Math.max(0,Math.ceil(p.hp))}/${p.maxHp}`+(returning?' · 귀환 중':` · 촬영 ${s.hold.toFixed(1)}/3초`),`Aircraft ${Math.max(0,Math.ceil(p.hp))}/${p.maxHp}`+(returning?' · Returning':` · Photo ${s.hold.toFixed(1)}/3s`)];
  const target=returning?s.exit:s.route[s.photos];
- if(!target){p.frontEscortRoute=s.route[1];m.detail=['육상함 집결지 식별 중','Locating the landship position'];reconPressure(g,m);return null;}
- const names=[['격납고','Hangar'],['통신본부','Signal HQ'],['중포·육상함 집결지','Landship artillery position']];
+ if(!target){
+  // The player cannot photograph a boss that has not arrived. Preserve only
+  // this waiting time; travel, combat, photographs and return stay timed.
+  m.limit+=dt;p.frontEscortRoute=s.route[1];
+  m.detail=['육상함 집결지 식별 중 · 남은 시간 유지','Locating the landship position · clock held'];
+  reconPressure(g,m);return null;
+ }
+ const names=[['격납고 · 파괴 시 추격 감소','Hangar · destroy to reduce pursuit'],['통신본부 · 파괴 시 에이스 차단','Signal HQ · destroy to stop the ace'],['중포·육상함 집결지','Landship artillery position']];
  m.guides=[{x:p.x,y:p.y,kind:'ally',label:['정찰기 엄호','PROTECT RECON']},{...target,kind:returning?'exit':'target',label:returning?['귀환 지점','RETURN POINT']:names[s.photos]}];
  if(returning){
   p.frontEscortRoute=s.exit;
@@ -178,5 +186,5 @@ export function tickAirMapMission(g,m,dt){
   if(m.region===9){m.limit=B.arrasLimit;m.air={kind:'sortie',planes:[],launched:0,down:0,home:0,nextAt:m.age,nextSweep:8};}
   else{m.limit=B.reconLimit;beginRecon(g,m,p);}
  }
- return m.region===9?tickArras(g,m):tickRecon(g,m,Math.min(.1,dt));
+ return m.region===9?tickArras(g,m):tickRecon(g,m,Math.min(.12,dt));
 }

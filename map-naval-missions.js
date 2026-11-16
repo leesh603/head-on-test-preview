@@ -1,7 +1,7 @@
 // Map objectives observe the existing fleet's motion, hull damage and ordnance.
 // The host owns stage completion, rewards and pause; there is no second fleet update.
-import {SHIP_TYPES} from './fleet-naval1.js?v=earned-rewards-7ccfad1b-20261114';
-import {vacantShipPose} from './naval-spacing.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {SHIP_TYPES} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
+import {vacantShipPose} from './naval-spacing.js?v=pandemonium394r2';
 
 const regions=new Set([1,16]);
 export const NAVAL_MISSION_BALANCE=Object.freeze({
@@ -139,17 +139,24 @@ function raidConvoy(g,m){
   e.frontRoute={x:e.x+Math.cos(e.a)*1600,y:e.y+Math.sin(e.a)*1600};
   g.event?.('bombWarning',`${name} 폭격 투하 · 다음 공습기를 먼저 요격하세요`);
  }
- if(n.wave>=5||m.age<n.nextRaid||n.bombers.filter(b=>live(b.plane)&&!b.dropped&&!b.finished).length>=4)return;
+ const inbound=n.bombers.filter(b=>live(b.plane)&&!b.dropped&&!b.finished).length;
+ if(n.wave>=5||m.age<n.nextRaid||inbound>=4)return;
  const targets=n.ships.filter(s=>live(s)&&!s.mapNavalResult).sort((a,b)=>a.hp-b.hp);
  if(!targets.length)return;
- const target=targets[0],prior=g.directorSpawning,mechanic=g.bossMechanicSpawn;g.directorSpawning=true;g.bossMechanicSpawn=true;
- try{for(let i=0;i<2;i++){
+ const wounded=targets[0],leaders=targets.filter(t=>t!==wounded).sort((a,b)=>along(n.route,b)-along(n.route,a));
+ const prior=g.directorSpawning,mechanic=g.bossMechanicSpawn;g.directorSpawning=true;g.bossMechanicSpawn=true;
+ let launched=0;
+ try{for(let i=0;i<Math.min(2,4-inbound);i++){
   const e=g.spawnEnemy?.('bomber');if(!e)break;
-  const a=target.a+(.35+i*.15)*(n.wave%2?-1:1),p={x:target.x+Math.cos(a)*(900+i*180),y:target.y+Math.sin(a)*(900+i*180)};
+  // Separate approaches threaten a wounded ship and the leading survivor.
+  // The player can screen the retreat or turn back to save a damaged hull.
+  const target=i===0?wounded:(leaders[0]||wounded);
+  const a=target.a+(.35+i*.15)*(i===0?-1:1)*(n.wave%2?-1:1),p={x:target.x+Math.cos(a)*(900+i*180),y:target.y+Math.sin(a)*(900+i*180)};
   Object.assign(e,{...p,a:Math.atan2(target.y-p.y,target.x-p.x),fire:Infinity,bombTimer:Infinity,conceptBombTimer:Infinity,
    mapMissionId:m.id,missionTarget:true,ace:false,frontRoute:{x:target.x,y:target.y}});
-  delete e.airArrival;delete e.directorSceneId;n.bombers.push({plane:e,target});
+  delete e.airArrival;delete e.directorSceneId;n.bombers.push({plane:e,target});launched++;
  }}finally{g.directorSpawning=prior;g.bossMechanicSpawn=mechanic;}
+ if(!launched){n.nextRaid=m.age+.5;return;}
  n.wave++;n.nextRaid=m.age+18;
  g.event?.('wave',`${name}로 폭격기 접근 · 투하 전에 요격하세요`);
 }
@@ -174,13 +181,15 @@ function adriaticObjective(g,m){
  const n=m.naval,{escaped,sunk,active}=observeFleet(g,n);
  const batteries=n.sectors.flatMap(s=>s.ships).filter(Boolean),holding=batteries.filter(live).length;
  if(m.faction==='central'){
-  const cleared=n.sectors.filter(q=>q.ships.every(s=>s&&s.hp<=0)).length,allClear=cleared===B.blockadeSectors;
+  // One disabled hull opens a passage; the surviving gunship still fights.
+  // Pilots choose a quick destroyer breach or silence the heavier cruiser.
+  const cleared=n.sectors.filter(q=>q.ships.some(s=>s&&s.hp<=0)).length,allClear=cleared===B.blockadeSectors;
   m.task=allClear?['해협 돌파 지점을 통과하세요','Fly through the strait exit']:
-   [`봉쇄 구역 제압 ${cleared}/${B.blockadeSectors}`,`Blockade sectors silenced ${cleared}/${B.blockadeSectors}`];
+   [`봉쇄 통로 확보 ${cleared}/${B.blockadeSectors}`,`Blockade passages opened ${cleared}/${B.blockadeSectors}`];
   m.detail=allClear?['돌파 지점 너머로 적 기함 접근 중','The enemy flagship is beyond the blockade']:
-   ['구역마다 순양함과 구축함을 모두 격침하세요','Sink the cruiser and destroyer in each sector'];
+   ['구역당 1척 · 구축함: 빠른 돌파 / 순양함: 포격 억제','One ship per sector · destroyer: quick breach / cruiser: suppress fire'];
   m.guides=allClear?[guide(n.exit,['해협 돌파','Cross the strait'],'exit')]:
-   batteries.filter(live).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y)).map(e=>guide(e,[e.name,'Blockade ship'],'target'));
+   n.sectors.filter(q=>!q.ships.some(s=>s&&s.hp<=0)).flatMap(q=>q.ships).filter(live).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y)).map(e=>guide(e,[e.name,e.shipClass==='aa'?'Cruiser · suppress fire':'Destroyer · open passage'],'target'));
   if(allClear&&reached(g,n.exit,220))return result(true,'봉쇄선 돌파','Blockade breached');
  }else{
   const total=B.raiderWaves*B.raidersPerWave,unlaunched=total-n.ships.length;
@@ -202,6 +211,15 @@ function jutlandObjective(g,m){
   [`퇴각 함정 저지 ${sunk}/${goal}`,`Retreating ships sunk ${sunk}/${goal}`];
  m.detail=[`이탈 ${escaped}/${B.jutlandShips} · 손실 ${sunk}`,`Through ${escaped}/${B.jutlandShips} · Sunk ${sunk}`];
  m.guides=active.map(e=>guide(e,[e.name,n.protect?'Friendly ship':'Target ship'],n.protect?'ally':'target'));
+ if(n.protect){
+  const inbound=n.bombers.filter(b=>live(b.plane)&&!b.dropped&&!b.finished&&live(b.target)&&!b.target.mapNavalResult)
+   .sort((a,b)=>Math.hypot(a.plane.x-a.target.x,a.plane.y-a.target.y)-Math.hypot(b.plane.x-b.target.x,b.plane.y-b.target.y));
+  const threatened=[...new Set(inbound.map(b=>b.target))];
+  m.guides=[...inbound.map(b=>guide(b.plane,['투하 전 요격','Intercept before release'],'target')),
+   ...threatened.map(e=>guide(e,[`피습 함정 · 내구 ${Math.ceil(e.hp/e.maxHp*100)}%`,`Under attack · hull ${Math.ceil(e.hp/e.maxHp*100)}%`],'ally')),
+   ...active.filter(e=>!threatened.includes(e)).map(e=>guide(e,[e.name,'Withdrawing ship'],'ally'))].slice(0,6);
+  if(inbound.length)m.detail=[`폭격기 ${inbound.length}대 접근 · 손상함과 선두함을 엄호하세요`,`${inbound.length} bombers inbound · protect damaged and leading ships`];
+ }
  const encounter=g.stageBoss?.stages.encounter;
  if(progress>=goal&&encounter&&!encounter.arrivalPending){
   return n.protect?result(true,'주력 함대 철수 완료','Fleet withdrawal complete'):result(true,'적 함대의 퇴각 저지','Enemy withdrawal stopped');

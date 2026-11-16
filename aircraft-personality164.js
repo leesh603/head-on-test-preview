@@ -108,40 +108,45 @@ export function installAircraftPersonality(Game,PLANES,angleDiff){
  Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){
   const id=resolveAircraftPersonalityId(fighterAirframeId(e));
   const p=e.personalityId===id?e.personality:attachAircraftPersonality(PLANES,e,id);
-  const eligible=p&&this.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.formationLeader&&!e.missionTarget&&!e.bossPilot;
+  const eligible=p&&this.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&(!e.formationLeader||e.directorFormation&&e.defensivePressure)&&!e.missionTarget&&!e.bossPilot;
   if(!eligible)return steer.call(this,e,contact,dt,baseTurn);
   const now=this.t||0,distance=Math.hypot(contact.x-e.x,contact.y-e.y);
   const bearing=Math.atan2(contact.y-e.y,contact.x-e.x);
   const targetBehind=Math.abs(angleDiff(bearing,e.a+Math.PI))<1.05;
   e.personalityDecisionUntil=Math.max(e.personalityDecisionUntil||0,0);
   if(e.personalityDecisionUntil<=now){
-   if(targetBehind&&distance<300){
+   if(e.personalityManeuver==='EXTEND'&&now-(e.personalityExtendStartedAt??now)>=2.6){
+    e.personalityManeuver='REATTACK';e.personalityDecisionUntil=now+1.2;e.personalityExtendReadyAt=now+3;
+   }else if(targetBehind&&distance<300){
     const r=this.rng?.()??.5;
     e.personalityTurnSign=Math.sign(angleDiff(bearing,e.a))||(r<.5?-1:1);
-    if(p.extendBias>1.25&&r<.58)e.personalityManeuver='EXTEND';
+    if(p.extendBias>1.25&&r<.58&&now>=(e.personalityExtendReadyAt||0))e.personalityManeuver='EXTEND';
     else if(p.scissorsBias>1.08&&r<.52)e.personalityManeuver='SCISSORS';
     else if(p.overshootDefense>1.12&&r<.72)e.personalityManeuver='SLOW_BREAK';
     else e.personalityManeuver=e.personalityTurnSign<0?'BREAK_LEFT':'BREAK_RIGHT';
     e.personalityDecisionUntil=now+.55+(.45/(p.reattackBias||1));
+    if(e.personalityManeuver==='SCISSORS'){e.personalityScissorsAt=now;e.personalityDecisionUntil=now+1.3;}
    }else if(distance>p.preferredRange*1.35&&p.reattackBias>1.15){
     e.personalityManeuver='REATTACK';e.personalityDecisionUntil=now+.7;
    }else e.personalityManeuver=null;
   }
   const base=steer.call(this,e,contact,dt,baseTurn),maneuver=e.personalityManeuver;
   if(maneuver==='EXTEND'){
-   const heading=e.personalityExtendHeading??=e.a,uncapped=Math.max(e.personalityCruise||e.speed,e.speed)*1.08;
+   e.personalityExtendStartedAt??=now;
+   const heading=e.personalityExtendHeading??=e.a,uncapped=(e.personalityCruise||e.dogfightCruise||e.speed)*1.08;
    const target=Number.isFinite(e.cruiseSpeedCap)?Math.min(uncapped,e.cruiseSpeedCap):uncapped;
    e.speed+=(target-e.speed)*Math.min(1,dt*1.8);
    return{delta:angleDiff(heading,e.a),turn:base.turn*.24};
   }
   e.personalityExtendHeading=null;
+  e.personalityExtendStartedAt=null;
   if(maneuver==='SLOW_BREAK'){
    const cruise=e.personalityCruise||e.dogfightCruise||e.speed;
    e.speed+=(cruise*.76-e.speed)*Math.min(1,dt*2.8);
    return{delta:(e.personalityTurnSign||1)*1.2,turn:base.turn*p.breakBias*1.08};
   }
   if(maneuver==='SCISSORS'){
-   const phase=Math.sin(now*6.2)>=0?1:-1,cruise=e.personalityCruise||e.dogfightCruise||e.speed;
+   const phase=(now-(e.personalityScissorsAt??now)<.65?1:-1)*(e.personalityTurnSign||1),cruise=e.personalityCruise||e.dogfightCruise||e.speed;
    e.speed+=(cruise*.84-e.speed)*Math.min(1,dt*2.4);
    return{delta:phase*.9,turn:base.turn*p.scissorsBias};
   }

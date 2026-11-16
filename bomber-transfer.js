@@ -7,6 +7,8 @@ import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPos
 import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
 import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js';
 import {secretBombImpact,tickSecretKettering} from './secret-weapon-combat.js';
+import {tickSecretPuwBomb} from './secret-ordnance.js';
+import {applySalamanderHull,stripSalamanderHull} from './secret-flight-fits.js';
 export {BOMBER_TRANSFER_DESCRIPTION};
 export const BOMBER_TRANSFER=Object.freeze({
  entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3.5,hpCap:520,speed:.76,turn:.62,period:4.8,count:5,spacing:56,interval:.18,radius:96,damage:145,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),
@@ -80,7 +82,7 @@ export function detonateFriendlyBomb(w,b){
  const damage=b.steelCoreBomb?b.damage*HEAVY_AMMUNITION.bombDamageFraction:b.damage;
  // A single S.N. blast keeps one damage budget per boss even when its proxies overlap.
  const bomberSalvo=b.secretWeapon==='sn1650'?{bossDamage:new Map(),bossCap:damage}:b.bomberSalvo;
- const presentation=!['sn1650','explosiveArmor','longRangeBombers'].includes(b.secretWeapon);
+ const presentation=!['sn1650','explosiveArmor','longRangeBombers','puw50'].includes(b.secretWeapon);
  p.queueExplosionDamage(b.x,b.y,b.radius,damage,{fxSource:b.grenade?'grenade':'bomb',grenade:!!b.grenade,bomberSalvo,pilotSupport:!!b.pilotSupport,presentation});
  const blast=w.bullets?.length>before?w.bullets.at(-1):null;
  if(blast&&b.steelCoreBomb)blast.steelCoreBlast=true;
@@ -138,6 +140,7 @@ export function startSteelBomb(world,owner,bomb,target){
 }
 
 export function tickFriendlyBomb(world,bomb,dt){
+ if(bomb.secretWeapon==='puw50'){tickSecretPuwBomb(world,bomb,dt,detonateFriendlyBomb);return;}
  const owner=bombOwner(world,bomb);
  if(bomb.secretWeapon==='ketteringBug'){tickSecretKettering(world,owner,bomb,dt);return;}
  if(owner)bomb.ammunitionScale=ammunitionVisualScale(owner);
@@ -230,6 +233,7 @@ export function installBomberTransfer(Game,planes,scarff){
   if(this.bomberTransfer||this.upgrades?.strutterAirbrake||AIRFRAME_TRANSFER_IDS.some(key=>this.upgrades?.[key]))return false;
   const config=(id==='bomberTransfer'?BOMBER_TRANSFER:BUILD_TRANSFER[id])?.[planes[this.plane]?.faction];if(!config)return false;
   beginEquipmentLedger(this);
+  stripSalamanderHull(this);
   const ratio=this.maxHp?this.hp/this.maxHp:1;
   this.bomberTransfer={...config,id,entryTime:0,cooldown:config.period,remaining:0,drop:0,rearTimer:.2,rearAim:this.a+Math.PI,rearFlash:0,yaw:0};
   const oldHp=this.maxHp;this.maxHp=Math.min((config.hpCap??Infinity)*(this.upgrades?.loEmblem?.5:1),this.maxHp*config.hp);this.hp=this.maxHp*ratio;this.bomberTransfer.hpMultiplier=this.maxHp/oldHp;this.transferBaseRate=this.rate;
@@ -240,10 +244,11 @@ export function installBomberTransfer(Game,planes,scarff){
    this.permanentWingman=count+this.bomberTransfer.escortBonus;this.wingmanDamageMult=(this.wingmanDamageMult||1)*1.35;
   }
   recordEquipmentDoctrine(this,id);
+  applySalamanderHull(this);
   this.airframeSpeed=1;this.event('ally',(id==='mgTransfer'?'집중화력 개조 · ':id==='airshipTransfer'?'공중함대 지휘 · ':'폭격비행대 전속 · ')+config.name);return true;
  };
  q.acquireBomberTransfer=function(){return this.acquireAirframeTransfer('bomberTransfer');};
- q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;if(fit.kind==='airship'){this.wingmanDamageMult=(this.wingmanDamageMult||1)/1.35;this.permanentWingman=Math.max(0,(this.permanentWingman||0)-(fit.escortBonus||0));const w=world(this);let kept=0;w.allies=w.allies.filter(a=>{if(!a.permanent||a.ownerId!==this.id)return true;delete a.carrierLaunchAt;delete a.carrierHidden;delete a.carrierScale;return kept++<this.permanentWingman;});}delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;this.airframeSpeed=1;return true;};
+ q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;stripSalamanderHull(this);const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;if(fit.kind==='airship'){this.wingmanDamageMult=(this.wingmanDamageMult||1)/1.35;this.permanentWingman=Math.max(0,(this.permanentWingman||0)-(fit.escortBonus||0));const w=world(this);let kept=0;w.allies=w.allies.filter(a=>{if(!a.permanent||a.ownerId!==this.id)return true;delete a.carrierLaunchAt;delete a.carrierHidden;delete a.carrierScale;return kept++<this.permanentWingman;});}delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;applySalamanderHull(this);this.airframeSpeed=1;return true;};
  q.isBomberEntering=function(){return Number.isFinite(this.bomberTransfer?.entryTime)&&this.bomberTransfer.entryTime<BOMBER_ENTRY_DURATION;};
  // Command data belongs to this sortie and owner; existing allies, guns and upgrades do the work.
  q.airshipFocusTarget=function(){

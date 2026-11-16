@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {impactMark} from './tactical-marks.js?v=b3bf991d11fc7798';
-import {TREFFAS_ART} from './cambrai-layout.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=tame3';
+import {impactMark} from './tactical-marks.js?v=tame3';
+import {TREFFAS_ART} from './cambrai-layout.js?v=20261021&cambrai=20261021';
 const cache=new WeakMap();
 function layers(image){
  if(cache.has(image))return cache.get(image);

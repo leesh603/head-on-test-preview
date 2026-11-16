@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=b3bf991d11fc7798';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=b3bf991d11fc7798';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));

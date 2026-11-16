@@ -7,6 +7,7 @@ import {combatImpactResult} from './combat-impact-result.js';
 import {hasSecretWeapon} from './secret-weapons.js';
 import {POM_AIRBURST,secretWeaponContact,secretSteelRainImpact,secretCannonInterval,secretCannonShot,secretCannonImpact,secretRotaryRound,tickSecretRotary,secretGasProfile,secretArmorHit,secretWingGun,secretCooperRelease} from './secret-weapon-combat.js';
 import {WWI_BALANCE,igniteSharedBurn,equipmentTargets,wwiWingTarget,wwiBossAimPoint,prepareWWIPrimaryRound} from './wwi-equipment.js';
+import {secretOrdnanceDamageScale} from './secret-ordnance.js';
 const world=p=>p.combatWorld?.()||p.world||p;
 const alive=p=>p.hp>0&&p.status!=='downed';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
@@ -294,7 +295,7 @@ export function installWeaponSynthesis(Game){
   if(this.upgrades?.lufberyCircle&&synthesisWing(this,a)){const focus=wwiWingTarget(this,a)||equipmentTargets(world(this)).find(e=>Math.hypot(e.x-this.x,e.y-this.y)<550);if(focus){const t=(world(this).t||0)*.65+(a.slot||0)*Math.PI;return{x:focus.x+Math.cos(t)*170,y:focus.y+Math.sin(t)*170};}}
   return formation.call(this,a,...args);
  };
- const damage=Game.prototype.roundDamageMultiplier;Game.prototype.roundDamageMultiplier=function(b,e){return b.synthesisSupport?1:damage.call(this,b,e);};
+ const damage=Game.prototype.roundDamageMultiplier;Game.prototype.roundDamageMultiplier=function(b,e){return b.synthesisSupport?1:damage.call(this,b,e)*secretOrdnanceDamageScale(b,e);};
  Game.prototype.tickSynthesizedCannon=function(dt,input){return tickCannon(this,dt,input);};
  const apply=Game.prototype.applySpecialRound;Game.prototype.applySpecialRound=function(b,...args){return prepareSynthesisRound(this,apply.call(this,b,...args)||b);};
  const impact=Game.prototype.specialRoundImpact;Game.prototype.specialRoundImpact=function(b,e){

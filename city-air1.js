@@ -2,7 +2,7 @@ import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tam
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115';
 // City and Berlin ground units; region 5 wind streams.
 export const CITY_BALANCE=Object.freeze({
  lightHp:130,lightR:40,pitHp:95,pitR:38,lockTime:1.2,lockDecay:1.6,illumTail:2.5,

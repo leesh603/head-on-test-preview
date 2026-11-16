@@ -45,16 +45,25 @@ export function drawRepeatedDressing(c,key,left,top,width,height,period){
  }
 }
 
-// The harbor image itself supplies every dock/land coordinate. Bake before
-// the existing landmark's fade, so no ground prop survives beyond its land.
+// Coordinates on the 1254-unit harbor artwork, independent of its pixel size.
+const HARBOR_FRAMES=Object.freeze({cargo:0,mooring:1,trolley:2,wagon:3,derrick:4,searchlight:5,launch:6,bales:7});
 export const HARBOR_DRESSING=Object.freeze([
- ['supplies',253,402,29,.1,'dock'],['supplies',168,692,28,-.18,'dock'],
- ['supplies',614,587,28,.08,'dock'],['supplies',714,819,28,-.1,'dock'],
- ['wagon',340,1071,34,1.92,'land-road']
+ ['cargo',252,403,30,.10,'dock'],['mooring',158,693,27,.24,'dock'],
+ ['trolley',606,690,27,0,'dock'],['wagon',310,1008,40,1.92,'land-road'],
+ ['derrick',908,683,35,0,'dock'],['searchlight',265,830,27,-.32,'dock'],
+ ['launch',928,903,37,-.12,'dock'],['bales',698,834,29,.1,'dock']
 ]);
-export function bakeHarborDressing(c,width,height){
+export function bakeHarborDressing(c,width,height,atlas){
+ if(!atlas?.naturalWidth)return;
+ const sw=atlas.naturalWidth/4,sh=atlas.naturalHeight/2;
  c.save();c.scale(width/1254,height/1254);
- for(const [kind,x,y,size,a]of HARBOR_DRESSING)drawDressingSprite(c,kind,x,y,size,a,.72);
+ c.imageSmoothingEnabled=true;
+ for(const [kind,x,y,size,angle]of HARBOR_DRESSING){
+  const frame=HARBOR_FRAMES[kind];
+  c.save();c.translate(x,y);c.rotate(angle);
+  c.drawImage(atlas,(frame%4)*sw,Math.floor(frame/4)*sh,sw,sh,-size/2,-size/2,size,size);
+  c.restore();
+ }
  c.restore();
 }
 // Conservative hand-checked rectangles in the 1254px coast master. The beach

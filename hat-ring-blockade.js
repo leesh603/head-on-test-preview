@@ -50,18 +50,34 @@ function warn(g,s){const es=members(g);s.phase='warning';s.age=0;s.openSlot=[0,-
  g.event?.('wave','94항공대 사격 준비 · 사격을 쉬는 기체의 빈 통로를 확인하세요');
 }
 function snapShot(g,s,es,p){
- const now=g.t||0;if((g.bullets?.length||0)>=180)return;
+ const now=g.t||0;s.lastShotAt??=now;if((g.bullets?.length||0)>=180)return;
  for(const e of es){
   if(e.hatRingSnapAt!=null){
    if(now<e.hatRingSnapAt+(e.hatRingSnapRounds||0)*.12)continue;
-   const want=Math.atan2(p.y-e.y,p.x-e.x);
-   if(Math.abs(angle(want-e.a))<.25&&visible(g,e,-15)){const a=e.a;(g.bullets??=[]).push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,vx:Math.cos(a)*B.bulletSpeed,vy:Math.sin(a)*B.bulletSpeed,life:B.bulletLife,enemy:true,sourceX:e.x,sourceY:e.y,hatRingGroup:s.groupId,hatRingSlot:e.hatRingSlot,hatRingPass:s.pass,hatRingSnap:true,collisionRadius:2,damage:squadronDamage(g,B.damage),visualType:'scout'});e.muzzleFlash=.12;e.gunAim=a;}
+   // Deflection: the nose is checked against where the pilot will be when the
+   // round arrives, so a wing circling with the pilot can take its snap shot.
+   const t=Math.min(.8,Math.hypot(p.x-e.x,p.y-e.y)/B.bulletSpeed),v=pace(g),want=Math.atan2(p.y+Math.sin(p.a||0)*v*t-e.y,p.x+Math.cos(p.a||0)*v*t-e.x);
+   const aligned=Math.abs(angle(want-e.a))<.25&&visible(g,e,-15);
+   // A wing still swinging onto the pilot holds its round up to .8 s instead of wasting it.
+   if(!aligned&&!e.hatRingSnapRounds&&now<e.hatRingSnapAt+.8)continue;
+   if(aligned){const a=e.a;(g.bullets??=[]).push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,vx:Math.cos(a)*B.bulletSpeed,vy:Math.sin(a)*B.bulletSpeed,life:B.bulletLife,enemy:true,sourceX:e.x,sourceY:e.y,hatRingGroup:s.groupId,hatRingSlot:e.hatRingSlot,hatRingPass:s.pass,hatRingSnap:true,collisionRadius:2,damage:squadronDamage(g,B.damage),visualType:'scout'});e.muzzleFlash=.12;e.gunAim=a;s.lastShotAt=now;}
    if(++e.hatRingSnapRounds>=2){e.hatRingSnapAt=null;e.hatRingSnapReadyAt=now+1.6;s.snapBusyUntil=now+.4;}
    continue;
   }
   if(s.snapBusyUntil>now||e.hatRingSnapReadyAt>now)continue;
-  const d=Math.hypot(p.x-e.x,p.y-e.y),off=Math.abs(angle(Math.atan2(p.y-e.y,p.x-e.x)-e.a));
+  const d=Math.hypot(p.x-e.x,p.y-e.y),t=Math.min(.8,d/B.bulletSpeed),v=pace(g),off=Math.abs(angle(Math.atan2(p.y+Math.sin(p.a||0)*v*t-e.y,p.x+Math.cos(p.a||0)*v*t-e.x)-e.a));
   if(d>140&&d<440&&off<.45&&visible(g,e,-15)){e.hatRingSnapAt=now+.38;e.hatRingSnapRounds=0;e.dangerMarksman=true;e.dangerAimUntil=e.hatRingSnapAt;s.snapBusyUntil=now+1.2;}
+ }
+ // Silence watchdog: a moving pilot behind the box (behind its centre along the
+ // reform course) left every nose pointing
+ // away, so no wing ever qualified above. After 4 s without a round the best
+ // placed wing turns about (native turn limit) under its aim warning, which
+ // lasts as long as the turn takes, then fires its two rounds.
+ const cx=es.reduce((n,e)=>n+e.x,0)/es.length,cy=es.reduce((n,e)=>n+e.y,0)/es.length,tailed=(p.x-cx)*Math.cos(s.reformHeading)+(p.y-cy)*Math.sin(s.reformHeading)<0&&(p.speed||0)>40;
+ if(tailed&&now-(s.lastShotAt??now)>=4&&!(s.snapBusyUntil>now)&&!es.some(e=>e.hatRingSnapAt!=null)){
+  let best=null,bestOff=Infinity;
+  for(const e of es){if(e.hatRingSnapReadyAt>now||!visible(g,e,-15))continue;const d=Math.hypot(p.x-e.x,p.y-e.y);if(d<=140||d>=440)continue;const off=Math.abs(angle(Math.atan2(p.y-e.y,p.x-e.x)-e.a));if(off<bestOff){bestOff=off;best=e;}}
+  if(best){best.hatRingSnapAt=now+.38+Math.min(2.2,Math.max(0,bestOff-.25)/B.turn);best.hatRingSnapRounds=0;best.dangerMarksman=true;best.dangerAimUntil=best.hatRingSnapAt;s.snapBusyUntil=best.hatRingSnapAt+.8;}
  }
 }
 export function tickHatRingBlockade(g,dt){
@@ -95,7 +111,7 @@ export function tickHatRingBlockade(g,dt){
   else if(s.phase==='entry'){const p=pilot(g),v=arrivalViewport(g),dx=Math.abs(Math.cos(s.heading)),dy=Math.abs(Math.sin(s.heading)),fit=Math.min(dx>.001?(v.w-15-dy*B.spacing)/dx:Infinity,dy>.001?(v.h-15-dx*B.spacing)/dy:Infinity),depth=Math.min(fit-12,Math.max(B.minSeparation+25,dx*v.w+dy*v.h-90));if(visibleLanes(g,es)&&es.filter(e=>e.hatRingSlot<2).every(e=>(p.x-e.x)*Math.cos(s.heading)+(p.y-e.y)*Math.sin(s.heading)<=depth))warn(g,s);}
   else if(s.phase==='warning'&&s.age>=B.warning){s.phase='salvo';s.age=0;for(const e of es)e.hatRingPhase='salvo';}
   else if(s.phase==='salvo'){
-   if(s.volley<5&&s.age>=s.volley*.2){for(const e of es)fireHatRing(g,e);s.volley++;}
+   if(s.volley<5&&s.age>=s.volley*.2){for(const e of es)fireHatRing(g,e);s.volley++;s.lastShotAt=g.t||0;}
    if(s.age>=B.burst){s.phase='coast';s.age=0;s.coastHeading=s.heading;for(const e of es)e.hatRingPhase='coast';}
   }else if(s.phase==='coast'){
    // All slots bank together between salvos; positions are never assigned.
@@ -114,7 +130,7 @@ export function tickHatRingBlockade(g,dt){
 }
 export function hatRingSteering(g,e){if(e.hatRingGroup==null)return null;if(e.hatRingPhase==='exit')speed(e,pace(g)+120);
  // A snap-shooting wing swings its nose onto the pilot (native turn limit) for its two rounds.
- if(e.hatRingSnapAt!=null&&e.hatRingPhase==='reform'&&g.hatRingBlockade?.phase==='reform'){const p=pilot(g);if(p)return {delta:angle(Math.atan2(p.y-e.y,p.x-e.x)-e.a),turn:B.turn};}
+ if(e.hatRingSnapAt!=null&&e.hatRingPhase==='reform'&&g.hatRingBlockade?.phase==='reform'){const p=pilot(g);if(p){const t=Math.min(.8,Math.hypot(p.x-e.x,p.y-e.y)/B.bulletSpeed),v=pace(g);return {delta:angle(Math.atan2(p.y+Math.sin(p.a||0)*v*t-e.y,p.x+Math.cos(p.a||0)*v*t-e.x)-e.a),turn:B.turn};}}
  let heading=e.hatRingHeading;
  if(g.hatRingBlockade?.phase==='reform'&&e.hatRingPhase!=='exit'){
   const s=g.hatRingBlockade,a=s.reformHeading,dx=Math.cos(a),dy=Math.sin(a),forward=e.hatRingFormationForward,side=e.hatRingFormationSide,ox=dx*forward-dy*side,oy=dy*forward+dx*side;

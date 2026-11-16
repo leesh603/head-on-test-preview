@@ -89,7 +89,7 @@ export function gunShotFeedback(world,ownerId,cow37=false){
  const baseInterval=Math.max(.025,p.rate||60/(p.weapon?.rpm||600)),rpm=60/baseInterval;
  const boost=(world.players||p.world?.players)&&p.udetBoost>0?2.4:1;
  const precision=!cow37&&p.weaponMods?.GUN==='precision',actualInterval=bishopGlovesInterval(p,Math.max(.02,baseInterval/(boost*(p.pilot==='jacobs'?1+(p.jacobsStacks||0)*.1:1)))),shotInterval=precision?Math.max(.005,actualInterval*.35):baseInterval;
- return {guns:p.weapon?.guns||1,rpm,heavy:cow37||!!p.motorCannon,cow37,precision,shotInterval,intervalMs:cow37?45:precision?Math.max(4,shotInterval*800):Math.max(45,Math.min(120,60000/rpm*.9))};
+ return {ownerId:p.id||ownerId,guns:p.weapon?.guns||1,rpm,heavy:cow37||!!p.motorCannon,cow37,precision,shotInterval,intervalMs:cow37?45:precision?Math.max(4,shotInterval*800):Math.max(45,Math.min(120,60000/rpm*.9))};
 }
 export function blastFeedbackStrength(f){
  if(f.fxHidden)return 0;
@@ -97,7 +97,7 @@ export function blastFeedbackStrength(f){
 }
 export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.escortPlane||e.bossPlane||e.plane,scale=()=>1}={}){
  if(worlds.has(world))return worlds.get(world);
- const state={punch:0,punchX:0,punchY:0,punchAge:1,nextPunch:0,nextReplicaShot:0,heardRounds:new WeakSet(),impacts:[],wrecks:[],trail:[],plumes:[],passes:[],ribbons:new WeakMap(),ribbonOwners:[],whips:[],nextWhip:0,threadBorn:new WeakMap(),damage:new WeakMap(),battleFx:new WeakMap(),serial:0,impactSerial:0,time:world.t||0,nextNear:0,nextPass:0,nextApproach:0,camera:0,duckUntil:0,headOnUntil:0,previous:new WeakMap(),whizzed:new WeakSet(),dead:new WeakSet(),pendingKill:null,heard:new WeakSet(),heardIds:new Set(),heardCriticalIds:new Map()};
+ const state={punch:0,punchX:0,punchY:0,punchAge:1,nextPunch:0,nextReplicaShot:0,lastPrecisionVolley:-1,heardRounds:new WeakSet(),impacts:[],wrecks:[],trail:[],plumes:[],passes:[],ribbons:new WeakMap(),ribbonOwners:[],whips:[],nextWhip:0,threadBorn:new WeakMap(),damage:new WeakMap(),battleFx:new WeakMap(),serial:0,impactSerial:0,time:world.t||0,nextNear:0,nextPass:0,nextApproach:0,camera:0,duckUntil:0,headOnUntil:0,previous:new WeakMap(),whizzed:new WeakSet(),dead:new WeakSet(),pendingKill:null,heard:new WeakSet(),heardIds:new Set(),heardCriticalIds:new Map()};
  worlds.set(world,state);world.combatPresentation=true;
  const compact=()=>world.viewWidth<=720;
  const cap=(list,small,big)=>{const max=compact()?small:big;if(list.length>max)list.splice(0,list.length-max)};
@@ -281,9 +281,31 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    const {effect:f,player:p}=strongest,d=Math.hypot(p.x-f.x,p.y-f.y)||1;
    state.punch=Math.min(compact()?1.8:2.3,strongestPower);state.punchX=(p.x-f.x)/d;state.punchY=(p.y-f.y)/d;state.punchAge=0;state.nextPunch=state.time+.18;state.duckUntil=(this.t||0)+.12;pulse('explosion');
   }
-  if(replica){let shot=false,cow37=false,rocket=false;for(const b of this.bullets||[]){if(state.heardRounds.has(b))continue;state.heardRounds.add(b);if(b.ownerId===this.localPlayerId&&b.upgradeRocket&&!b.enemy)rocket=true;if(b.ownerId===this.localPlayerId&&!b.enemy&&!b.blast&&!b.actualExplosion&&!b.rocket&&!b.flak&&!b.ally&&!b.patrol&&!b.formation&&!b.pilotSupport&&!b.synthesisChild&&Math.hypot(b.vx||0,b.vy||0)>0){shot=true;cow37||=!!b.cow37;}}
+  if(replica){
+   let shot=false,cow37=false,rocket=false,precisionShots=0;
+   for(const b of this.bullets||[]){
+    if(state.heardRounds.has(b))continue;
+    state.heardRounds.add(b);
+    if(b.ownerId===this.localPlayerId&&b.upgradeRocket&&!b.enemy)rocket=true;
+    if(b.ownerId===this.localPlayerId&&b.upgradeRocket&&!b.enemy)rocket=true;if(b.ownerId===this.localPlayerId&&!b.enemy&&!b.blast&&!b.actualExplosion&&!b.rocket&&!b.flak&&!b.ally&&!b.patrol&&!b.formation&&!b.pilotSupport&&!b.synthesisChild&&Math.hypot(b.vx||0,b.vy||0)>0){
+     if(Number.isSafeInteger(b.precisionVolley)){
+      if(b.precisionVolley>state.lastPrecisionVolley){
+       state.lastPrecisionVolley=b.precisionVolley;
+       precisionShots++;
+      }
+     }else{shot=true;cow37||=!!b.cow37;}
+    }
+   }
    if(rocket)play('rocket');
-   if(shot&&state.time>=state.nextReplicaShot){const profile=gunShotFeedback(this,this.localPlayerId,cow37);state.nextReplicaShot=state.time+profile.intervalMs/1000;play('shot',profile);}
+   if(precisionShots){
+    const profile=gunShotFeedback(this,this.localPlayerId);
+    for(let i=0;i<precisionShots;i++)play('shot',profile);
+   }
+   if(shot&&state.time>=state.nextReplicaShot){
+    const profile=gunShotFeedback(this,this.localPlayerId,cow37);
+    state.nextReplicaShot=state.time+profile.intervalMs/1000;
+    play('shot',profile);
+   }
   }
   for(const p of players)pose(p,state.time,step,state.damage.get(p),true);
   // Wingtip condensation: sample the tips only while the wing is really loaded.
@@ -376,7 +398,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  return state;
 }
 export function combatCameraOffset(world){const s=worlds.get(world);const q=s?clamp(1-s.punchAge/.2):0,k=s?s.punch*q*q:0;return s?{x:Math.sin(s.time*83)*s.camera+s.punchX*k,y:Math.cos(s.time*71)*s.camera+s.punchY*k}:{x:0,y:0}}
-export function combatFlightSound(world,planes){const players=world.players||[world],p=(world.online&&players.find(p=>p.id===world.localPlayerId&&p.hp>0))||players.find(p=>p.hp>0)||world,s=worlds.get(world),q=poses.get(p);return{plane:playerAirframeModel(p.plane,planes)||p.plane,reload:p.reloadTime>0,speed:q?.flightSpeed??p.airframeSpeed??1,airspeed:q?.airspeed??(p.speed||170)*(p.airframeSpeed??1),acceleration:q?.acceleration||0,turn:Math.abs(q?.turn||0),damage:clamp(1-p.hp/p.maxHp),engineFault:clamp(((p.criticalEngineUntil||0)-(world.t||0))/.65),duck:(s?.duckUntil||0)>(world.t||0)}}
+export function combatFlightSound(world,planes){const players=world.players||[world],p=(world.online&&players.find(p=>p.id===world.localPlayerId&&p.hp>0))||players.find(p=>p.hp>0)||world,s=worlds.get(world),q=poses.get(p);return{plane:playerAirframeModel(p.plane,planes)||p.plane,siemens:p.upgrades?.strutterAirbrake>0&&p.secretWeaponState?.slots?.strutterAirbrake==='siemensHalske',siemensLoad:p.secretWeaponState?.effects?.siemensHalske?.load||0,reload:p.reloadTime>0,speed:q?.flightSpeed??p.airframeSpeed??1,airspeed:q?.airspeed??(p.speed||170)*(p.airframeSpeed??1),acceleration:q?.acceleration||0,turn:Math.abs(q?.turn||0),damage:clamp(1-p.hp/p.maxHp),engineFault:clamp(((p.criticalEngineUntil||0)-(world.t||0))/.65),duck:(s?.duckUntil||0)>(world.t||0)}}
 // The existing sparse airflow follows displacement, not the ambient clock.
 // No simulation writes, extra particles, or persistent per-frame allocations.
 export function drawFlightFlow(c,world,W,H,zoom=1){

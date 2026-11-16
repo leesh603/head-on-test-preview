@@ -3,7 +3,7 @@ import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
 import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
 import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
 import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
@@ -197,7 +197,9 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
 }
 
 export function drawCannonProjectile(c,b,x,y){
- if(b.life<=0)return;const cow=!!b.cow37;
+ if(b.life<=0)return;
+ if(b.secretDavisShell&&drawBossOrdnance(c,'he-big',x,y,42,Math.atan2(b.vy,b.vx)))return;
+ const cow=!!b.cow37;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
  if(b.ammunitionScale>1)c.scale(b.ammunitionScale,b.ammunitionScale);
  drawProjectileTactic(c,b,0,0,0);

@@ -1,10 +1,11 @@
 import {bomberWingContact,recordBomberWingHit} from './bomber-wing-damage.js';
-import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
-import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031&orbit=20261107';
+import {cityBomberScale} from './city-bomber-flight.js';
+import {O400Raider} from './o400-squadron.js?v=natural-flight20261031&bomber=20261113';
+import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031&orbit=20261107&bomber=20261113';
 import {createCapitalBoss} from './capital-bosses.js';
 import {ParisGeschuetz} from './laon-gun.js';
 import {FrenchCounterBatteryAirGroup} from './laon-air-group.js';
-import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021&sortie=20261115';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
 import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
@@ -12,7 +13,7 @@ import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?
 import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=gal1-r3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {RuralRailBoss} from './rural-rail-combat.js?v=gal1&rail=44&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FortDouaumont,FortSouville,FortVaux} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
 import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
 import {createJutlandEncounter} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
@@ -24,7 +25,7 @@ import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {BaseBoss, BossPart, BossEncounter, predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&quiet=20261115';
 import {APRON_RAID_ENTRY,APRON_RIG_OFFSETS,raidApronPanel,raidApronPose} from './london-apron369.js?v=tame3&cityart=20261022';
 import {APRON_GROUND,apronGroundSites,apronGroundWeapon} from './london-apron-ground.js';
 import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
@@ -68,7 +69,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'morser-battery': {name:'슈바벤 보루 · 지하 방어요새', faction:'central', stage:10}
   ,'gotha-squadron': {name:'고타 폭격전대', faction:'central', stage:4}
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
-  ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12}
+  ,'fort-vaux': {name:'보 요새 · Fort de Vaux', faction:'entente', stage:12}
+  ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12, reserve:true}
   ,'wustenpanzer': {name:'사막 육상순양함 · Wüstenpanzer', faction:'central', stage:13}
   ,'jutland-grand-fleet': {name:'유틀란트 · 북해 기함', faction:'neutral', stage:16}
   ,'gallipoli-fortress': {name:'갈리폴리 대요새 · 다르다넬스 점령전', faction:'neutral', stage:14}
@@ -439,12 +441,17 @@ export class HMA23 extends SkyAirship {
   update(dt,{players}) {
     const mt=this.motionTime||0;shadowAnchor(this,dt,players,{dist:320,speed:48});this.x=this.anchorX+Math.sin(mt*.34+(this.arrivalLateralPhase||0))*150;this.y=this.anchorY+Math.sin(mt*.23+2)*60;
     if(this.phase!=='launching')return;
+    // Gallery flak keeps its own clock through deck launches and recovery; a
+    // beat that falls in a breather fires when it ends. The counter window stays quiet.
+    const counter=this.deckRecovery>0&&this.deckRecovery<=2.4,blocked=this.encounter?.breathBlocks({type:'charge-warning'});
+    if(!counter&&this.due('launch-cover',dt,6.4))this.coverPending=true;
+    if(this.coverPending&&!counter&&!blocked){this.coverPending=false;this.carrierFan(players);}
     if(this.deckRecovery>0){
       const previous=this.deckRecovery;this.deckRecovery=Math.max(0,previous-dt);
       if(previous>2.4&&this.deckRecovery<=2.4)this.command('phase-change',{phase:'hma-deck-recovery'});
       return;
     }
-    if(this.encounter?.breathBlocks({type:'charge-warning'}))return;
+    if(blocked)return;
     const ports=[...this.parts.values()].filter(p=>!p.destroyed);
     this.deckAge+=dt;
     const peakCount=Math.min(3,ports.length,Math.floor((this.deckLimit?.()??this.deckCapacity)/2));
@@ -472,7 +479,6 @@ export class HMA23 extends SkyAirship {
         }
       }
     }
-    if(this.due('launch-cover',dt,6.4))this.carrierFan(players);
   }
 }
 
@@ -519,7 +525,7 @@ class TrenchArmor extends PatternBoss {
     const gun=this.bestGun(p,.35);if(!gun||Math.abs(this.gunBearing(gun,p,.35))>this.layout.gunArc+reach){c.clock=.2;return;}
     const point=armorGunMuzzle(this.kind,gun,this.hullYaw,this.t.geometryScale||1),x=this.x+point.x,y=this.y+point.y,speed=this.t.bulletSpeed*.95;
     const t=Math.hypot(p.x-x,p.y-y)/speed,a=Math.atan2(p.y+(p.vy||0)*t-y,p.x+(p.vx||0)*t-x)+(Math.random()-.5)*.09;
-    gun.recoil=.12;this.command('muzzle',{x,y,partId:gun.id});
+    gun.recoil=.12;this.command('muzzle',{x,y,partId:gun.id,weapon:'mg'});
     this.hazard('projectile',{x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:4,duration:2.6,damage:this.t.damage*.24,visual:'armor-tracer',tag:this.gunTag(gun)+':coax'});
     c.left--;c.clock=c.left>0?gap:pause*(this.combatPhase===3?.7:1);
   }
@@ -1232,6 +1238,7 @@ export class LivensFlameProjector extends PatternBoss {
     if(leaking.length&&!(this.recovery>0)&&this.due('leak-fire',dt,Math.max(2.2,5-leaking.length*.55))){const p=leaking[Math.floor(this.rng()*leaking.length)];this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:p.destroyed?54:40,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});}
   }
 }
+export const MINEN_LEAD=Object.freeze({main:1.05,right:.72,left:.42});
 export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
@@ -1273,8 +1280,13 @@ export class MinenwerferBattery extends PatternBoss {
   muzzle(gun,tube=gun.mortarTube??1){const t=MINEN_TUBES[tube];return{x:this.x+gun.x+t.muzzleX,y:this.y+gun.y+t.muzzleY};}
   aimPoint(gun,target,serial,bounds,lead=null,margin=70){
     const vx=target.vx||0,vy=target.vy||0,speed=Math.hypot(vx,vy),dx=speed>12?vx/speed:0,dy=speed>12?vy/speed:-1;
-    const seconds=lead??(this.raidPhase===1?.12:gun.id==='main-gun'?.78:gun.id==='gun-right'?.38:.22);
-    let x=target.x+vx*seconds+(this.rng()-.5)*14,y=target.y+vy*seconds+(this.rng()-.5)*14;
+    // Default leads bracket the impact moment (warning 1.2-1.4 s): the main
+    // tube lands just ahead of a pilot holding course, the side tubes behind
+    // it. They follow the pilot's current turn, so circling the battery no
+    // longer leaves every shell in the wake (main .78/.38/.22 s fell 0.5-1 s behind).
+    const seconds=lead??(this.raidPhase===1?.12:gun.id==='main-gun'?MINEN_LEAD.main:gun.id==='gun-right'?MINEN_LEAD.right:MINEN_LEAD.left);
+    const at=predictPilot(target,seconds);
+    let x=at.x+(this.rng()-.5)*14,y=at.y+(this.rng()-.5)*14;
     if(bounds){x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,x));y=Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,y));}
     return{x,y,dx,dy};
   }
@@ -1748,6 +1760,10 @@ class FormationAceBoss extends PatternBoss {
     const tr=turnRate*dt;this.a+=Math.max(-tr,Math.min(tr,delta));
   }
   aimAt(p){const pa=Math.atan2(p.y-this.y,p.x-this.x);return{pa,rel:Math.atan2(Math.sin(pa-this.a),Math.cos(pa-this.a)),dist:Math.hypot(p.x-this.x,p.y-this.y)};}
+  // The ace fires when the nose bears on where the pilot will be when the
+  // rounds (430 px/s) arrive, along the pilot's current turn, not where the
+  // pilot is now; a crossing pilot was otherwise only ever behind the nose.
+  gunSolution(p){const d=Math.hypot(p.x-this.x,p.y-this.y),at=predictPilot(p,Math.min(1.2,d/430));return{...this.aimAt(at),dist:d};}
   move(dt,speed,bounds){
     if(!(dt>0))return;
     const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2;
@@ -1898,7 +1914,7 @@ export class JastaCircus extends FormationAceBoss {
     }
     if(phase==='sun-hunt'){tx=age<2?p.x+nx*310*flank-hx*250:p.x+(p.vx||0)*.55;ty=age<2?p.y+ny*310*flank-hy*250:p.y+(p.vy||0)*.55;turn=3.25;mult=age<2?1.05:1.42;}
     this.steer(dt,tx,ty,turn);this.move(dt,this.speed*mult,bounds);
-    const {pa,rel,dist}=this.aimAt(p);
+    const {rel,dist}=this.gunSolution(p);
     const committed=phase==='concentrated-assault'&&age>3.15&&age<4.75||phase==='sun-hunt'&&age>2;
     if((phase!=='concentrated-assault'||committed)&&Math.abs(rel)<.2&&dist<640&&this.due('jasta-mg',dt,committed?.22:.8)){
       const mx=this.x+Math.cos(this.a)*32,my=this.y+Math.sin(this.a)*32;
@@ -1935,7 +1951,7 @@ export class Naval10BlackFlight extends FormationAceBoss {
     if(phase==='cross-attack'){tx=p.x-hx*250-nx*190;ty=p.y-hy*250-ny*190;turn=2;mult=1.02;}
     if(phase==='headon-assault'){const commit=age>1.6;tx=commit?p.x+(p.vx||0)*.5:p.x+hx*330;ty=commit?p.y+(p.vy||0)*.5:p.y+hy*330;turn=commit?3.3:2.1;mult=commit?1.42:1.02;}
     this.steer(dt,tx,ty,turn);this.move(dt,this.speed*mult,bounds);
-    const {pa,rel,dist}=this.aimAt(p);
+    const {rel,dist}=this.gunSolution(p);
     const committed=phase==='headon-assault'&&age>1.6;
     if(Math.abs(rel)<.2&&dist<610&&this.due('black-maria-gun',dt,committed?.2:.85)){
       const mx=this.x+Math.cos(this.a)*30,my=this.y+Math.sin(this.a)*30;this.forwardShot();
@@ -2116,19 +2132,21 @@ export class LondonRaidApron extends LondonApron {
 }
 
 export class GothaRaider extends PatternBoss {
- constructor({slot=0,...options}){super({...options,kind:'gotha-raider',coreRadius:34,parts:[
+ constructor({slot=0,...options}){const scale=cityBomberScale(options.tuning);super({...options,kind:'gotha-raider',coreRadius:34*scale,parts:[
   {id:'engine-left',x:-23,y:-8,radius:12,maxHp:options.tuning.maxHp*.2},{id:'engine-right',x:23,y:-8,radius:12,maxHp:options.tuning.maxHp*.2},
   {id:'bomb-bay',x:0,y:-14,radius:10,maxHp:options.tuning.maxHp*.24},{id:'rear-gun',x:0,y:9,radius:9,maxHp:options.tuning.maxHp*.14},{id:'front-gun',x:0,y:-60,radius:9,maxHp:options.tuning.maxHp*.12}]});
-  this.slot=slot;this.formationTotal=1;this.anchorX=this.x;this.anchorY=this.y;this.a=Math.PI/2;this.ownsMotion129=true;this.coreVulnerable=true;
+  this.slot=slot;this.formationTotal=1;this.anchorX=this.x;this.anchorY=this.y;this.a=Math.PI/2;this.ownsMotion129=true;this.coreVulnerable=true;this.regionalScale=scale;
   this.phase='approach';this.entryAge=0;this.y-=260+slot*110;this.raidSerial=0;this.raidWait=slot*2.4;this.runRemaining=0;this.glideAge=0;this.bayOpen=0;
-  this.mounts=new Map([...this.parts].map(([id,p])=>[id,{x:p.x,y:p.y}]));this.rotateMounts();}
+  this.mounts=new Map([...this.parts].map(([id,p])=>[id,{x:p.x,y:p.y,radius:p.radius}]));
+  for(const p of this.parts.values())p.radius*=scale;
+  this.rotateMounts();}
  suppressive(){}
  engines(){return ['engine-left','engine-right'].filter(id=>!this.parts.get(id).destroyed).length;}
- rotateMounts(){const a=this.a+Math.PI/2,c=Math.cos(a),s=Math.sin(a);for(const [id,m] of this.mounts){const p=this.parts.get(id);p.x=m.x*c-m.y*s;p.y=m.x*s+m.y*c;}}
- locateHit(attack){if(Number.isFinite(attack.previousX)&&Number.isFinite(attack.previousY)){const n=Math.min(64,Math.max(1,Math.ceil(Math.hypot(attack.x-attack.previousX,attack.y-attack.previousY)/Math.max(3,attack.radius||3))));for(let i=0;i<=n;i++){const h=this.locateHit({...attack,x:attack.previousX+(attack.x-attack.previousX)*i/n,y:attack.previousY+(attack.y-attack.previousY)*i/n,previousX:undefined,previousY:undefined});if(h)return h;}return null;}const a=this.a+Math.PI/2,dx=attack.x-this.x,dy=attack.y-this.y,x=dx*Math.cos(a)+dy*Math.sin(a),y=-dx*Math.sin(a)+dy*Math.cos(a),r=attack.radius||0;
+ rotateMounts(){const a=this.a+Math.PI/2,c=Math.cos(a),s=Math.sin(a);for(const [id,m] of this.mounts){const p=this.parts.get(id);p.x=(m.x*c-m.y*s)*this.regionalScale;p.y=(m.x*s+m.y*c)*this.regionalScale;}}
+ locateHit(attack){if(this.dead)return null;if(Number.isFinite(attack.previousX)&&Number.isFinite(attack.previousY)){const n=Math.min(64,Math.max(1,Math.ceil(Math.hypot(attack.x-attack.previousX,attack.y-attack.previousY)/Math.max(3,attack.radius||3))));for(let i=0;i<=n;i++){const h=this.locateHit({...attack,x:attack.previousX+(attack.x-attack.previousX)*i/n,y:attack.previousY+(attack.y-attack.previousY)*i/n,previousX:undefined,previousY:undefined});if(h)return h;}return null;}const a=this.a+Math.PI/2,scale=this.regionalScale,dx=(attack.x-this.x)/scale,dy=(attack.y-this.y)/scale,x=dx*Math.cos(a)+dy*Math.sin(a),y=-dx*Math.sin(a)+dy*Math.cos(a),r=Math.max(0,attack.radius||0)/scale;
   // Match the long engine pods and the painted fuselage, not an invisible
   // 34px central disc that intercepted nearly every gun/engine shot.
-  for(const [id,m] of this.mounts){const p=this.parts.get(id),engine=id.startsWith('engine-'),rx=engine?9:p.radius,ry=engine?20:p.radius;if(p.hittable&&!p.destroyed&&((x-m.x)/(rx+r))**2+((y-m.y)/(ry+r))**2<=1)return{partId:id};}
+  for(const [id,m] of this.mounts){const p=this.parts.get(id),engine=id.startsWith('engine-'),rx=engine?9:m.radius,ry=engine?20:m.radius;if(p.hittable&&!p.destroyed&&((x-m.x)/(rx+r))**2+((y-m.y)/(ry+r))**2<=1)return{partId:id};}
   const hull=this.coreVulnerable&&((x/(103+r))**2+((y+37)/(16+r))**2<=1||(x/(93+r))**2+((y+3)/(11+r))**2<=1||(x/(9+r))**2+((y-4)/(83+r))**2<=1);
   if(!hull)return null;
   // Only the actual central mounting surface transfers hull contact to its
@@ -2139,8 +2157,9 @@ export class GothaRaider extends PatternBoss {
   if(part&&result.damage){part.hitFlash=.16;if(!this.dead){const body=super.hit({damage:result.damage*.75});result.bodyDefeated=body.bodyDefeated;}}return result;}
  abortRun(){if(this.runTarget)this.command('city-bomb-abort',{runId:this.runId});this.runTarget=null;this.runRemaining=0;this.bayOpen=0;this.bayWarned=false;this.onBombLine=false;}
  onPartDestroyed(p){if(p.id==='bomb-bay'){this.abortRun();this.phase='payload-lost';this.command('phase-change',{phase:this.phase});}
-  if(p.id==='rear-gun'||p.id==='front-gun'){this.gothaVolley=null;this.command('cancel-hazards',{tag:this.id+'-'+p.id,pendingOnly:true});}
-  if(!this.engines()){this.abortRun();this.phase='gliding';this.glideAge=0;this.command('phase-change',{phase:this.phase});this.command('aa-effect',{x:this.x,y:this.y,kind:'aaBalloonBurst',size:100,life:.55});}
+  if(this.gothaVolley?.partId===p.id)this.gothaVolley=null;
+  if(p.id==='rear-gun'||p.id==='front-gun')this.command('cancel-hazards',{tag:this.id+'-'+p.id,pendingOnly:true});
+  if(!this.engines()&&p.id.startsWith('engine-')){this.gothaVolley=null;this.abortRun();this.phase='gliding';this.glideAge=0;this.command('phase-change',{phase:this.phase});}
   else if(p.id.startsWith('engine-'))this.command('phase-change',{phase:'engine-damaged'});}
  fly(dt,tx,ty,speed,turn=1.05,formation=true){const goal=Math.atan2(ty-this.y,tx-this.x);let ux=Math.cos(goal),uy=Math.sin(goal);
   if(formation)for(const b of this.encounter?.bodies.values()||[]){if(b===this||b.dead||b.kind!=='gotha-raider')continue;const dx=this.x-b.x,dy=this.y-b.y,d=Math.hypot(dx,dy);if(d>0&&d<210){const w=(210-d)/120;ux+=dx/d*w;uy+=dy/d*w;}}
@@ -2154,7 +2173,7 @@ const constructors={'paris-geschuetz':ParisGeschuetz,'french-counter-battery':Fr
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
-  'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship,'gallipoli-fortress':GallipoliFortress,'paris-staaken-rvi':ParisStaakenRVI,'paris-searchlight-fortress':ParisSearchlightFortress};
+  'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'fort-vaux':FortVaux,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship,'gallipoli-fortress':GallipoliFortress,'paris-staaken-rvi':ParisStaakenRVI,'paris-searchlight-fortress':ParisSearchlightFortress};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction,doverWing}) {
   if(BOSS_CATALOG[bossId]?.capitalFinal)return new BossEncounter({id,bossId,bodies:[createCapitalBoss({id:id+':body',tuning,x,y,emit,rng,faction},bossId)]});
   if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100})]});encounter.bossId=bossId;return encounter;}

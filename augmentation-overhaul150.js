@@ -1,22 +1,23 @@
-import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js?v=secret-weapons-cc6879c-20261109';
-import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {EQUIPMENT_COPY} from './equipment-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js?v=core-experience-b5d0890e-20261113';
-import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=earned-rewards-7ccfad1b-20261114';
-import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,secretWeaponOrdinaryProgress,previewSecretWeapons} from './secret-weapons.js?v=core-experience-b5d0890e-20261113';
-import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js?v=core-experience-b5d0890e-20261113';
-import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=secret-weapons-d6a07ab3-20261110';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js?v=core-experience-b5d0890e-20261113';
-import {fighterAim} from './dogfight-pass165.js?v=map-visual-9169b9aa-20261111';
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=core-experience-b5d0890e-20261113';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=core-experience-b5d0890e-20261113';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=core-experience-b5d0890e-20261113';
-import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=core-experience-b5d0890e-20261113';
+import {tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingAimCone,aceWingRearShot} from './ace-wingman-pilots.js';
+import {ammunitionBlastRadius,ammunitionVisualScale} from './heavy-ammunition.js';
+import {medalDisplayName,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
+import {EQUIPMENT_COPY} from './equipment-copy.js';
+import {passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
+import {tickEquipmentCruise,BISHOP_GLOVES} from './equipment-flight-balance.js';
+import {beginEquipmentLedger,recordEquipmentUpgrade,removeEquipment,equipmentRemovable,equipmentModel} from './equipment-replacement.js';
+import {completeIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {hasSecretWeapon,reconcileSecretWeapons,secretWeaponMaterialLinks,secretWeaponOrdinaryProgress,previewSecretWeapons} from './secret-weapons.js';
+import {secretRankenPulse,secretRankenDamageScale} from './secret-weapon-combat.js';
+import {applySalamanderHull,salamanderBaseHull} from './secret-flight-fits.js';
+import {RARE_SPECIALIZATIONS,rareSpecializationFor,ordnanceProfile,migrateAugmentationState} from './rare-specializations.js';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,wwiBossAimPoint,analyzedEquipmentTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
+import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget,startSteelBomb} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
+import {nextTacticalPrompt,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -184,7 +185,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   return picks;
  };
  const armorHullCap=g=>(g.bomberTransfer?.hpCap??Infinity)*(g.upgrades?.loEmblem?.5:1);
- const armorAvailable=g=>(g.armorUpgradeHp||0)<DURABILITY_BALANCE.maxBonusHp-1e-9&&g.maxHp<armorHullCap(g)-1e-9;
+ const armorAvailable=g=>(g.armorUpgradeHp||0)<DURABILITY_BALANCE.maxBonusHp-1e-9&&salamanderBaseHull(g)<armorHullCap(g)-1e-9;
  const normalAllowed=function(g,u,rarity){
   if(!u||u.specialDoctrine||u.weaponMod||u.legendary||specialIds.has(u.id))return false;
   if(!['normal','magic','rare'].includes(rarity)||u.rareOnly&&rarity!=='rare')return false;
@@ -291,7 +292,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'explosives':this.explosiveBonus=(this.explosiveBonus||0)+AUGMENT_BALANCE.support[t];break;
    case 'command':{const b=formationManualBonus(this);this.commandBonus=(this.commandBonus||0)+Math.max(0,Math.min(FORMATION_MANUAL_BALANCE.damage[t],FORMATION_MANUAL_BALANCE.damageCap-b.damage));this.commandRateBonus=(this.commandRateBonus||0)+Math.max(0,Math.min(FORMATION_MANUAL_BALANCE.rate[t],FORMATION_MANUAL_BALANCE.rateCap-b.rate));break;}
    case 'turn':this.addMobility(t);break;
-   case 'armor':{const scale=(this.bomberTransfer?.hp??1)*(this.upgrades?.loEmblem?.5:1),remaining=DURABILITY_BALANCE.maxBonusHp-(this.armorUpgradeHp||0),hp=Math.max(0,Math.min(DURABILITY_BALANCE.armorBonus[t],remaining)*scale),added=Math.min(hp,armorHullCap(this)-this.maxHp);this.armorUpgradeHp=(this.armorUpgradeHp||0)+added/scale;this.maxHp+=added;if(this.hp>0)this.hp=Math.min(this.maxHp,this.hp+added);break;}
+   case 'armor':{const scale=(this.bomberTransfer?.hp??1)*(this.upgrades?.loEmblem?.5:1),remaining=DURABILITY_BALANCE.maxBonusHp-(this.armorUpgradeHp||0),hp=Math.max(0,Math.min(DURABILITY_BALANCE.armorBonus[t],remaining)*scale),added=Math.min(hp,armorHullCap(this)-salamanderBaseHull(this));this.armorUpgradeHp=(this.armorUpgradeHp||0)+added/scale;this.maxHp+=added;if(this.hp>0)this.hp=Math.min(this.maxHp,this.hp+added);applySalamanderHull(this,{heal:true});break;}
    case 'regen':this.regen=Math.min(DURABILITY_BALANCE.regenCap,(this.regen||0)+DURABILITY_BALANCE.regenPerSecond[t]);break;
    case 'cooldown':this.cooldownMult=Math.max(.5,this.cooldownMult*(1-[.08,.12,.16][t]));break;
    case 'bomber':this.bomberLevel=Math.min(5,(this.bomberLevel||0)+1);this.bomberTimer=Math.min(this.bomberTimer??2,2);break;
@@ -322,7 +323,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
     }
    case 'immelmannManual':this.evadeCooldownMult=.5;this.evadeInvulnerability=1.05;this.evadeCooldown=Math.min(this.evadeCooldown,4);break;
    case 'motorCannon':this.motorCannon=true;this.motorCannonTimer=0;break;
-   case 'loEmblem':this.maxHp*=.5;this.hp=this.maxHp*ratio;this.addGunBonus(.50);this.explosiveBonus=(this.explosiveBonus||0)+.50;this.commandBonus=(this.commandBonus||0)+.50;this.commandRateBonus=(this.commandRateBonus||0)+.30;this.turn*=1.25;this.speed*=1.25;if(this.baseSpeed)this.baseSpeed*=1.25;break;
+   case 'loEmblem':this.maxHp*=.5;if(this.salamanderHullHp)this.salamanderHullHp*=.5;this.hp=this.maxHp*ratio;this.addGunBonus(.50);this.explosiveBonus=(this.explosiveBonus||0)+.50;this.commandBonus=(this.commandBonus||0)+.50;this.commandRateBonus=(this.commandRateBonus||0)+.30;this.turn*=1.25;this.speed*=1.25;if(this.baseSpeed)this.baseSpeed*=1.25;break;
    case 'sacredCowling':this.sacredCowling=true;break;
    case 'steelPlate':this.jArmorCapsule=true;this.speed*=.9;this.turn*=.9;if(this.baseSpeed)this.baseSpeed*=.9;break;
    case 'mauserAceKiller':this.mauserAceKiller=true;this.mauserTimer=.1;break;

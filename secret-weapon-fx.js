@@ -5,6 +5,9 @@ import {drawFlakAirburst} from './flak-airburst-art.js';
 import {drawIncendiaryFire} from './incendiary-fire.js';
 import {prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
 import {KETTERING_DIVE} from './secret-weapon-combat.js';
+import {hasSecretWeapon} from './secret-weapons.js';
+import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
+const SELECTED_ART=['le-prieur-mount','salamander-mount','siemens-halske-rotor'];
 
 const sprites=Object.create(null);
 let bombShadow,bugShadow,badinVortex,ketteringFrames;
@@ -18,7 +21,7 @@ function prepareKetteringFrames(image){
  };
 }
 export const secretWeaponArtReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all(
- ['sn1650','grunkreuz-stencil','kettering','ranken'].map(key=>new Promise(resolve=>{
+ ['sn1650','grunkreuz-stencil','kettering','ranken',...SELECTED_ART].map(key=>new Promise(resolve=>{
   const image=new Image();
   image.onload=()=>{
    sprites[key]=image;
@@ -51,6 +54,33 @@ function paint(c,key,x,y,w,h,a=0,alpha=1){
  c.imageSmoothingEnabled=true;c.drawImage(image,-w/2,-h/2,w,h);c.restore();
 }
 
+// The caller's existing aircraft transform supplies heading and bank.
+export function drawSecretAirframeHardware(c,p,scale,time){
+ if(!p.secretWeaponState?.slots)return;
+ const fit=p.bomberTransfer;
+ if(hasSecretWeapon(p,'lePrieurSalvo')){
+  const width=fit?.hullWidth?Math.min(1.7,fit.hullWidth/31):1;
+  for(const side of [-1,1])paint(c,'le-prieur-mount',5*scale,side*22*width,24*width,30*scale,Math.PI/2);
+ }
+ if(hasSecretWeapon(p,'salamanderArmor')){
+  const wear=p.secretWeaponState.effects.salamanderArmor?.wear||0;
+  const length=(fit?.hullLength??27)*.86,width=(fit?.hullWidth??25)*.68;
+  paint(c,'salamander-mount',5*scale,0,width,length,Math.PI/2,.88);
+  for(let i=0;i<Math.floor(wear*5);i++){
+   const side=i%2?1:-1;
+   fx(c,'ricochet',i*3.4,side*width*.38,5+i%3,2.7,side*(.3+i*.58),.45);
+  }
+ }
+ if(hasSecretWeapon(p,'siemensHalske')){
+  const state=p.secretWeaponState.effects.siemensHalske,load=state?.load||0;
+  // The crank is internal. The existing aircraft propeller remains the sole propeller.
+  c.save();c.translate(28*scale,0);c.scale(.32,1);
+  const spin=time*12+load*.45;
+  paint(c,'siemens-halske-rotor',0,0,16*scale,16*scale,spin,.68+load*.3);
+  c.restore();
+ }
+}
+
 export function secretBomberAirframe(faction){
  return faction==='central'?'bomber-transfer-gotha':'bomber-transfer-o400';
 }
@@ -62,7 +92,7 @@ function drawBadinVortex(c,x,y,a,side,size,phase,opacity){
   badinVortex=document.createElement('canvas');
   badinVortex.width=128;badinVortex.height=128;
   const g=badinVortex.getContext('2d');
-  g.filter='grayscale(1) brightness(1.6)';
+  g.filter='grayscale(1) brightness(2)';
   g.drawImage(source,0,0,128,128);
  }
  c.save();c.translate(x,y);c.rotate(a);
@@ -119,6 +149,13 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   if(b.life<=0)continue;
   if(b.secretWeapon==='sn1650'){drawStrategicFall(c,b,view,faction(b.ownerId));continue;}
   if(b.secretWeapon==='ketteringBug'){drawKettering(c,b,view);continue;}
+  if(b.secretWeapon==='puw50'){
+   if(visible(b.x,b.y,75)){
+    const fall=clamp(1-b.life/b.maxLife),a=Math.hypot(b.vx,b.vy)>1?Math.atan2(b.vy,b.vx):b.releaseAngle;
+    bombSprite(c,'puw',sx(b.x),sy(b.y),46*z*(1-.27*fall*fall),a,1,1-.34*fall*fall);
+   }
+   continue;
+  }
   if(!visible(b.x,b.y,120))continue;
   if(b.secretWeapon==='explosiveArmor'){
    const t=clamp(1-b.life/b.maxLife),a=b.releaseAngle;
@@ -136,6 +173,7 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   const a=Math.atan2(b.vy,b.vx),x=sx(b.x),y=sy(b.y);
   if(b.secretWeapon==='villarPerosa')fx(c,'bulletBrass',x,y,11*z,2.7*z,a,.94);
   else if(b.secretWeapon==='rankenExplosiveDarts')paint(c,'ranken',x,y,22*z,5.4*z,a);
+  else if(b.secretDavisRear)fx(c,'metalShard3',x,y,13*z,5*z,a+b.life*19,.9);
  }
  for(const cue of world.secretWeaponFx||[]){
   const age=now-cue.at,life=cue.life||.45;
@@ -151,6 +189,49 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    }
   };
   switch(cue.kind){
+  case 'lePrieurIgnition':
+   if(age<.115)forward('exhaust',-5-age*92,0,25+age*100,8,a,1-age/.115);
+   forward('smokeHeavy',-11-age*51,0,22+t*31,9+t*11,a,.74*fade);
+   if(age<.12)stamp('muzzle',2,0,19,9,a,1-age/.12);
+   break;
+  case 'lePrieurImpact': {
+   const r=cue.radius||56,frame=Math.min(3,Math.floor(age/.11));
+   stamp('airblast'+frame,0,0,r*(.77+t*.58),r*(.54+t*.41),a,Math.min(1,fade*1.7));
+   if(age<.28)spray(low?3:5,106,(i,h,dx,dy)=>stamp('fireFlash',dx,dy,9,5,h,1-age/.28));
+   if(age>.11)forward('smokeDark',9+t*13,0,r*(.45+t*.46),r*(.32+t*.27),a,.65*fade);
+   break;
+  }
+  case 'davisShot': {
+   if(age<.15)forward('muzzleHeavy',10,0,80,46,a,1-age/.15);
+   forward('gunSmoke',15-age*36,0,43+t*39,25+t*17,a,.69*fade);
+   const backX=sx(cue.rearX),backY=sy(cue.rearY);
+   if(age<.24)fx(c,'muzzleRear',backX,backY,49*z,20*z,a+Math.PI,1-age/.24);
+   fx(c,'smokePuff',backX-ca*(8+age*43)*z,backY-sa*(8+age*43)*z,(24+t*49)*z,(15+t*19)*z,a+Math.PI,.78*fade);
+   break;
+  }
+  case 'davisImpact':
+   if(age<.15)stamp(cue.armored?'armorSpark':'fireFlash',0,0,53,39,a,1-age/.15);
+   stamp(age<.11?'shellBurst0':age<.26?'shellBurst1':'shellBurst2',0,0,51+39*t,37+18*t,a,fade);
+   spray(low?3:6,118,(i,h,dx,dy)=>stamp('metalShard'+i,dx,dy,12,6,h+age*9));
+   break;
+  case 'salamanderImpact':
+   stamp('armorSpark',0,0,23+8*t,17,a,Math.min(1,fade*2));
+   spray(low?2:4,78,(i,h,dx,dy)=>stamp(i%2?'ricochet':'metalShard1',dx,dy,7,4,h+age*11));
+   break;
+  case 'puwDrop':
+   forward('metalShard2',-2,t*7,5,3,a+t*3,.66*fade);
+   break;
+  case 'puwImpact': {
+   const r=cue.radius||62;
+   if(age<.18)stamp('fireFlash',0,0,r*1.45,r*.83,a,1-age/.18);
+   if(age<.72)stamp('bombfx'+Math.min(3,Math.floor(age/.16)),0,0,r*(1.16+t),r*(.96+t*.58),a,1-age/.72);
+   stamp('dirtMix',0,3+r*t*.15,r*(.9+t),r*(.57+t*.61),a,.85*fade);
+   spray(low?3:6,r*1.8,(i,h,dx,dy)=>stamp('rockChunk'+i,dx,dy,11,7,h+t*6));
+   break;
+  }
+  case 'siemensReversal':
+   if(age<.18)forward('engineSmoke',16-age*32,0,15+age*26,8,a,.40*(1-age/.18));
+   break;
   case 'villarShot':
    if(age<.055)forward('muzzle',5,0,23,10,a,1-age/.055);
    forward('gunSmoke',5+age*36,0,19,9,a,.43*fade);
@@ -287,13 +368,13 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   }
   case 'badinWake':
   case 'wake': {
-   const strike=cue.kind==='wake',power=cue.power||0;
-   const size=(strike?42:30)+t*(33+power*20),rear=(strike?8:16)+t*29;
-   const opacity=Math.min(1,fade*1.6)*(strike?.90:.72);
+   const strike=cue.kind==='wake';
+   const size=(strike?40:45)+t*29,opacity=fade*(strike?1:.88);
+   if(strike&&age<.20)forward('vaporTrail',-12,0,52,21,a,1-age/.20);
    for(const side of [-1,1]){
-    const tip=side*(27+t*(11+power*8)),d=-rear+(side===1?5:-5);
-    forward('vaporTrail',d-24,tip+side*7,67+power*19,14+7*t,a-side*.20,opacity*.44);
-    drawBadinVortex(c,x+(ca*d-sa*tip)*z,y+(sa*d+ca*tip)*z,a,side,size*z,age*10.5,opacity);
+    const tip=side*((strike?13:27)+t*(strike?18:12)),d=(strike?0:-14)-t*19;
+    if(!strike)forward('vaporTrail',d-18,tip,83,17+t*7,a-side*.11,opacity*.62);
+    drawBadinVortex(c,x+(ca*d-sa*tip)*z,y+(sa*d+ca*tip)*z,a,side,size*z,age*13,opacity);
    }
    break;
   }

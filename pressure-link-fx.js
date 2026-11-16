@@ -1,7 +1,7 @@
 // Real suppression, firing and kill-link observations. No combat fields are written.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=b3bf991d11fc7798';
-import {drawHawkerLinkedTarget} from './hawker-linked-view.js?v=b3bf991d11fc7798';
-import {drawJacobsGunGas,drawJacobsHitDust,drawJacobsSuppressedFlow} from './jacobs-close-fire-fx.js?v=b3bf991d11fc7798';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {drawHawkerLinkedTarget} from './hawker-linked-view.js';
+import {drawJacobsGunGas,drawJacobsHitDust,drawJacobsSuppressedFlow} from './jacobs-close-fire-fx.js';
 export const PRESSURE_LINK_PILOTS=new Set(['jacobs','hawker']);
 const INSTALLED=Symbol.for('headon.pressure-link-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

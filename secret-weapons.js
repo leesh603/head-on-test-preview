@@ -1,3 +1,5 @@
+import {applySalamanderHull} from './secret-flight-fits.js';
+
 const recipe=(id,body,catalysts,ranks,extra,icon,ko,en,detail)=>Object.freeze({id,body,catalysts,ranks,extra,icon,ko,en,detail});
 export const SECRET_WEAPONS=Object.freeze([
  recipe('fokkerLeimberger',['quadLewis'],['maximBelt'],{GUN:5},{},'secret_fokker_leimberger_12barrel.webp','포커-라임베르거','Fokker–Leimberger',['쿼드 루이스의 사선에 고속 회전 기관총 탄류를 추가합니다.','Adds a high-speed rotary stream to the Quad Lewis firing lanes.']),
@@ -8,12 +10,17 @@ export const SECRET_WEAPONS=Object.freeze([
  recipe('fliegerpfeil',['cooperRack'],['flechettes'],{EXPLOSIVE:5},{},'secret_fliegerpfeil.webp','플리거파일 — 강철비','Fliegerpfeil — Steel Rain',['세 번째 쿠퍼 폭탄이 터지면 강철 화살이 사방으로 퍼집니다.','Every third Cooper bomb bursts into a radial spray of steel darts.']),
  recipe('grunkreuzBarrage',['grunkreuz'],['kaiserFog','cooperRack'],{EXPLOSIVE:4,SURVIVAL:3},{},'secret_grunkreuz_barrage.webp','그륀크로이츠 연막폭격','Grünkreuz Smoke Barrage',['적합한 폭격 지점의 가스가 넓어지고 연막이 함께 퍼집니다.','Compatible bomb impacts spread a larger gas cloud and concealment smoke.']),
  recipe('farnboroughFirechain',['fieryGrapnel'],['buckinghamBelt'],{SPEED:5,EXPLOSIVE:3},{},'secret_farnborough_firechain.webp','판버러 화염쇄','Farnborough Firechain',['화염 그래플넬의 케이블이 가까운 표적 최대 세 기를 잇습니다.','Extends the fiery grapnel to up to three nearby targets.']),
- recipe('badinBreakthrough',['badinGauge'],['mercedesEngine'],{SPEED:5},{},'secret_badin_breakthrough.webp','바댕 전속돌파','Badin Breakthrough',['직진 충전 후 고속 비행 경로의 적기에 후류 피해를 줍니다.','Charged high-speed flight damages aircraft along its wake.']),
+ recipe('badinBreakthrough',['badinGauge'],['mercedesEngine'],{SPEED:5},{},'secret_badin_breakthrough.webp','바댕 전속돌파','Badin Breakthrough',['고속 직진으로 좌우에 강한 후류를 남깁니다. 후류에 휘말린 적기가 피해를 받고 편대가 흐트러집니다.','Sustained high-speed flight leaves twin vortices that damage aircraft and disrupt formations.']),
  recipe('nesterovRam',['steelPlate'],[],{SURVIVAL:5,SPEED:3},{},'secret_nesterov_ram.webp','네스테로프 충각','Nesterov Ram',['고속 충돌로 적에게 피해를 주고 자신의 충돌 피해를 줄입니다.','High-speed rams damage the target and reduce collision damage to the pilot.']),
  recipe('explosiveArmor',['steelPlate'],['amatolCharge'],{SURVIVAL:5,EXPLOSIVE:3},{},'secret_explosive_armor.webp','폭렬장갑판','Explosive Armor',['유효 피격 시 소형 반격 폭탄 여섯 발을 방출합니다.','Releases six small counter-bombs after a damaging hit.']),
  recipe('villarPerosa',['mauserAceKiller'],['flightGloves'],{GUN:5},{},'secret_villar_perosa.webp','빌라르-페로사 M1915','Villar–Perosa M1915',['마우저와 별도로 가까운 적기에 쌍열 기관총을 점사합니다. 에이스를 우선하며 비행장갑 기동 중 더 빠르게 사격합니다.','Fires short twin-barrel bursts alongside the Mauser, prioritizing nearby aces. Bishop’s glove maneuver quickens the bursts.']),
  recipe('ketteringBug',['bomber'],['wimperisSight'],{EXPLOSIVE:5,FORMATION:3},{},'secret_kettering_bug.webp','케터링 버그','Kettering Bug',['폭격 지원에 맞춰 무인 복엽기를 보냅니다. 출격 때 조준한 지점으로 비행하다 날개를 떼고 충돌합니다.','Launches a pilotless biplane on a bombing call. It flies to a point fixed at launch, sheds its wings and crashes.']),
- recipe('rankenExplosiveDarts',['rankinShell'],['buckinghamBelt'],{SURVIVAL:4,GUN:3},{},'secret_ranken_darts.webp','랭킨 작렬 다트','Ranken Explosive Darts',['랭킨 파편탄의 발동 주기에 맞춰 후방 적기에 다트를 발사합니다. 명중한 다트는 시차를 두고 터지며 불을 붙입니다.','Fires a rearward fan on the Ranken shrapnel cycle. Embedded darts burst in sequence and ignite their targets.'])
+ recipe('rankenExplosiveDarts',['rankinShell'],['buckinghamBelt'],{SURVIVAL:4,GUN:3},{},'secret_ranken_darts.webp','랭킨 작렬 다트','Ranken Explosive Darts',['랭킨 파편탄의 발동 주기에 맞춰 후방 적기에 다트를 발사합니다. 명중한 다트는 시차를 두고 터지며 불을 붙입니다.','Fires a rearward fan on the Ranken shrapnel cycle. Embedded darts burst in sequence and ignite their targets.']),
+ recipe('lePrieurSalvo',['rockets'],['combinedProjectiles'],{EXPLOSIVE:5},{rockets:3},'secret_le_prieur.webp','르 프리외르 8연장 로켓','Le Prieur Eight-Rocket Salvo',['기존 로켓과 별도로 양 날개에서 8발을 차례로 점화합니다. 각 로켓은 발사 방향으로 곧게 날아갑니다.','Ignites eight wing-mounted rockets in succession on their own firing cycle. Each flies straight after launch.']),
+ recipe('davisRecoilless',['motorCannon'],['hytheCamera'],{EXPLOSIVE:5,GUN:3},{},'secret_davis.webp','데이비스 무반동포','Davis Recoilless Gun',['전방에 하이스 카메라가 분석한 표적이 있으면 중포를 발사합니다. 동시에 뒤로 분출된 반동상쇄물이 가까운 추격기를 타격합니다.','Fires a heavy shell at a forward target analyzed by the Hythe camera. Rear countershot can hit close pursuers.']),
+ recipe('salamanderArmor',['sparkPlug'],['steelPlate'],{SURVIVAL:5},{armor:3},'secret_salamander.webp','소프위드 TF.2 살라만더 장갑동체','Sopwith TF.2 Salamander Armored Fuselage',['최대 내구도를 높이고 증가분만큼 즉시 수리합니다. 비상수선키트의 주기적 수리가 늘어난 내구도에 비례해 회복합니다.','Raises maximum durability and immediately repairs the added amount. Periodic emergency repair scales with the larger hull.']),
+ recipe('puw50',['mines'],['prototypeAmmo'],{EXPLOSIVE:5},{mines:3},'secret_puw.webp','PuW 50 kg 항공폭탄','PuW 50 kg Aerial Bomb',['이동 중 비행 경로를 따라 폭탄을 연속 투하합니다. 각 폭탄은 놓인 위치와 속도에 따라 떨어집니다.','Drops a stick of bombs along the flight path. Each falls from its own release point with inherited velocity.']),
+ recipe('siemensHalske',['strutterAirbrake'],['immelmannManual'],{SPEED:5},{},'secret_siemens_halske.webp','지멘스-할스케 Sh.III 반전 로터리 엔진','Siemens–Halske Sh.III Counter-Rotary Engine',['일반 선회에서 속도 손실을 줄입니다. 반대쪽으로 연이어 선회하면 속도를 더 빨리 회복합니다.','Reduces speed loss in ordinary turns and recovers speed faster when reversing a sustained turn.'])
 ]);
 export const SECRET_WEAPON_BY_ID=Object.freeze(Object.fromEntries(SECRET_WEAPONS.map(r=>[r.id,r])));
 export const secretWeaponIcon=(r,faction)=>'./augmentation-icons-384/'+(typeof r.icon==='string'?r.icon:r.icon[faction]||r.icon.entente);
@@ -113,6 +120,7 @@ export function reconcileSecretWeapons(p,{announce=true}={}){
  for(const {recipe:r,body} of ready){
   state.slots[body]=r.id;
   if(r.id==='vickersPomPom')applySecretPomFit(p);
+  if(r.id==='salamanderArmor')applySalamanderHull(p,{heal:true});
   if(announce){
    (state.notices??={})[r.id]=(p.t||0)+1.2;
    p.event?.('secretWeaponEvolved',r.id);

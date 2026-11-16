@@ -9,11 +9,11 @@ export function updateRuralRailGround(g,{newMap=false}={}){
   if(newMap)g.ruralRailGround=null;
   if(!g.ruralRailGround&&g.viewWidth>0){
    const z=g.camera?.zoom||1,w=g.viewWidth/z,h=(g.viewHeight||700)/z;
-   const approachY=Math.round(g.y-Math.max(1800,h*.7+RURAL_TRACK_PITCH));
+   const approachY=Math.round(g.y-Math.max(4800,h*1.25+4*RURAL_TRACK_PITCH));
    // Place the continuous corridor outside the opening view; pilots can fly toward it.
    const trackHalfWidth=RURAL_TRACK_ART.cellWidth*92/(2*Math.min(...RURAL_TRACK_ART.gauges));
    const origin={x:Math.ceil(g.x+w/2+trackHalfWidth+64),y:approachY-Math.round(RURAL_TRACK_PITCH/2)};
-   g.ruralRailGround={ruralTrack:true,approachY,artOrigin:origin,axis:{x:0,y:1},railTarget:{...origin,radius:34},railHp:1,c:{railHp:1}};
+   g.ruralRailGround={ruralTrack:true,approachY,trackEndY:origin.y+4.5*RURAL_TRACK_PITCH,artOrigin:origin,axis:{x:0,y:1},railTarget:{...origin,radius:34},railHp:1,c:{railHp:1}};
   }
  }else g.ruralRailGround=null;
  holdRuralTrackArt(!!g.ruralRailGround);

@@ -33,7 +33,7 @@ export function arrivalFlightTurn(b,dt,desired,limit,speed,goal=speed,accel=0,de
  if(!(b.arrivalFlightGuard>0))return native;
  b.arrivalFlightGoal=goal;
  const poses=flightFrame(b),peers=poses.filter(q=>q.body!==b&&q.kind===b.kind&&Math.hypot(q.x-b.x,q.y-b.y)<1100);
- const [w,h]=b.kind==='gotha-raider'?[210,210]:[184,123];
+ const scale=b.regionalScale||1,w=(b.kind==='gotha-raider'?210:184)*scale,h=(b.kind==='gotha-raider'?210:184*2/3)*scale;
  const forecasts=peers.map(q=>lookahead.map(t=>predicted(q,q.rate,t,q.speed,q.goal,q.accel,q.decel)));
  let best=native,bestScore=Infinity,bestSafe=false;
  for(const rate of [native,-limit,-limit*.5,0,limit*.5,limit]){

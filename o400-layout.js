@@ -14,6 +14,13 @@ export const O400_LAYOUT=Object.freeze({
   'front-gun':{rx:7,ry:7},'rear-gun':{rx:7,ry:7},
   'bomb-bay':{rx:7,ry:8}
  }),
+ // Remaining outer silhouette measured from the authored severe state.
+ // Coordinates use unsigned lateral distance from the centerline.
+ // The microscopic spaces between ribs are inside the wing contact envelope.
+ severeWings:Object.freeze({
+  left:[[40,-36],[79,-38],[86,-34],[90,-30],[89,-24],[87,-23],[89,-20],[87,-17],[82,-14],[80,-9],[77,-6],[65,-5],[40,-4]],
+  right:[[40,-36],[80,-38],[83,-34],[87,-31],[90,-27],[90,-23],[89,-22],[90,-19],[87,-17],[83,-14],[80,-10],[77,-6],[65,-5],[40,-4]]
+ }),
  hulls:Object.freeze([
   [[-6,-57],[6,-57],[6,20],[4,49],[-4,49],[-6,20]],
   [[-90,-31],[-86,-37],[-7,-33],[7,-33],[86,-37],[90,-31],[90,-15],[85,-10],[7,-7],[-7,-7],[-85,-10],[-90,-15]],

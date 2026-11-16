@@ -1,7 +1,7 @@
-import {PANDEMONIUM_DEPLOYMENT,finalArenaBosses} from './pandemonium-registry.js?v=b3bf991d11fc7798';
-import {createFortressDefeatAudio} from './fortress-defeat-audio.js?v=b3bf991d11fc7798';
+import {PANDEMONIUM_DEPLOYMENT,finalArenaBosses} from './pandemonium-registry.js';
+import {createFortressDefeatAudio} from './fortress-defeat-audio.js';
 // Final-area original score controller. Existing BattleMusic preferences remain authoritative.
-import {createFortressAudio} from './fortress-audio.js?v=b3bf991d11fc7798';
+import {createFortressAudio} from './fortress-audio.js';
 const ROOT=new URL('./asset-bank/zero-district/audio/',import.meta.url);
 export const FINAL_ARENA_MUSIC=Object.freeze({entry:'zero-district-infiltration',battle:'pandemonium-battle',loopEnd:87.27271875,crossfade:2.7272727});
 export function createFinalArenaMusic({music,fetcher=globalThis.fetch?.bind(globalThis),document:doc=globalThis.document,sfxFactory=createFortressAudio,defeatFactory=createFortressDefeatAudio}={}){
@@ -41,7 +41,7 @@ export function createFinalArenaMusic({music,fetcher=globalThis.fetch?.bind(glob
    ch.sfx.setMuted(mute||!!options.sfxOff||!ready||isPaused||phase!=='battle'||collapsed);if(ready&&fortress)ch.sfx.update(fortress,options.dt||0);else ch.sfx.stop();
   }
   const desired=isActive&&!isPaused&&!bgmMute&&phase!=='victory'?FINAL_ARENA_MUSIC[phase]:null;
-  if(bus){const volume=Number.isFinite(music.volume)?Math.max(0,Math.min(1,music.volume)):1;bus.gain.setTargetAtTime(desired ? .25*volume : 0,ctx.currentTime,isPaused||bgmMute ? .015 : .15);}
+  if(bus){const volume=Number.isFinite(music.volume)?Math.max(0,Math.min(1,music.volume)):1;const gain=desired===FINAL_ARENA_MUSIC.battle ? .32 : desired ? .25 : 0;bus.gain.setTargetAtTime(gain*volume,ctx.currentTime,isPaused||bgmMute ? .015 : .15);}
   if(desired!==wanted){wanted=desired;serial++;pending=null;}
   if(!desired){silence(isActive&&phase!=='victory');if(!active){positions.clear();quiet=true;}return;}
   if(!ctx||ctx.state!=='running'||current?.id===desired||pending||Date.now()<retryAt)return;

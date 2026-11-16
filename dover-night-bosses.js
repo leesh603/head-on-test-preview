@@ -304,13 +304,15 @@ class DoverAircraft extends BaseBoss {
     let choices=[[nx,ny],[-nx,-ny]],best=null;for(const [dx,dy] of choices){const angle=Math.atan2(flowY+dy*205,flowX+dx*205),needed=exitDistance(Math.cos(angle),Math.sin(angle)),room=clearance(Math.cos(angle),Math.sin(angle)),valid=room>=needed+180,score=(valid?1e6:0)+room-needed-Math.abs(wrap(angle-this.a))*35;if(!best||score>best.score)best={dx,dy,score,valid,needed,angle};}
     if(!best?.valid){choices=[[1,0],[-1,0],[0,1],[0,-1]];for(const [dx,dy] of choices){const angle=Math.atan2(flowY+dy*205,flowX+dx*205),needed=exitDistance(Math.cos(angle),Math.sin(angle)),room=clearance(Math.cos(angle),Math.sin(angle)),valid=room>=needed+180,score=(valid?1e6:0)+room-needed-Math.abs(wrap(angle-this.a))*35;if(!best||score>best.score)best={dx,dy,score,valid,needed,angle};}}
     this.sortieDirectionX=best?.dx??nx;this.sortieDirectionY=best?.dy??ny;this.sortieSide=Math.sign(nx*this.sortieDirectionX+ny*this.sortieDirectionY)||1;this.sortieVX=flowX+this.sortieDirectionX*205;this.sortieVY=flowY+this.sortieDirectionY*205;if(Math.hypot(this.sortieVX,this.sortieVY)<90){this.sortieVX=this.sortieDirectionX*205;this.sortieVY=this.sortieDirectionY*205;}
-    this.sortieAngle=Math.atan2(this.sortieVY,this.sortieVX);this.sortieSpeed=clamp(Math.hypot(this.sortieVX,this.sortieVY),150,275);this.sortieDepartLimit=clamp(3+(best?.needed||0)/205+Math.abs(wrap(this.sortieAngle-this.a))/.42,7,12);this.phase='sortie-depart';this.holdBasic(18);this.command('phase-change',{phase:'sortie-depart'});return true;
+    this.sortieAngle=Math.atan2(this.sortieVY,this.sortieVX);this.sortieSpeed=clamp(Math.hypot(this.sortieVX,this.sortieVY),150,275);this.sortieDepartLimit=clamp(3+(best?.needed||0)/205+Math.abs(wrap(this.sortieAngle-this.a))/.42,7,12);this.phase='sortie-depart';this.holdBasic(1.2);this.command('phase-change',{phase:'sortie-depart'});return true;
   }
-  updateSortie(dt,bounds,worldBounds,turn,asymmetry){
+  updateSortie(dt,bounds,worldBounds,turn,asymmetry,players=[]){
     this.phaseClock+=dt;const returning=this.phase==='sortie-return';
     if(returning){const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,ex=cx-this.x,ey=cy-this.y,d=Math.max(1,Math.hypot(ex,ey)),closure=clamp(d*.72,175,240),vx=this.patrolFlowX+ex/d*closure,vy=this.patrolFlowY+ey/d*closure;this.sortieAngle=Math.atan2(vy,vx);this.sortieSpeed=clamp(Math.hypot(vx,vy),145,Math.hypot(this.patrolFlowX,this.patrolFlowY)>600?Math.hypot(this.patrolFlowX,this.patrolFlowY)+240:275);}
     const hiddenTurn=Math.max(turn,returning?3.6:.56),hiddenSpeed=this.hidden&&returning?Math.abs(wrap(this.sortieAngle-this.a))>.32?100:this.sortieSpeed:this.sortieSpeed;
     this.fly(dt,[],bounds,this.currentSpeed,hiddenTurn,asymmetry,this.sortieAngle,hiddenSpeed,worldBounds);
+    // Visible depart/return legs keep their surviving mounts live; the hidden carpet stays gun-quiet.
+    if(!this.hidden&&(this.combatTime||0)>=(this.basicHoldUntil||0))this.sortieGuns?.(dt,players);
     if(this.phase==='sortie-depart'){
       if(this.wholeOutside(bounds)){this.hidden=true;this.phase='sortie-hidden';this.phaseClock=0;this.sortieDropClock=0;this.command('phase-change',{phase:'sortie-hidden'});this.warnSortie(bounds,worldBounds);}
       else if(this.phaseClock>=(this.sortieDepartLimit||7)){this.phase='sortie-return';this.phaseClock=0;}
@@ -329,7 +331,7 @@ class DoverAircraft extends BaseBoss {
     this.sortieRunAngle=angle;this.sortieLaneCount=width>720?4:2;this.sortieRows=this.sortieLaneCount===4?this.sortieWideRows:this.sortieMobileRows;this.sortieBombCount=this.sortieRows*this.sortieLaneCount;
     // Forecast respects the finite camera chart, and rows follow the warned viewport axis.
     this.sortieCenterX=(bounds.left+bounds.right)/2+this.patrolFlowX*1.55;this.sortieCenterY=(bounds.top+bounds.bottom)/2+this.patrolFlowY*1.55;if(worldBounds){const mx=Math.max(worldBounds.inset||320,width/2+96),my=Math.max(worldBounds.inset||320,height/2+96);this.sortieCenterX=clamp(this.sortieCenterX,worldBounds.left+mx,worldBounds.right-mx);this.sortieCenterY=clamp(this.sortieCenterY,worldBounds.top+my,worldBounds.bottom-my);}const alongSpan=Math.min(width/Math.max(.001,Math.abs(Math.cos(angle))),height/Math.max(.001,Math.abs(Math.sin(angle))));this.sortieRowSpan=Math.max(260,alongSpan*.7);
-    this.command('dover-bomb-warning',{seconds:1.25,safeGap:80,angle,x:this.sortieCenterX,y:this.sortieCenterY,length:this.sortieRowSpan,rows:this.sortieRows,lanes:this.sortieLaneCount,count:this.sortieBombCount,sortie:true});
+    this.holdBasic(2.6);this.command('dover-bomb-warning',{seconds:1.25,safeGap:80,angle,x:this.sortieCenterX,y:this.sortieCenterY,length:this.sortieRowSpan,rows:this.sortieRows,lanes:this.sortieLaneCount,count:this.sortieBombCount,sortie:true});
   }
   sortieImpact(index,bounds,partIds,visual,radius,damage){
     const id=partIds[index%partIds.length],part=this.parts.get(id);if(!part||part.destroyed)return false;const dx=Math.cos(this.sortieRunAngle),dy=Math.sin(this.sortieRunAngle),nx=-dy,ny=dx,row=Math.floor(index/this.sortieLaneCount),laneIndex=index%this.sortieLaneCount,inner=radius+40,outer=Math.min((bounds.right-bounds.left)*.32,inner+165),lateral=this.sortieLaneCount===2?(laneIndex?-inner:inner):[-outer,-inner,inner,outer][laneIndex];
@@ -411,6 +413,11 @@ export class SupermarineNighthawk extends DoverAircraft {
     this.command('dover-cannon-warning',{partId:cannon.id,targetId:target.id,angle:lockedAim,seconds:1.35,safeGap:80,pattern:sweep?'cannon-sweep':'cannon-twin'});
     return true;
   }
+  sortieGuns(dt,players){
+    this.sortieGunClock=(this.sortieGunClock??.9)-dt;if(this.sortieGunClock>0)return;
+    const target=aliveAt(players,this.targetCursor),intent=this.alignIntent,avoid=this.avoidTarget,id=target&&['gun-left','gun-right'].find(id=>this.weaponSolution(id,target,false)),fired=id&&this.machineBurst(id,target,false);
+    this.alignIntent=intent;this.avoidTarget=avoid;this.sortieGunClock=fired?1.1:.2;
+  }
   hunt(dt,players,isIlluminated){
     // Live forward guns cover acquisition; an illuminated pilot still triggers
     // the stronger linked burst. Failed arcs never consume the firing beat.
@@ -442,7 +449,7 @@ export class SupermarineNighthawk extends DoverAircraft {
     this.viewBounds=bounds;this.refreshAcquisitionTargets(players,dt);this.updateOverlapResponse(dt,players);const disarmed=!this.weapons();if(disarmed)this.enterDisarmedFinish();else if(this.disabled())this.enterLastStand();
     const left=this.partAlive('engine-left')?0:1,right=this.partAlive('engine-right')?0:1,asymmetry=(left-right)*.12;
     this.easeSpeed(148*this.speedRatio(),30,dt);const turn=this.coreVulnerable||this.phase==='cannon-exit'||this.phase==='recovery-return'?Math.max(this.wings()===2?.5:.34,1.2):this.alignIntent?(this.wings()===2?1.2:.8):this.wings()===2?.5:.34,chart=mapBounds||worldBounds;
-    if(!disarmed&&this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateLightBombs(dt);this.updateSortie(dt,bounds,chart,turn,asymmetry);return;}
+    if(!disarmed&&this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateLightBombs(dt);this.updateSortie(dt,bounds,chart,turn,asymmetry,players);return;}
     this.fly(dt,players,bounds,this.currentSpeed,turn,asymmetry,null,null,chart);this.updateLightBombs(dt);
     if(disarmed){this.updateDisarmed(dt);return;}if(this.updateRecoveryReturn(bounds))return;
     if(this.phase==='cannon-exit')this.holdBasic(.5);
@@ -502,6 +509,7 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     if(this.beat===0&&this.phaseClock>=1.35){const target=this.selectTarget(players);let fired=false;for(let i=0;i<RVIII_GUNS.length&&!fired;i++)fired=this.turretBurst(RVIII_GUNS[(this.runSerial+1+i)%RVIII_GUNS.length],target,true,false);if(fired)this.beat=1;else{const id=RVIII_GUNS.find(id=>this.partAlive(id));if(id)this.weaponSolution(id,target);this.phaseClock=Math.min(this.phaseClock,1.4);}}
     if(this.beat&&this.phaseClock>=2.4){if(this.countKinds('payload'))this.beginBombRun(this.selectTarget(players),bounds);else this.enterRecovery();}
   }
+  sortieGuns(dt,players){this.bombingCover(dt,players);}
   bombingCover(dt,players){
     // The bomber keeps a real surviving mount on the pilot during its committed
     // bomb track. Do not steer the whole airframe or refill a destroyed gun arc.
@@ -539,7 +547,7 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     this.viewBounds=bounds;this.refreshAcquisitionTargets(players,dt);this.updateOverlapResponse(dt,players);const disarmed=!this.weapons();if(disarmed)this.enterDisarmedFinish();else if(this.disabled())this.enterLastStand();
     let left=0,right=0;for(const id of RVIII_LEFT_DRIVES)if(!this.partAlive(id))left++;for(const id of RVIII_RIGHT_DRIVES)if(!this.partAlive(id))right++;
     this.easeSpeed(112*this.speedRatio(),18,dt);const turn=this.coreVulnerable||this.phase==='bomb-exit'||this.phase==='recovery-return'?Math.max(this.wings()===2?.4:.28,1.2):this.alignIntent?(this.wings()===2?1.2:.8):this.wings()===2?.4:.28,asymmetry=(left-right)*.075,chart=mapBounds||worldBounds;
-    if(!disarmed&&this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateSortie(dt,bounds,chart,turn,asymmetry);return;}
+    if(!disarmed&&this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateSortie(dt,bounds,chart,turn,asymmetry,players);return;}
     const bombing=this.phase==='bomb-approach'||this.phase==='bomb-run';
     if(bombing)this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+.45);
     let heading=bombing?this.runAngle:null,speed=bombing?this.runGroundSpeed:null;

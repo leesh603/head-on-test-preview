@@ -65,11 +65,21 @@ function begin(g,m){
  return true;
 }
 
-function fireBattery(g,m,p){
+function fireBattery(g,m){
+ // Each valley's existing battery needs its own observers. Clearing a valley
+ // creates a real safe approach instead of weakening invisible guns globally.
+ const observers=m.alps.targets.filter(e=>e.hp>0&&!e.expired&&!e.mapResult);
+ let contact=null;
+ for(const p of g.players||[g])if(livePilot(p))for(const [group,source] of m.alps.batteries.entries()){
+  if(!observers.some(e=>e.group===group))continue;
+  const distance=Math.hypot(source.x-p.x,source.y-p.y);
+  if(distance<=1900&&(!contact||distance<contact.distance))contact={p,source,distance};
+ }
+ if(!contact){m.alps.nextAt=m.age+.5;return;}
+ const {p,source}=contact;
  const s=m.alps,lead=1.25,along=p.a??m.heading;
  const predicted=predictPilot({x:p.x,y:p.y,vx:Math.cos(along)*(p.speed||0),vy:Math.sin(along)*(p.speed||0)},lead);
  const point=offset(predicted,along,0,(s.salvo%2?-1:1)*s.down*34);
- const source=s.batteries.reduce((nearest,q)=>Math.hypot(q.x-p.x,q.y-p.y)<Math.hypot(nearest.x-p.x,nearest.y-p.y)?q:nearest);
  const gun={...source,a:0,fieldRegion:6,life:4,maxLife:4};
  configureAA(g,gun,66);
  (g.flakBursts??=[]).push(gun);
@@ -105,14 +115,15 @@ export function tickAlpsObservation(g,m){
  const p=(g.players||[g]).find(livePilot);
  m.task=[`적 관측 기구 ${s.down}/9기 격추`,`Enemy observation balloons down ${s.down}/9`];
  const salvoDelay=(SALVO_DELAY+s.down*DELAY_PER_LOSS).toFixed(1);
- m.detail=s.down?[`적 포격 오차 증가 · ${salvoDelay}초 간격`,`Enemy shell spread increased · ${salvoDelay}s between salvos`]:
-  ['세 계곡의 포병 관측망을 파괴하세요','Destroy the artillery observers in three valleys'];
+ const silenced=GROUPS.filter((_,group)=>s.targets.filter(e=>e.group===group&&e.mapResult==='down').length===3).length;
+ m.detail=s.down?[`계곡 포대 ${silenced}/3 제압 · 포격 ${salvoDelay}초 간격`,`Valley batteries silenced ${silenced}/3 · ${salvoDelay}s between salvos`]:
+  ['한 계곡의 3기를 모두 끊으면 해당 포대가 침묵합니다','Destroy all three observers in a valley to silence its battery'];
  const point=p||m.origin;
  const active=s.targets.filter(e=>!e.mapResult&&!e.expired).sort((a,b)=>Math.hypot(a.x-point.x,a.y-point.y)-Math.hypot(b.x-point.x,b.y-point.y));
  m.guides=active.slice(0,6).map(e=>({x:e.x,y:e.y,label:[`계곡 ${e.group+1} 관측 기구`,`Valley ${e.group+1} observer`],kind:'target'}));
  const following=s.reserve[0]?.group;
  if(following!==undefined&&m.guides.length<6)m.guides.push({...offset(m.origin,m.heading,VALLEY_APPROACH[following],GROUPS[following][1]),label:[`계곡 ${following+1} 진입로`,`Valley ${following+1} approach`],kind:'target'});
  if(s.down===9)return {success:true,reason:['적 포병 관측망 섬멸','Enemy artillery observation network destroyed']};
- if(p&&s.down<9&&m.age>=s.nextAt)fireBattery(g,m,p);
+ if(p&&s.down<9&&m.age>=s.nextAt)fireBattery(g,m);
  return null;
 }

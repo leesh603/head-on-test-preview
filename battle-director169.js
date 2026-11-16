@@ -1,12 +1,13 @@
-import {arrivalViewport} from './enemy-arrivals.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {facilityPlan} from './ground-facility-missions.js?v=map-victory-f1e15a1f-20261110';
-import {transportConvoyActive} from './transport-convoy.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {photoReconActive} from './photo-recon-encounters.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {intrusionActive} from './intrusion-bosses.js?v=earned-rewards-7ccfad1b-20261114';
-import {momentumCombatTarget} from './ace-momentum.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=map-visual-9169b9aa-20261111';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {BATTLE_DAMAGE_BALANCE} from './battle-damage.js';
+import {arrivalViewport} from './enemy-arrivals.js';
+import {facilityPlan} from './ground-facility-missions.js';
+import {transportConvoyActive} from './transport-convoy.js';
+import {photoReconActive} from './photo-recon-encounters.js';
+import {intrusionActive} from './intrusion-bosses.js';
+import {momentumCombatTarget} from './ace-momentum.js';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
 
 export const FLIGHT_SUCCESSION=Object.freeze({deputyShock:1.2,deputyFor:4});
 export const FLIGHT_ALARM=Object.freeze({hitWindow:.5,range:300,cone:.3,react:.25,stagger:.12,memory:3});
@@ -81,8 +82,7 @@ function choosePattern(game,state){
 function rearThreat(p,e){
  if(!visibleContact(p)||!Number.isFinite(p.a))return false;
  const range=Math.hypot(p.x-e.x,p.y-e.y);
- return range>=70&&range<=420&&(p.tailLocked&&p.tailTargetId===e.tailId&&e.tailId!=null||
-  Math.abs(angleDiff(Math.atan2(e.y-p.y,e.x-p.x),p.a))<.6&&Math.abs(angleDiff(Math.atan2(p.y-e.y,p.x-e.x),e.a+Math.PI))<.95);
+ return range>=70&&range<=420&&Math.abs(angleDiff(Math.atan2(e.y-p.y,e.x-p.x),p.a))<.6&&Math.abs(angleDiff(Math.atan2(p.y-e.y,p.x-e.x),e.a+Math.PI))<.95;
 }
 const supportAlive=e=>!e.expired&&!e.carrierHidden&&(e.hp>0||e.hp==null&&e.life>0);
 export function directorTacticalWeights(game){
@@ -449,7 +449,7 @@ function updateFighterRoles(game,squad,living,now){
 
 function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
  const squad=e.directorSquad,now=game.t||0;
- if(squad?.tactic!=='headOn'||squad.circle&&!squad.passActive||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
+ if(e.battleCoverContact&&e.battleCoverUntil>now||squad?.tactic!=='headOn'||squad.circle&&!squad.passActive||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
  if(e.directorBeat!=='attack'&&(!e.directorChoreographyDone||![S.APPROACH,S.REPOSITION].includes(e.combatPassState)))return result;
  // After the first real shot, retain the pass direction. Turning out of its nose
  // creates the existing Break/re-entry opening instead of a homing attack.
@@ -992,7 +992,15 @@ function tickDirector(game,dt){
 
 export function directorCombatTarget(game,e,contact){
  const players=game.players||[game],chosen=e.directorRoleTarget||e.directorSquad?.target;
- // Keep ghosts, patrols, decoys, partial-cloud contacts and regional concealment.
+ if(e.battleCoverContact){
+  const cover=e.battleCoverContact,protectedAircraft=e.battleCoverProtected;
+  const rescueRelevant=!protectedAircraft||protectedAircraft.hp>0&&!protectedAircraft.expired&&!protectedAircraft.crashing&&Math.hypot(cover.x-protectedAircraft.x,cover.y-protectedAircraft.y)<=BATTLE_DAMAGE_BALANCE.coverRange;
+  if(rescueRelevant&&e.battleCoverUntil>(game.t||0)&&players.includes(cover)&&visibleContact(cover)&&game.patrolCanEngage(e,cover)){
+   if(visibleContact(contact)&&(players.includes(contact)||(game.patrols||[]).includes(contact)))return cover;
+  }else{e.battleCoverContact=null;e.battleCoverProtected=null;e.battleCoverTargetId=null;e.battleCoverUntil=0;}
+ }
+ // Outside an active rescue, keep patrol priorities; ghosts, decoys and
+ // partial-cloud contacts always retain the existing concealment path.
  if(!e.directorSquad||e.directorSquad.broken||!contact||contact.fogHidden||!players.includes(contact)||!players.includes(chosen)||chosen.hp<=0||chosen.status==='downed'||chosen.ballCloak>0||chosen.kaiserFogTime>0||(chosen.cloudConceal||0)>0)return momentumCombatTarget(game,e,contact);
  return momentumCombatTarget(game,e,regionalCombatTarget(game,e,chosen));
 }
@@ -1005,7 +1013,7 @@ export function installBattleDirector(Game,deps={}){
  Game.prototype.maintainEnemyFormations=function(){return maintainFormations(this)};
  Game.prototype.breakEnemyFormation=function(e,duration){const world=this.combatWorld?.()||this;if(e?.eliteKind)return world.eliteEnemies?.disruptFormation?.(e,duration)||false;return breakFormation(world,e,duration)};
  const steering=Game.prototype.dogfightSteering;
-  Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};const result=tacticalRest(e,this.t||0)?{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.8}:e?.defensivePressure||ordinaryFighter(e)&&(this.patrols||[]).includes(contact)?steering.call(this,e,contact,dt,baseTurn):circleSteering(this,e,contact,baseTurn)||escortSteering(this,e,contact,baseTurn)||baitAmbushSteering(this,e,contact,baseTurn,angleDiff,fighterAim)||choreographySteering(this,e,contact,baseTurn)||intentSteering(this,e,contact,dt,baseTurn)||squadSteering(this,e,contact,dt,baseTurn)||steering.call(this,e,contact,dt,baseTurn);return regionalSteering(this,e,contact,baseTurn,fighterRoleSteering(this,e,contact,dt,baseTurn,result))};
+  Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};const result=tacticalRest(e,this.t||0)?{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.8}:e?.defensivePressure||e?.battleCoverContact&&e.battleCoverUntil>(this.t||0)||ordinaryFighter(e)&&(this.patrols||[]).includes(contact)?steering.call(this,e,contact,dt,baseTurn):circleSteering(this,e,contact,baseTurn)||escortSteering(this,e,contact,baseTurn)||baitAmbushSteering(this,e,contact,baseTurn,angleDiff,fighterAim)||choreographySteering(this,e,contact,baseTurn)||intentSteering(this,e,contact,dt,baseTurn)||squadSteering(this,e,contact,dt,baseTurn)||steering.call(this,e,contact,dt,baseTurn);return regionalSteering(this,e,contact,baseTurn,fighterRoleSteering(this,e,contact,dt,baseTurn,result))};
  Game.prototype.directorBomberSteering=function(e,contact,dt,baseTurn){
   if(e.type!=='bomber'||!regionalAircraftEligible(e)||!e.directorRouteOrigin||this.mode==='campaign'||scriptedBoss(this))return null;
   const heading=tacticalRest(e,this.t||0)?e.combatPassHeading:['evade','exit'].includes(e.directorBomberMode)?e.directorBomberHeading:e.directorRouteHeading;

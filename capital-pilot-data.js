@@ -1,4 +1,4 @@
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=b3bf991d11fc7798';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
 
 // Capital-clear rewards are player identities, not additions to the random ace pool.
 // Their airframes are installed by the common pilot-aircraft registry immediately after this.

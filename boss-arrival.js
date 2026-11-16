@@ -62,7 +62,7 @@ function formationArrival(encounter,bodies,frame){
  for(const b of bodies){
   const group=Math.floor(b.slot/3),slot=b.slot%3;
   // Lead + two trailing wings; later flights follow the same lane.
-  const side=slot===0?0:slot===1?-lateral:lateral,forward=140-(slot===0?0:trail)-group*flightGap;
+  const scale=b.regionalScale||1,side=(slot===0?0:slot===1?-lateral:lateral)*scale,forward=140-((slot===0?0:trail)+group*flightGap)*scale;
   b.x=cx+rx*side+fx*forward;b.y=cy+ry*side+fy*forward;
   b.a=heading;b.arrivalFlightGuard=true;b.rotateMounts?.();
  }
@@ -143,14 +143,20 @@ export function tickBossArrival(addon,encounter,dt,frame){
  for(const body of encounter.bodies.values()){
   body.arrivalAge+=dt;
   const q=clamp((body.arrivalAge-body.arrivalHold)/body.arrivalDuration),ease=bossArrivalProgress(body),path=body.arrivalPath;
-  body.x=path.x+path.dx*(1-ease);body.y=path.y+path.dy*(1-ease);
+  const x=path.x+path.dx*(1-ease),y=path.y+path.dy*(1-ease);
+  if(body.leftTrack&&['a7v-flak','mark-v-cruiser'].includes(body.kind)){
+   const distance=Math.hypot(x-body.x,y-body.y);
+   body.arrivalTreadRoll=(body.arrivalTreadRoll||0)+distance/(body.t?.geometryScale||1);
+   body.arrivalTreadSpeed=distance/Math.max(.001,dt);
+  }
+  body.x=x;body.y=y;
   if(body.support129){body.support129.x=body.x;body.support129.y=body.y;}
   if(q<1-1e-8)pending=true;
  }
  if(pending)return true;
  encounter.arrivalPending=false;
  for(const body of encounter.bodies.values()){
-  body.arrivalPending=false;delete body.arrivalPath;
+  body.arrivalPending=false;delete body.arrivalPath;delete body.arrivalTreadSpeed;
   // The rendered fly-in has already provided the Leviathan's warning window.
   if(body.kind==='final-leviathan')body.entryLeft=Math.min(body.entryLeft,.55);
  }

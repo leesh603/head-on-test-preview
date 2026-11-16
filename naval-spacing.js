@@ -1,7 +1,7 @@
-import {submarineLayouts} from './submarine-layouts.js?v=b3bf991d11fc7798';
-import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=b3bf991d11fc7798';
-import {maritimeLayouts} from './maritime-intrusion-layouts.js?v=b3bf991d11fc7798';
-import {maritimeRaiderLayouts} from './maritime-raider-layouts.js?v=b3bf991d11fc7798';
+import {submarineLayouts} from './submarine-layouts.js';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
+import {maritimeLayouts} from './maritime-intrusion-layouts.js';
+import {maritimeRaiderLayouts} from './maritime-raider-layouts.js';
 export function fleetHull(e){return{x:e.x,y:e.y,w:(e.hullWidth||40)*2,h:(e.hullLength||150)*2,yaw:(e.a||0)+Math.PI/2};}
 export function surfaceTraffic(g){return [...(g.enemies||[]),...(g.friendlyShips||[])].filter(e=>e.movingShip&&e.hp>0&&!e.expired);}
 export function surfaceBosses(g){
@@ -35,7 +35,7 @@ const shortAngle=a=>Math.atan2(Math.sin(a),Math.cos(a));
 /** Swept SAT with rotation. Sampling interval bounds corner travel to <= 2px;
  * its 2px envelope conservatively closes the interval between samples. */
 export function sweptHullOverlap(a,z,b,pad=18,bz=b){const da=shortAngle(z.yaw-a.yaw),db=shortAngle(bz.yaw-b.yaw),travel=Math.hypot(z.x-a.x,z.y-a.y)+Math.abs(da)*Math.hypot(a.w,a.h)/2+Math.hypot(bz.x-b.x,bz.y-b.y)+Math.abs(db)*Math.hypot(b.w,b.h)/2,steps=Math.max(1,Math.ceil(travel/2));for(let i=0;i<=steps;i++){const t=i/steps,A={...a,x:a.x+(z.x-a.x)*t,y:a.y+(z.y-a.y)*t,yaw:a.yaw+da*t},B={...b,x:b.x+(bz.x-b.x)*t,y:b.y+(bz.y-b.y)*t,yaw:b.yaw+db*t};if(hullOverlap(A,B,pad+2))return true;}return false;}
-export function submarineObstacles(g,e){const list=surfaceTraffic(g).map(s=>fleetHull(s));for(const b of g.stageBoss?.stages?.encounter?.bodies?.values?.()||[]){if(b.dead)continue;const h=bossHullRect(b);if(h)list.push(h);}return list;}
+export function submarineObstacles(g,e){const list=surfaceTraffic(g).map(s=>fleetHull(s));if(e.operationOwned)for(const s of g.operationBattle?.naval?.ships||[])if(s.hp>0)list.push(fleetHull(s));for(const b of g.stageBoss?.stages?.encounter?.bodies?.values?.()||[]){if(b.dead)continue;const h=bossHullRect(b);if(h)list.push(h);}return list;}
 /** Commit only a clear next pose. Blocking slows/turns the moving submarine,
  * never pushes another vessel or teleports the contact to a different lane. */
 export function guardSubmarineMovement(g,e,previous){if(!submarineLayouts[e?.profileId])return true;const a=submarineHull(e,previous),z=submarineHull(e),obstacles=submarineObstacles(g,e),hit=obstacles.find(b=>sweptHullOverlap(a,z,b));if(!hit){e.naval.spacingBlocked=false;return true;}

@@ -157,7 +157,7 @@ export function installDogfightPass(Game,angleDiff){
     e.directorIntentUntil=0;e.directorEscort=null;
     setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,2.4);
     e.combatPassHeading=e.a+(e.combatPassSide||1)*.7;
-   }else if(!(this.patrols||[]).includes(contact)&&!e.defensivePressure&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&!e.directorRole&&!e.directorSquad?.passActive&&this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)
+   }else if(!(this.patrols||[]).includes(contact)&&!e.defensivePressure&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&!e.directorRole&&!e.directorSquad?.passActive&&this.battleDirector&&this.battleDirector.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)
     // In gun range a skilled wingman stops flying station and fights; novices stay on their leader.
     &&!(e.battleCoverUntil>(this.t||0))
     &&!(skilled(e)&&ordinaryFighter(e)&&contact&&(contact===this||this.players?.includes?.(contact))&&Math.hypot(contact.x-e.x,contact.y-e.y)<FIGHTER_AGGRESSION.peelRange)){
@@ -165,8 +165,9 @@ export function installDogfightPass(Game,angleDiff){
    }
   }
   if(e?.directorFireHoldUntil>this.t)return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.5};
-  const directed=e?.directorIntentUntil>(this.t||0)&&!e.defensivePressure&&directorAircraftEligible(this,e);
-  if(e?.directorIntentUntil&&!directed){e.directorIntentUntil=0;e.directorEscort=null;e.combatPassTimer=0}
+  const hasIntent=e?.directorIntentUntil>(this.t||0)&&directorAircraftEligible(this,e);
+  const directed=hasIntent&&!e.defensivePressure&&!(e.battleCoverUntil>(this.t||0));
+  if(e?.directorIntentUntil&&!hasIntent){e.directorIntentUntil=0;e.directorEscort=null;e.combatPassTimer=0}
   if(directed&&contact&&baseTurn>0&&(e.type==='bomber'||e.directorLayout==='recovery'))
    return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*(e.directorLayout==='recovery'?.8:.16)};
   if(!eligible(this,e)){if(e?.combatPassState)clearState(e);return steer.call(this,e,contact,dt,baseTurn)}
@@ -193,7 +194,12 @@ export function installDogfightPass(Game,angleDiff){
     e.combatPassHeading=ordinaryFighter(e)?fighterAim(this,e,contact):bearing;e.combatPassSide=Math.sign(delta)||1;
     setState(e,DOGFIGHT_PASS_STATES.ATTACK_PASS,DOGFIGHT_PASS_BALANCE.attackPassDuration);
    }
-   return{...result,turn:result.turn*clamp(.9+(p.pursuitControl-1)*.25,.82,1.08)};
+   // Rescue and distant rear re-entry use the existing reposition envelope.
+   // Legacy rear-pursuit damping cannot turn back within the rescue window.
+   const cover=e.battleCoverContact===contact&&e.battleCoverUntil>(this.t||0)&&!e.defensivePressure;
+   const reacquire=ordinaryFighter(e)&&(contact===this||this.players?.includes?.(contact))&&!contact.fogHidden&&!(contact.ballCloak>0)&&!(contact.kaiserFogTime>0)&&!(contact.cloudConceal>0)&&!e.defensivePressure&&(!e.personalityManeuver||e.personalityManeuver==='REATTACK')&&distance>clamp(p.preferredRange*1.35+100,310,470)&&Math.abs(entryDelta)>1.4;
+   const turn=cover||reacquire?baseTurn*clamp(.82+(p.highSpeedHandling-1)*.2,.68,1):result.turn*clamp(.9+(p.pursuitControl-1)*.25,.82,1.08);
+   return{...result,turn};
   }
 
   // Once a directed nose-to-nose pass has crossed, enter the existing Break

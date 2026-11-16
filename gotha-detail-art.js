@@ -1,14 +1,19 @@
-import {fx} from './fx-art.js?v=b3bf991d11fc7798';
-import {gothaCrashPose} from './aircraft-crash.js?v=b3bf991d11fc7798';
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=b3bf991d11fc7798';
+import {fx} from './fx-art.js?v=tame3';
+import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
+import {CITY_BOMBER_GUN_REACH} from './city-bomber-flight.js';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
 export const GOTHA_DETAIL_SOURCES=Object.freeze({
  hull:'./gotha-runtime-hull-20261031.webp?v=natural-flight20261031',
  parts:'./boss-alps-hardware-20261020.webp?v=muted1',guns:'./boss-mark1-guns-r3.webp'
 });
+const WING_SOURCES={
+ wingModerate:'./gotha-wing-damage-moderate-20261115.webp',
+ wingSevere:'./gotha-wing-damage-severe-20261115.webp'
+};
 let images={},pending;
 export function prepareGothaDetailArt(){
  if(pending)return pending;
- pending=Promise.all(Object.entries(GOTHA_DETAIL_SOURCES).map(([key,url])=>new Promise(resolve=>{
+ pending=Promise.all(Object.entries({...GOTHA_DETAIL_SOURCES,...WING_SOURCES}).map(([key,url])=>new Promise(resolve=>{
   const im=new Image();images[key]=im;im.decoding='async';
   im.onload=()=>Promise.resolve(im.decode?.()).catch(()=>{}).then(()=>resolve(im));
   im.onerror=()=>resolve(im);im.src=url;
@@ -18,12 +23,12 @@ export function releaseGothaDetailArt(){images={};pending=null;}
 export function gothaDetailReady(){return Object.keys(GOTHA_DETAIL_SOURCES).every(k=>images[k]?.naturalWidth>0);}
 export const gothaPartState=(p,dead=false)=>dead||p?.destroyed?2:p?.hp<p?.maxHp*.55?1:0;
 export function gothaPartLocal(b,p){
- const a=(b.a||0)+Math.PI/2,c=Math.cos(a),s=Math.sin(a);
- return{x:p.x*c+p.y*s,y:-p.x*s+p.y*c};
+ const a=(b.a||0)+Math.PI/2,c=Math.cos(a),s=Math.sin(a),scale=b.regionalScale||1;
+ return{x:(p.x*c+p.y*s)/scale,y:(-p.x*s+p.y*c)/scale};
 }
-function tile(c,index,x,y,size,pivot=[96,96]){
+function tile(c,index,x,y,size,pivot=[96,96],atlas=images.parts){
  const k=size/192;
- c.drawImage(images.parts,index%3*192,Math.floor(index/3)*192,192,192,x-pivot[0]*k,y-pivot[1]*k,size,size);
+ c.drawImage(atlas,index%3*192,Math.floor(index/3)*192,192,192,x-pivot[0]*k,y-pivot[1]*k,size,size);
 }
 function engine(c,p,x,y,time,phase,dead=false){
  const state=gothaPartState(p,dead),pivot=[[114,100],[97,100],[80,100]][state];
@@ -31,64 +36,79 @@ function engine(c,p,x,y,time,phase,dead=false){
  // The pusher disc is edge-on from above. A destroyed engine holds its blade.
  if(state===2)c.rotate(.2+phase*.1);else c.scale(.2+.8*Math.abs(Math.cos(time*41+phase)),1);
  tile(c,14,0,0,32,[88,87]);c.restore();tile(c,state,x,y,38.4,pivot);
- if(state===2){fx(c,'fireEngine',x,y,22,28,0,.7);fx(c,'smokeDark',x,y-23,35,45,0,.5);}
+ if(state===2){fx(c,'smokeTrail',x,y+30,25,62,Math.PI/2,.58);fx(c,'fireEngine',x,y,22,28,0,.72);}
  else if(state===1)fx(c,'smokeTrail',x,y+22,18,38,Math.PI/2,.45);
 }
-function bay(c,b,p,x,y){
- if(p.destroyed){tile(c,11,x,y,21,[80,96]);return;}
- if(p.hp<p.maxHp*.55){tile(c,10,x,y,21,[97,96]);fx(c,'smokeDark',x,y+14,16,24,0,.28);return;}
- const q=Math.max(0,Math.min(1,b.bayOpen||0)),k=21/192;
- tile(c,10,x,y,21,[97,96]);
- // Only the two authored leaves move; the open interior and hinge frame stay.
+export function drawCityBomberBay(c,atlas,b,p,x,y,size){
+ const pivot=[97,96],q=Math.max(0,Math.min(1,b.bayOpen||0)),k=size/192;
+ if(p.destroyed){tile(c,11,x,y,size,[80,96],atlas);return;}
+ if(q>0)tile(c,10,x,y,size,pivot,atlas);
+ // Original painted leaves move around their own hinge line. The rack stays bound to the fuselage.
  for(const side of [-1,1]){
-  const sx=side<0?56:114,hinge=(side<0?56:172)-114;
-  c.save();c.translate(x+hinge*k+side*q*4,y);c.scale(1-q*.72,1);
-  c.drawImage(images.parts,sx,576+32,58,136,(sx-114-hinge)*k,(32-96)*k,58*k,136*k);c.restore();
+  const sx=side<0?24:96,hinge=(side<0?24:168)-pivot[0];
+  c.save();c.translate(x+hinge*k+side*q*2,y);c.scale(1-q*.72,1);
+  c.drawImage(atlas,sx,576+7,72,178,(sx-pivot[0]-hinge)*k,(7-pivot[1])*k,72*k,178*k);c.restore();
  }
+ if(p.hp<p.maxHp*.55)fx(c,'smokeDark',x,y+14,16,24,0,.28);
 }
 function rearGun(c,b,p,x,y){
- const f=SOMME_FRAMES['mark1-gun-mg-'+['normal','damaged','wreck'][gothaPartState(p)]],k=5/f.reach;
+ const f=SOMME_FRAMES['mark1-gun-mg-'+['normal','damaged','wreck'][gothaPartState(p)]],k=CITY_BOMBER_GUN_REACH/f.reach;
  c.save();c.translate(x,y);c.rotate((p.aimAngle??((b.a||0)+(p.id==='front-gun'?0:Math.PI)))-(b.a||0));
  c.drawImage(images.guns,...f.rect,-f.pivot[0]*k,-f.pivot[1]*k,f.rect[2]*k,f.rect[3]*k);c.restore();
- if(p.destroyed)fx(c,'smokeDark',x,y-15,24,29,0,.35);
- else if(p.gunFlash>0)fx(c,'muzzle',x,y,12,20,(p.aimAngle??b.a)-b.a,Math.min(1,p.gunFlash/.12));
+ if(p.destroyed)fx(c,'smokeDark',x,y+10,18,24,0,.35);
+ else if(p.gunFlash>0){
+  const angle=(p.aimAngle??b.a)-b.a;
+  fx(c,'muzzle',x+Math.sin(angle)*CITY_BOMBER_GUN_REACH,y-Math.cos(angle)*CITY_BOMBER_GUN_REACH,10,16,angle,Math.min(1,p.gunFlash/.12));
+ }
 }
-function wingRects(c,side){
+function wingPatch(side){
+ const k=210/1254;
+ return {x:(side==='left'?0:854)*k-105,y:286*k-105,w:400*k,h:410*k};
+}
+function wingArt(b,side){
+ const stage=b.wingDamage?.[side]?.stage;
+ return stage===2?images.wingSevere:stage===1?images.wingModerate:null;
+}
+function legacyWingClip(c,side){
  const x=side==='left'?-105:38;
  c.rect(x,-56,67,37);c.rect(x,-15,67,25);
 }
-function drawGothaHull(c,b,legacy,crash){
- // Keep torn panels through the first crash frame and authored wreck crossfade.
- const wings=legacy?.naturalWidth?b.wingDamage:null;
+function drawGothaHull(c,b,legacy){
  c.save();
- for(const side of ['left','right'])if(wings?.[side]?.stage===2){
-  c.beginPath();c.rect(-105,-105,210,210);wingRects(c,side);c.clip('evenodd');
+ for(const side of ['left','right']){
+  const im=wingArt(b,side),stage=b.wingDamage?.[side]?.stage;
+  if(!im?.naturalWidth&&!(stage===2&&legacy?.naturalWidth))continue;
+  c.beginPath();c.rect(-105,-105,210,210);
+  if(im?.naturalWidth){const q=wingPatch(side);c.rect(q.x,q.y,q.w,q.h);}
+  else legacyWingClip(c,side);
+  c.clip('evenodd');
  }
  c.drawImage(images.hull,-105,-105,210,210);c.restore();
- if(!wings)return;
  for(const side of ['left','right']){
-  const w=wings[side];if(!(w?.stage>0))continue;
-  c.save();c.beginPath();wingRects(c,side);c.clip();c.globalAlpha*=w.stage===2?1:.48;
-  // Reuse the registered authored Gotha wreck only on the struck outboard
-  // panels. Never replace its engines, cockpit, bomb bay or complete airframe.
-  c.drawImage(legacy,legacy.naturalWidth/2,0,legacy.naturalWidth/2,legacy.naturalHeight,-105,-105,210,210);
-  c.restore();
+  const im=wingArt(b,side),w=b.wingDamage?.[side];
+  if(im?.naturalWidth){const q=wingPatch(side),sw=im.naturalWidth/2;c.drawImage(im,side==='left'?0:sw,0,sw,im.naturalHeight,q.x,q.y,q.w,q.h);}
+  else if(w?.stage>0&&legacy?.naturalWidth){
+   const sw=legacy.naturalWidth/2;
+   c.save();c.beginPath();legacyWingClip(c,side);c.clip();c.globalAlpha*=w.stage===2?1:.48;
+   c.drawImage(legacy,sw,0,sw,legacy.naturalHeight,-105,-105,210,210);c.restore();
+  }
+  if(w?.hitFlash>0)fx(c,'armorSpark',side==='left'?-68:68,-34,18,18,0,Math.min(1,w.hitFlash/.12));
  }
- for(const side of ['left','right'])if(wings[side]?.hitFlash>0)fx(c,'armorSpark',side==='left'?-68:68,-34,18,18,0,Math.min(1,wings[side].hitFlash/.12));
 }
 export function drawDetailedGotha(c,b,legacy){
  if(!gothaDetailReady())return false;
  const crash=b.destroying?gothaCrashPose(b,b.destructionAge,b.destructionDuration):null,mix=crash&&legacy?.naturalWidth?crash.wreckMix:0;
  c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??((b.a||0)+Math.PI/2));c.imageSmoothingEnabled=true;
+ const scale=b.regionalScale||1;if(scale!==1)c.scale(scale,scale);
  if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
  // Crossfade into the registered, authored wreck instead of swapping skins
  // on the first defeat frame. Keep the detailed plane if that atlas is absent.
  c.save();c.globalAlpha*=1-mix;
- drawGothaHull(c,b,legacy,crash);
+ drawGothaHull(c,b,legacy);
  for(const p of b.parts||[]){
   const {x,y}=gothaPartLocal(b,p);
   if(p.id.startsWith('engine-'))engine(c,p,x,y,b.motionTime||0,p.id==='engine-left'?0:1.7,!!crash);
-  else if(p.id==='bomb-bay')bay(c,b,p,x,y);
+  else if(p.id==='bomb-bay')drawCityBomberBay(c,images.parts,b,p,x,y,21);
   else if(p.id==='rear-gun'||p.id==='front-gun')rearGun(c,b,p,x,y);
   if(p.hitFlash>0)fx(c,'armorSpark',x,y,18,18,0,Math.min(1,p.hitFlash/.12));
  }

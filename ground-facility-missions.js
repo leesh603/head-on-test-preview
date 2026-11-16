@@ -1,6 +1,7 @@
 import {ammunitionPartPadding} from './heavy-ammunition.js';
 import {squadronPending} from './squadron-combat-state.js';
 import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js';
+import {verdunSupportTargets} from './verdun-battle.js?v=vaux20261116';
 import {recordCombatImpact} from './combat-impact-result.js';
 
 export const FACILITY_BALANCE=Object.freeze({firstAt:14,duration:32,bossReserve:5,airfieldHp:84,signalHp:140,reduction:.25,minimumAirborne:3});
@@ -44,23 +45,31 @@ function eligible(g){
 }
 // Authored dry patches are transformed exactly like the ground. Insignia/art
 // are never mirrored; only the slot position follows Cambrai's tile parity.
+function facilityFootprint(q,art){
+ const scale=q.width/(art?.nominalWidth??art?.width??q.width);
+ const width=(art?.width??q.width)*scale,height=q.height??(art?.height??q.width)*scale;
+ const x=q.x+(art?.pivot?(art.width/2-art.pivot[0])*scale:0);
+ const y=q.y+(art?.pivot?(art.height/2-art.pivot[1])*scale:0);
+ return {scale,x,y,width,height};
+}
 function slotClear(map,q,art){
- const scale=q.width/(art?.nominalWidth??art?.width??q.width),h=q.height??(art?.height||q.width)*scale;
- const hx=q.x+(art?.pivot?(art.width/2-art.pivot[0])*scale:0),hy=q.y+(art?.pivot?(art.height/2-art.pivot[1])*scale:0);
- const hw=art?.pivot?art.width*scale/2:q.width/2,hh=h/2;
+ const {x:hx,y:hy,width,height}=facilityFootprint(q,art),hw=width/2,hh=height/2;
  for(const [px,py,size,period]of map.exclusions||[])for(let ix=Math.floor(hx/period)-1;ix<=Math.floor(hx/period)+1;ix++)for(let iy=Math.floor(hy/period)-1;iy<=Math.floor(hy/period)+1;iy++){const mx=map.mirror&&Math.abs(ix%2),my=map.mirror&&Math.abs(iy%2),x=ix*period+(mx?period-px:px),y=iy*period+(my?period-py:py);if(Math.abs(hx-x)<hw+size*.65+8&&Math.abs(hy-y)<hh+size*.65+8)return false;}
  return true;
 }
 export function facilityPlacement(g,kind,art){
  const map=FACILITY_MAPS[region(g)],p=player(g);if(!map)return null;
  const period=map.period,ox=Math.floor(p.x/period),oy=Math.floor(p.y/period),choices=[];
+ const zoom=g.camera?.zoom||1,viewX=g.x??p.x,viewY=g.y??p.y;
+ const halfW=(g.viewWidth||960)/(2*zoom),halfH=(g.viewHeight||700)/(2*zoom),margin=130;
+ const reach=Math.max(1250,Math.hypot(halfW,halfH)+540);
+ const visible=q=>Math.abs(q.x-viewX)<=halfW+q.width/2+margin&&Math.abs(q.y-viewY)<=halfH+q.height/2+margin;
  for(let iy=oy-1;iy<=oy+1;iy++)for(let ix=ox-1;ix<=ox+1;ix++)for(const group of map[kind]||[]){
   const slots=group.map(q=>({x:(ix+(map.mirror&&Math.abs(ix%2)?1-q.u:q.u))*period,y:(iy+(map.mirror&&Math.abs(iy%2)?1-q.v:q.v))*period,width:q.width,height:q.height}));
   const x=slots.reduce((a,q)=>a+q.x,0)/slots.length,y=slots.reduce((a,q)=>a+q.y,0)/slots.length,d=Math.hypot(x-p.x,y-p.y);
-  // Never spawn directly beneath the player, nor beyond a light 32-second detour.
-  if(d<140||d>650||slots.some(q=>Math.hypot(q.x-p.x,q.y-p.y)>760||!slotClear(map,q,art)))continue;
+  if(d>reach||slots.some(q=>visible(facilityFootprint(q,art))||!slotClear(map,q,art)))continue;
   const ahead=(x-p.x)*Math.cos(p.a||0)+(y-p.y)*Math.sin(p.a||0);
-  choices.push({slots,x,y,score:d+(ahead<0?160:0),key:`${ix}:${iy}:${map[kind].indexOf(group)}`});
+  choices.push({slots,x,y,score:d+(ahead<0?360:0),key:`${ix}:${iy}:${map[kind].indexOf(group)}`});
  }
  return choices.sort((a,b)=>a.score-b.score)[0]||null;
 }
@@ -73,7 +82,7 @@ export function startFacilityMission(g,requested){
   const art=FACILITY_ART[`${map.key}-${kind}-${faction}`];if(!art||!artReady(art.file))continue;
   const place=facilityPlacement(g,kind,art);if(!place)continue;
   const events=g.battlefieldEvents??={serial:0,current:null,history:[],pending:{}},id=`facility-${++events.serial}-${state.stageKey}`;
-  const targets=place.slots.map((q,i)=>{const scale=q.width/(art.nominalWidth??art.width),w=art.width*scale,h=q.height??art.height*scale;return{id:`${id}-${i}`,groundFacility:true,facilityKind:kind,facilityArt:`${map.key}-${kind}-${faction}`,faction,region:region(g),x:q.x+(art.pivot?(art.width/2-art.pivot[0])*scale:0),y:q.y+(art.pivot?(art.height/2-art.pivot[1])*scale:0),a:0,width:w,height:h,hitWidth:art.hit[2]*scale,hitHeight:art.hit[3]*h/art.height,hitOffsetX:(art.hit[0]+art.hit[2]/2-art.width/2)*scale,hitOffsetY:(art.hit[1]+art.hit[3]/2-art.height/2)*h/art.height,hp:kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp,maxHp:kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp,stationary:true,surface:true,missionTarget:true,battlefieldEventId:id,hitFlash:0};});
+  const targets=place.slots.map((q,i)=>{const {scale,x,y,width:w,height:h}=facilityFootprint(q,art);return{id:`${id}-${i}`,groundFacility:true,facilityKind:kind,facilityArt:`${map.key}-${kind}-${faction}`,faction,region:region(g),x,y,a:0,width:w,height:h,hitWidth:art.hit[2]*scale,hitHeight:art.hit[3]*h/art.height,hitOffsetX:(art.hit[0]+art.hit[2]/2-art.width/2)*scale,hitOffsetY:(art.hit[1]+art.hit[3]/2-art.height/2)*h/art.height,hp:kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp,maxHp:kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp,stationary:true,surface:true,missionTarget:true,battlefieldEventId:id,hitFlash:0};});
   const event={id,type:FACILITY_TYPES[kind],facilityKind:kind,status:'active',region:region(g),regionKey:state.stageKey,startedAt:g.t,deadline:g.t+FACILITY_BALANCE.duration,targets};
   state.sites.push({id,kind,placementKey:place.key,targets});state.offered=true;events.current=event;events.nextOfferAt=Math.max(events.nextOfferAt||0,event.deadline+8);
   g.event?.('wave',kind==='airfield'?'기회 목표 · 적 비행장 격파 (32초)':'기회 목표 · 적 통신본부 격파 (32초)');return event;
@@ -106,7 +115,7 @@ export function facilityTargets(g){
  const event=g.battlefieldEvents?.current;
  const optional=facilityMission(event)&&event.status==='active'&&event.region===region(g)&&event.regionKey===facilityStageKey(g)?event.targets:[];
  const recon=g.mapMission?.region===13&&!g.mapMission.resolved?g.mapMission.air?.facilities||[]:[];
- return [...optional,...recon].filter(e=>e.hp>0);
+ return [...optional,...recon,...verdunSupportTargets(g)].filter(e=>e.hp>0);
 }
 
 export function registerMaanReconFacility(g,m,kind,{x,y}){

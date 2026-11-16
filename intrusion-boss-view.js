@@ -1,10 +1,11 @@
 import {giantArrivalShadowPose} from './giant-intrusion-arrival.js';
 import {blacken} from './silhouette.js';
-import {isNewSubmarine} from './submarine-intrusion.js';
-import {drawIntrusionOrdnance,drawIntrusionBoss,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
+import {isNewSubmarine,SUBMARINE_SINK_DURATION} from './submarine-intrusion.js';
+import {drawIntrusionOrdnance,drawIntrusionBoss,drawIntrusionDebris,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
 
-import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic} from './maritime-intrusion.js';
+import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic,maritimeWeaponsReady} from './maritime-intrusion.js';
 import {drawShipWater,drawTorpedo} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
+import {drawSinkingShip} from './ship-sinking.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
@@ -27,30 +28,38 @@ export const INTRUSION_COPY=Object.freeze({
 });
 const requested=new Set();
 export function releaseIntrusionView(){requested.clear();releaseIntrusionArt();}
-export function prepareIntrusionView(e){
- if(!e||e.phase==='resolved'){releaseIntrusionView();return;}
- if(!INTRUSION_COPY[e.profileId]||requested.has(e.profileId))return;
- releaseIntrusionArt(e.profileId);requested.clear();
- requested.add(e.profileId);
- prepareIntrusionArt(e.profileId).catch(error=>{console.error('[headon] intrusion asset unavailable',e.profileId,error);});
+export function prepareIntrusionView(e,ships=[]){
+ const ids=new Set(ships.map(ship=>ship.profileId));
+ if(e&&e.phase!=='resolved'&&INTRUSION_COPY[e.profileId])ids.add(e.profileId);
+ if(ids.size===requested.size&&[...ids].every(id=>requested.has(id)))return;
+ releaseIntrusionArt(...ids);requested.clear();
+ for(const id of ids){
+  requested.add(id);
+  prepareIntrusionArt(id).catch(error=>{console.error('[headon] intrusion asset unavailable',id,error);});
+ }
 }
 export function intrusionVisible(g){return !!g?.intrusionBoss&&!['reserved','resolved'].includes(g.intrusionBoss.phase)&&!['lost','won'].includes(g.state)&&g.stageBoss?.stages?.phase!=='boss';}
 export function intrusionHudModel(g,locale='ko'){
  if(!intrusionVisible(g))return null;
  const e=g.intrusionBoss,copy=INTRUSION_COPY[e.profileId];if(!copy)return null;
  const en=locale==='en',parts=Object.values(e.parts||{}).filter(p=>p.kind!=='core');
- return {name:en?copy.en:copy.ko,tactic:isMaritimeIntrusion(e)?maritimeTactic(e,locale):(en?copy.tacticEn:copy.tactic),hp:Math.max(0,e.hp),maxHp:e.maxHp,
- remaining:Math.ceil(Math.max(0,45-(e.activeAge||0))),broken:parts.filter(p=>p.hp<=0).length,total:parts.length,
+ const disguised=e.operationOwned&&e.profileId==='qship'&&!e.naval?.revealing;
+ return {name:disguised?(en?'Merchant contact':'미확인 상선'):e.displayName||(en?copy.en:copy.ko),
+ tactic:disguised?(en?'Cover U-139 as it approaches':'U-139의 접근을 엄호하세요'):isMaritimeIntrusion(e)?maritimeTactic(e,locale):(en?copy.tacticEn:copy.tactic),hp:Math.max(0,e.hp),maxHp:e.maxHp,
+ remaining:Math.ceil(Math.max(0,e.operationTimeLeft??45-(e.activeAge||0))),broken:parts.filter(p=>p.hp<=0).length,total:parts.length,
  phase:e.phase,phaseLabel:({warning:en?'INCOMING':'접근 중',entering:en?'INCOMING':'진입 중',retreating:en?'WITHDRAWING':'이탈 중',destroyed:isMaritimeIntrusion(e)?(en?'SUNK':'격침'):(en?'DESTROYED':'격추')})[e.phase]||(isSubmarine(e)&&e.naval&&e.naval.phase!=='surfaced'?(en?'TRACK THE WAKE':'항적 추적'):null)};
 }
 /** Poll on simulation time, not wall time: pause/reconnect cannot replay or consume an arrival. */
 export function intrusionCutinModel(g,seen,locale='ko'){
  const e=g?.intrusionBoss;
- if(!intrusionVisible(g)||!e||!['warning','entering'].includes(e.phase)||!INTRUSION_COPY[e.profileId])return null;
+ if(!intrusionVisible(g)||!e||!INTRUSION_COPY[e.profileId])return null;
+ if(e.operationOwned&&e.profileId==='qship'){
+  if(!e.naval?.revealing||e.naval.reveal>=1)return null;
+ }else if(!['warning','entering'].includes(e.phase))return null;
  if(seen?.encounterId===e.encounterId)return null;
  const copy=INTRUSION_COPY[e.profileId],en=locale==='en';
- return {encounterId:e.encounterId,startedAt:g.t,until:g.t+2.6,src:profileLayout(e.profileId)?.cutin,name:en?copy.en:copy.ko,
- kicker:en?'INTRUSION BOSS':'난입 보스',detail:en?copy.tacticEn:copy.tactic};
+ return {encounterId:e.encounterId,startedAt:g.t,until:g.t+2.6,src:profileLayout(e.profileId)?.cutin,name:e.displayName||(en?copy.en:copy.ko),
+ kicker:e.operationOwned?(en?'NAVAL OPERATION':'해상 작전'):(en?'INTRUSION BOSS':'난입 보스'),detail:en?copy.tacticEn:copy.tactic};
 }
 /** Surface sprites are drawn in the existing ground/body pass, below aircraft and clouds.
  * All water marks use the game's authored foam assets; drawing never advances simulation. */
@@ -78,7 +87,23 @@ function drawMaritimeDamage(c,e,point,z){
   }return;
  }
 
- if(!isSubmarine(e)||!(e.parts?.dive_control?.hp<=0))return;
+ if(!isSubmarine(e)){
+  if(!maritimeWeaponsReady(e))return;
+  const layout=profileLayout(e.profileId),a=e.a+Math.PI/2,cs=Math.cos(a),sn=Math.sin(a),t=e.visualTime??e.age??0;
+  let sources=0;
+  for(const target of layout.targets){
+   const part=e.parts?.[target.id];
+   if(target.id==='core'||!part||part.hp>part.maxHp*.5)continue;
+   const {x,y}=target,p=point(e.x+e.scale*(x*cs-y*sn),e.y+e.scale*(x*sn+y*cs));
+   const width=Math.min(25,Math.max(8,Math.min(target.rx,target.ry)*2*e.scale))*z;
+   const dead=part.hp<=0,drift=(t*.7+sources*.38)%1;
+   fx(c,dead?'smokeDark':'smokeGray',p.x+width*drift*.54,p.y-width*(.24+drift*1.25),width*(.68+drift*1.3),width*(1+drift*1.65),.26,(1-drift)*(dead?.66:.35));
+   if(dead)fx(c,'fireGround',p.x,p.y,width*.57,width*.78,0,.48+.1*Math.sin(t*16+sources));
+   if(++sources===4)break;
+  }
+  return;
+ }
+ if(!(e.parts?.dive_control?.hp<=0))return;
  const target=profileLayout(e.profileId).targets.find(p=>p.id==='dive_control');if(!target)return;
  const a=e.a+Math.PI/2,cs=Math.cos(a),sn=Math.sin(a);
  const p=point(e.x+e.scale*(target.x*cs-target.y*sn),e.y+e.scale*(target.x*sn+target.y*cs));
@@ -130,10 +155,42 @@ function drawIntrusionSilhouette(c,e,a,position,scale){
  }
  c.save();c.translate(position.x,position.y);c.rotate(a+Math.PI/2);c.drawImage(canvas,-full/2,-full/2,full,full);c.restore();
 }
+function drawAirframeDamage(c,e,point,z){
+ const layout=profileLayout(e.profileId),t=e.visualTime??e.age??0;
+ const a=e.a+Math.PI/2,cs=Math.cos(a),sn=Math.sin(a),scale=e.scale;
+ let sources=0;
+ for(const target of layout.targets){
+  const part=e.parts?.[target.id];
+  if(!part||!['engine','wing'].includes(target.kind)||part.hp>part.maxHp*.5)continue;
+  const sprite=layout.parts.find(p=>p.group===target.id&&p.kind===target.kind);
+  if(!sprite||sprite.dependencies.some(id=>e.parts?.[id]?.hp<=0))continue;
+  const destroyed=part.hp<=0;
+  if(target.kind==='wing'&&!destroyed)continue;
+  const stub=sprite.states.destroyed;
+  const x=target.kind==='wing'&&stub?.bounds?stub.x-stub.pivot[0]+stub.bounds[target.x<0?0:2]:target.x;
+  const y=target.kind==='wing'?target.y:target.y+target.ry*.58;
+  const width=Math.min(22,Math.max(5,Math.min(target.rx,target.ry)*scale*1.8));
+  const w=width*z,seed=++sources*.37;
+  for(let i=1;i>=0;i--){
+   const age=(t*.85+seed+i*.5)%1,off=age*width*2.9,drift=Math.sin(age*3+seed)*off*.22;
+   const q=point(e.x+x*scale*cs-y*scale*sn+drift*cs-off*sn,e.y+x*scale*sn+y*scale*cs+drift*sn+off*cs);
+   fx(c,destroyed?'smokeDark':'smokeGray',q.x,q.y,w*(.7+age*1.8),w*(1+age*2.1),a+age*.4,(1-age)*(destroyed?.53:.32));
+  }
+  if(destroyed&&target.kind==='engine'&&stub&&stub.src!==sprite.states.intact?.src){
+   const q=point(e.x+scale*(x*cs-y*sn),e.y+scale*(x*sn+y*cs));
+   const flame=.83+.12*Math.sin(t*19+seed);
+   fx(c,'fireEngine',q.x,q.y,w*.8*flame,w*1.2*flame,a,.68);
+  }
+  if(sources===5)break;
+ }
+}
 export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
- const e=g?.intrusionBoss;prepareIntrusionView(e);
- if(!e||!intrusionVisible(g))return;
+ if(!g)return;
+ const e=g.intrusionBoss,naval=g.operationBattle?.naval||g.operationSnapshot?.battle?.naval;
+ prepareIntrusionView(e,naval?.ships);
  const z=g.camera?.zoom||1,point=(x,y)=>({x:(x-g.x)*z+W/2,y:(y-g.y)*z+H/2});
+ if(naval)drawOperationWater(c,naval,point,z,layer);
+ if(!e||!intrusionVisible(g))return;
  if(layer!=='hazards'&&intrusionArtReady(e.profileId)){
   c.save();
   const maritime=isMaritimeIntrusion(e);
@@ -148,6 +205,8 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
    // The authored silhouette crosses the field before the real body arrives.
    c.globalAlpha=.2;
    drawIntrusionSilhouette(c,e,Math.PI/2,{x:W*.5,y:-H*.15+Math.min(1,e.phaseAge/4)*H*.9},e.scale*z);
+  }else if(e.phase==='destroyed'&&isNewSubmarine(e)){
+   drawIntrusionWreck(c,e,point,z,e.phaseAge);
   }else{
    if(maritime){c.globalAlpha=maritimeOpacity(e);if(e.phase==='entering'&&!isNewSubmarine(e))c.globalAlpha*=Math.min(1,e.phaseAge/1.2);if(e.phase==='retreating')c.globalAlpha*=Math.max(0,1-e.phaseAge/3);}
    if(e.phase==='destroyed')c.globalAlpha*=Math.max(0,1-e.phaseAge/(maritime?1:3));
@@ -161,7 +220,8 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
    }
    drawIntrusionBoss(c,e,position,e.scale*z);
    if(['handley-page-v1500','linke-hofmann-r-ii'].includes(e.profileId))drawIntrusionOrdnance(c,e,point,z);
-   if(maritime)drawMaritimeDamage(c,e,point,z);
+   else if(maritime)drawMaritimeDamage(c,e,point,z);
+   else{drawIntrusionDebris(c,e,point,z);drawAirframeDamage(c,e,point,z);}
   }
   c.restore();
  }
@@ -172,7 +232,12 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
  for(const h of e.hazards||[]){const p=point(h.x,h.y),r=h.radius*z,q=Math.min(1,h.age/Math.max(.01,h.warning));
   if(h.kind==='naval-splash'){
    c.strokeStyle='#b8e8f4';c.fillStyle='#80bbcc';
-   if(h.done){const fade=Math.max(0,1-(h.age-h.warning)/.35);fx(c,'splashShell',p.x,p.y,r*3,r*3,0,fade);fx(c,'waterColumn',p.x,p.y-r*.5,r*1.7,r*3,0,fade);continue;}
+    if(h.done){const fade=Math.max(0,1-(h.age-h.warning)/.35),heavy=h.fireAt!=null?1.3:1;fx(c,'splashShell',p.x,p.y,r*3*heavy,r*3*heavy,0,fade);fx(c,'waterColumn',p.x,p.y-r*.5,r*1.7*heavy,r*3*heavy,0,fade);continue;}
+    if(h.fired&&h.fireAt!=null){
+     const t=Math.min(1,(h.age-h.fireAt)/(h.warning-h.fireAt));
+     const shell=point(h.fireX+(h.x-h.fireX)*t,h.fireY+(h.y-h.fireY)*t);
+     fx(c,'shell',shell.x,shell.y-Math.sin(Math.PI*t)*24*z,24*z,10*z,Math.atan2(h.y-h.fireY,h.x-h.fireX),1);
+    }
    fx(c,'foamRing',p.x,p.y,r*2,r*2,0,.25+.35*q);
   }else{c.strokeStyle='#ffdba4';c.fillStyle='#d56a4f';if(h.done)continue;}
   c.globalAlpha=.18;c.beginPath();c.arc(p.x,p.y,r,0,Math.PI*2);c.fill();c.globalAlpha=.8;c.setLineDash([5,5]);c.stroke();c.setLineDash([]);
@@ -181,5 +246,27 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
  c.strokeStyle='#ffdba4';
  for(const h of e.shotCues||[]){if(h.done)continue;const p=point(h.x,h.y),q=Math.min(1,h.age/Math.max(.01,h.warning));c.globalAlpha=.25+.5*q;c.setLineDash([4,6]);for(const offset of h.offsets||[0]){c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(h.a+offset)*(h.telegraphLength||110)*z,p.y+Math.sin(h.a+offset)*(h.telegraphLength||110)*z);c.stroke();}}
  c.restore();
+}
+
+function drawIntrusionWreck(c,e,point,z,age){
+ const p=point(e.x,e.y),layout=profileLayout(e.profileId),scale=e.scale*z;
+ drawSinkingShip(c,{...p,key:e,yaw:e.a+Math.PI/2,width:(layout.waterWidth||layout.width)*scale,height:(layout.waterHeight||layout.height)*scale,age,duration:SUBMARINE_SINK_DURATION},ctx=>drawIntrusionBoss(ctx,e,p,scale));
+}
+
+function drawOperationWater(c,naval,point,z,layer){
+ if(layer!=='hazards')for(const ship of naval.ships){
+  if(!intrusionArtReady(ship.profileId))continue;
+  if(ship.hp<=0){drawIntrusionWreck(c,ship,point,z,ship.sinkAge||0);continue;}
+  drawMaritimeWater(c,ship,point,z);
+  drawIntrusionBoss(c,ship,point(ship.x,ship.y),ship.scale*z);
+ }
+ if(layer==='bodies')return;
+ for(const h of naval.pressure){
+  const target=point(h.x,h.y),r=h.radius*z,t=Math.min(1,h.age/h.warning);
+  if(h.done){fx(c,'splashShell',target.x,target.y,r*3,r*3,0,Math.max(0,1-(h.age-h.warning)/.35));continue;}
+  const shot=point(h.fireX+(h.x-h.fireX)*t,h.fireY+(h.y-h.fireY)*t);
+  fx(c,h.bomb?'bomb':'shell',shot.x,shot.y-Math.sin(t*Math.PI)*32*z,20*z,9*z,Math.atan2(h.y-h.fireY,h.x-h.fireX),.9);
+  fx(c,'foamRing',target.x,target.y,r*2,r*2,0,.55+.35*t);
+ }
 }
 

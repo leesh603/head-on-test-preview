@@ -1,7 +1,8 @@
-import {enqueueCapturedEquipmentReward} from './intrusion-equipment-rewards.js?v=earned-rewards-7ccfad1b-20261114';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=quality-audit-596-c6ea4cf8-20261109';
-import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js?v=elite-hunt-604-f250e04a-20261109';
-import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=arras-cargo-icons-4529781a-20261112';
+import {enqueueCapturedEquipmentReward} from './intrusion-equipment-rewards.js';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js';
+import {clearSubmarineOperation,startSubmarineOperation,submarineOperationCard,tickSubmarineOperation} from './submarine-operation.js';
+import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
 
 const live = entity => entity && entity.hp > 0 && !entity.expired && !entity.crashing && entity.life !== 0;
 const pilots = game => game.players || [game];
@@ -67,7 +68,9 @@ export function startOperationBattle(game, id, pilotData, operation = {}) {
  const faction = game.stageBoss.stages.teamFaction;
  const heading = player.a || 0, position = at(player, heading, 220);
  const battle = {id, faction, heading, elapsed: 0, wave: 0, nextSweep: 6, enemies: [], patrols: [], routeComplete: false};
- if (id === 'cargo') {
+ if (id === 'submarine') {
+  startSubmarineOperation(game,battle,player);
+ } else if (id === 'cargo') {
   const sign = Math.cos(heading) >= 0 ? 1 : -1;
   const y = position.y, x = player.x + sign * 220;
   // Armoured, and sized to the pilot's own guns: stopping the train is a chase
@@ -384,6 +387,11 @@ export function tickOperationBattle(game, dt) {
  const battle = game.operationBattle;
  if (!battle || game.state !== 'playing' || game.online && !game.host || !lead(game)) return null;
  battle.elapsed += dt;
+ if (battle.naval) return tickSubmarineOperation(game,battle,lead(game),dt,(target,count,type)=>{
+  for(const plane of diveFlight(game,battle,target,count,{type,side:type==='bomber'?1:-1,distance:380,reserve:true})){
+   if(type==='bomber')plane.operationNavalBomber=true;
+  }
+ });
  battle.enemies = battle.enemies.filter(e => e.operationRailCar || live(e) && game.enemies.includes(e));
  for (const patrol of battle.patrols) {
   if (live(patrol) && !game.patrols.includes(patrol)) patrol.expired = true;
@@ -426,6 +434,7 @@ export function tickOperationBattle(game, dt) {
 export function clearOperationBattle(game) {
  const battle = game.operationBattle;
  if (!battle) return;
+ if (battle.naval) clearSubmarineOperation(game,battle);
  game.enemies = game.enemies.filter(enemy => !enemy.operationEnemy);
  game.patrols = game.patrols.filter(patrol => !patrol.operationTarget);
  game.bullets = [];
@@ -440,7 +449,8 @@ export function applyOperationReward(game, battle) {
    game.operationManufacturing = true;
    return '신형기 양산';
   case 'cargo':
-   return enqueueCapturedEquipmentReward(game,player,'cargo:'+game.stageBoss.stages.loopIndex+':'+game.stageBoss.stages.orderPosition)?'노획 장비 확보 · 다음 출격 전에 선택':null;
+  case 'submarine':
+   return enqueueCapturedEquipmentReward(game,player,battle.id+':'+game.stageBoss.stages.loopIndex+':'+game.stageBoss.stages.orderPosition)?'노획 장비 확보 · 다음 출격 전에 선택':null;
   case 'squadron':
    game.operationReinforcement = battle.unit;
    return FAMOUS_WING_BALANCE[battle.unit].faction === 'central' ? '야스타 18 합류' : '라파예트 합류';
@@ -490,6 +500,7 @@ export function operationMissionCard(game, en = false) {
   const card=game?.online&&!game.host&&game.operationSnapshot?.cards?.[en?'en':'ko'];
   return Array.isArray(card)&&card.length===4?{title:card[0],objective:card[1],meta:card[2],urgent:card[3]}:null;
  }
+ if (battle.naval) return submarineOperationCard(battle,en);
  if (!CARD_TITLES[battle.id]) return null;
  const L = en ? 1 : 0, now = battle.elapsed, train = battle.train;
  const unit = train?.cargo || battle.patrols?.[0], hp = Math.max(0, Math.ceil(100 * (unit?.hp || 0) / (unit?.maxHp || 1)));

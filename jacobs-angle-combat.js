@@ -1,9 +1,9 @@
 // Jacobs' passive observes real direct hits and world-space firing approaches.
 // The existing active fan, its ammunition, spread and suppression remain untouched.
-import {signatureState,signatureCue} from './pilot-signature-state.js?v=b3bf991d11fc7798';
-import {combatImpactResult} from './combat-impact-result.js?v=b3bf991d11fc7798';
-import {finalArenaBosses} from './pandemonium-registry.js?v=b3bf991d11fc7798';
-import {isReplacementPrimary} from './pilot-primary.js?v=b3bf991d11fc7798';
+import {signatureState,signatureCue} from './pilot-signature-state.js';
+import {combatImpactResult} from './combat-impact-result.js';
+import {finalArenaBosses} from './pandemonium-registry.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 export const JACOBS_ANGLE_BALANCE=Object.freeze({angle:Math.PI/3,travel:100,memory:7,cooldown:3,boostSeconds:1.2,damage:.35,maxTargets:16,maxStep:100});
 const B=JACOBS_ANGLE_BALANCE,INSTALLED=Symbol.for('headon.jacobs-angle.v1'),states=new WeakMap(),primaryApproaches=new WeakMap();let generation=0;
 const owner=p=>p.id??'p1',world=p=>p.combatWorld?.()||p.world||p;

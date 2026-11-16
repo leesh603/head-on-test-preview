@@ -1,5 +1,5 @@
-import {applySeaColor} from './sea-colors.js?v=b3bf991d11fc7798';
-import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=b3bf991d11fc7798';
+import {applySeaColor} from './sea-colors.js?v=tame3';
+import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=tame3';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural-hedgerows-20261115.webp',base:'#424b3b',strength:1.25,tileSize:1254},
  sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=r5&b=326',base:'#245d62',strength:1.11,tileSize:1254},
@@ -88,18 +88,28 @@ const peakSprites=ALPS_PEAK_VARIANTS.map(variant=>{if(typeof Image==='undefined'
 // Ten visual profiles do not register ten gameplay stages.
 // Join narrow edge bands once, when a background is cached. No per-frame
 // filters or pixel reads, and no reflected buildings, rivers or ridgelines.
+// Only the four edge bands are read and written (same blend, same order: the
+// side bands first, then top and bottom over the updated corners). Reading the
+// whole 1254px rural tile to touch 24px edges cost ~250 ms at phone speed in
+// the first frame the ground appeared.
 export function joinTerrainEdges(canvas,border=24){
  const g=canvas.getContext('2d');if(typeof g.getImageData!=='function')return canvas;
- const w=canvas.width,h=canvas.height,im=g.getImageData(0,0,w,h),d=im.data;
- const n=Math.min(border,Math.floor(Math.min(w,h)/4));
- const pair=(a,b,t)=>{for(let k=0;k<3;k++){const x=d[a+k],y=d[b+k];d[a+k]=Math.round(x*(1-t)+y*t);d[b+k]=Math.round(y*(1-t)+x*t);}};
- for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let y=0;y<h;y++)pair((y*w+i)*4,(y*w+w-1-i)*4,t);}
- for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let x=0;x<w;x++)pair((i*w+x)*4,((h-1-i)*w+x)*4,t);}
- g.putImageData(im,0,0);return canvas;
+ const w=canvas.width,h=canvas.height,n=Math.min(border,Math.floor(Math.min(w,h)/4));if(n<1)return canvas;
+ const mix=(a,ai,b,bi,t)=>{for(let k=0;k<3;k++){const x=a[ai+k],y=b[bi+k];a[ai+k]=Math.round(x*(1-t)+y*t);b[bi+k]=Math.round(y*(1-t)+x*t);}};
+ const L=g.getImageData(0,0,n,h),R=g.getImageData(w-n,0,n,h);
+ for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let y=0;y<h;y++)mix(L.data,(y*n+i)*4,R.data,(y*n+n-1-i)*4,t);}
+ g.putImageData(L,0,0);g.putImageData(R,w-n,0);
+ const T=g.getImageData(0,0,w,n),B=g.getImageData(0,h-n,w,n);
+ for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let x=0;x<w;x++)mix(T.data,(i*w+x)*4,B.data,((n-1-i)*w+x)*4,t);}
+ g.putImageData(T,0,0);g.putImageData(B,0,h-n);return canvas;
 }
 export class TerrainRenderer {
  constructor({atlas=null,tileSize=768,detail=1,canvasFactory}={}){this.atlas=atlas;this.tileSize=positive(tileSize,'tileSize');this.detail=clamp(detail,.25,1);this.tiles=new Map();this.pendingTiles=new Map();this.canvasFactory=canvasFactory??((w,h)=>{const c=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):document.createElement('canvas');c.width=w;c.height=h;return c;});}
  setAtlas(atlas){this.atlas=atlas;this.tiles.clear();this.pendingTiles.clear();}
+ // The shared atlas arriving changes only tiles composited from it. Profiles with
+ // their own texture (rural, cambrai...) keep the tile already built under the
+ // region transition. Returns the keys dropped.
+ dropAtlasTiles(){const dropped=[];for(const k of [...this.tiles.keys()])if(!TERRAIN_PROFILES[k]?.src){this.tiles.delete(k);dropped.push(k);}return dropped;}
  setDetail(detail){this.detail=clamp(detail,.25,1);this.tiles.clear();this.pendingTiles.clear();}
  sizeFor(key){return TERRAIN_PROFILES[key]?.tileSize??this.tileSize;}
  _rememberTile(key,c){if(key==='sea')applySeaColor(c.getContext('2d'),'adriatic',c.width,c.height);applyTerrainAtmosphere(c.getContext('2d'),key,c.width,c.height);this.tiles.set(key,c);let pixels=0;for(const t of this.tiles.values())pixels+=t.width*t.height;while(this.tiles.size>1&&(this.tiles.size>4||pixels>4*768*768)){const oldest=this.tiles.keys().next().value,t=this.tiles.get(oldest);pixels-=t.width*t.height;this.tiles.delete(oldest);}return c;}

@@ -33,7 +33,7 @@ export const MAP_COMBAT_PROFILES=Object.freeze([
  // The city is an air-raid defense for both sides (city-air-raid.js); generic offers would compete with it.
  profile('city',T.DEFENSE,...CITY_BRIEFING,{regionalEvent:'BLACKOUT',regionalChance:.15,exclusiveObjective:true}),
  profile('sky',T.DECISIVE,'거대 공중요새를 격파하세요.','Destroy the giant aerial fortress.',{exclusiveObjective:true}),
- profile('alps',T.SABOTAGE,'105초 안에 세 계곡의 적 관측 기구 9기를 파괴하세요.','Destroy nine enemy observation balloons across three valleys within 105 seconds.',{regionalEvent:'MOUNTAIN_PURSUIT',regionalChance:.35}),
+ profile('alps',T.SABOTAGE,'105초 안에 관측 기구 9기를 파괴하세요. 계곡마다 3기를 끊으면 포대가 침묵합니다.','Destroy nine observers within 105 seconds. Clearing all three in a valley silences its battery.',{regionalEvent:'MOUNTAIN_PURSUIT',regionalChance:.35}),
  profile('zeebrugge',T.DECISIVE,'해안포를 제압하고 장갑 항만요새를 격파하세요.','Silence the coastal guns and destroy the armored harbor fortress.',{exclusiveObjective:true}),
  profile('cambrai',T.BREAKTHROUGH,'주요 화기를 끊어 돌파로를 열고 장갑 반격대를 저지하세요.','Disable the main weapons to open a breach, then stop the armored counterattack.'),
  profile('arras',T.ESCORT_INTERCEPT,'적 에이스 편대를 상대하며 아군 임무기의 안전 귀환을 엄호하세요.','Engage the enemy ace formation and escort your mission aircraft home.',{exclusiveObjective:true}),
@@ -49,10 +49,10 @@ export const MAP_COMBAT_PROFILES=Object.freeze([
  profile('laon',T.SABOTAGE,'90초 안에 파리포의 포신 또는 약실을 파괴하세요.','Destroy the Paris Gun’s barrel or breech within 90 seconds.',{exclusiveObjective:true})
 ]);
 const CENTRAL_PROFILES=Object.freeze({
- 1:profile('sea',T.BREAKTHROUGH,'봉쇄 구역을 제압하고 해협을 돌파한 뒤 적 기함을 격침하세요.','Silence the blockade sectors, cross the strait and sink the enemy flagship.'),
+ 1:profile('sea',T.BREAKTHROUGH,'구역마다 함정 1척을 격침해 통로를 열고, 해협 너머 적 기함을 격침하세요.','Sink one ship in each sector to open a passage, then cross the strait and sink the flagship.'),
  9:profile('arras',T.ESCORT_INTERCEPT,'적 에이스 편대와 교전하며 적 임무기를 요격하세요.','Engage the ace formation and intercept enemy mission aircraft.',{exclusiveObjective:true}),
  10:profile('somme',T.DEFENSE,'랜드쉽 9대 중 7대의 궤도·엔진을 끊으세요. 3대가 최종 방어선을 넘으면 패배합니다.','Disable tracks or engines on seven of nine landships. Three breaches mean defeat.'),
- 16:profile('jutland',T.ESCORT_INTERCEPT,'아군 주력함을 엄호해 전열을 안전하게 철수시키세요.','Escort the battle line to the withdrawal route.'),
+ 16:profile('jutland',T.ESCORT_INTERCEPT,'폭격기를 투하 전에 요격하며 손상함과 선두함의 철수를 엄호하세요.','Intercept bombers before release and cover the withdrawal of damaged and leading ships.'),
  15:profile('paris-night',T.SABOTAGE,'발전기 2곳을 끊어 방공망을 소등한 뒤 야간 귀환 지점으로 이탈하세요.','Destroy both generators to black out the defenses, then reach the night exit.',{exclusiveObjective:true}),
  17:profile('dover-night',T.ESCORT_INTERCEPT,'적 나이트호크를 막고 R.VIII를 영국 해안까지 호위하세요.','Defend R.VIII from the Nighthawk and escort it to the British coast.',{exclusiveObjective:true}),
  19:profile('laon',T.DEFENSE,'프랑스 공습을 막고 파리포 6회 사격을 지키세요.','Repel the French raid and protect the Paris Gun until it fires six times.',{exclusiveObjective:true})

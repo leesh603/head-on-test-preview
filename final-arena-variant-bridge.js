@@ -1,8 +1,8 @@
 // Host-only bridge. Snapshots remain native plain JSON; renderers use the same scale.
 // A positions/radii (including state.x/y) are authoring units, scaled .5 to world.
 // Factory positions/radii are already world units. HP/damage are NEVER scaled.
-import * as asymmetric from './pandemonium-a-mechanics.js?v=b3bf991d11fc7798';
-import * as factory from './pandemonium-factory-mechanics.js?v=b3bf991d11fc7798';
+import * as asymmetric from './pandemonium-a-mechanics.js';
+import * as factory from './pandemonium-factory-mechanics.js';
 const profiles={asymmetric:{api:asymmetric,scale:.5,maxCoreHp:300},factory:{api:factory,scale:1,maxCoreHp:2000}};
 function profile(type){const p=profiles[type==='a'?'asymmetric':type];if(!p)throw new RangeError('Unsupported arena variant: '+type);return p;}
 export function variantWorldScale(type){return profile(type).scale;}

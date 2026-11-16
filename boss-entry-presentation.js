@@ -1,5 +1,8 @@
 // Short, host-timed WWI arrivals. All world marks use existing approved FX art.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const trenchEntrances=new Set(['a7v-flak','mark-v-cruiser']);
+const railwayEntrances=new Set(['bruno-railway-gun','lincomparable']);
+export const hasStagedBossEntrance=id=>trenchEntrances.has(id)||railwayEntrances.has(id)||id==='siemens-schuckert-r-viii';
 const families={
  artillery:['livens-flame-projector','minenwerfer-battery','morser-battery'],
  rail:['bruno-railway-gun','lincomparable'],railCarrier:['fliegerzug'],
@@ -35,7 +38,11 @@ export function tickBossEntry(addon,encounter,dt){
  const {body,scene}=active;
  if(scene.waitForDiscovery){let seen=false;for(const b of encounter.bodies.values())seen||=!!b.discovered;if(!seen)return;scene.waitForDiscovery=false;}
  scene.age=Math.min(scene.length,scene.age+dt);
- const beats=BOSS_ENTRY_PROFILES[scene.family].beats;
+ const beats=trenchEntrances.has(scene.bossId)
+  ? (scene.bossId==='a7v-flak'?[[.12,'a7vApproach',0]]:[[.25,'markVApproach',0]])
+  : railwayEntrances.has(scene.bossId)
+   ? [[0,'trainWhistle',2.4],[.28,'trainApproach',0]]
+   : scene.bossId==='siemens-schuckert-r-viii'?[]:BOSS_ENTRY_PROFILES[scene.family].beats;
  while(scene.nextBeat<beats.length&&scene.age>=beats[scene.nextBeat][0]){
   const [at,sound,shake]=beats[scene.nextBeat++];
   addon.hooks.onCue({type:'boss-entry-beat',bossId:body.id,encounterId:encounter.id,sound,shake,at});
@@ -67,13 +74,16 @@ export function bossEntryEngineTrails(encounter){
 }
 export function drawBossEntryWorld(c,encounter,paint){
  const active=activeBossEntry(encounter);if(!active||active.scene.waitForDiscovery)return;
- const {body:b,scene:s}=active,age=s.age,fade=clamp(age/.35)*clamp((2.65-age)/.6);if(fade<=0)return;
+ const {body:b,scene:s}=active;
+ if(trenchEntrances.has(s.bossId))return;
+ const age=s.age,fade=clamp(age/.35)*clamp((2.65-age)/.6);if(fade<=0)return;
  const r=bossEntryReveal(b)||{rx:Math.max(110,(b.support129?.width||220)/2),ry:Math.max(160,(b.support129?.height||320)/2)},x=b.x,y=b.y;
  const draw=(key,px,py,w,h,a=0,alpha=.55)=>paint(c,key,px,py,w,h,a,alpha*fade);
  c.save();
  switch(s.family){
   case 'naval':draw('shipBow3',x,y-r.ry*.8,Math.min(360,r.rx*2),210,0,.7);draw('shipWake3',x,y+r.ry*.6,Math.min(220,r.rx*1.2),Math.min(600,r.ry*1.3),0,.5);break;
-  case 'rail':case 'railCarrier':for(let i=0;i<3;i++)draw(i%2?'gunSmoke':'smokeGray',x+(i-1)*65-age*15,y-r.ry*.6+i*75,140+age*35,210+age*32,-.15,.38);break;
+  case 'rail':if(railwayEntrances.has(s.bossId))break;
+  case 'railCarrier':for(let i=0;i<3;i++)draw(i%2?'gunSmoke':'smokeGray',x+(i-1)*65-age*15,y-r.ry*.6+i*75,140+age*35,210+age*32,-.15,.38);break;
   case 'airship':draw('fx-cloud-bank-0',x-r.rx*.6-age*16,y-r.ry*.22,440,230,0,.6);draw('fx-cloud-bank-1',x+r.rx*.5+age*16,y+r.ry*.2,420,200,.1,.5);break;
   case 'bomber':{const trails=bossEntryEngineTrails(encounter);if(trails.length){for(const t of trails)draw('vaporTrail',t.x,t.y,t.w,t.h,t.a,t.alpha);break;}for(const side of [-1,1])draw('vaporTrail',x+side*r.rx*.65,y+r.ry*.4,62,Math.min(470,r.ry*2),0,.35);break;}
   case 'squadron':for(const side of [-1,1])draw('vaporTrail',x+side*r.rx*.65,y+r.ry*.4,62,Math.min(470,r.ry*2),0,.35);break;
@@ -87,6 +97,7 @@ export function drawBossEntryWorld(c,encounter,paint){
 // The shared boss cut-in owns the name and description. Keep only the cinematic bars here.
 export function drawBossEntryTitle(c,encounter,W,H){
  const active=activeBossEntry(encounter);if(!active||active.scene.waitForDiscovery)return;
+ if(hasStagedBossEntrance(active.scene.bossId))return;
  const t=active.scene.age,bar=clamp(t/.22)*clamp((2.65-t)/.4);if(bar<=0)return;
  const cap=W<600?18:26;c.save();c.fillStyle=`rgba(5,10,12,${.82*bar})`;c.fillRect(0,0,W,cap*bar);c.fillRect(0,H-cap*bar,W,cap*bar);c.restore();
 }

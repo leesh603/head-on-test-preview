@@ -7,10 +7,10 @@ import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfter
 import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js';
 import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
 import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021&close=20261107';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021&close=20261107&quiet=20261115';
 import {recordShipWake} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
 import {predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111&weak2=20261114&quiet=20261115';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {BossHazards} from './headon-stageboss-hazards.js?v=pandemonium394r2&cambrai=20261021&cityart=20261022';
 
@@ -70,7 +70,7 @@ export class BossStages {
   get stage(){return STAGES[this.stageIndex];}
   get capitalBossId(){return this.stage==='berlin'?'final-kaiserkrone':this.stage==='london'?'final-leviathan':null;}
   get capitalEncounter(){return !!(this.finalArena.enabled&&BOSS_CATALOG[this.capitalBossId]?.capitalFinal&&BOSS_CATALOG[this.capitalBossId].faction!==this.teamFaction);}
-  get bossId(){if(this.capitalEncounter&&this.capitalRound===1)return this.capitalBossId;return Object.keys(BOSS_CATALOG).find(id=>!BOSS_CATALOG[id].capitalFinal&&BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
+  get bossId(){if(this.capitalEncounter&&this.capitalRound===1)return this.capitalBossId;return Object.keys(BOSS_CATALOG).find(id=>!BOSS_CATALOG[id].capitalFinal&&!BOSS_CATALOG[id].reserve&&BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
   attach(encounter) {
     if(this.phase!=='explore')return false;
     if(encounter.bossId!==this.bossId)throw new Error('Wrong stage/faction boss');
@@ -190,7 +190,7 @@ export class StageBossAddon {
     if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     if(bossId==='treffas-wagen')tuning={...tuning,geometryScale:1,mobileBoss:false};
     if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
-    if(bossId==='fort-douaumont'||bossId==='fort-souville')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
+    if(['fort-douaumont','fort-souville','fort-vaux'].includes(bossId))tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     if(bossId==='mark4-wedge')tuning={...tuning,sommeApproach:true};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const dover=this.stages.stageIndex===17?this.hooks.getDoverMission?.({initialize:true}):null;
@@ -298,7 +298,7 @@ export class StageBossAddon {
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
       if(body?.ruralRailBoss)this.hazards.clearBody(encounterId,body.id);
-      if((zubianHalf||['gotha-raider','o400-raider','siemens-schuckert-r-viii','supermarine-nighthawk'].includes(body?.kind))&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,a:body.a,age:0,duration:zubianHalf?3.2:2.65});
+      if((zubianHalf||['gotha-raider','o400-raider','siemens-schuckert-r-viii','supermarine-nighthawk'].includes(body?.kind))&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,a:body.a,regionalScale:body.regionalScale||1,age:0,duration:zubianHalf?3.2:2.65});
       this.hooks.onCue({...event,encounterId,x:body?.x,y:body?.y,kind:body?.kind});
     }else if(event.type==='building-impact') {
       if(!this.frameContext||!this.hooks.onBuildingImpact({...event,encounterId}))return;
@@ -377,10 +377,11 @@ export class StageBossAddon {
     for(const d of this.bodyDefeats){d.age+=dt;if(d.kind==='gotha-raider'||d.kind==='o400-raider'){
       // Small, staggered engine/bay failures follow the falling aircraft; no
       // screen-filling single blast or explosion left at its old world pose.
-      const pulses=[{at:.18,x:-24,y:-12,r:20},{at:.42,x:24,y:-12,r:23},{at:.68,x:0,y:8,r:26},{at:.86,x:0,y:0,r:38}];
+      const engineX=d.kind==='o400-raider'?27:23,engineY=d.kind==='o400-raider'?-23:-8,bayY=d.kind==='o400-raider'?10:-14;
+      const pulses=[{at:.18,x:-engineX,y:engineY,r:20},{at:.42,x:engineX,y:engineY,r:23},{at:.68,x:0,y:bayY,r:26},{at:.86,x:0,y:0,r:38}];
       d.pulse??=0;
-      while(d.pulse<pulses.length&&d.age>=d.duration*pulses[d.pulse].at){const q=pulses[d.pulse++],pose=gothaCrashPose(d,d.age,d.duration),c=Math.cos(pose.angle),s=Math.sin(pose.angle);
-       this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:d.kind==='o400-raider'?'o400-squadron':'gotha-squadron',x:pose.x+(q.x*c-q.y*s)*pose.scale,y:pose.y+(q.x*s+q.y*c)*pose.scale,radius:q.r,final:false});
+      while(d.pulse<pulses.length&&d.age>=d.duration*pulses[d.pulse].at){const q=pulses[d.pulse++],pose=gothaCrashPose(d,d.age,d.duration),c=Math.cos(pose.angle),s=Math.sin(pose.angle),scale=pose.scale*d.regionalScale,x=q.x*pose.bank;
+       this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:d.kind==='o400-raider'?'o400-squadron':'gotha-squadron',x:pose.x+(x*c-q.y*s)*scale,y:pose.y+(x*s+q.y*c)*scale,radius:q.r*d.regionalScale,final:false});
       }
     }}
     this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);

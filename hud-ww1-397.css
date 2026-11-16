@@ -912,6 +912,15 @@ body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendar
        its stencil plate (no neon glow).
    ========================================================================== */
 @keyframes ho-red-wash{0%,100%{opacity:.75}50%{opacity:1}}
+/* The plate eases in and out over its 1.6 s life instead of cutting on and off,
+   and the text breathes instead of blinking at 4 Hz (warnFlicker steps) while the
+   whole overlay jittered (warnShake) -- together they read as the game stuttering. */
+@keyframes ho-warn-life{0%{opacity:0}10%,84%{opacity:1}100%{opacity:0}}
+@keyframes ho-warn-pulse{0%,100%{opacity:1}50%{opacity:.72}}
+body.astra-ui #bossWarning{animation:ho-warn-life 1.6s ease-out both}
+body.astra-ui #bossWarning .warn-core b,
+body.astra-ui #bossWarning .warn-core span{animation:ho-warn-pulse .8s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){body.astra-ui #bossWarning,body.astra-ui #bossWarning .warn-core b,body.astra-ui #bossWarning .warn-core span{animation:none}}
 body.astra-ui #bossWarning .warn-core{
  background:radial-gradient(ellipse at center,rgba(150,22,14,.18) 0%,rgba(150,22,14,.38) 55%,rgba(120,12,8,.62) 100%)!important;
  animation:ho-red-wash .6s ease-in-out infinite;
@@ -1420,6 +1429,11 @@ body:not(.playing) .hud-tags{display:none}
 /* Phones: avoid the special-equipment medal column during a boss fight. */
 @media(max-width:720px),(pointer:coarse){
  body.astra-ui.playing:not(.coop-playing):has(#legendaryInventory .legendary-badge) #flightStack151 #stageBossHud{width:calc(100% - var(--ho-pill-h) - 8px)!important;max-width:calc(100% - var(--ho-pill-h) - 8px)!important}
+}
+/* In portrait the narrowed panel was still centred, so its right edge ran under the medals.
+   Hold it to the left edge; the freed strip on the right is the medal column. */
+@media(orientation:portrait) and (max-width:720px),(orientation:portrait) and (pointer:coarse){
+ body.astra-ui.playing:not(.coop-playing):has(#legendaryInventory .legendary-badge) #flightStack151 #stageBossHud{align-self:flex-start!important;margin-left:0!important;margin-right:0!important}
 }
 .hud-tag.callsign{height:16px}
 .hud-tag.callsign i,.hud-tag.callsign em,.hud-tag.callsign small{display:none}

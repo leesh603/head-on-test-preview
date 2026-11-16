@@ -103,26 +103,33 @@ function pursuing(contact,e){
  return Math.hypot(dx,dy)<B.coverPursuitRange&&Math.abs(wrap(Math.atan2(dy,dx)-contact.a))<B.coverPursuitCone;
 }
 // One healthy wingman abandons his own pattern and turns in on the pursuer.
-function callCover(game,e,contact,now){
+const coverRest=(e,now)=>e.directorLayout==='recovery'&&e.directorIntentUntil>now||e.directorBreakUntil>now||e.formationCollapseUntil>now||e.directorFireHoldUntil>now||e.directorLaunchAt>now||e.directorReadyAt>now;
+export function requestFormationCover(game,e,contact,now){
+ if(e.directorSquad?.leader!==e||e.directorSquad.broken||coverRest(e,now)||battleDamageWithdrawing(e))return null;
+ return callCover(game,e,contact,now,true);
+}
+function callCover(game,e,contact,now,formation=false){
  const d=e.battleDamage,B=BATTLE_DAMAGE_BALANCE;
- if(d.coverAt>now||!pursuing(contact,e))return null;
+ if((formation?e.battleCoverRequestAt:d?.coverAt)>now||!pursuing(contact,e))return null;
  const world=game.combatWorld?.()||game;let best=null,score=Infinity;
  for(const o of world.enemies||[]){
   if(o===e||!ordinaryFighter(o)||o.faction!==e.faction||battleDamageWithdrawing(o)||o.battleCoverUntil>now)continue;
+  if(formation&&(o.directorSquad!==e.directorSquad||o.expired||o.crashing||o.defensivePressure||coverRest(o,now)))continue;
   const gap=Math.hypot(o.x-e.x,o.y-e.y);if(gap>B.coverRange)continue;
-  const s=gap-(o.directorSquad&&o.directorSquad===e.directorSquad?160:0);
+  const s=formation?Math.hypot(contact.x-o.x,contact.y-o.y)+Math.abs(wrap(Math.atan2(contact.y-o.y,contact.x-o.x)-o.a))*120:gap-(o.directorSquad&&o.directorSquad===e.directorSquad?160:0);
   if(s<score){best=o;score=s;}
  }
- d.coverAt=now+B.coverCooldown;
+ if(formation)e.battleCoverRequestAt=now+B.coverCooldown;else d.coverAt=now+B.coverCooldown;
  if(!best)return null;
  best.battleCoverUntil=now+B.coverFor;
  best.combatPassState='APPROACH';best.combatPassTimer=0;best.combatPassCooldown=0;
  best.personalityManeuver=null;best.personalityDecisionUntil=now+1.2;
- best.directorFireHoldUntil=Math.min(best.directorFireHoldUntil||0,now);
+ if(!formation)best.directorFireHoldUntil=Math.min(best.directorFireHoldUntil||0,now);
  // Pulled out of any flight choreography for the intercept, and aimed at the pursuer himself
  // (in co-op: the pilot doing the chasing, not whoever happens to be nearest).
- best.directorIntentUntil=Math.min(best.directorIntentUntil||0,now);best.directorChoreographyDone=true;
+ if(!formation){best.directorIntentUntil=Math.min(best.directorIntentUntil||0,now);best.directorChoreographyDone=true;}
  best.battleCoverTargetId=contact.id??null;
+ if(formation){best.battleCoverContact=contact;best.battleCoverProtected=e;}
  return best;
 }
 
@@ -135,7 +142,7 @@ export function installBattleDamage(Game,angleDiff){
   const B=BATTLE_DAMAGE_BALANCE,now=this.t||0,step=Math.max(0,dt||0);
   // A choreographed flight pass is flown to its end; the damage takes over once the
   // Director releases the aircraft to free combat.
-  if(e.directorIntentUntil>now)return steer.call(this,e,contact,dt,baseTurn);
+  if(e.directorIntentUntil>now&&!(e.battleCoverContact&&e.battleCoverUntil>now))return steer.call(this,e,contact,dt,baseTurn);
   if(d.engine){
    // Other manoeuvres keep writing e.speed; the damaged engine only caps what they reach.
    d.cruise??=e.personalityCruise||e.dogfightCruise||e.speed;

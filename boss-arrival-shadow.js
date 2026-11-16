@@ -44,9 +44,9 @@ export function bossArrivalShadowPose(b){
  return {x:b.x+dx*reach+10,y:b.y+dy*reach+16,alpha:(airship?.16:.24)*clamp(age/.12)*clamp((end-age)/.35)};
 }
 export function bossArrivalHull(b){
- const s=b.t?.geometryScale||b.geometryScale||1,k=b.kind;
- if(k==='o400-raider')return {w:O400_LAYOUT.width,h:O400_LAYOUT.height,a:(b.a||0)+Math.PI/2};
- if(k==='gotha-raider')return {w:210,h:210,a:(b.a||0)+Math.PI/2};
+ const s=b.t?.geometryScale||b.geometryScale||1,k=b.kind,cityScale=b.regionalScale||1;
+ if(k==='o400-raider')return {w:O400_LAYOUT.width*cityScale,h:O400_LAYOUT.height*cityScale,a:(b.a||0)+Math.PI/2};
+ if(k==='gotha-raider')return {w:210*cityScale,h:210*cityScale,a:(b.a||0)+Math.PI/2};
  if(k==='staaken-rvi'){const w=380*(b.regionalScale||s);return {w,h:434*w/768,a:0};}
  if(['zeppelin-l70','hma23'].includes(k)){const w=390*s;return {w,h:w/4,a:0,rows:3};}
  if(ALPS_BOMBER_LAYOUT[k]){const l=ALPS_BOMBER_LAYOUT[k];return {w:l.width*s,h:l.height*s,a:b.hullYaw||0,cols:3};}

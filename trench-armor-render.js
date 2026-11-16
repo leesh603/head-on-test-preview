@@ -63,24 +63,29 @@ export function prepareArmorTreads(hull,kind,makeCanvas=()=>typeof OffscreenCanv
  }
  profiles.set(profile,cached);return cached;
 }
-export function drawArmorGround(c,b,wire,crossing){
+export function drawArmorGround(c,b){
  for(const p of b.trackMarks||[]){c.save();c.translate(p.x-b.x,p.y-b.y);c.rotate(p.yaw);c.globalAlpha*=Math.max(0,1-p.age/9)*.24;c.fillStyle='#29241a';c.fillRect(-p.width/2,-p.length/2,p.width,p.length);c.fillStyle='#6d5740';c.fillRect(-p.width/2,-p.length/2,p.width,2);c.restore();}
- const art=b.assetKey==='mark-v-cruiser'?crossing:wire,mark=b.assetKey==='mark-v-cruiser';
- if(b.entryAge<3.3&&art?.naturalWidth){const row=b.entryAge>1?1:0,hh=art.naturalHeight/2,s=b.geometryScale||1;c.save();c.translate((b.anchorX??b.x)-b.x,(b.anchorY??b.y)+22*s-b.y);c.globalAlpha*=Math.min(1,(3.3-b.entryAge)*2);c.drawImage(art,0,row*hh,art.naturalWidth,hh,-155*s,-(mark?46:30)*s,310*s,(mark?92:60)*s);c.restore();}
 }
-export function drawArmorTreads(c,b,hull,profile){
+export function drawArmorTreads(c,b,hull,profile,arrival){
  if(b.destroying||!hull?.naturalWidth)return;const layout=TRENCH_ARMOR_LAYOUT[b.assetKey],parts=b.parts||[],atlas=prepareArmorTreads(hull,b.assetKey,undefined,profile);
  for(let i=0;i<2;i++){
   const side=i?'right':'left',tread=i?b.rightTrack:b.leftTrack;
   if(parts.find(p=>p.id==='track-'+side)?.destroyed)continue;
-  const frame=treadFrame(tread?.roll||0,b.assetKey);
+  const roll=(tread?.roll||0)+(arrival?.arrivalTreadRoll||0);
+  const frame=treadFrame(roll,b.assetKey);
   const ribbon=atlas[side];
   c.drawImage(ribbon.image,frame*ribbon.frameWidth,0,ribbon.frameWidth,256,ribbon.x,-128,ribbon.width,256);
-  const speed=tread?.speed||0,h=layout.trackHalfLength*2,x=(i?1:-1)*layout.trackX;
-  if(Math.abs(speed)>2)fx(c,'dustPuff',x,speed>0?h*.46:-h*.46,46,34,0,Math.min(.32,Math.abs(speed)/170));
+  const speed=arrival?.arrivalTreadSpeed??tread?.speed??0,h=layout.trackHalfLength*2,x=(i?1:-1)*layout.trackX;
+  if(Math.abs(speed)>2){
+   const y=(speed>0?1:-1)*h*.46;
+   fx(c,'dustPuff',x,y,46,34,0,Math.min(.32,Math.abs(speed)/170));
+   if(arrival?.arrivalPending||b.tacticalState==='entry'){
+    const pulse=.5+.5*Math.sin(roll*.15+i*2.1),yTrail=y+Math.sign(speed)*(14+pulse*10);
+    fx(c,'dirtMix',x+(i?1:-1)*pulse*8,yTrail,58,48,0,Math.min(.4,Math.abs(speed)/85)*(.7+pulse*.3));
+   }
+  }
  }
 }
 export function drawArmorDamageFX(c,b){
  const engine=(b.parts||[]).find(p=>p.id==='engine-deck');if(engine?.destroyed&&!b.destroying){const s=b.geometryScale||1;fx(c,'fireEngine',engine.localX/s,engine.localY/s,44,56,0,.65);fx(c,'engineSmoke',engine.localX/s,engine.localY/s-24,52,78,0,.52);}
- if(b.entryAge<2.2)for(const side of [-1,1])fx(c,'dirtMix',side*65,88,62,48,0,.35);
 }

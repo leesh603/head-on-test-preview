@@ -1,11 +1,11 @@
-import {createFront,frontLength} from './dynamic-front.js?v=map-victory-f1e15a1f-20261110';
+import {createFront,frontLength} from './dynamic-front.js';
 // Solo checkpoints contain entry-time pilot/build data and uncollected victory
 // rewards, never the live battlefield or ordinary combat drops.
-import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=earned-rewards-7ccfad1b-20261114';
-import {pilotUnlockRun} from './pilot-unlocks.js?v=earned-rewards-7ccfad1b-20261114';
-import {STAGES} from './headon-stageboss-patterns.js?v=late-open-prs-5900a138-20261113';
-import {SPECIAL_OPERATIONS,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=arras-cargo-icons-4529781a-20261112';
-import {reconcileSecretWeapons} from './secret-weapons.js?v=core-experience-b5d0890e-20261113';
+import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=pandemonium394r2';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {STAGES} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111&weak2=20261114&quiet=20261115';
+import {SPECIAL_OPERATIONS,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=tension20261107';
+import {reconcileSecretWeapons} from './secret-weapons.js';
 export const STAGE_CHECKPOINT_KEY='headon.stage-checkpoint.v1';
 const STAGE_PHASES=['explore','final-arena','front-complete','operation-offer','operation-active'];
 const VERSION=1,MAX_BYTES=512*1024,cache=new WeakMap();

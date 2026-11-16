@@ -1,9 +1,9 @@
-import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js?v=b3bf991d11fc7798';
-import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js?v=b3bf991d11fc7798';
-import {SituationPolicy} from './music-situation-policy.js?v=b3bf991d11fc7798';
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=b3bf991d11fc7798';
-import {RecordedBattleMusic} from './music-recordings.js?v=b3bf991d11fc7798';
-export {musicContextForGame} from './music-context.js?v=b3bf991d11fc7798';
+import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js';
+import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js';
+import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
+import {RecordedBattleMusic} from './music-recordings.js?v=boss-score-20261115';
+export {musicContextForGame} from './music-context.js?v=situations1';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.
@@ -54,10 +54,11 @@ const THEMES={
 };
 const originalKey=id=>id==='trenches'?'trench':id==='berlin'?'city':id;
 const BOSS_TEMPO={kaiserkrone:86,leviathan:112,railgun:108,naval:96,landship:104,net:110,airship:92,bomber:112,fortress:98,duel:118};
+const SOMME_LANDSHIP_BOSS='mark4-wedge';
 const familyFor=id=>BOSS_TRACKS[id]||({rail:'railgun',naval:'naval',split:'naval',armor:'landship',siege:'fortress',net:'net',airship:'airship',bomber:'bomber',formation:'duel',searchlight:'net'}[BOSS_ARRANGEMENTS[id]?.mechanic])||id;
 export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS),'berlin']);
 export class BattleMusic {
-  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];this.situationPolicy=new SituationPolicy();this.situationAces=new Set();this.situationBoss=null;this.clearedMusicBoss=null;this.recorded=new RecordedBattleMusic({onStart:()=>this.stopVoices(()=>true,1)});}
+  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];this.situationPolicy=new SituationPolicy();this.situationAces=new Set();this.situationBoss=null;this.clearedMusicBoss=null;this.landshipEntranceEncounter=null;this.recorded=new RecordedBattleMusic({onStart:()=>this.stopVoices(v=>!v.landshipEntrance||this.scene?.bossId!==SOMME_LANDSHIP_BOSS,1)});}
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
@@ -94,7 +95,7 @@ export class BattleMusic {
     this.recorded.reset();
     this.stopVoices();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
     this.scene=null;this.run=null;this.positions={};this.track=null;this.step=0;this.intensity=.2;
-    this.seenAces=new WeakSet();this.intro=null;this.signatureCount=0;this.pulseCount=0;this.lastPulse=null;this.pendingPulse=false;this.tempo=null;this.noteGain=1;
+    this.seenAces=new WeakSet();this.intro=null;this.signatureCount=0;this.pulseCount=0;this.lastPulse=null;this.pendingPulse=false;this.tempo=null;this.noteGain=1;this.landshipEntranceEncounter=null;
   }
   setScene(scene,muted=false){
     if(scene?.run&&this.run&&scene.run!==this.run)this.reset();
@@ -118,6 +119,9 @@ export class BattleMusic {
       }
       scene={...scene,situationTrack:choice.loop,musicCrossfade:choice.crossfade,musicTempoScale:choice.tempoScale};
     }
+    const landshipEntry=!muted&&scene?.state==='BOSS'&&scene.bossId===SOMME_LANDSHIP_BOSS&&scene.encounterId
+      &&scene.situation?.approach==='boss'&&this.ctx?.state==='running'&&this.landshipEntranceEncounter!==scene.encounterId;
+    if(landshipEntry)scene={...scene,musicCrossfade:3.1};
     this.scene=scene;
     if(scene?.pulse&&scene.pulse!==this.lastPulse){this.pendingPulse=true;this.lastPulse=scene.pulse;}
     if(!scene?.pulse)this.pendingPulse=false;
@@ -127,6 +131,30 @@ export class BattleMusic {
     this.setState(mode,muted);
     this.recorded.sync(this.ctx,this.bus,this.scene,muted||inactive);
     if(!muted&&!inactive)for(const id of stingers)this.recorded.playStinger(this.ctx,this.bus,id);
+    // The Somme landship gets one original mechanical threat motif as it enters.
+    // The established recorded boss score and all other boss entrances are intact.
+    if(landshipEntry&&!inactive){
+      this.landshipEntranceEncounter=scene.encounterId;
+      this.landshipEntranceCue();
+    }
+  }
+  landshipEntranceCue(){
+    const t=this.ctx.currentTime+.04;
+    const previous=new Set(this.voices);
+    // Sub-bass, audible upper harmonics and a semitone clash: no borrowed melody.
+    this.tone(34,t,3.1,.20,'sine',150,.7);
+    this.tone(46,t+.15,2.75,.095,'sawtooth',340,.5);
+    this.tone(47,t+.42,2.1,.039,'sawtooth',390,.5);
+    // Four uneven track impacts swell toward the main battle recording.
+    for(const [at,pitch] of [[.27,34],[.94,33],[1.58,31],[2.18,30]]){
+      this.tone(pitch,t+at,.45,.31,'sine',145,.008);
+      this.tone(pitch+12,t+at,.26,.12,'triangle',360,.008);
+      this.tone(54,t+at+.07,.16,.044,'square',950,.006);
+    }
+    this.tone(41,t+2.48,.8,.16,'sawtooth',350,.025);
+    this.drum(t+2.64,true,.6);
+    // Keep these one-shot voices alive when the recorded boss track loads.
+    for(const voice of this.voices)if(!previous.has(voice))voice.landshipEntrance=true;
   }
   duck(depth=.74){
     if(!this.ctx||!this.duckBus||this.muted||this.mode==='idle')return;
@@ -141,7 +169,7 @@ export class BattleMusic {
   bossTrack(){return this.mode==='boss'?'duel':this.mode.startsWith('boss:')?familyFor(this.mode.slice(5)):null}
   setState(mode,muted){
     if(mode==='flight'||mode==='ace')mode='rural';
-    const isBoss=mode==='boss'||mode.startsWith('boss:');
+    const stageBoss=mode.startsWith('boss:'),isBoss=mode==='boss'||stageBoss;
     const squadron=SQUADRON_SCORES[mode.startsWith('squadron:')?mode.slice(9):''];
     if(mode!=='idle'&&!isBoss&&!squadron&&!THEMES[originalKey(mode)]&&!REGIONAL_VARIATIONS[mode])mode='rural';
     const now=this.ctx?.currentTime||0;
@@ -152,14 +180,14 @@ export class BattleMusic {
         this.step=resume?this.positions[mode]||0:isBoss||squadron?0:this.positions[mode]||0;
         if(isBoss){if(!resume)this.bossSince=now;else if(this.pausedAt!=null)this.bossSince+=now-this.pausedAt;}
         // A fresh gain bus fades the previous arrangement without a hard cut.
-        this.changeLayer(now,1.1);
+        this.changeLayer(now,stageBoss ? .75 : 1.1);
         this.track=mode;this.next=now+.02;
         if(!isBoss)this.tempo=(squadron||THEMES[originalKey(mode)]||REGIONAL_VARIATIONS[mode]).bpm;
       }else this.pausedAt=now;
     }
     this.mode=mode;this.muted=muted;
     if(mode==='idle'||muted)this.stopVoices();
-    if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:.72*this.volume,now,.08);
+    if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:(stageBoss ? .93 : .72)*this.volume,now,.08);
   }
   tone(midi,time,duration,volume,type='sawtooth',cutoff=1500,attack=.025){
     if(this.voices.size>=96)return;

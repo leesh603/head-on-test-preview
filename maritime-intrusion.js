@@ -1,5 +1,5 @@
 /** Optional sea encounters. Fictional WWI-inspired designs, not historical ship replicas. */
-import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack} from './submarine-intrusion.js';
+import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack,m1Reloading} from './submarine-intrusion.js';
 export const isSubmarine=e=>isNewSubmarine(e)||(typeof e==='string'?e:e?.profileId)==='nachtwal';
 import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
@@ -52,7 +52,7 @@ export function revealMaritimeDecoy(e){
 export function maritimeReveal(e,visual=true){if(visual&&Number.isFinite(e?.visualMaritimeReveal))return e.visualMaritimeReveal;return e.profileId==='qship'?clamp(finite(e.naval?.reveal),0,1):1;}
 function stepDecoyReveal(e,n,dt){
  n.disguiseAge+=dt;
- if(n.disguiseAge>=1||e.hp<e.maxHp)revealMaritimeDecoy(e);
+ if(n.disguiseAge>=(e.disguiseDuration??1)||e.hp<e.maxHp)revealMaritimeDecoy(e);
  if(n.revealing)n.reveal=Math.min(1,n.reveal+dt/1.5);
  e.movementPhase=n.reveal>=1?'guns-exposed':n.revealing?'revealing':'disguised';
 }
@@ -71,7 +71,8 @@ function integrateVessel(e,n,dt,targetSpeed,targetHeading){
 /** Reserve an unoccupied water contact before its first visible frame.
  * Existing traffic never gets shoved aside by a newly materialised boss. */
 export function placeMaritimeContact(g,e,layout,x,y,commit=true,heading=e.a){
- const obstacles=surfaceTraffic(g).map(fleetHull);
+ const traffic=[...surfaceTraffic(g),...(e.operationOwned?g.operationBattle?.naval?.ships.filter(s=>s.hp>0)||[]:[])];
+ const obstacles=traffic.map(fleetHull);
  for(const b of g.stageBoss?.stages?.encounter?.bodies?.values?.()||[])if(!b.dead){const r=bossHullRect(b);if(r)obstacles.push(r);}
  const hull={w:layout.width*e.scale,h:layout.height*e.scale,yaw:heading+Math.PI/2};
  // Prefer a clear broadside flypast, then fall back to the center and wider contacts.
@@ -103,12 +104,12 @@ export function stepMaritimeMotion(e,dt){
  else if(isSubmarine(e)){
   const timing=isNewSubmarine(e)?submarineTimings(e):{exposed:8.5,diving:1.1,submerged:2.8,surfacing:1.2};
   const control=e.parts.dive_control;
-  if(e.profileId==='m1'&&n.phase==='surfaced'&&e.hazards.some(h=>!h.done)){
+  if(e.profileId==='m1'&&n.phase==='surfaced'&&e.hazards.some(h=>!h.done&&!h.fired)){
    // Keep the firing line reserved by the visible splash warning.
    heading=e.a;speed=n.speed/submarineDrive(e).speed;
   }
   if(control?.hp<=0&&['diving','submerged'].includes(n.phase))changePhase(e,'surfacing');
-  if(n.phase==='surfaced'&&n.phaseAge>=timing.exposed&&!(control?.hp<=0)){
+  if(n.phase==='surfaced'&&n.phaseAge>=timing.exposed&&!(control?.hp<=0)&&!m1Reloading(e)){
    n.cycle++;n.travelAngle=e.a+(n.cycle%2?1:-1)*.35;
    changePhase(e,'diving');
   }else if(n.phase==='diving'&&n.phaseAge>=timing.diving)changePhase(e,'submerged');
@@ -245,6 +246,8 @@ export function maritimeTactic(e,locale='ko'){
   if(e.naval?.phase==='submerged')return en?'SUBMERGED · Watch the surfacing mark':'잠항 중 · 부상 지점 확인';
   if(e.naval?.phase==='surfacing')return en?'SURFACING · Prepare to attack':'부상 중 · 공격 준비';
   if(isNewSubmarine(e)&&e.parts.deck_gun?.hp<=0)return en?'MAIN GUN DISABLED · Break the remaining systems':'주포 파괴 · 남은 주요 부위를 파괴하세요.';
+  if(m1Reloading(e))return en?'305 MM RELOADING · Strike now':'305mm 재장전 · 지금 공격하세요';
+  if(e.profileId==='m1'&&e.hazards?.some(h=>h.fireAt!=null&&!h.fired))return en?'305 MM AIMING · Clear the impact zone':'305mm 조준 · 착탄 지점을 피하세요';
   if(e.parts.dive_control?.hp<=0)return en?'Dive controls disabled · Finish the hull':'잠항 장치 파괴 · 선체를 마무리하라';
   return e.naval?.phaseAge<2.4?(en?'EXPOSED · Strike now':'취약 구간 · 지금 집중 공격'):(en?'Break the deck guns or dive controls':'갑판포와 잠항 장치를 노려라');
  }

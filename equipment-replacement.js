@@ -1,6 +1,7 @@
 import {resetBishopGloves} from './equipment-flight-balance.js';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
 import {applySecretPomFit,hasSecretWeapon,removeSecretWeapon} from './secret-weapons.js';
+import {applySalamanderHull} from './secret-flight-fits.js';
 /** Rebuild only upgrade-owned contributions. Never replay combat or mutate a live world. */
 const clone=v=>JSON.parse(JSON.stringify(v));
 export function beginEquipmentLedger(p){
@@ -20,6 +21,7 @@ export function equipmentModel(p,Game,removed){
  Object.assign(m,{_equipmentReplay:true,state:'upgrade',rng:()=>.5,events:[],allies:[],bullets:[],enemies:[],friendlyBombs:[],friendlyBombers:[],formationWings:[],divingSquadron:[],airshipFleet:[],event(){},checkLevel(){},burst(){},smoke(){}});
  for(const e of ledger.history)if(e.active!==false&&e.id!==removed){m.state='upgrade';if(e.kind==='airframe'){if(!m.acquireAirframeTransfer(e.id))throw new Error('Airframe replay failed: '+e.id);m.upgrades[e.id]=1;}else if(!m.upgrade(e.id,e.rarity))throw new Error('Equipment replay failed: '+e.id);}
  if(removed!=='cow37'&&hasSecretWeapon(p,'vickersPomPom'))applySecretPomFit(m);
+ if(removed!=='sparkPlug'&&hasSecretWeapon(p,'salamanderArmor'))applySalamanderHull(m,{active:true});
  return m;
 }
 export function removeEquipment(p,id,Game,PLANES){
@@ -30,6 +32,7 @@ export function removeEquipment(p,id,Game,PLANES){
   if(typeof a==='number'&&typeof b==='number'&&Number.isFinite(a)&&Number.isFinite(b))p[key]=MULT.has(key)&&a!==0?(p[key]??a)*b/a:(p[key]??a)+b-a;
   else if(b===undefined)delete p[key];else p[key]=b;
  }
+ if(after.salamanderHullHp===undefined)delete p.salamanderHullHp;else p.salamanderHullHp=after.salamanderHullHp;
  p.hp=Math.max(0,Math.min(p.maxHp,p.maxHp*hpFraction));
  if(JSON.stringify(before.weapon)!==JSON.stringify(after.weapon)){
   const next={...p.weapon};for(const key of new Set([...Object.keys(before.weapon),...Object.keys(after.weapon)])){const a=before.weapon[key],b=after.weapon[key];if(Object.is(a,b))continue;if(typeof a==='number'&&typeof b==='number'&&a!==0)next[key]=(next[key]??a)*b/a;else if(b===undefined)delete next[key];else next[key]=b;}p.weapon=next;p.ammo=Array.from({length:p.weapon.guns},(_,i)=>Math.floor((ammo[i]??Math.min(...ammo))*p.weapon.belt));p.reloadTime=Math.max(0,reloadFraction*p.weapon.reload);

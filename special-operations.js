@@ -11,7 +11,8 @@ export const SPECIAL_OPERATIONS = Object.freeze({
  prototype: Object.freeze({title: '시험기 호위', maps: ['city', 'trenches', 'alps', 'somme'], reward: '신형기 양산'}),
  cargo: Object.freeze({title: '비밀병기 탈취', maps: ['cambrai'], reward: '노획 특수장비'}),
  squadron: Object.freeze({title: '특수편대 구출', maps: ['trenches', 'trenches-hell', 'somme', 'city'], reward: '특수편대 합류'}),
- ace: Object.freeze({title: '에이스 구출', maps: ['alps', 'city', 'trenches-hell', 'somme'], reward: '에이스 파일럿 합류'})
+ ace: Object.freeze({title: '에이스 구출', maps: ['alps', 'city', 'trenches-hell', 'somme'], reward: '에이스 파일럿 합류'}),
+ submarine: Object.freeze({title: '유보트 전대 작전', maps: ['sea', 'jutland'], reward: '노획 특수장비'})
 });
 
 export const SPECIAL_OPERATION_AFTER = 4;

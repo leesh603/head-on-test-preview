@@ -200,7 +200,7 @@ export function breakSilence(enc,dt,ctx){
  const now=enc.clock;
  let body=null,best=Infinity,target=null;
  for(const b of enc.bodies.values()){
-  if(b.dead||b.arrivalPending||['hma23','drachen-net'].includes(b.kind)||(ctx.doverRaid&&b.faction===ctx.doverRaid.faction)||(b.combatTime||0)<SILENCE.settle)continue;
+  if(b.dead||b.arrivalPending||(b.kind==='drachen-net'||b.kind==='hma23'&&b.phase!=='exposed')||(ctx.doverRaid&&b.faction===ctx.doverRaid.faction)||(b.combatTime||0)<SILENCE.settle)continue;
   // Prefer a body the pilot can see; a hidden one only when none is.
   const d0=b.hidden?1e6:0;
   for(const p of players){const d=d0+Math.hypot(p.x-b.x,p.y-b.y);if(d<best){best=d;body=b;target=p;}}

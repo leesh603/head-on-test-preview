@@ -192,7 +192,9 @@ export class DrachenMineNet extends CityAirships{
  drift(dt){this.driftTime+=dt;for(let i=0;i<3;i++)if(!this.parts.get('airship-'+i).destroyed)this.cityRigOffsets[i]=[Math.sin(this.driftTime*.38+i*1.7)*12-Math.sin(i*1.7)*12,Math.sin(this.driftTime*.52+i)*9-Math.sin(i)*9];this.syncRigs();}
 
  rigHit(s){for(const p of this.live()){const index=Number(p.id.at(-1));for(const [x,y]of DRACHEN_MINES[index]){const q=this.point(x,y,index);if(intersectsEllipse(s,q.x,q.y,24*this.cityArtScale,24*this.cityArtScale))return{partId:'rig-'+index};}}return null;}
- onPartDestroyed(p){super.onPartDestroyed(p);p.drachenBurst=null;p.gunFlash=0;const index=Number(p.id.at(-1));this.mineQueue=this.mineQueue.filter(q=>q.index!==index);this.burstQueue=this.burstQueue.filter(q=>q.index!==index);this.command('cancel-hazards',{tag:'drachen-support-'+index});if(this.mineSupportIndex===index)this.mineSupportIndex=null;if(this.aimSupportIndex===index)this.aimSupportIndex=null;}
+ onPartDestroyed(p){super.onPartDestroyed(p);p.drachenBurst=null;p.gunFlash=0;const index=Number(p.id.at(-1));this.mineQueue=this.mineQueue.filter(q=>q.index!==index);this.burstQueue=this.burstQueue.filter(q=>q.index!==index);this.command('cancel-hazards',{tag:'drachen-support-'+index});if(this.mineSupportIndex===index)this.mineSupportIndex=null;if(this.aimSupportIndex===index)this.aimSupportIndex=null;
+  // A surviving rig answers the loss within a second instead of waiting out the slower shared cadence.
+  for(const q of this.live()){const key='gun-'+q.id.at(-1);if(!q.drachenBurst)this.timers.set(key,Math.min(this.timers.get(key)??Infinity,.6));}}
  setNetState(state){this.netState=state;this.netStateAge=0;this.netStateFresh=true;this.phase='drachen-'+state;this.command('phase-change',{phase:this.phase});}
  planMines(target,live,bounds){if(!target||!live.length)return;const owner=live[this.netWave%live.length],index=Number(owner.id.at(-1));this.mineSupportIndex=index;
   this.timers.set('mine-lay',2.5/(this.t.patternMultiplier||1));

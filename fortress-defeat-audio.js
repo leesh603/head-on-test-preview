@@ -12,7 +12,7 @@ function* sampleChunks(sr=22050){
  const n=Math.ceil(FORTRESS_DEFEAT_SECONDS*sr),left=new Float32Array(n),right=new Float32Array(n);let seed=19180407,lo=0,mid=0,phase=0;
  const events=FORTRESS_DEFEAT_TIMELINE;
  for(let i=0;i<n;i++){
-  if(i>0&&i%4096===0)yield;
+  if(i>0&&i%2048===0)yield;
   const t=i/sr;seed=(Math.imul(seed,1664525)+1013904223)>>>0;const noise=seed/2147483648-1;
   lo+=(noise-lo)*(1-Math.exp(-TAU*420/sr));mid+=(noise-mid)*(1-Math.exp(-TAU*1500/sr));let l=0,r=0;
   function add(v,pan=0){const a=(pan+1)*Math.PI/4;l+=v*Math.cos(a);r+=v*Math.sin(a);}
@@ -35,9 +35,13 @@ export function fortressDefeatSamples(sr=22050){const chunks=sampleChunks(sr);le
 
 // Caller supplies its already gesture-unlocked context and normal/capture destinations.
 // eventId must be a stable encounter id, not a freshly reconstructed co-op snapshot object.
+// The score is synthesised in 2048-sample slices when the main thread is idle
+// (it is needed only at a fortress's defeat), not in back-to-back timers that
+// competed with combat frames in the first seconds of a stage.
+const idleSlice=()=>new Promise(resolve=>typeof requestIdleCallback==='function'?requestIdleCallback(resolve,{timeout:2500}):setTimeout(resolve,0));
 export function createFortressDefeatAudio({context,destinations,document:doc=globalThis.document}={}){
  let pcm=null,buffer=null,bufferContext=null,voice=null,disposed=false,played=0,currentId=null,last=null,error=null;
- const done=new Set();const ready=(async()=>{const chunks=sampleChunks();let next;do{await new Promise(resolve=>setTimeout(resolve,0));if(disposed)return;next=chunks.next();}while(!next.done);pcm=next.value;})();
+ const done=new Set();const ready=(async()=>{const chunks=sampleChunks();let next;do{await idleSlice();if(disposed)return;next=chunks.next();}while(!next.done);pcm=next.value;})();
  function remember(id){done.add(id);while(done.size>64)done.delete(done.values().next().value);}
  function stop(){if(!voice)return;const v=voice;voice=null;v.source.onended=null;try{v.source.stop();}catch{}v.source.disconnect();v.gain.disconnect();}
  function update(state){

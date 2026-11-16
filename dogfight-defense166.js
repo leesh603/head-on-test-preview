@@ -1,15 +1,33 @@
+import {ordinaryFighter} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {requestFormationCover,battleDamageWithdrawing} from './battle-damage.js';
 export const PURSUIT_MATCH_BALANCE=Object.freeze({closingThreshold:18,maxReductionMin:.10,maxReductionMax:.20,acquireReduction:.07,closeDistance:125,engageRate:4.8,recoverRate:2.2});
+export const DEFENSE_OBSERVATION=Object.freeze({hunterInterval:.24,scoutInterval:.65,range:340,rearCone:.95,aimCone:.6,releaseCone:1.2,coverDelay:.7});
 
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const TWO_SEAT_ARCHETYPES=new Set(['DEFENSIVE_TWO_SEATER','OFFENSIVE_TWO_SEATER']);
 
 function eligibleDefender(game,e){
- return !!(e?.personality&&game.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.bossPilot&&!e.formationLeader&&!e.missionTarget&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype));
+ const now=game.t||0;
+ return !!((!game.online||game.host)&&ordinaryFighter(e)&&e.personality&&game.patrolCanEngage(e)&&(!e.formationLeader||e.directorFormation)&&!e.expired&&!battleDamageWithdrawing(e)&&!(e.directorLayout==='recovery'&&e.directorIntentUntil>now)&&!(e.directorBreakUntil>now)&&!(e.formationCollapseUntil>now)&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype));
 }
 
+const visible=p=>p?.hp>0&&(!p.status||p.status==='alive')&&!p.fogHidden&&!(p.kaiserFogTime>0)&&!(p.ballCloak>0)&&!(p.cloudConceal>0)&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&Number.isFinite(p.a);
+const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 function tailPursuer(game,e){
- const players=game.players?.length?game.players:[game];
- return players.find(p=>p?.hp>0&&(!p.status||p.status==='alive')&&p.tailLocked&&p.tailTargetId&&p.tailTargetId===e.tailId)||null;
+ const now=game.t||0,B=DEFENSE_OBSERVATION,players=game.players?.length?game.players:null;
+ // Death/concealment invalidates memory immediately; geometry is sampled, not read from player lock/input.
+ if(e.defenseContact&&(!(players?players.includes(e.defenseContact):e.defenseContact===game)||!visible(e.defenseContact)||!game.patrolCanEngage(e,e.defenseContact)))e.defenseContact=null;
+ if(now<(e.defenseObserveAt??-Infinity))return e.defenseContact||null;
+ e.defenseObserveAt=now+(e.type==='hunter'?B.hunterInterval:B.scoutInterval);
+ let chosen=null,best=Infinity;
+ for(let i=0;i<(players?players.length:1);i++){
+  const p=players?players[i]:game;
+  if(!visible(p)||!game.patrolCanEngage(e,p))continue;
+  const dx=p.x-e.x,dy=p.y-e.y,range=Math.hypot(dx,dy),bearing=Math.atan2(dy,dx),held=p===e.defenseContact;
+  if(range<45||range>B.range||Math.abs(wrap(bearing-e.a-Math.PI))>(held?B.releaseCone:B.rearCone)||Math.abs(wrap(bearing+Math.PI-p.a))>B.aimCone)continue;
+  const score=range*(held?.7:1);if(score<best){chosen=p;best=score;}
+ }
+ e.defenseContact=chosen;return chosen;
 }
 
 export function installDogfightDefense(Game,TAILING_BALANCE,AUGMENTATION_OVERHAUL_BALANCE,DOGFIGHT_PASS_STATES,angleDiff){
@@ -21,11 +39,12 @@ export function installDogfightDefense(Game,TAILING_BALANCE,AUGMENTATION_OVERHAU
    if(e.combatPassState&&e.combatPassState!==DOGFIGHT_PASS_STATES.APPROACH){
     e.combatPassState=DOGFIGHT_PASS_STATES.APPROACH;e.combatPassTimer=0;e.combatPassCooldown=.4;
    }
-   if(!e.defensivePressure)e.personalityDecisionUntil=0;
+   if(!e.defensivePressure){e.personalityDecisionUntil=0;e.defenseStartedAt=this.t||0;}
    e.defensivePressure=true;
+   if((this.t||0)-e.defenseStartedAt>=DEFENSE_OBSERVATION.coverDelay)requestFormationCover(this,e,pursuer,this.t||0);
    return steer.call(this,e,pursuer,dt,baseTurn);
   }
-  if(e)e.defensivePressure=false;
+  if(e){e.defensivePressure=false;e.defenseContact=null;}
   return steer.call(this,e,contact,dt,baseTurn);
  };
 

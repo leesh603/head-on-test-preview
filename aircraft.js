@@ -7,7 +7,7 @@ const SQUADRON_PAINT_ALIASES={spad12:'cigognes_cannon_paint',stork_spad:'cigogne
 const squadronPaintReady=key=>hasPaintedAircraft(SQUADRON_PAINT_ALIASES[key]||key),loadSquadronPaint=key=>paintedReady(SQUADRON_PAINT_ALIASES[key]||key);
 import {configureExpansionArt} from './famous-squadron-expansion.js';
 import {configureCigognesArt} from './cigognes-cannon-patrol.js';
-import {configureHatRingArt} from './hat-ring-blockade.js?v=snap20261107&elite=20261109';
+import {configureHatRingArt} from './hat-ring-blockade.js?v=snap20261107&elite=20261109&counter=20261114';
 import {configureFamousWingArt} from './famous-wing-combat.js';
 import {fxReady as cigognesFxReady} from './fx-art.js?v=tame3';
 import {configureTransportArt} from './transport-convoy.js';

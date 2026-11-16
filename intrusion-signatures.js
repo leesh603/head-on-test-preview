@@ -120,16 +120,10 @@ function seaGun(g,e,p,api){
  return mounts(e,api,'heavy').filter(x=>api.visible(g,e,x.world)&&(sub||api.clear(e,x.gun.id,x.muzzle,x.a)))
   .sort((a,b)=>Math.hypot(a.world.x-p.x,a.world.y-p.y)-Math.hypot(b.world.x-p.x,b.world.y-p.y))[0]||null;
 }
-// Air bosses drop bombs; ships lay the same shapes as shell splashes from one gun.
-function ordnance(g,e,p,api){
- if(!api.sea(e))return api.canBomb(e)?{kind:'bomb'}:null;
- const gun=seaGun(g,e,p,api);
- return gun&&{kind:'naval-splash',sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,gun};
-}
-function bomb(e,x,y,warning,radius,damage,name,o){const {gun,...source}=o;e.hazards.push({...source,x,y,radius,age:0,warning,damage,signature:name,done:false});}
-
 function bombPattern(g,e,p,api,name){
- const o=ordnance(g,e,p,api);if(!o)return 0;
+ const sea=api.sea(e),gun=sea?seaGun(g,e,p,api):null;
+ const sources=sea?(gun?[{sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,side:0}]:[]):api.bombSources(e);
+ if(!sources.length)return 0;
  const enraged=intrusionEnraged(e),turn=finite(e.signatureTurn),lead=t=>signatureLead(p,turn,t,api),points=[];
  if(name==='walk'){
   // A chain that starts toward the boss and walks onto the pilot's track.
@@ -149,11 +143,23 @@ function bombPattern(g,e,p,api,name){
   for(let i=1;i<k.slots;i++){const a=gap+i*step;points.push({x:c.x+Math.cos(a)*k.radius,y:c.y+Math.sin(a)*k.radius,w,r:k.bomb,dmg:k.damage});}
   points.push({x:c.x,y:c.y,w,r:k.core,dmg:k.damage});
  }
- const shown=points.filter(q=>api.visible(g,e,q));
- if(shown.length<Math.ceil(points.length*.6))return 0;
- const sea=o.kind==='naval-splash',k=INTRUSION_SIGNATURE.splash;
- for(const q of shown)bomb(e,q.x,q.y,sea?k.warning:q.w,sea?k.radius:q.r,sea?k.damage:q.dmg,name,o);
- if(sea)api.muzzle?.(g,{x:o.gun.world.x,y:o.gun.world.y,angle:o.gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
+ const broad=sources.filter(s=>s.side===0),cx=points.reduce((sum,q)=>sum+q.x,0)/points.length,cy=points.reduce((sum,q)=>sum+q.y,0)/points.length;
+ const lateralX=Math.cos(e.a+Math.PI/2),lateralY=Math.sin(e.a+Math.PI/2),serial=finite(e.signatureSerial);
+ // A broken rack leaves the corresponding wing's lane open. Batteries with
+ // no wing split share the whole pattern, one committed mount at a time.
+ const owned=points.flatMap((q,i)=>{
+  const across=(q.x-cx)*lateralX+(q.y-cy)*lateralY;
+  const source=broad[serial%Math.max(1,broad.length)]||(Math.abs(across)<1?sources[(serial+i)%sources.length]:sources.find(s=>s.side===Math.sign(across)));
+  return source?[{q,source}]:[];
+ });
+ const shown=owned.filter(({q})=>api.visible(g,e,q));
+ if(!shown.length||shown.length<Math.ceil(owned.length*.6))return 0;
+ const k=INTRUSION_SIGNATURE.splash;
+ for(const {q,source:{sourcePartId,localMuzzle,localAngle}} of shown)e.hazards.push({
+  kind:sea?'naval-splash':'bomb',sourcePartId,localMuzzle,localAngle,x:q.x,y:q.y,radius:sea?k.radius:q.r,
+  age:0,warning:sea?k.warning:q.w,damage:sea?k.damage:q.dmg,signature:name,done:false
+ });
+ if(sea)api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
  return shown.length;
 }
 

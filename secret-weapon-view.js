@@ -1,4 +1,5 @@
 import {secretWeaponIcon} from './secret-weapons.js';
+import {SECRET_ORDNANCE} from './secret-ordnance.js';
 import {secretRamSpeed} from './secret-weapon-combat.js';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
 
@@ -15,7 +16,11 @@ export function secretCondition(recipe,en,name,family){
 function badgeState(recipe,p,g,en){
  const id=recipe.id,e=p.secretWeaponState?.effects[id]||{},now=g.t||0;
  const waiting=(en?'WAIT':'대기'),ready=(en?'READY':'준비');
+ if(['fokkerLeimberger','salamanderArmor','siemensHalske'].includes(id))return [1,''];
  const cooling=(left,total)=>[1-clamp(left/total),left>0?Math.ceil(left)+'s':ready];
+ if(id==='lePrieurSalvo')return e.remaining>0?[1,en?'SALVO':'일제사격']:cooling((e.readyAt||0)-now,SECRET_ORDNANCE.rocket.period);
+ if(id==='puw50')return e.remaining>0?[1,en?'DROP':'투하']:cooling((e.readyAt||0)-now,SECRET_ORDNANCE.puw.period);
+ if(id==='davisRecoilless')return cooling(p.motorCannonTimer||0,p.ordnanceInterval?.(3)||3);
  if(id==='vickersPomPom'){
   const reload=p.reloadTime,duration=p.weapon?.reload;
   const ammo=(p.ammo||[]).reduce((n,a)=>n+a,0);
@@ -27,10 +32,7 @@ function badgeState(recipe,p,g,en){
   const left=id==='fliegerpfeil'?p.wwiCooperCooldown:p.wwiVeryCooldown;
   return [count/3,count+'/3'+(left>0?' · '+Math.ceil(left)+'s':'')];
  }
- if(id==='badinBreakthrough'){
-  const charge=clamp(p.equipmentStraight||0);
-  return [charge,charge>=.99?ready:Math.round(charge*100)+'%'];
- }
+ if(id==='badinBreakthrough')return [1,''];
  if(id==='explosiveArmor'||id==='farnboroughFirechain')return cooling((e.readyAt||0)-now,id==='explosiveArmor'?15:6);
  if(id==='nesterovRam'){const speed=secretRamSpeed(p);return [speed<0?.3:1,speed<0?waiting:ready];}
  if(id==='villarPerosa')return e.remaining>0?[1,en?'BURST':'점사']:cooling(e.delay||0,.73);
@@ -46,29 +48,32 @@ function badgeState(recipe,p,g,en){
 }
 export function paintSecretBadge(rb,p,g,en,faction){
  const {ctx:c,secret}=rb,icon=secretIconKey(secret,faction);
- if(secret.id==='fokkerLeimberger'){
-  if(rb.frameKey===icon)return;
-  rb.frameKey=icon;
-  c.canvas.width=c.canvas.height=96;
-  c.canvas.classList.add('leimberger-icon');
-  drawGameIcon(c,icon,48,48,88);
-  return;
- }
  const [progress,label]=badgeState(secret,p,g,en),notice=p.secretWeaponState?.notices?.[secret.id]||0;
  const assembly=clamp((notice-(p.t||0))/1.2);
  const flash=progress>=1&&rb.lastProgress<1;
  if(flash)rb.flashAt=g.t;
- const glint=Math.max(assembly,1-clamp(((g.t||0)-(rb.flashAt??-1))/.3));
+ const glint=secret.id==='badinBreakthrough'?0:Math.max(assembly,1-clamp(((g.t||0)-(rb.flashAt??-1))/.3));
  const key=progress.toFixed(2)+'|'+label+'|'+glint.toFixed(2)+'|'+icon;
  if(rb.frameKey===key)return;
  rb.frameKey=key;rb.lastProgress=progress;
+ c.save();
+ const scale=c.canvas.width/48;
+ c.setTransform(scale,0,0,scale,0,0);
  c.clearRect(0,0,48,48);
- c.save();c.globalAlpha=progress<1?.34:1;drawGameIcon(c,icon,24,23,44);c.restore();
+ c.beginPath();c.arc(24,24,23,0,Math.PI*2);c.clip();
+ c.globalAlpha=progress<1?.32:1;drawGameIcon(c,icon,24,24,42);c.globalAlpha=1;
+ const angle=-Math.PI/2+progress*Math.PI*2;
  if(progress>0&&progress<1){
-  c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,35,-Math.PI/2,-Math.PI/2+progress*Math.PI*2);c.closePath();c.clip();drawGameIcon(c,icon,24,23,44);c.restore();
+  c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,26,-Math.PI/2,angle);c.closePath();c.clip();drawGameIcon(c,icon,24,24,42);c.restore();
  }
- c.strokeStyle=glint>0?'#fff1bc':'#9e7c41';c.lineWidth=glint>0?2:1;c.strokeRect(1,1,46,46);
- c.font='bold 10px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle='#101719';c.fillStyle='#fff2ca';
- c.strokeText(label,24,44);c.fillText(label,24,44);
+ if(glint>0||(progress>0&&progress<1)){
+  c.strokeStyle=glint>0?'#fff1bc':'#ffe9a8';c.lineWidth=2;
+  c.beginPath();c.arc(24,24,21,-Math.PI/2,glint>0?Math.PI*1.5:angle);c.stroke();
+ }
+ if(label){
+  c.font='bold 10px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle='#101719';c.fillStyle='#fff2ca';
+  c.strokeText(label,24,44);c.fillText(label,24,44);
+ }
+ c.restore();
  c.canvas.dataset.secretStatus=label;
 }

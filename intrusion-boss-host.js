@@ -1,9 +1,9 @@
-import {isMaritimeIntrusion,maritimeAttackable} from './maritime-intrusion.js?v=intrusion-combat-601-b37e302c';
-import {photoReconActive} from './photo-recon-encounters.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {isMaritimeIntrusion,maritimeAttackable} from './maritime-intrusion.js';
+import {photoReconActive} from './photo-recon-encounters.js';
 /** Narrow adapter: optional encounters never enter BossStages or its reward hooks. */
-import {stepIntrusion,intrusionActive,disposeIntrusion,hitIntrusionAt,locateIntrusionHit,intrusionProfiles,intrusionWorldPoint,intrusionPartExposed} from './intrusion-bosses.js?v=earned-rewards-7ccfad1b-20261114';
-import {intrusionLayout} from './intrusion-boss-layouts.js?v=late-open-prs-5900a138-20261113';
-import {prepareIntrusionArt,intrusionArtReady} from './intrusion-boss-art.js?v=late-open-prs-5900a138-20261113';
+import {stepIntrusion,intrusionActive,disposeIntrusion,hitIntrusionAt,locateIntrusionHit,intrusionProfiles,intrusionWorldPoint,intrusionPartExposed} from './intrusion-bosses.js';
+import {intrusionLayout} from './intrusion-boss-layouts.js';
+import {prepareIntrusionArt,intrusionArtReady} from './intrusion-boss-art.js';
 const visualLoads=new WeakMap();
 export function tickIntrusionHost(g,dt,window){
  if(g.online&&!g.host||g.mode==='campaign')return;

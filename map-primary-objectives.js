@@ -1,9 +1,10 @@
 // Required battlefield objectives. The existing stage owner advances the front;
 // this module only observes native parts, pilots and mission-owned units.
-import {tickAirMapMission} from './map-air-missions.js?v=arras-cargo-icons-4529781a-20261112';
-import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js?v=earned-rewards-7ccfad1b-20261114';
-import {tickAlpsObservation} from './alps-observation-mission.js?v=late-open-prs-5900a138-20261113';
-import {harborPoint} from './harbor-crane-layout.js?v=quality-audit-596-c6ea4cf8-20261109';
+import {tickAirMapMission} from './map-air-missions.js';
+import {NAVAL_MISSION_BALANCE,tickNavalMapMission} from './map-naval-missions.js';
+import {tickAlpsObservation} from './alps-observation-mission.js';
+import {VERDUN_SUPPORT_LABELS} from './verdun-battle.js?v=vaux20261116';
+import {harborPoint} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
 
 export const PRIMARY_MAPS=Object.freeze([0,1,2,5,6,7,8,9,10,12,13,14,15,16]);
 const BOSS_OBJECTIVES={
@@ -11,7 +12,7 @@ const BOSS_OBJECTIVES={
  7:['장갑 항만요새 격파','Destroy the armored harbor fortress'],
  14:['갈리폴리 대요새 격파','Destroy the Gallipoli fortress']
 };
-const TITLES={0:['철도 돌파','Rail breakthrough'],1:['해협 봉쇄전','Strait blockade'],2:['참호 돌파','Trench breakthrough'],5:['공중요새 결전','Aerial fortress'],6:['산악 관측망 섬멸','Alpine observation network'],7:['제브뤼헤 항만요새','Zeebrugge harbor fortress'],8:['돌파로 확보','Secure the breach'],9:['아라스 고고도 제공전','Arras air superiority'],10:['솜 전선','Somme front'],12:['베르됭 보급로 확보','Open the Verdun supply route'],13:['마안 사진정찰 호위','Maan reconnaissance escort'],14:['갈리폴리 대요새','Gallipoli fortress'],15:['파리 야간 작전','Paris night operation'],16:['유틀란트 함대전','Jutland fleet action']};
+const TITLES={0:['철도 돌파','Rail breakthrough'],1:['해협 봉쇄전','Strait blockade'],2:['참호 돌파','Trench breakthrough'],5:['공중요새 결전','Aerial fortress'],6:['산악 관측망 섬멸','Alpine observation network'],7:['제브뤼헤 항만요새','Zeebrugge harbor fortress'],8:['돌파로 확보','Secure the breach'],9:['아라스 고고도 제공전','Arras air superiority'],10:['솜 전선','Somme front'],12:['베르됭 요새 공략','Siege of Verdun'],13:['마안 사진정찰 호위','Maan reconnaissance escort'],14:['갈리폴리 대요새','Gallipoli fortress'],15:['파리 야간 작전','Paris night operation'],16:['유틀란트 함대전','Jutland fleet action']};
 const host=g=>!g.online||g.host;
 const live=p=>p&&p.hp>0&&!p.expired&&!p.crashing&&p.status!=='downed'&&p.status!=='dead';
 const pilots=g=>(g.players||[g]).filter(live);
@@ -25,7 +26,7 @@ const say=(g,text)=>g.event?.('wave',text);
 // 20261109 HUD copy: the card reads title / what to do now with its count /
 // time left and the one way it can fail. Before contact each map already
 // names its real objective instead of a generic "find the target".
-const PREVIEW={0:['열차포를 찾아 선로·탄약차 파괴','Find the rail gun: cut track and ammunition'],2:['적 전차를 찾아 멈추세요','Find the tank and stop it'],8:['적 주포를 부숴 돌파로를 여세요','Break the enemy guns to open the breach'],10:['전방 적 강점·전차를 저지하세요','Stop the strongpoint and tanks ahead'],12:['관측소와 보급로 포대를 찾으세요','Find the observation post and road batteries'],15:['파리 상공의 표적을 찾으세요','Find the target over Paris']};
+const PREVIEW={0:['열차포를 찾아 선로·탄약차 파괴','Find the rail gun: cut track and ammunition'],2:['적 전차를 찾아 멈추세요','Find the tank and stop it'],8:['적 주포를 부숴 돌파로를 여세요','Break the enemy guns to open the breach'],10:['전방 적 강점·전차를 저지하세요','Stop the strongpoint and tanks ahead'],15:['파리 상공의 표적을 찾으세요','Find the target over Paris']};
 const PREVIEW_META=['표적과 교전하면 제한시간 시작','The clock starts at first contact'];
 const won=(ko,en)=>({success:true,reason:[ko,en]});
 const lost=(ko,en)=>({success:false,reason:[ko,en]});
@@ -52,15 +53,19 @@ export function ensureMapMission(g){
  clearMapMission(g);
  const p=lead(g);if(!p)return null;
  const m=g.mapMission={id:`map-${g.stageBoss.runId||'sortie'}-${key}`,key,region:s.stageIndex,faction:s.teamFaction||g.teamFaction||'entente',age:0,limit:120,status:'active',resolved:false,success:false,exitReady:false,origin:{x:p.x,y:p.y},heading:p.a??-Math.PI/2,title:TITLES[s.stageIndex],task:['작전 지역으로 진입하세요','Enter the operation area'],detail:['필수 목표를 달성해야 다음 전장으로 이동합니다','Complete the objective to reach the next battlefield'],guides:[],reservesEvents:[1,5,6,7,9,13,14,16].includes(s.stageIndex)};
+ if(m.region===12){
+  m.title=m.faction==='central'?['1916년 6월 · 보 요새 공략','June 1916 · Siege of Fort Vaux']:['1916년 10월 · 두오몽 탈환','October 1916 · Recapture of Douaumont'];
+  m.limit=Infinity;
+ }
  // Part-based objectives start their deadline at contact, preserving the
  // current opening fights and the normal boss approach/arrival sequence.
- m.awaitContact=[0,2,8,10,12,15].includes(m.region);
+ m.awaitContact=[0,2,8,10,15].includes(m.region);
  if(BOSS_OBJECTIVES[m.region])m.limit=Infinity;
  return m;
 }
 
 function exit(g,m,ko='귀환선',en='Exit',distance=950,reverse=true){
- if(!m.exit){m.exit=at(lead(g)||m.origin,m.heading+(reverse?Math.PI:0),distance);say(g,ko+' 개방 · 표시된 지점으로 이탈하세요');}
+ if(!m.exit){m.exit=at(lead(g)||m.origin,m.heading+(reverse?Math.PI:0),distance);m.exitLabel=[ko,en];m.limit=Infinity;say(g,ko+' 개방 · 표시된 지점으로 이탈하세요');}
  guide(m,m.exit,ko,en,'exit');m.task=[ko+'으로 이동하세요',`Fly to the ${en.toLowerCase()}`];
  m.detail=['목표 달성 · 남은 적은 무시해도 됩니다','Objective done · remaining enemies may be ignored'];
  return near(g,m.exit)?won('작전 완료 · 전장 이탈','Objective complete · leaving battlefield'):null;
@@ -96,7 +101,61 @@ function interceptCounterattack(g,m,dt){
  return null;
 }
 
+function tickVerdun(g,m){
+ if(m.exit)return exit(g,m,...m.exitLabel);
+ const b=bodies(g)[0],v=g.verdunBattle;
+ if(!b){
+  const supply=!!v?.train?.supplyCut,stopped=v?.mortars.filter(e=>e.hp<=0).length||0,blind=!!v?.observer?.silenced&&!v.balloonActive;
+  m.task=[`선택 · 열차 ${supply?'차단':'차단 전'} · 진지 ${stopped}/2 · 관측 ${blind?'제압':'활성'}`,
+   `Optional · Train ${supply?'cut':'intact'} · Mortars ${stopped}/2 · Observation ${blind?'cut':'active'}`];
+  m.detail=['표적을 제압하면 적 포격 약화','Silence targets to weaken incoming fire'];
+  const train=v?.train;
+  if(train&&!train.departed&&!train.supplyCut){
+   const e=train.engine.hp>0?train.engine:train.wagons.find(e=>e.hp>0);
+   if(e)guide(m,e,'탄약 수송열차','Ammunition train');
+  }
+  for(const e of [...(v?.mortars||[]),v?.observer])if(e?.hp>0)guide(m,e,...VERDUN_SUPPORT_LABELS[e.verdunKind]);
+  const balloon=g.enemies.find(e=>e.verdunObserver&&live(e));
+  if(balloon)guide(m,balloon,...VERDUN_SUPPORT_LABELS.balloon);
+  return null;
+ }
+ if(b.dead)return exit(g,m,'요새 확보 지점','Secured approach',700,false);
+ if(b.arrivalPending||pilots(g).every(p=>Math.hypot(p.x-b.x,p.y-b.y)>810)){
+  m.task=['요새에 접근하세요','Fly toward the fortress'];
+  m.detail=['전방 지형의 요새 방어시설을 제압','Silence the fortress defences'];
+  guide(m,b,'요새 접근로','Fortress approach');return null;
+ }
+ const vaux=b.kind==='fort-vaux',control=b.kind==='fort-douaumont'?'control':'observer';
+ const guns=b.kind==='fort-douaumont'?['heavy-left','heavy-right']:['bunker-left','bunker-right'];
+ if(b.coreVulnerable){
+  const k=b.regionalCore;
+  m.task=['노출된 핵심부 파괴','Destroy the exposed core'];
+  m.detail=['요새가 무너지면 진격로가 열립니다','The fortress collapse opens the advance'];
+  guide(m,{x:b.x+k.x,y:b.y+k.y},'노출된 핵심부','Exposed core');
+ }else if(!vaux&&['ammo-left','ammo-right'].some(id=>b.parts.get(id)?.revealed&&!dead(b,id))){
+  m.task=['노출된 탄약고·남은 중포 파괴','Destroy exposed magazines and remaining heavy guns'];
+  m.detail=['양쪽 중포와 탄약고를 제압해 핵심부 노출','Silence both heavy guns and magazines to expose the core'];
+  for(const id of guns)partGuide(m,b,id,'중포','Heavy gun');
+  for(const id of ['ammo-left','ammo-right'])if(b.parts.get(id)?.revealed)partGuide(m,b,id,'탄약고','Magazine');
+ }else if(vaux&&b.parts.get('ammo')?.revealed){
+  m.task=['노출된 탄약고 파괴','Destroy the exposed magazine'];
+  m.detail=['탄약고 유폭으로 막사 방어선 붕괴','The magazine blast opens the barracks'];
+  partGuide(m,b,'ammo','탄약고','Magazine');
+ }else{
+  const n=guns.filter(id=>dead(b,id)).length,blind=dead(b,control);
+  m.task=[`관측소 ${blind?'제압':'활성'} · ${vaux?'포곽':'중포'} ${n}/2`,
+   `Observation ${blind?'cut':'active'} · ${vaux?'Casemates':'Heavy guns'} ${n}/2`];
+  m.detail=vaux?['양측 포곽과 관측소를 제압해 탄약고 노출','Silence both casemates and the post to expose the magazine']:
+   ['외곽 방어선을 제압하고 핵심부를 공격','Silence the perimeter and attack the core'];
+  partGuide(m,b,control,'포병 관측소','Artillery observation');
+  for(const id of guns)partGuide(m,b,id,vaux?'부르주 포곽':'중포',vaux?'Bourges casemate':'Heavy gun');
+ }
+ return null;
+}
+
 function tickParts(g,m,dt){
+ // Once the route is secured, repairs or the boss leaving cannot revoke it.
+ if(m.exit)return exit(g,m,...m.exitLabel);
  const b=combatBody(g,m);if(!b){m.task=PREVIEW[m.region]||['전방 표적을 찾으세요','Find the target ahead'];m.detail=PREVIEW_META;return null;}
  const parts=[...b.parts?.values()||[]];
  if(m.region===0){
@@ -137,13 +196,6 @@ function tickParts(g,m,dt){
    for(const id of ids)partGuide(m,b,id,'강점 포대','Strongpoint gun');
    if(b.dead||n===3)return exit(g,m,'진격 지점','Advance point',1000,false);
   }
- }else if(m.region===12){
-  const control=b.kind==='fort-douaumont'?'control':'observer';
-  const guns=b.kind==='fort-douaumont'?['heavy-left','heavy-right']:['bunker-left','bunker-right'];
-  const n=guns.filter(id=>dead(b,id)).length,blind=dead(b,control);
-  m.task=[`관측소 ${blind?'파괴됨':'남음'} · 보급로 포대 ${n}/2`,`Observation ${blind?'cut':'active'} · road batteries ${n}/2`];m.detail=['모두 제압하면 보급로 확보 지점 개방','All silenced opens the supply route'];
-  partGuide(m,b,control,'포병 관측소','Artillery observation');for(const id of guns)partGuide(m,b,id,'보급로 위협 포대','Road-covering battery');
-  if(b.dead||blind&&n===2)return exit(g,m,'보급로 확보 지점','Supply route',1000,false);
  }else if(m.region===15){
   const defend=m.faction!=='central',ids=defend?['bomb-bay-left','bomb-bay-right']:['generator-left','generator-right'];
   const n=ids.filter(id=>dead(b,id)).length;
@@ -246,6 +298,7 @@ export function tickMapMission(g,dt){
  else if(BOSS_OBJECTIVES[m.region])result=tickBossObjective(g,m);
  else if([9,13].includes(m.region))result=tickAirMapMission(g,m,Math.min(dt,.12));
  else if(m.region===6)result=tickAlpsObservation(g,m);
+ else if(m.region===12)result=tickVerdun(g,m);
  else result=tickParts(g,m,Math.min(dt,.12));
  if(!result&&!m.blockadeCleared&&(!m.awaitContact||m.contactAt!=null)&&m.age>=m.limit)result=lost('제한시간 초과 · 작전 실패','Time expired · operation failed');
  if(result){

@@ -20,7 +20,7 @@ function loadLondonImage(key,path){
 export function prepareLondonArt(daylightCity=false){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).filter(([key])=>!daylightCity||key!=='districtDamage').map(([key,path])=>loadLondonImage(key,path))]);}
 const londonImage=key=>{if(!art[key])prepareLondonArt();return art[key]?.naturalWidth?art[key]:null;};
 export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const crash=b.destroying?gothaCrashPose(b,b.destructionAge,b.destructionDuration):null,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
- c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??a);c.imageSmoothingEnabled=true;if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
+ c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??a);c.imageSmoothingEnabled=true;const scale=b.regionalScale||1;if(scale!==1)c.scale(scale,scale);if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
  const cell=(wreck=false)=>c.drawImage(im,wreck?cw:0,0,cw,ch,-105,-105,210,210);
  c.save();if(crash)c.globalAlpha*=1-crash.wreckMix;cell();c.restore();if(crash){c.save();c.globalAlpha*=crash.wreckMix;cell(true);c.restore();fx(c,'fireEngine',-23,-8,30,45,0,.85);fx(c,'fireEngine',23,-8,30,45,0,.85);fx(c,'smokeTrail',0,35,45,115,Math.PI/2,.7);}
  // Reuse the painted fuselage skin for the two opening leaves, and the
@@ -29,7 +29,7 @@ export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGoth
   const q=b.bayOpen;fx(c,'bomb',0,-14,9,19,0,q*.9);
   for(const side of [-1,1]){c.save();c.translate(side*(3+q*5),-14);c.rotate(side*q*.35);c.drawImage(im,cw*.48+(side>0?cw*.02:0),ch*.39,cw*.02,ch*.10,-2,-10,4,20);c.restore();}
  }
- if(!b.destroying)for(const p of b.parts||[]){if(p.hp>=p.maxHp)continue;const dx=p.x*Math.cos(a)+p.y*Math.sin(a),dy=-p.x*Math.sin(a)+p.y*Math.cos(a);c.save();c.beginPath();c.ellipse(dx,dy,p.id.startsWith('engine')?16:13,p.id.startsWith('engine')?24:18,0,0,Math.PI*2);c.clip();c.globalAlpha*=p.destroyed?1:.55;cell(true);c.restore();if(p.destroyed){fx(c,'fire',dx,dy,29,34,0,.8);fx(c,'smokeDark',dx,dy-28,46,46,0,.65);}}
+ if(!b.destroying)for(const p of b.parts||[]){if(p.hp>=p.maxHp)continue;const dx=(p.x*Math.cos(a)+p.y*Math.sin(a))/scale,dy=(-p.x*Math.sin(a)+p.y*Math.cos(a))/scale;c.save();c.beginPath();c.ellipse(dx,dy,p.id.startsWith('engine')?16:13,p.id.startsWith('engine')?24:18,0,0,Math.PI*2);c.clip();c.globalAlpha*=p.destroyed?1:.55;cell(true);c.restore();if(p.destroyed){fx(c,'fire',dx,dy,29,34,0,.8);fx(c,'smokeDark',dx,dy-28,46,46,0,.65);}}
  c.restore();
 }
 export function drawLondonRaidApron(c,b){

@@ -3,7 +3,7 @@ import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
 /** Cigognes-inspired cannon patrol. The mixed formation and attack script are game fiction. */
 import {arrivalViewport} from './enemy-arrivals.js';
 import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
-export const CIGOGNES_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:26,reserve:8,speed:142,turn:.9,prepare:.4,lock:.45,reload:2.6,shots:4,damage:26});
+export const CIGOGNES_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:26,reserve:8,speed:142,turn:.9,prepare:.4,lock:.45,reload:2.6,shots:4,damage:26,turnPatience:2.5,hardTurn:1.05});
 // 20261107: four 37 mm shells (was three) on a 2.6 s reload (was 3.0 s): the cannon stays a threat.
 const B=CIGOGNES_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;
 const pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g;
@@ -40,7 +40,7 @@ export function spawnCigognesPatrol(g){
  if(created.length!==B.count){g.enemies=g.enemies.filter(e=>!created.includes(e));return false;}
  g.cigognesSerial=group;g.cigognesPatrol={phase:'entry',groupId:group,stageKey:key(g),elapsed:0,age:0,shots:0,nextIn:B.interval,lastTime:g.t||0};announceSquadron(g,'cigognes',group);g.event?.('wave','시고뉴 기관포 편대 접근 · 한 발을 피하고 재장전 중 파고드세요');return created[0];
 }
-function phase(g,s,name){s.phase=name;s.age=0;if(name==='reload'){const lead=members(g).find(e=>e.cigognesRole==='cannon');s.reloadHeading=lead?.a??0;s.bankSide=s.shots%2?1:-1;}for(const e of members(g)){e.cigognesPhase=name;e.fire=e.cigognesRole==='escort'&&name==='aim'?.18:Infinity;}g.event?.('wave',name==='locked'?'37 mm 조준 고정 · 옆으로 이탈':name==='reload'?'기관포 재장전 · 공격 기회':'기관포 재조준');}
+function phase(g,s,name){s.phase=name;s.age=0;for(const e of members(g))e.cigognesSnapAt=null;if(name==='reload'){const lead=members(g).find(e=>e.cigognesRole==='cannon');s.reloadHeading=lead?.a??0;s.bankSide=s.shots%2?1:-1;}for(const e of members(g)){e.cigognesPhase=name;e.fire=e.cigognesRole==='escort'&&name==='aim'?.18:Infinity;}g.event?.('wave',name==='locked'?'37 mm 조준 고정 · 옆으로 이탈':name==='reload'?'기관포 재장전 · 공격 기회':'기관포 재조준');}
 export function tickCigognesPatrol(g,dt){
  if(!host(g)||!(dt>0)||g.mode==='campaign')return;let s=g.cigognesPatrol;
  if(g.state!=='playing'){if(s&&cigognesActive(g)&&['dead','lost','won'].includes(g.state))withdraw(g,'run-ended');return;}
@@ -62,12 +62,29 @@ export function tickCigognesPatrol(g,dt){
    if(s.age>=B.reload){if(s.shots>=B.shots){withdraw(g,'departed');return;}phase(g,s,'turn');}
    else if(s.age>=.65)for(const escort of es)if(escort.cigognesRole==='escort')fireCigognes(g,escort);
   }
-  else if(s.phase==='turn'){const p=pilot(g),a=Math.atan2(p.y-leader.y,p.x-leader.x);if(s.age>1.2&&visible(g,leader,-30)&&Math.abs(angle(a-leader.a))<.18){leader.cigognesHeading=leader.a;phase(g,s,'aim');}}
+  // A pilot circling on the cannon's tail kept the .18 rad re-acquire out of reach
+  // for the rest of the patrol. After B.turnPatience the cannon pulls a harder turn
+  // (cigognesSteering) and re-aims from .45 rad; aim and lock still warn as before.
+  // Meanwhile one escort at a time answers with a warned two-round snap.
+  else if(s.phase==='turn'){if(s.age>B.turnPatience)escortSnap(g,s,es);const p=pilot(g),a=Math.atan2(p.y-leader.y,p.x-leader.x);if(s.age>1.2&&visible(g,leader,-30)&&Math.abs(angle(a-leader.a))<(s.age>B.turnPatience?.45:.18)){leader.cigognesHeading=leader.a;phase(g,s,'aim');}}
  }
  for(const e of es)if(e.cigognesPhase==='exit'&&!visible(g,e,110))g.enemies=g.enemies.filter(x=>x!==e);
  if(!members(g).length&&!cigognesActive(g)){s.phase='idle';if(!g.squadronManaged&&!blocked(g)){s.nextIn=Math.max(0,s.nextIn-dt);if(!s.nextIn)spawnCigognesPatrol(g);}}
 }
+function snapLead(g,e,p){const t=Math.min(.8,Math.hypot(p.x-e.x,p.y-e.y)/320),v=(p.speed||150)*(p.airframeSpeed??1);return Math.atan2(p.y+Math.sin(p.a||0)*v*t-e.y,p.x+Math.cos(p.a||0)*v*t-e.x);}
+function escortSnap(g,s,es){const p=pilot(g),now=g.t||0;if(!p||p.hp<=0||p.fogHidden||p.kaiserFogTime>0||p.ballCloak>0||p.cloudConceal>0)return;
+ // A snapping escort leaves its station, so it gives up the snap rather than close inside 45 px of the flight.
+ const gap=e=>Math.min(...es.filter(q=>q!==e).map(q=>Math.hypot(q.x-e.x,q.y-e.y)),Infinity);
+ for(const e of es){if(e.cigognesSnapAt==null)continue;if(gap(e)<45){e.cigognesSnapAt=null;e.cigognesSnapReadyAt=now+1;continue;}if(now<e.cigognesSnapAt+(e.cigognesSnapRounds||0)*.12)continue;
+  const aligned=live(e)&&visible(g,e,-15)&&Math.abs(angle(snapLead(g,e,p)-e.a))<.25;if(!aligned&&!e.cigognesSnapRounds&&now<e.cigognesSnapAt+1)continue;
+  if(aligned&&(g.bullets?.length||0)<180){const a=e.a;(g.bullets??=[]).push({x:e.x+Math.cos(a)*27,y:e.y+Math.sin(a)*27,vx:Math.cos(a)*320,vy:Math.sin(a)*320,life:1.6,enemy:true,sourceX:e.x,sourceY:e.y,cigognesGroup:e.cigognesGroup,cigognesCannon:false,cigognesSnap:true,collisionRadius:2,damage:squadronDamage(g,9),visualType:'scout'});e.cigognesFlash=.12;e.muzzleFlash=.12;e.gunAim=a;g.event?.('enemyShot','');}
+  if(++e.cigognesSnapRounds>=2){e.cigognesSnapAt=null;e.cigognesSnapReadyAt=now+2.5;s.snapBusyUntil=now+.6;}}
+ if(s.snapBusyUntil>now||es.some(e=>e.cigognesSnapAt!=null))return;
+ let best=null,off=Infinity;for(const e of es){if(e.cigognesRole!=='escort'||!live(e)||e.cigognesSnapReadyAt>now||!visible(g,e,-15)||gap(e)<70)continue;const d=Math.hypot(p.x-e.x,p.y-e.y);if(d<=140||d>=400)continue;const o=Math.abs(angle(snapLead(g,e,p)-e.a));if(o<off){off=o;best=e;}}
+ if(best){best.cigognesSnapAt=now+.45+Math.min(1.5,Math.max(0,off-.25)/1.05);best.cigognesSnapRounds=0;best.dangerMarksman=true;best.dangerAimUntil=best.cigognesSnapAt;s.snapBusyUntil=best.cigognesSnapAt+.6;}
+}
 export function cigognesSteering(g,e){if(!e.cigognesRole)return null;const s=g.cigognesPatrol,p=pilot(g);if(e.cigognesPhase==='exit')escapeSpeed(g,e);let heading=e.cigognesHeading;
+ if(e.cigognesSnapAt!=null&&e.cigognesPhase!=='exit'&&p)return {delta:angle(snapLead(g,e,p)-e.a),turn:1.05};
  if(e.cigognesPhase!=='exit'){
   if(e.cigognesRole==='cannon'){
    if(s?.phase==='aim'||s?.phase==='turn')heading=Math.atan2(p.y-e.y,p.x-e.x);
@@ -87,7 +104,7 @@ export function cigognesSteering(g,e){if(!e.cigognesRole)return null;const s=g.c
    heading=Math.atan2(ty+Math.sin(a)*v*.8-e.y,tx+Math.cos(a)*v*.8-e.x);
   }}
  }
- return {delta:angle(heading-e.a),turn:e.cigognesRole==='cannon'?B.turn:1.15};
+ return {delta:angle(heading-e.a),turn:e.cigognesRole==='cannon'?(s?.phase==='turn'&&s.age>B.turnPatience?B.hardTurn:B.turn):1.15};
 }
 export function fireCigognes(g,e){if(!e.cigognesRole)return false;e.fire=Infinity;
  if(!host(g)||g.state!=='playing'||e.cigognesSilenced||!live(e)||!visible(g,e,-15)||g.sunStrikeContains?.(e)||(g.bullets?.length||0)>=180)return true;

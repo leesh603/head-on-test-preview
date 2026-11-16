@@ -24,12 +24,17 @@ export function drawRailTrack(c,boss,image){
   if(!boss.railTarget||!ruralTrackArtReady())return;
   const r=boss.artOrigin||boss.railTarget,h=RURAL_TRACK_ART.height*RURAL_TRACK_ART.scale;
   c.save();c.translate(r.x,r.y);c.rotate(Math.atan2(boss.axis.y,boss.axis.x)-Math.PI/2);c.imageSmoothingEnabled=true;
-  const [lo,hi]=visibleLocalY(c);
-  const first=Math.floor(((Number.isFinite(lo)?lo:-1800)+h/2)/h),last=Math.ceil(((Number.isFinite(hi)?hi:1800)+h/2)/h);
+  const [lo,viewBottom]=visibleLocalY(c);
+  const trackEnd=Number.isFinite(boss.trackEndY)?boss.trackEndY-r.y:Infinity;
+  const hi=Math.min(viewBottom,trackEnd);
+  if(lo>=hi){c.restore();return;}
+  const first=Math.floor(((Number.isFinite(lo)?lo:-1800)+h/2)/h);
+  const last=Math.ceil(((Number.isFinite(hi)?hi:1800)+h/2)/h-1e-8);
+  const terminalIndex=Math.round(trackEnd/h-.5);
   const state=boss.broken?2:boss.railHp<boss.c.railHp*.7?1:0,end=(boss.railTarget.x-r.x)*boss.axis.x+(boss.railTarget.y-r.y)*boss.axis.y;
   // Replace only the damaged section; its collision point need not snap to the texture's repeat.
   if(state){const low=Number.isFinite(lo)?lo:-1e7,high=Number.isFinite(hi)?hi:1e7,a=Math.max(low,Math.min(high,end-h/2)),b=Math.max(low,Math.min(high,end+h/2));c.save();c.beginPath();c.rect(-160,low,320,a-low);c.rect(-160,b,320,high-b);c.clip();}
-  for(let n=first;n<last;n++)drawRuralTrackTile(c,0,n*h-h/2);
+  for(let n=first;n<last;n++)drawRuralTrackTile(c,0,n*h-h/2,n===terminalIndex);
   if(state){c.restore();if(end+h/2>=lo&&end-h/2<=hi)drawRuralTrackTile(c,state,end-h/2);}
   c.restore();return;
  }
