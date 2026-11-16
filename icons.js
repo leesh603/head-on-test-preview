@@ -1,4 +1,4 @@
-import {EQUIPMENT_ICON_ATLAS,EQUIPMENT_ICON_SIZE,EQUIPMENT_ICON_COLUMNS,EQUIPMENT_ICON_FILES} from './equipment-icon-frames.js';
+import {EQUIPMENT_ICON_ATLAS,EQUIPMENT_ICON_SIZE,EQUIPMENT_ICON_COLUMNS,EQUIPMENT_ICON_FILES} from './equipment-icon-frames.js?v=d7a0cfcfc455802b';
 
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];

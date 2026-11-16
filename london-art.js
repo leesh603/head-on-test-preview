@@ -1,12 +1,12 @@
-import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
-import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
-import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawRaidApron} from './london-apron369.js?v=tame3&cityart=20261022';
-import {APRON_GROUND} from './london-apron-ground.js';
-import {drawCityFacility,releaseCityFacilityArt} from './city-protected-facilities.js';
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=d7a0cfcfc455802b';
+import {gothaCrashPose} from './aircraft-crash.js?v=d7a0cfcfc455802b';
+import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=d7a0cfcfc455802b';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=d7a0cfcfc455802b';
+import {impactMark,aimLine} from './tactical-marks.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {drawRaidApron} from './london-apron369.js?v=d7a0cfcfc455802b';
+import {APRON_GROUND} from './london-apron-ground.js?v=d7a0cfcfc455802b';
+import {drawCityFacility,releaseCityFacilityArt} from './city-protected-facilities.js?v=d7a0cfcfc455802b';
 const paths={districtDamage:'./city-raid-district-damage-20261103.webp',gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},pending={};
 export function releaseLondonArt(){art={};pending={};releaseGothaDetailArt();releaseCityBalloonArt();releaseCityFacilityArt();}

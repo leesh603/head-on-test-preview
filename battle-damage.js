@@ -6,7 +6,7 @@
 // Scope (pilot): ordinary scout/hunter fighters only. Aces, elites, bosses, bombers,
 // two-seaters and mission targets keep their authored behaviour untouched.
 // Nothing here raises enemy health, damage or accuracy.
-import {ordinaryFighter} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {ordinaryFighter} from './dogfight-pass165.js?v=d7a0cfcfc455802b';
 
 export const BATTLE_DAMAGE_BALANCE=Object.freeze({
  // Cruise fraction by engine damage level (0 intact, 1 rough, 2 failing).

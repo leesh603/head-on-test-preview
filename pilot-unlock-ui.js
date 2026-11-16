@@ -1,4 +1,4 @@
-import {PILOT_CHALLENGES,pilotUnlocked,pilotUnlockProgress,pilotUnlockSortieProgress} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {PILOT_CHALLENGES,pilotUnlocked,pilotUnlockProgress,pilotUnlockSortieProgress} from './pilot-unlocks.js?v=d7a0cfcfc455802b';
 
 const challenge=id=>Array.isArray(PILOT_CHALLENGES)?PILOT_CHALLENGES.find(d=>d.id===id):PILOT_CHALLENGES[id];
 const node=(doc,tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};

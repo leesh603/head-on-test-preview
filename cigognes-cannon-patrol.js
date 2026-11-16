@@ -1,8 +1,8 @@
-import {squadronDamage,squadronCannonDamage,squadronDurability} from './squadron-elite-balance.js';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
+import {squadronDamage,squadronCannonDamage,squadronDurability} from './squadron-elite-balance.js?v=d7a0cfcfc455802b';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=d7a0cfcfc455802b';
 /** Cigognes-inspired cannon patrol. The mixed formation and attack script are game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js';
-import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
+import {arrivalViewport} from './enemy-arrivals.js?v=d7a0cfcfc455802b';
+import {releaseEliteHunt} from './elite-hunt.js?v=d7a0cfcfc455802b';
 export const CIGOGNES_BALANCE=Object.freeze({count:5,first:24,interval:115,maxDuration:26,reserve:8,speed:142,turn:.9,prepare:.4,lock:.45,reload:2.6,shots:4,damage:26,turnPatience:2.5,hardTurn:1.05});
 // 20261107: four 37 mm shells (was three) on a 2.6 s reload (was 3.0 s): the cannon stays a threat.
 const B=CIGOGNES_BALANCE,live=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host;

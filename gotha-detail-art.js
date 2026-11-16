@@ -1,7 +1,7 @@
-import {fx} from './fx-art.js?v=tame3';
-import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
-import {CITY_BOMBER_GUN_REACH} from './city-bomber-flight.js';
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {gothaCrashPose} from './aircraft-crash.js?v=d7a0cfcfc455802b';
+import {CITY_BOMBER_GUN_REACH} from './city-bomber-flight.js?v=d7a0cfcfc455802b';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=d7a0cfcfc455802b';
 export const GOTHA_DETAIL_SOURCES=Object.freeze({
  hull:'./gotha-runtime-hull-20261031.webp?v=natural-flight20261031',
  parts:'./boss-alps-hardware-20261020.webp?v=muted1',guns:'./boss-mark1-guns-r3.webp'

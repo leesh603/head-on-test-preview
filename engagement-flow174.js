@@ -1,6 +1,6 @@
-import {wwiWingTarget,wwiBossAimPoint} from './wwi-equipment.js';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
-import {tacticalAimPoint} from './tactical-combat.js?v=arras-tactics20261024&td4=20261026';
+import {wwiWingTarget,wwiBossAimPoint} from './wwi-equipment.js?v=d7a0cfcfc455802b';
+import {advanceWingFlight} from './wingman-flight.js?v=d7a0cfcfc455802b';
+import {tacticalAimPoint} from './tactical-combat.js?v=d7a0cfcfc455802b';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
 // formations continue through their existing support poses.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));

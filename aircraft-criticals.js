@@ -1,4 +1,4 @@
-import {reserveCombatFxSlot} from './explosion-profiles.js?v=fx5';
+import {reserveCombatFxSlot} from './explosion-profiles.js?v=d7a0cfcfc455802b';
 // Confirmed direct hits only. Collision volumes and basic weapon damage stay intact.
 // Coordinates below describe regions INSIDE the existing collision volume, not a
 // second hitbox. Aircraft can supply criticalLayout for exceptional arrangements.

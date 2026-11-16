@@ -1,7 +1,7 @@
 // Boelcke and Collishaw: observe real owned wingmen, guns and confirmed damage.
 // Render-only air wakes observe real positions; never create a projectile or target.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {drawCollishawAssault,clearCollishawAssault} from './collishaw-assault-fx.js';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
+import {drawCollishawAssault,clearCollishawAssault} from './collishaw-assault-fx.js?v=d7a0cfcfc455802b';
 export const COMMAND_PILOTS=new Set(['boelcke','collishaw']);
 export const COMMAND_PALETTES=Object.freeze({
  boelcke:Object.freeze({edge:'#80b7af',core:'#e2ddc5',smoke:'#778e8b',impact:'#e8c58c'}),

@@ -1,4 +1,4 @@
-import {weaponImpactKind} from './weapon-impact-profile.js';
+import {weaponImpactKind} from './weapon-impact-profile.js?v=d7a0cfcfc455802b';
 // Choreography for the existing combatFX list and approved painted sprites.
 // No damage, timers, simulation RNG, emitted particles, or additional atlas.
 export const EXPLOSION_LIFE=Object.freeze({aircraft:.72,fuelFire:3.2,groundShell:.48,heavyShell:.88,ammoCookoff:2.65,bulletImpact:.27,armorBreak:.85,engineBreak:1.5,navalBreak:1.3});

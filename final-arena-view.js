@@ -1,13 +1,13 @@
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
-import {drawFormationEdgeBadge} from './tactical-marks.js?v=tame3';
-import {finalArenaBosses} from './pandemonium-registry.js';
-import {drawBoss as drawAsymmetric,loadAssets as loadAsymmetric,profile as asymmetricProfile} from './pandemonium-a-render.js';
-import {drawBoss as drawFactory,loadAssets as loadFactory,profile as factoryProfile} from './pandemonium-factory-render.js';
-import {drawFortress,loadFortressArt} from './fortress-render.js';
-import {drawFortressModules,drawFortressCombatWorld} from './fortress-systems-render.js';
-import {fx as sharedFX} from './fx-art.js?v=tame3';
-import {fx as fortressFX,fxArtReady as fortressFXReady} from './combat-fx196.js?v=tame3&perf=1029';
+import {getLocale} from './i18n.js?v=d7a0cfcfc455802b';
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js?v=d7a0cfcfc455802b';
+import {drawFormationEdgeBadge} from './tactical-marks.js?v=d7a0cfcfc455802b';
+import {finalArenaBosses} from './pandemonium-registry.js?v=d7a0cfcfc455802b';
+import {drawBoss as drawAsymmetric,loadAssets as loadAsymmetric,profile as asymmetricProfile} from './pandemonium-a-render.js?v=d7a0cfcfc455802b';
+import {drawBoss as drawFactory,loadAssets as loadFactory,profile as factoryProfile} from './pandemonium-factory-render.js?v=d7a0cfcfc455802b';
+import {drawFortress,loadFortressArt} from './fortress-render.js?v=d7a0cfcfc455802b';
+import {drawFortressModules,drawFortressCombatWorld} from './fortress-systems-render.js?v=d7a0cfcfc455802b';
+import {fx as sharedFX} from './fx-art.js?v=d7a0cfcfc455802b';
+import {fx as fortressFX,fxArtReady as fortressFXReady} from './combat-fx196.js?v=d7a0cfcfc455802b';
 const fx=(...args)=>fortressFX(...args)||sharedFX(...args);
 
 // Rendering uses world coordinates shared with the host. No simulation is stepped here.

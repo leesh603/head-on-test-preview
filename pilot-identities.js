@@ -1,15 +1,15 @@
-import {ammunitionVisualScale} from './heavy-ammunition.js';
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
-import {installPilotFeedback} from './pilot-feedback.js';
-import {wwiWingTarget} from './wwi-equipment.js';
-import {wingmanBossPass} from './engagement-flow174.js?v=gal1&airbattle=20261025&afc=1&td4=20261026';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
-import {headOnTarget} from './engagement-feedback.js?v=tame3';
-import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js';
-import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js';
-import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js';
-import {secretWingGun} from './secret-weapon-combat.js';
-import {prepareSynthesisBomb} from './weapon-synthesis.js';
+import {ammunitionVisualScale} from './heavy-ammunition.js?v=d7a0cfcfc455802b';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=d7a0cfcfc455802b';
+import {installPilotFeedback} from './pilot-feedback.js?v=d7a0cfcfc455802b';
+import {wwiWingTarget} from './wwi-equipment.js?v=d7a0cfcfc455802b';
+import {wingmanBossPass} from './engagement-flow174.js?v=d7a0cfcfc455802b';
+import {advanceWingFlight} from './wingman-flight.js?v=d7a0cfcfc455802b';
+import {headOnTarget} from './engagement-feedback.js?v=d7a0cfcfc455802b';
+import {beginCollishawJetstream,collishawJetstream,advanceCollishawJetstream} from './collishaw-jetstream.js?v=d7a0cfcfc455802b';
+import {prepareReplacementPrimary,isReplacementPrimary} from './pilot-primary.js?v=d7a0cfcfc455802b';
+import {beginVossDecoyFlight,advanceVossDecoyFlight} from './voss-decoy-flight.js?v=d7a0cfcfc455802b';
+import {secretWingGun} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
+import {prepareSynthesisBomb} from './weapon-synthesis.js?v=d7a0cfcfc455802b';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));

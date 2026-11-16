@@ -1,9 +1,9 @@
-import {outsideBossView} from './render-culling.js';
-import {bossEntryReveal} from './boss-entry-presentation.js';
-import {bossArrivalAlpha} from './boss-arrival.js';
+import {outsideBossView} from './render-culling.js?v=d7a0cfcfc455802b';
+import {bossEntryReveal} from './boss-entry-presentation.js?v=d7a0cfcfc455802b';
+import {bossArrivalAlpha} from './boss-arrival.js?v=d7a0cfcfc455802b';
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
-import {netContact} from './london-apron369.js?v=tame3&cityart=20261022';
+import {netContact} from './london-apron369.js?v=d7a0cfcfc455802b';
 export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard,layer='all',bodyBounds=null,view=null}) {
   for(const fn of [drawBody,drawPart,drawHazard])if(typeof fn!=='function')throw new Error('Current pixel renderer adapters required');
   if(layer!=='hazards')for(const b of addon.stages.encounter?.bodies.values()||[]) {

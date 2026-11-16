@@ -1,6 +1,6 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=tame3';
-import {ruralSamplePath} from './rural-audio.js';
+import {railAudioSamples} from './rail-audio.js?v=d7a0cfcfc455802b';
+import {ruralSamplePath} from './rural-audio.js?v=d7a0cfcfc455802b';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
@@ -75,7 +75,7 @@ let railWorker;
 function railSynthWorker(){
  if(railWorker!==undefined)return railWorker;
  try{
-  railWorker=new Worker('./rail-audio-worker.js?v=1',{type:'module'});
+  railWorker=new Worker('./rail-audio-worker.js?v=d7a0cfcfc455802b',{type:'module'});
   railWorker.onmessage=e=>{const {name,sampleRate,data}=e.data||{};pendingRailReports.delete(name);
    if(data&&ctx&&ctx.sampleRate===sampleRate&&!railBuffers.has(name)){const buffer=ctx.createBuffer(1,data.length,sampleRate);buffer.getChannelData(0).set(data);railBuffers.set(name,buffer);}};
   railWorker.onerror=()=>{railWorker=null;pendingRailReports.clear();};

@@ -1,6 +1,6 @@
-import {CAPITAL_TERRAIN_SIZE} from './capital-terrain.js';
-import {GROUND_FRAMES} from './ground-enemy-atlas.js?v=tame3';
-import {searchlightGeometry} from './ground-searchlight-art.js';
+import {CAPITAL_TERRAIN_SIZE} from './capital-terrain.js?v=d7a0cfcfc455802b';
+import {GROUND_FRAMES} from './ground-enemy-atlas.js?v=d7a0cfcfc455802b';
+import {searchlightGeometry} from './ground-searchlight-art.js?v=d7a0cfcfc455802b';
 
 export const APRON_GROUND={
  light:{kind:'light',size:54,radius:23},

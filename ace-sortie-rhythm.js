@@ -1,9 +1,9 @@
-import {majorEncounterBlocked} from './encounter-admission.js';
-import {arrivalViewport} from './enemy-arrivals.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {activeFronts} from './rural-fronts.js';
-import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=gal1';
+import {majorEncounterBlocked} from './encounter-admission.js?v=d7a0cfcfc455802b';
+import {arrivalViewport} from './enemy-arrivals.js?v=d7a0cfcfc455802b';
+import {intrusionActive} from './intrusion-bosses.js?v=d7a0cfcfc455802b';
+import {activeFronts} from './rural-fronts.js?v=d7a0cfcfc455802b';
+import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=d7a0cfcfc455802b';
+import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=d7a0cfcfc455802b';
 
 export const ACE_SORTIE_BALANCE=Object.freeze({maxAces:3,recovery:8,ruralOpening:40,ruralReinforce:65});
 // These are actual model identities, independent of personal paint or sprite ID.

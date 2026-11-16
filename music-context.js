@@ -1,4 +1,4 @@
-import {squadronMusicForGame} from './squadron-score.js';
+import {squadronMusicForGame} from './squadron-score.js?v=d7a0cfcfc455802b';
 // Read-only bridge. Never advances a timer, consumes an event, or changes combat.
 export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin','laon']);
 export const CAMPAIGN_MUSIC=Object.freeze({

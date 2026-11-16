@@ -1,5 +1,5 @@
-import {drawRailTrack} from './rail-render129.js?v=gal1&smooth=20261115';
-import {SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
+import {drawRailTrack} from './rail-render129.js?v=d7a0cfcfc455802b';
+import {SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=d7a0cfcfc455802b';
 
 const load = file => {
  if (typeof Image === 'undefined') return null;

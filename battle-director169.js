@@ -1,13 +1,13 @@
-import {BATTLE_DAMAGE_BALANCE} from './battle-damage.js';
-import {arrivalViewport} from './enemy-arrivals.js';
-import {facilityPlan} from './ground-facility-missions.js';
-import {transportConvoyActive} from './transport-convoy.js';
-import {photoReconActive} from './photo-recon-encounters.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {momentumCombatTarget} from './ace-momentum.js';
-import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018&fai=20261108';
+import {BATTLE_DAMAGE_BALANCE} from './battle-damage.js?v=d7a0cfcfc455802b';
+import {arrivalViewport} from './enemy-arrivals.js?v=d7a0cfcfc455802b';
+import {facilityPlan} from './ground-facility-missions.js?v=d7a0cfcfc455802b';
+import {transportConvoyActive} from './transport-convoy.js?v=d7a0cfcfc455802b';
+import {photoReconActive} from './photo-recon-encounters.js?v=d7a0cfcfc455802b';
+import {intrusionActive} from './intrusion-bosses.js?v=d7a0cfcfc455802b';
+import {momentumCombatTarget} from './ace-momentum.js?v=d7a0cfcfc455802b';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js?v=d7a0cfcfc455802b';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=d7a0cfcfc455802b';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=d7a0cfcfc455802b';
 
 export const FLIGHT_SUCCESSION=Object.freeze({deputyShock:1.2,deputyFor:4});
 export const FLIGHT_ALARM=Object.freeze({hitWindow:.5,range:300,cone:.3,react:.25,stagger:.12,memory:3});

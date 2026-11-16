@@ -1,4 +1,4 @@
-import {prepareRuralTrackArt,ruralTrackArtReady,drawRuralTrackTile,RURAL_TRACK_ART} from './rural-rail-track-art.js';
+import {prepareRuralTrackArt,ruralTrackArtReady,drawRuralTrackTile,RURAL_TRACK_ART} from './rural-rail-track-art.js?v=d7a0cfcfc455802b';
 export {prepareRuralTrackArt};
 // The carrier retains its existing art; stage 1 uses a registered track atlas.
 const steel=(c,image,x,y,h,side=0)=>{

@@ -1,5 +1,5 @@
-import {APRON_GONDOLA_STAYS,drawApronCableMount,drawApronEnvelope,drawCityBalloonHull,drawCitySuspension,cityPartState} from './city-balloon-art.js?v=20261022';
-import {drawAADefense} from './aa-defense-art.js?v=gal1';
+import {APRON_GONDOLA_STAYS,drawApronCableMount,drawApronEnvelope,drawCityBalloonHull,drawCitySuspension,cityPartState} from './city-balloon-art.js?v=d7a0cfcfc455802b';
+import {drawAADefense} from './aa-defense-art.js?v=d7a0cfcfc455802b';
 // Registered in the original 768 x 512 illustration. Rendering and collision
 // share this transform: no viewport-space attack sprites or hidden beam walls.
 export const APRON={width:768,height:512,seam:216,bottom:448,centres:[143,384,645],edges:[0,305,464,768]};

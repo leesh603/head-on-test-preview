@@ -1,6 +1,6 @@
 // Read-only presentation of the existing two piercing / two incendiary beats.
-import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {combatImpactResult} from './combat-impact-result.js';
+import {signatureCue,signatureInterval} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
+import {combatImpactResult} from './combat-impact-result.js?v=d7a0cfcfc455802b';
 const INSTALLED=Symbol.for('headon.gontermann-phase-fx.v1');
 const owner=p=>p.id??'p1',live=p=>p.pilot==='gontermann'&&p.state==='playing'&&p.hp>0&&p.status!=='downed';
 const phase=b=>b?.fiveAceRound&&['pierce','ignite'].includes(b.fiveAcePhase);

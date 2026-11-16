@@ -1,4 +1,4 @@
-import {vossDecoyFlightPose} from './voss-decoy-flight.js';
+import {vossDecoyFlightPose} from './voss-decoy-flight.js?v=d7a0cfcfc455802b';
 // Visual-only wake for the six/eight real Voss identity decoys. No particles or gameplay state.
 // The existing vapor sheet contains unrelated pixels above its lower horizontal ribbon.
 export const VOSS_TRAIL_CROP=Object.freeze({x:48,y:128,w:153,h:27});

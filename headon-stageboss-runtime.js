@@ -1,18 +1,18 @@
-import {createFront,nextFrontMap,frontLength} from './dynamic-front.js';
-import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=tension20261107';
-import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js';
-import {tickBossEntry} from './boss-entry-presentation.js';
-import {beginBossArrival,tickBossArrival} from './boss-arrival.js';
-import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js';
-import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js';
-import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021&close=20261107&quiet=20261115';
-import {recordShipWake} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
-import {predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111&weak2=20261114&quiet=20261115';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {BossHazards} from './headon-stageboss-hazards.js?v=pandemonium394r2&cambrai=20261021&cityart=20261022';
+import {createFront,nextFrontMap,frontLength} from './dynamic-front.js?v=d7a0cfcfc455802b';
+import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATION_AFTER} from './special-operations.js?v=d7a0cfcfc455802b';
+import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js?v=d7a0cfcfc455802b';
+import {tickBossEntry} from './boss-entry-presentation.js?v=d7a0cfcfc455802b';
+import {beginBossArrival,tickBossArrival} from './boss-arrival.js?v=d7a0cfcfc455802b';
+import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js?v=d7a0cfcfc455802b';
+import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js?v=d7a0cfcfc455802b';
+import {gothaCrashPose} from './aircraft-crash.js?v=d7a0cfcfc455802b';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=d7a0cfcfc455802b';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=d7a0cfcfc455802b';
+import {recordShipWake} from './naval-water.js?v=d7a0cfcfc455802b';
+import {predictPilot} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=d7a0cfcfc455802b';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=d7a0cfcfc455802b';
+import {BossHazards} from './headon-stageboss-hazards.js?v=d7a0cfcfc455802b';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty

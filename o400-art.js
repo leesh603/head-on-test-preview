@@ -1,9 +1,9 @@
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {CITY_BOMBER_GUN_REACH} from './city-bomber-flight.js';
-import {drawCityBomberBay} from './gotha-detail-art.js?v=20261022';
-import {O400_LAYOUT} from './o400-layout.js';
-import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {CITY_BOMBER_GUN_REACH} from './city-bomber-flight.js?v=d7a0cfcfc455802b';
+import {drawCityBomberBay} from './gotha-detail-art.js?v=d7a0cfcfc455802b';
+import {O400_LAYOUT} from './o400-layout.js?v=d7a0cfcfc455802b';
+import {gothaCrashPose} from './aircraft-crash.js?v=d7a0cfcfc455802b';
 const assets={
  hull:O400_LAYOUT.hull,gun:'./boss-mark1-guns-r3.webp',hardware:'./boss-alps-hardware-20261020.webp?v=muted1',
  wingModerate:'./o400-wing-damage-moderate-20261103.webp',wingSevere:'./o400-wing-damage-severe-20261103.webp',

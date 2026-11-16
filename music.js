@@ -1,9 +1,9 @@
-import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js';
-import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js';
-import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
-import {RecordedBattleMusic} from './music-recordings.js?v=boss-score-20261115';
-export {musicContextForGame} from './music-context.js?v=situations1';
+import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js?v=d7a0cfcfc455802b';
+import {SQUADRON_SCORES,squadronScoreStep} from './squadron-score.js?v=d7a0cfcfc455802b';
+import {SituationPolicy} from './music-situation-policy.js?v=d7a0cfcfc455802b';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=d7a0cfcfc455802b';
+import {RecordedBattleMusic} from './music-recordings.js?v=d7a0cfcfc455802b';
+export {musicContextForGame} from './music-context.js?v=d7a0cfcfc455802b';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.

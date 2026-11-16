@@ -1,14 +1,14 @@
-import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js';
-import {tagBishopBombImpact} from './bishop-sortie-fx.js';
-import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
-import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {prepareSynthesisBomb,detonateSynthesisPayload,inheritSynthesisBlast} from './weapon-synthesis.js?v=d7a0cfcfc455802b';
+import {tagBishopBombImpact} from './bishop-sortie-fx.js?v=d7a0cfcfc455802b';
+import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js?v=d7a0cfcfc455802b';
+import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js?v=d7a0cfcfc455802b';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=d7a0cfcfc455802b';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
-import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
-import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js';
-import {secretBombImpact,tickSecretKettering} from './secret-weapon-combat.js';
-import {tickSecretPuwBomb} from './secret-ordnance.js';
-import {applySalamanderHull,stripSalamanderHull} from './secret-flight-fits.js';
+import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js?v=d7a0cfcfc455802b';
+import {HEAVY_AMMUNITION,ammunitionVisualScale} from './heavy-ammunition.js?v=d7a0cfcfc455802b';
+import {secretBombImpact,tickSecretKettering} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
+import {tickSecretPuwBomb} from './secret-ordnance.js?v=d7a0cfcfc455802b';
+import {applySalamanderHull,stripSalamanderHull} from './secret-flight-fits.js?v=d7a0cfcfc455802b';
 export {BOMBER_TRANSFER_DESCRIPTION};
 export const BOMBER_TRANSFER=Object.freeze({
  entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3.5,hpCap:520,speed:.76,turn:.62,period:4.8,count:5,spacing:56,interval:.18,radius:96,damage:145,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),

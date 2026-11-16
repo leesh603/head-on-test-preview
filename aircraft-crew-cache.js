@@ -1,4 +1,4 @@
-import {NPC_CREW_SEATS} from './aircraft-crew-seats.js';
+import {NPC_CREW_SEATS} from './aircraft-crew-seats.js?v=d7a0cfcfc455802b';
 
 const CREW_LOAD_TIMEOUT_MS=4000;
 const composedCanvases=new WeakSet();

@@ -1,5 +1,5 @@
-import {combatDamageTime} from './front-performance.js';
-import {majorEncounterBlocked} from './encounter-admission.js';
+import {combatDamageTime} from './front-performance.js?v=d7a0cfcfc455802b';
+import {majorEncounterBlocked} from './encounter-admission.js?v=d7a0cfcfc455802b';
 /** Enemy photographic reconnaissance: a periodic mission, not a boss or player camera objective. */
 export const PHOTO_RECON_BALANCE=Object.freeze({firstMin:6,firstMax:8,intervalMin:70,intervalMax:100,deadline:18,delayMin:8,delayMax:12,dispatchWindow:9,bossReserve:6,spawnSpacing:.45});
 export const PHOTO_RECON_PROFILES=Object.freeze({

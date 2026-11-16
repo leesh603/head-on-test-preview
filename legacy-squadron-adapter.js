@@ -1,7 +1,7 @@
 /** Admission and lifetime adapter only: native legacy weapons, armor and rewards remain authoritative. */
-import {attachEliteSystem,routeFriendlyProjectileHits} from './elite-patch/module/headon-bridge.js?v=wwifix20261025&momentum=20261027';
-import {ELITE_KINDS,squadSize} from './elite-patch/module/elite-config.js';
-import {canAdmitSquadron,announceSquadron,squadronHost,squadronDirectorState} from './squadron-combat-state.js';
+import {attachEliteSystem,routeFriendlyProjectileHits} from './elite-patch/module/headon-bridge.js?v=d7a0cfcfc455802b';
+import {ELITE_KINDS,squadSize} from './elite-patch/module/elite-config.js?v=d7a0cfcfc455802b';
+import {canAdmitSquadron,announceSquadron,squadronHost,squadronDirectorState} from './squadron-combat-state.js?v=d7a0cfcfc455802b';
 export const LEGACY_SQUADRONS=Object.freeze(Object.values(ELITE_KINDS));
 let integration={};
 export function configureLegacySquadrons(options={}){integration=options;}

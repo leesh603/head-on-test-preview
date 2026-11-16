@@ -1,7 +1,7 @@
-import {FLIGHT_EQUIPMENT,flightEquipmentAllowed,correctWimperisBomb,sampleWimperisMotion,equipmentTargets} from './flight-equipment.js';
-import {tickSynthesis,prepareSynthesisBomb,SYNTHESIS_BALANCE} from './weapon-synthesis.js';
-import {combatImpactResult} from './combat-impact-result.js';
-import {secretGrapnelContact,secretCooperRelease,secretVerySignal,tickSecretWeapons} from './secret-weapon-combat.js';
+import {FLIGHT_EQUIPMENT,flightEquipmentAllowed,correctWimperisBomb,sampleWimperisMotion,equipmentTargets} from './flight-equipment.js?v=d7a0cfcfc455802b';
+import {tickSynthesis,prepareSynthesisBomb,SYNTHESIS_BALANCE} from './weapon-synthesis.js?v=d7a0cfcfc455802b';
+import {combatImpactResult} from './combat-impact-result.js?v=d7a0cfcfc455802b';
+import {secretGrapnelContact,secretCooperRelease,secretVerySignal,tickSecretWeapons} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
 export {equipmentTargets};
 
 export const WWI_EQUIPMENT=Object.freeze([

@@ -2,9 +2,9 @@
  * All encounter state is JSON; no simulation RNG, timers, or global state.
  * Coordinates describe the dedicated top-view art, not the ordinary roster sprite.
  */
-import {followTurningArrival} from './giant-intrusion-arrival.js';
-import {queueV1500CollapseFx} from './v1500-destruction-fx.js';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {followTurningArrival} from './giant-intrusion-arrival.js?v=d7a0cfcfc455802b';
+import {queueV1500CollapseFx} from './v1500-destruction-fx.js?v=d7a0cfcfc455802b';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=d7a0cfcfc455802b';
 export const V1500_WIDTH=1774,V1500_HEIGHT=887,V1500_DESTRUCTION_TIME=2.9;
 export const V1500_POINTS=Object.freeze({
  engine_port_front:{x:-117,y:-253.5},engine_port_rear:{x:-117,y:-110.5},

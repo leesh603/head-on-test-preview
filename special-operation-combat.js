@@ -1,8 +1,8 @@
-import {enqueueCapturedEquipmentReward} from './intrusion-equipment-rewards.js';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js';
-import {clearSubmarineOperation,startSubmarineOperation,submarineOperationCard,tickSubmarineOperation} from './submarine-operation.js';
-import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=tension20261107';
+import {enqueueCapturedEquipmentReward} from './intrusion-equipment-rewards.js?v=d7a0cfcfc455802b';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=d7a0cfcfc455802b';
+import {FAMOUS_WING_BALANCE} from './famous-wing-combat.js?v=d7a0cfcfc455802b';
+import {clearSubmarineOperation,startSubmarineOperation,submarineOperationCard,tickSubmarineOperation} from './submarine-operation.js?v=d7a0cfcfc455802b';
+import {operationOutcome, SPECIAL_OPERATION_LIMIT, SPECIAL_OPERATION_WAVES, SPECIAL_OPERATION_EXIT_AT, SPECIAL_OPERATION_TRAIN_ESCAPE, SPECIAL_OPERATION_CARGO_HOLD, SPECIAL_OPERATION_DEMOLITION, SPECIAL_OPERATION_RAIL_CAR_LENGTH} from './special-operations.js?v=d7a0cfcfc455802b';
 
 const live = entity => entity && entity.hp > 0 && !entity.expired && !entity.crashing && entity.life !== 0;
 const pilots = game => game.players || [game];

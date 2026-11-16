@@ -1,6 +1,6 @@
 // The map objective owns the route and result; existing aircraft movement,
 // targeting, bullets and patrol damage own every combat interaction.
-import {registerMaanReconFacility} from './ground-facility-missions.js';
+import {registerMaanReconFacility} from './ground-facility-missions.js?v=d7a0cfcfc455802b';
 export const AIR_MAP_MISSION_BALANCE=Object.freeze({
  arrasTotal:9,arrasWave:3,arrasGoal:6,arrasGap:22,arrasLimit:105,
  reconHp:240,reconSpeed:132,reconPhotoRadius:180,reconPhotoSeconds:3,reconExitRadius:170,reconLimit:110,reconThreatCap:4

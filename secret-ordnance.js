@@ -1,6 +1,6 @@
-import {combatImpactResult} from './combat-impact-result.js';
-import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
-import {cameraTargetPoint} from './wwi-equipment.js';
+import {combatImpactResult} from './combat-impact-result.js?v=d7a0cfcfc455802b';
+import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js?v=d7a0cfcfc455802b';
+import {cameraTargetPoint} from './wwi-equipment.js?v=d7a0cfcfc455802b';
 
 const ROCKET='lePrieurSalvo', DAVIS='davisRecoilless', PUW='puw50';
 export const SECRET_ORDNANCE=Object.freeze({

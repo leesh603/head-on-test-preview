@@ -1,4 +1,4 @@
-import {normalizeCollishawSlots} from './collishaw-flight.js';
+import {normalizeCollishawSlots} from './collishaw-flight.js?v=d7a0cfcfc455802b';
 // Ability feedback uses live combat state and existing painted aircraft/FX assets.
 // No extra damage, invulnerability, camera shake, new HUD or asset allocations.
 const own=p=>p.id||'p1';

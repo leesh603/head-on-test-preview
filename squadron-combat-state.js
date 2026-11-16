@@ -1,5 +1,5 @@
-import {majorEncounterBlocked} from './encounter-admission.js';
-import {newSquadronOpportunity,SQUADRON_OPPORTUNITY} from './squadron-opportunities.js';
+import {majorEncounterBlocked} from './encounter-admission.js?v=d7a0cfcfc455802b';
+import {newSquadronOpportunity,SQUADRON_OPPORTUNITY} from './squadron-opportunities.js?v=d7a0cfcfc455802b';
 /** Shared admission/presentation contract for optional historical-squadron encounters. */
 export const SQUADRON_PROFILES=Object.freeze({
  cigognes:Object.freeze({name:'시고뉴 기관포 편대',faction:'entente'}),

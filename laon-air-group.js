@@ -1,6 +1,6 @@
-import {LAON_MISSION} from './laon-layout.js';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {sweptLaonEllipse} from './laon-layout.js';
+import {LAON_MISSION} from './laon-layout.js?v=d7a0cfcfc455802b';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
+import {sweptLaonEllipse} from './laon-layout.js?v=d7a0cfcfc455802b';
 
 export const FRENCH_AIR_GROUP=Object.freeze([
  {id:'observer',role:'observer',aircraft:'salmson_2a2',hp:.17,at:0,side:-1,radius:22},

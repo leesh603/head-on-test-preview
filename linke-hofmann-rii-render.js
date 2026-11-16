@@ -1,6 +1,6 @@
-import {blackSilhouette} from './silhouette.js';
-import {fx} from './fx-art.js?v=tame3';
-import {impactMark} from './tactical-marks.js?v=tame3';
+import {blackSilhouette} from './silhouette.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {impactMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
 // Painted layers measured in art-delivery/layer-metadata.json (1800 x 900).
 // No class methods: the same renderer accepts a plain coop snapshot.
 const images=new Map(),loads=new Map();

@@ -1,6 +1,6 @@
 // Ball's cloud deception and Barker's battle damage: presentation only.
 // Observe the completed combat layers; use their real shots, impacts and states.
-import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
 
 export const SORTIE_PILOTS=new Set(['ball','barker']);
 export const SORTIE_FX_LIMITS=Object.freeze({wake:12,wakeLife:.48,sampleInterval:.045,shotInterval:.045});

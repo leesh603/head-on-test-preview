@@ -1,4 +1,4 @@
-import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {bombFallPose} from './bomb-sprites.js?v=d7a0cfcfc455802b';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and

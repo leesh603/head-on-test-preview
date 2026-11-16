@@ -1,12 +1,12 @@
-import {aircraftHistoryCopy} from './aircraft-history-copy.js';
-import {conciseEquipmentDescription} from './equipment-copy.js';
-import {MEDAL_DISPLAY_NAMES,equipmentNameKo,prototypeAmmoName} from './equipment-names.js';
-import {liveUpgradeDescriptionEnglish} from './upgrade-copy.js';
-import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
-import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
-import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=tame3';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
-import {WEAPON_MODS} from './weapon-modifications.js';
+import {aircraftHistoryCopy} from './aircraft-history-copy.js?v=d7a0cfcfc455802b';
+import {conciseEquipmentDescription} from './equipment-copy.js?v=d7a0cfcfc455802b';
+import {MEDAL_DISPLAY_NAMES,equipmentNameKo,prototypeAmmoName} from './equipment-names.js?v=d7a0cfcfc455802b';
+import {liveUpgradeDescriptionEnglish} from './upgrade-copy.js?v=d7a0cfcfc455802b';
+import {RARE_SPECIALIZATIONS} from './rare-specializations.js?v=d7a0cfcfc455802b';
+import {SPECIAL_DOCTRINES} from './airframe-doctrines.js?v=d7a0cfcfc455802b';
+import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=d7a0cfcfc455802b';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=d7a0cfcfc455802b';
+import {WEAPON_MODS} from './weapon-modifications.js?v=d7a0cfcfc455802b';
 
 const STORAGE_KEY='headon-locale';
 const SUPPORTED=new Set(['ko','en']);

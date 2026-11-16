@@ -1,7 +1,7 @@
-import {CITY_BOMBER_GUN_REACH,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
-import {tickBomberWings} from './bomber-wing-damage.js';
-import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js';
-import {arcLead,trackPilotTurn} from './bomber-turn-lead.js';
+import {CITY_BOMBER_GUN_REACH,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js?v=d7a0cfcfc455802b';
+import {tickBomberWings} from './bomber-wing-damage.js?v=d7a0cfcfc455802b';
+import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js?v=d7a0cfcfc455802b';
+import {arcLead,trackPilotTurn} from './bomber-turn-lead.js?v=d7a0cfcfc455802b';
 // City Gotha flights: guided forward flight, never slot-position interpolation.
 const TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

@@ -1,11 +1,11 @@
-import {drawFlakAirburst} from './flak-airburst-art.js';
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=tame3';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=gal1';
-import {outlineSmallAirframe,drawSmallAirframe} from './aircraft-rim.js';
+import {drawFlakAirburst} from './flak-airburst-art.js?v=d7a0cfcfc455802b';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=d7a0cfcfc455802b';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=d7a0cfcfc455802b';
+import {drawShellFlight} from './boss-rounds.js?v=d7a0cfcfc455802b';
+import {drawAADefense} from './aa-defense-art.js?v=d7a0cfcfc455802b';
+import {outlineSmallAirframe,drawSmallAirframe} from './aircraft-rim.js?v=d7a0cfcfc455802b';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.

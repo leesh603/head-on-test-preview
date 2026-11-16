@@ -1,9 +1,9 @@
 /** Optional sea encounters. Fictional WWI-inspired designs, not historical ship replicas. */
-import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack,m1Reloading} from './submarine-intrusion.js';
+import {SUBMARINE_PROFILES,isNewSubmarine,submarineTimings,submarineDrive,stepSubmarineMechanisms,queueSubmarineAttack,m1Reloading} from './submarine-intrusion.js?v=d7a0cfcfc455802b';
 export const isSubmarine=e=>isNewSubmarine(e)||(typeof e==='string'?e:e?.profileId)==='nachtwal';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
-import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
-import {surfaceTraffic,fleetHull} from './naval-spacing.js?v=pandemonium394r2';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=d7a0cfcfc455802b';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=d7a0cfcfc455802b';
+import {surfaceTraffic,fleetHull} from './naval-spacing.js?v=d7a0cfcfc455802b';
 export const MARITIME_STAGES = Object.freeze([1,16]); // Adriatic sea and Jutland only.
 export const MARITIME_PROFILES = Object.freeze({
  dreadnought:{id:'dreadnought',name:'드레드노트',faction:'entente',mode:'naval-broadside',enabled:true,stages:MARITIME_STAGES,domain:'sea',hpRatio:.60,detail:'대공포를 끊고 포격 사이로 파고들어라',artStatus:'new independent fictional WWI naval design; separate rotating turret assemblies'},

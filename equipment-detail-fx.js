@@ -1,5 +1,5 @@
 // Authored cloth and flechette airflow; no simulated cloth, particles or RNG.
-import {DETAIL_ATLAS,DETAIL_FRAMES} from './equipment-detail-art-data.js';
+import {DETAIL_ATLAS,DETAIL_FRAMES} from './equipment-detail-art-data.js?v=d7a0cfcfc455802b';
 const images=Object.create(null),finite=(v,f=0)=>Number.isFinite(v)?v:f;
 export const equipmentDetailArtReady=Promise.all([
  ['cloth','equipment-detail-atlas.webp',DETAIL_ATLAS.width,DETAIL_ATLAS.height],

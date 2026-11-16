@@ -1,7 +1,7 @@
 // Presentation only: restrained inked designation brackets and the existing
 // painted gun smoke/fire artwork. No simulation RNG or generated placeholders.
-import {capitalPilotsState,CAPITAL_PILOT_BALANCE} from './capital-pilots-combat.js';
-import {partMark,MARK} from './tactical-marks.js?v=tame3';
+import {capitalPilotsState,CAPITAL_PILOT_BALANCE} from './capital-pilots-combat.js?v=d7a0cfcfc455802b';
+import {partMark,MARK} from './tactical-marks.js?v=d7a0cfcfc455802b';
 
 const IDS=new Set(['friedrich_karl','robinson']);
 const KINDS=new Set(['observe','order','flak','watch','magazine','ignition','ignitionHit','redeploy']);

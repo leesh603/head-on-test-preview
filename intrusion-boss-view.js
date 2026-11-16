@@ -1,13 +1,13 @@
-import {giantArrivalShadowPose} from './giant-intrusion-arrival.js';
-import {blacken} from './silhouette.js';
-import {isNewSubmarine,SUBMARINE_SINK_DURATION} from './submarine-intrusion.js';
-import {drawIntrusionOrdnance,drawIntrusionBoss,drawIntrusionDebris,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js';
+import {giantArrivalShadowPose} from './giant-intrusion-arrival.js?v=d7a0cfcfc455802b';
+import {blacken} from './silhouette.js?v=d7a0cfcfc455802b';
+import {isNewSubmarine,SUBMARINE_SINK_DURATION} from './submarine-intrusion.js?v=d7a0cfcfc455802b';
+import {drawIntrusionOrdnance,drawIntrusionBoss,drawIntrusionDebris,prepareIntrusionArt,intrusionArtReady,releaseIntrusionArt,profileLayout} from './intrusion-boss-art.js?v=d7a0cfcfc455802b';
 
-import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic,maritimeWeaponsReady} from './maritime-intrusion.js';
-import {drawShipWater,drawTorpedo} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
-import {drawSinkingShip} from './ship-sinking.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic,maritimeWeaponsReady} from './maritime-intrusion.js?v=d7a0cfcfc455802b';
+import {drawShipWater,drawTorpedo} from './naval-water.js?v=d7a0cfcfc455802b';
+import {drawSinkingShip} from './ship-sinking.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {getLocale} from './i18n.js?v=d7a0cfcfc455802b';
 
 export {intrusionArtReady};
 export const INTRUSION_COPY=Object.freeze({

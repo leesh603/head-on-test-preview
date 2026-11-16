@@ -1,5 +1,5 @@
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
-import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=descent20261022';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=d7a0cfcfc455802b';
+import {beginAircraftCrash,advanceAircraftCrash} from './aircraft-crash.js?v=d7a0cfcfc455802b';
 
 // Mission tuning lives here; counts, thresholds and pace can be adjusted together.
 export const DOVER_BREAKTHROUGH_BALANCE=Object.freeze({total:18,waveSize:6,maxActive:12,routeLength:10600,speed:205,hp:260,waveGap:15,waveProgress:.2,fighterCap:6,fighterInterval:10,coastProgress:.76,resultSeconds:4});

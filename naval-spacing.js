@@ -1,7 +1,7 @@
-import {submarineLayouts} from './submarine-layouts.js';
-import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=tame3';
-import {maritimeLayouts} from './maritime-intrusion-layouts.js';
-import {maritimeRaiderLayouts} from './maritime-raider-layouts.js';
+import {submarineLayouts} from './submarine-layouts.js?v=d7a0cfcfc455802b';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=d7a0cfcfc455802b';
+import {maritimeLayouts} from './maritime-intrusion-layouts.js?v=d7a0cfcfc455802b';
+import {maritimeRaiderLayouts} from './maritime-raider-layouts.js?v=d7a0cfcfc455802b';
 export function fleetHull(e){return{x:e.x,y:e.y,w:(e.hullWidth||40)*2,h:(e.hullLength||150)*2,yaw:(e.a||0)+Math.PI/2};}
 export function surfaceTraffic(g){return [...(g.enemies||[]),...(g.friendlyShips||[])].filter(e=>e.movingShip&&e.hp>0&&!e.expired);}
 export function surfaceBosses(g){

@@ -1,10 +1,10 @@
-import {squadronDamage,squadronDurability} from './squadron-elite-balance.js';
+import {squadronDamage,squadronDurability} from './squadron-elite-balance.js?v=d7a0cfcfc455802b';
 /** Historical unit/airframe identities; finite attack choreography is game fiction. */
-import {arrivalViewport} from './enemy-arrivals.js';
-import {combatImpactResult} from './combat-impact-result.js';
-import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js';
-import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js';
-import {releaseEliteHunt} from './elite-hunt.js?v=20261109';
+import {arrivalViewport} from './enemy-arrivals.js?v=d7a0cfcfc455802b';
+import {combatImpactResult} from './combat-impact-result.js?v=d7a0cfcfc455802b';
+import {rememberSquadronFlight,squadronClearance} from './legend-squadron-combat.js?v=d7a0cfcfc455802b';
+import {canAdmitSquadron,announceSquadron} from './squadron-combat-state.js?v=d7a0cfcfc455802b';
+import {releaseEliteHunt} from './elite-hunt.js?v=d7a0cfcfc455802b';
 export const FAMOUS_WING_BALANCE=Object.freeze({jasta18:{plane:'jasta18_fokkerd7',count:5,faction:'central',duration:25,hp:72,speed:120,warning:.55},lafayette:{plane:'lafayette_nieuport17',count:5,faction:'entente',duration:28,hp:68,speed:110,warning:1},bulletLife:1.2,bulletSpeed:375,burstGap:.15,damage:12});
 const B=FAMOUS_WING_BALANCE,alive=e=>e&&e.hp>0&&!e.expired&&!e.crashing,host=g=>!g.online||g.host,pilot=g=>g.players?.find(p=>p.hp>0&&p.status!=='downed')||g;
 const angle=a=>Math.atan2(Math.sin(a),Math.cos(a)),stage=g=>`${g.stageBoss?.stages?.loopIndex||0}:${g.stageBoss?.stages?.orderPosition||0}:${g.stageBoss?.stages?.stageIndex}`;

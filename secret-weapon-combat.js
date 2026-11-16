@@ -1,9 +1,9 @@
-import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
-import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js';
-import {equipmentTargets,wimperisTarget} from './flight-equipment.js';
+import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js?v=d7a0cfcfc455802b';
+import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js?v=d7a0cfcfc455802b';
+import {equipmentTargets,wimperisTarget} from './flight-equipment.js?v=d7a0cfcfc455802b';
 
-import {tickSecretOrdnance,fireSecretDavis,secretOrdnanceContact,secretOrdnanceAllowsTarget,secretPuwImpact,clearSecretOrdnanceTransient} from './secret-ordnance.js';
-import {salamanderArmorContact,tickSiemensFeedback,clearSecretFlightTransient} from './secret-flight-fits.js';
+import {tickSecretOrdnance,fireSecretDavis,secretOrdnanceContact,secretOrdnanceAllowsTarget,secretPuwImpact,clearSecretOrdnanceTransient} from './secret-ordnance.js?v=d7a0cfcfc455802b';
+import {salamanderArmorContact,tickSiemensFeedback,clearSecretFlightTransient} from './secret-flight-fits.js?v=d7a0cfcfc455802b';
 
 const ownerId=p=>p.id||'p1';
 const worldOf=p=>p.combatWorld?.()||p.world||p;

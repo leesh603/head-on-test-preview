@@ -1,12 +1,12 @@
-import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111';
-import {outlineSmallAirframe,drawSmallAirframe} from './aircraft-rim.js';
-import {fx} from './fx-art.js?v=tame3';
-import {drawFlakAirburst} from './flak-airburst-art.js';
-import {drawIncendiaryFire} from './incendiary-fire.js';
-import {prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
-import {KETTERING_DIVE} from './secret-weapon-combat.js';
-import {hasSecretWeapon} from './secret-weapons.js';
-import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {planeSprite} from './aircraft.js?v=d7a0cfcfc455802b';
+import {outlineSmallAirframe,drawSmallAirframe} from './aircraft-rim.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {drawFlakAirburst} from './flak-airburst-art.js?v=d7a0cfcfc455802b';
+import {drawIncendiaryFire} from './incendiary-fire.js?v=d7a0cfcfc455802b';
+import {prepareSandVortexArt} from './sand-vortex-art.js?v=d7a0cfcfc455802b';
+import {KETTERING_DIVE} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
+import {hasSecretWeapon} from './secret-weapons.js?v=d7a0cfcfc455802b';
+import {bombSprite} from './bomb-sprites.js?v=d7a0cfcfc455802b';
 const SELECTED_ART=['le-prieur-mount','salamander-mount','siemens-halske-rotor'];
 
 const sprites=Object.create(null);

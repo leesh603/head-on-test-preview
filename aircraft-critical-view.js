@@ -1,5 +1,5 @@
-import {pruneCriticalFeedback} from './aircraft-criticals.js';
-import {combatFxAge} from './explosion-profiles.js?v=fx5';
+import {pruneCriticalFeedback} from './aircraft-criticals.js?v=d7a0cfcfc455802b';
+import {combatFxAge} from './explosion-profiles.js?v=d7a0cfcfc455802b';
 // Dedicated painted cockpit mist; all other parts reuse established WWI art.
 const mist=typeof Image==='undefined'?null:new Image();
 if(mist)mist.src='./cockpit-critical-mist.png';

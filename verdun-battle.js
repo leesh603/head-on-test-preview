@@ -1,7 +1,9 @@
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
-import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=d7a0cfcfc455802b';
+import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js?v=d7a0cfcfc455802b';
 
 const APPROACH='verdun-approach';
+const MORTAR_LANES=[[-1,0,1,0,-1],[1,0,-1,0,1]];
+const HEAVY_LANES=[[-1,1,0,-1,1,0],[1,-1,0,1,-1,0]];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const alive=p=>p.hp>0&&p.status!=='downed'&&p.status!=='dead';
 const players=g=>g.players||[g];
@@ -109,40 +111,53 @@ function flightPose(g){
  const zoom=g.camera?.zoom||1;
  return {w:(g.viewWidth||960)/zoom,h:(g.viewHeight||700)/zoom};
 }
-function fire(g,v,source,heavy=false){
+function fire(g,v,source){
  const live=players(g).filter(alive);
- const p=live[v.salvo%live.length];if(!p)return;
- const {w,h}=flightPose(g),warning=heavy?2.5:2.05,r=Math.min(heavy?55:33,w*.115);
- if(source&&!near(p,source,1550))return;
- const rng=g.rng||Math.random,angle=p.a??g.a??-Math.PI/2,speed=Math.min(270,(p.speed||180)*(p.airframeSpeed||1));
- const hx=Math.cos(angle),hy=Math.sin(angle),observed=v.observer?.hp>0||v.balloonActive;
- const aim=observed||v.salvo%3===0;
- const spread=observed?24:118,side=(rng()-.5)*spread+(observed?0:(v.salvo%2?1:-1)*r*1.15);
- const forward=speed*warning*(aim ? .86 : .55);
- const x=clamp(p.x+hx*forward-hy*side,g.x-w/2+r+12,g.x+w/2-r-12);
- const y=clamp(p.y+hy*forward+hx*side,g.y-h/2+r+12,g.y+h/2-r-12);
+ const p=live[v.salvo%live.length];if(!p)return false;
+ const heavy=!source,supplyCut=!!v.train?.supplyCut,observed=v.observer?.hp>0||v.balloonActive;
+ const {w,h}=flightPose(g),warning=heavy?1.93:1.56,beat=heavy ? .49 : .46;
+ const r=Math.min(heavy?46:29,w*.087),angle=p.a??g.a??-Math.PI/2;
+ const hx=Math.cos(angle),hy=Math.sin(angle),speed=Math.min(270,(p.speed||180)*(p.airframeSpeed||1));
+ const rng=g.rng||Math.random,lanes=(heavy?HEAVY_LANES:MORTAR_LANES)[v.salvo%2];
+ const count=heavy?(supplyCut?3:6):(observed?5:4);
+ const span=Math.max(r*2.45,Math.min(w,h)*.14);
+ const drift=(rng()-.5)*(observed?16:70)+(observed?0:(v.salvo%2?1:-1)*span*.6);
  const tube=source?MINEN_TUBES[source.mortarTube=(source.mortarTube+1)%MINEN_TUBES.length]:null;
  const muzzle=source?{x:source.x+tube.muzzleX*source.width/MINEN_ART.width,y:source.y+tube.muzzleY*source.width/MINEN_ART.width}:{x:g.x+w*.8,y:g.y-h*.83};
- const tag=source?.id||APPROACH+':heavy';
- const visual=heavy?'verdun-field-heavy':'verdun-field-mortar';
+ const tag=source?.id||APPROACH+':heavy',visual=heavy?'verdun-field-heavy':'verdun-field-mortar';
  let launched=false;
- // Two staggered ground strikes, with one fixed, warned air-fragment zone.
- // This leaves open sides even if two pilots share a narrow camera.
- for(let i=0;i<2;i++){
-  const px=x-hy*i*r*2.5,py=y+hx*i*r*2.5;
-  if(i&&(!heavy||Math.abs(px-g.x)+r>w/2||Math.abs(py-g.y)+r>h/2))continue;
-  const round=g.stageBoss.hazards.spawn({kind:'circle',encounterId:APPROACH,bossId:tag,tag,x:px,y:py,
-   sourceX:muzzle.x,sourceY:muzzle.y,radius:r,warning,delay:i*.42,duration:.43,damage:i?0:heavy?21:12,once:true,visual});
+ // The warning locks each lane in world space. Sequential impact times and
+ // narrower circles leave a different route open on every beat.
+ for(let i=0;i<count;i++){
+  const forward=Math.max(r+43,speed*(warning+i*beat)*(observed ? .81 : .66));
+  const cross=lanes[i]*span+drift;
+  const x=clamp(p.x+hx*forward-hy*cross,g.x-w/2+r+12,g.x+w/2-r-12);
+  const y=clamp(p.y+hy*forward+hx*cross,g.y-h/2+r+12,g.y+h/2-r-12);
+  const round=g.stageBoss.hazards.spawn({kind:'circle',encounterId:APPROACH,bossId:tag,tag,x,y,
+   sourceX:muzzle.x,sourceY:muzzle.y,radius:r,warning,delay:i*beat,duration:.22,damage:heavy?13:8,once:true,visual});
   launched||=!!round;
  }
- if(!launched)return;
+ if(!launched)return false;
  v.salvo++;
  if(source){
   source.mortarRecoil=MINEN_ART.recoilDuration;
-  v.muzzles.push({...muzzle,a:Math.atan2(y-muzzle.y,x-muzzle.x),age:0});
+  v.muzzles.push({...muzzle,a:angle+Math.PI,age:0});
  }
- if(near(g,muzzle,520))g.event?.('bossSound','artilleryFire');
- if(near(g,{x,y},470))g.event?.('bossSound',heavy?'railShellIncoming520':'railShellIncoming');
+ if(near(g,muzzle,620))g.event?.('bossSound','artilleryFire');
+ g.event?.('bossSound',heavy?'railShellIncoming520':'railShellIncoming');
+ return true;
+}
+
+function tickVerdunSalvos(g,v){
+ if(v.age<v.nextSalvo)return;
+ const live=v.mortars.filter(e=>e.hp>0);
+ const inRange=live.filter(e=>players(g).some(p=>alive(p)&&near(p,e,1550)));
+ const rear=v.age>=v.nextRear&&(v.salvo%3===2||!inRange.length);
+ if(!rear&&!inRange.length){v.nextSalvo=Math.max(v.age+.2,v.nextRear);return;}
+ const source=rear?null:inRange[v.mortarCursor++%inRange.length];
+ if(!fire(g,v,source)){v.nextSalvo=v.age+.5;return;}
+ if(rear)v.nextRear=v.age+(v.train?.supplyCut?11.8:4.25);
+ v.nextSalvo=v.age+(rear?4.8:live.length===1?5.35:4.1);
 }
 
 function ambient(g,v){
@@ -177,12 +192,12 @@ function launchPatrol(g,v){
 export function tickVerdunBattle(g,dt){
  if(g.stageBoss?.stages.stageIndex!==12||g.state!=='playing'||dt<=0)return;
  const addon=g.stageBoss;
- const v=g.verdunBattle??={age:0,nextAmbient:.6,nextMortar:11,nextHeavy:21,nextPatrol:8,salvo:0,mortarCursor:0,
+ const v=g.verdunBattle??={age:0,nextAmbient:.55,nextSalvo:4.7,nextRear:5.6,nextPatrol:8,salvo:0,mortarCursor:0,
   dust:[],craters:[],muzzles:[],cookoffs:[],targets:[],mortars:[]};
  v.age+=dt;
  for(const e of v.dust)e.age+=dt;v.dust=v.dust.filter(e=>e.age<e.life);
  for(const e of v.muzzles)e.age+=dt;v.muzzles=v.muzzles.filter(e=>e.age<.2);
- if(v.age>=v.nextAmbient){ambient(g,v);v.nextAmbient=v.age+(v.age<12?2.4:1.5);}
+ if(v.age>=v.nextAmbient){ambient(g,v);v.nextAmbient=v.age+(v.age<4?1.35:.76);}
  if(addon.stages.phase!=='explore'){
   if(!v.approachCleared){addon.hazards.clear(APPROACH);v.approachCleared=true;}
   if(!v.reconTarget){
@@ -199,19 +214,7 @@ export function tickVerdunBattle(g,dt){
  if(!v.train)installSupport(g,v);
  updateSupport(g,v,dt);
  if(v.age>=v.nextPatrol){v.nextPatrol=v.age+15;launchPatrol(g,v);}
- if(v.age>=v.nextHeavy){
-  v.nextHeavy=v.age+(v.train?.supplyCut?19:11);
-  if(v.age-(v.lastFire??-Infinity)>=3.35){fire(g,v,null,true);v.lastFire=v.age;}else v.nextHeavy=v.lastFire+3.35;
- }
- if(v.age>=v.nextMortar){
-  v.nextMortar=v.age+4.3;
-  const live=v.mortars.filter(e=>e.hp>0);
-  if(live.length&&v.age-(v.lastFire??-Infinity)>=3.15){
-   const before=v.salvo;fire(g,v,live[v.mortarCursor++%live.length]);
-   if(v.salvo>before)v.lastFire=v.age;
-   if(live.length===1)v.nextMortar+=2;
-  }
- }
+ tickVerdunSalvos(g,v);
 }
 const dust=(g,x,y,radius=55)=>{const v=g.verdunBattle;if(v){v.dust.push({x,y,radius,age:0,life:1.1});v.dust=v.dust.slice(-8);}};
 export function handleVerdunCue(g,event){

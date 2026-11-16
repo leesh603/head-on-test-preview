@@ -1,7 +1,7 @@
-import {resetBishopGloves} from './equipment-flight-balance.js';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
-import {applySecretPomFit,hasSecretWeapon,removeSecretWeapon} from './secret-weapons.js';
-import {applySalamanderHull} from './secret-flight-fits.js';
+import {resetBishopGloves} from './equipment-flight-balance.js?v=d7a0cfcfc455802b';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=d7a0cfcfc455802b';
+import {applySecretPomFit,hasSecretWeapon,removeSecretWeapon} from './secret-weapons.js?v=d7a0cfcfc455802b';
+import {applySalamanderHull} from './secret-flight-fits.js?v=d7a0cfcfc455802b';
 /** Rebuild only upgrade-owned contributions. Never replay combat or mutate a live world. */
 const clone=v=>JSON.parse(JSON.stringify(v));
 export function beginEquipmentLedger(p){

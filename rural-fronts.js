@@ -1,6 +1,6 @@
-import {reserveFacilitySlot} from './ground-facility-missions.js';
-import {intrusionActive} from './intrusion-bosses.js';
-import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery2';
+import {reserveFacilitySlot} from './ground-facility-missions.js?v=d7a0cfcfc455802b';
+import {intrusionActive} from './intrusion-bosses.js?v=d7a0cfcfc455802b';
+import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=d7a0cfcfc455802b';
 // Two bounded, persistent combat groups. Aircraft always use the normal combat
 // simulation, including offscreen: no arrival respawns or second damage model.
 export const FRONT_TYPES = Object.freeze({
