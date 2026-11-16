@@ -4,10 +4,10 @@ import {portraitThumbnailSource} from './portraits.js?v=d7a0cfcfc455802b';
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=1091f4e17a46a92b';
+import {aircraftKey} from './aircraft.js?v=6b7189b889c2fc7c';
 import {hangarArt, hangarArtLayout} from './hangar-art.js?v=d7a0cfcfc455802b';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=1091f4e17a46a92b';
+import {PLANES} from './engine.js?v=6b7189b889c2fc7c';
 import {aircraftFeelRatings} from './aircraft-feel174.js?v=d7a0cfcfc455802b';
 import {t} from './i18n.js?v=d7a0cfcfc455802b';
 import {waitForLobbyIcons} from './lobby-assets-ready.js?v=d7a0cfcfc455802b';

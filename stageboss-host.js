@@ -1,5 +1,5 @@
 import {ammunitionPartPadding} from './heavy-ammunition.js?v=d7a0cfcfc455802b';
-import {PILOTS} from './engine.js?v=1091f4e17a46a92b';
+import {PILOTS} from './engine.js?v=6b7189b889c2fc7c';
 import {applyOperationReward,clearOperationBattle,expireOperationRewards,refreshOperationReinforcement,startOperationBattle,tickOperationBattle} from './special-operation-combat.js?v=d7a0cfcfc455802b';
 import {HARBOR_PARTS} from './harbor-crane-layout.js?v=d7a0cfcfc455802b';
 import {legacyProjectileTarget} from './projectile-contacts.js?v=d7a0cfcfc455802b';
@@ -29,15 +29,15 @@ import {ruralRailEntryStartY} from './rural-rail-layout.js?v=d7a0cfcfc455802b';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=d7a0cfcfc455802b';
 import {LAON_STAGE,ensureLaonBattle,clearLaonBattle,tickLaonBattle,handleLaonCue,discoverLaonBattle,laonAvailableSlots} from './laon-battle.js?v=d7a0cfcfc455802b';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=1091f4e17a46a92b';
+import {tickRegionalConditions} from './region-doctrine1.js?v=6b7189b889c2fc7c';
 
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=d7a0cfcfc455802b';
 import {handleMaanCue} from './maan-view.js?v=a09a7cbc62f4d4d8';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=1091f4e17a46a92b';
-import {tickCityAirRaid,cityRaidGate,cityRaidBattle} from './city-air-raid.js?v=1091f4e17a46a92b';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=6b7189b889c2fc7c';
+import {tickCityAirRaid,cityRaidGate,cityRaidBattle} from './city-air-raid.js?v=6b7189b889c2fc7c';
 import {tickZeebruggeRaid} from './zeebrugge-raid.js?v=d7a0cfcfc455802b';
-import {ensureMapMission,tickMapMission,clearMapMission} from './map-primary-objectives.js?v=1091f4e17a46a92b';
-import {alpsBossContact} from './alps-observation-mission.js?v=1091f4e17a46a92b';
+import {ensureMapMission,tickMapMission,clearMapMission} from './map-primary-objectives.js?v=6b7189b889c2fc7c';
+import {alpsBossContact} from './alps-observation-mission.js?v=6b7189b889c2fc7c';
 import {isDoverBoss} from './dover-night-view.js?v=d7a0cfcfc455802b';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=d7a0cfcfc455802b';
 import {tickVerdunBattle,handleVerdunCue,clearVerdunBattle} from './verdun-battle.js?v=d7a0cfcfc455802b';

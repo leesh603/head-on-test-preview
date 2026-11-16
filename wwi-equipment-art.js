@@ -10,8 +10,8 @@ import {WWI_FRAMES} from './wwi-equipment-art-data.js?v=d7a0cfcfc455802b';
 import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js?v=d7a0cfcfc455802b';
 import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js?v=d7a0cfcfc455802b';
 import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js?v=d7a0cfcfc455802b';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=1091f4e17a46a92b';
-import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js?v=1091f4e17a46a92b';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=6b7189b889c2fc7c';
+import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js?v=6b7189b889c2fc7c';
 import {hasSecretWeapon} from './secret-weapons.js?v=d7a0cfcfc455802b';
 import {secretRotaryMountSide} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
 

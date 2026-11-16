@@ -1,6 +1,6 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=d7a0cfcfc455802b';
-import {aircraftKey} from './aircraft.js?v=1091f4e17a46a92b';
+import {aircraftKey} from './aircraft.js?v=6b7189b889c2fc7c';
 import {hangarArt,hangarArtNow,hangarKeyFile,hangarArtLayout} from './hangar-art.js?v=d7a0cfcfc455802b';
 export {hangarArt} from './hangar-art.js?v=d7a0cfcfc455802b';
 

@@ -1,10 +1,10 @@
-import {planeSprite,aircraftKey} from './aircraft.js?v=1091f4e17a46a92b';
+import {planeSprite,aircraftKey} from './aircraft.js?v=6b7189b889c2fc7c';
 import {drawInternalRepair} from './mccudden-internal-repair.js?v=d7a0cfcfc455802b';
 import {drawMaterialSupply} from './petal-supply-fx.js?v=d7a0cfcfc455802b';
 import {fx,fxTint} from './fx-art.js?v=d7a0cfcfc455802b';
 import {drawProctorGunRecord} from './proctor-burst-fx.js?v=d7a0cfcfc455802b';
 import {drawGameIcon} from './icons.js?v=d7a0cfcfc455802b';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=1091f4e17a46a92b';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=6b7189b889c2fc7c';
 
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).

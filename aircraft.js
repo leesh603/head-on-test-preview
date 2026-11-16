@@ -64,7 +64,7 @@ function setPainted(key,image){
  if(key.startsWith('bank_')){bankTouched.delete(key);bankTouched.set(key,1);trimBankArtwork();}
  if(!previous)return;
  for(const [id,sprite] of cache)if(sprite===previous){
-  cache.delete(id);shadows.delete(id);
+  cache.delete(id);shadows.delete(id);shadows.delete(id+'#meadow');
   for(const k of flashes.keys())if(k===id||k.startsWith(id+'#d'))flashes.delete(k);
   for(const k of damageCache.keys())if(k===id||k.startsWith(id+'#stage'))damageCache.delete(k);
  }
@@ -77,7 +77,7 @@ export function retainBankArtwork(keys){bankRetained=new Set(keys)}
 function trimBankArtwork(){
  while(bankTouched.size>24){const key=[...bankTouched.keys()].find(k=>!bankRetained.has(k));if(!key)break;
   const previous=painted.get(key);painted.delete(key);bankTouched.delete(key);
-  for(const [id,sprite]of cache)if(id===key||sprite===previous){cache.delete(id);shadows.delete(id);
+  for(const [id,sprite]of cache)if(id===key||sprite===previous){cache.delete(id);shadows.delete(id);shadows.delete(id+'#meadow');
    for(const k of flashes.keys())if(k===id||k.startsWith(id+'#d'))flashes.delete(k);
    for(const k of damageCache.keys())if(k===id||k.startsWith(id+'#stage'))damageCache.delete(k);
   }
@@ -401,26 +401,33 @@ function leanOverlay(sprite,key,right){
  g.globalCompositeOperation='source-in';g.fillStyle=grad;g.fillRect(0,0,144,160);
  if(leans.size>160)leans.delete(leans.keys().next().value);leans.set(id,cv);return cv;
 }
-// A canvas the size of the authored sprite carries the meadow's soft daylight.
- // Source-atop keeps every alpha edge and the same pivot, scale and damage sprite.
-const meadowSurfaces=new WeakMap();
-function meadowAirframeSurface(sprite){
- let surface=meadowSurfaces.get(sprite);
- if(surface)return surface;
- surface=document.createElement('canvas');surface.width=144;surface.height=160;
+// World light comes from the upper left, opposite the cast shadow.
+const MEADOW_LIGHT_DIRECTIONS=12,MEADOW_LIGHT_STEP=2*Math.PI/MEADOW_LIGHT_DIRECTIONS;
+const meadowSurfaces=new Map();
+function meadowAirframeSurface(sprite,key,heading){
+ const bearing=Math.round((-2.16-heading-Math.PI/2)/MEADOW_LIGHT_STEP);
+ const direction=((bearing%MEADOW_LIGHT_DIRECTIONS)+MEADOW_LIGHT_DIRECTIONS)%MEADOW_LIGHT_DIRECTIONS;
+ const id=key+'#sun'+direction;
+ const cached=meadowSurfaces.get(id);
+ if(cached?.sprite===sprite)return cached.surface;
+ const surface=document.createElement('canvas');surface.width=144;surface.height=160;
  const g=surface.getContext('2d');
  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
  g.drawImage(sprite,0,0,144,160);
  g.globalCompositeOperation='source-atop';
- const daylight=g.createLinearGradient(12,8,150,153);
- daylight.addColorStop(0,'rgba(235,211,165,.20)');
- daylight.addColorStop(.48,'rgba(219,197,156,.045)');
- daylight.addColorStop(1,'rgba(47,53,41,.15)');
+ const angle=direction*MEADOW_LIGHT_STEP,dx=Math.cos(angle)*65,dy=Math.sin(angle)*65;
+ const daylight=g.createLinearGradient(72+dx,76+dy,72-dx,76-dy);
+ daylight.addColorStop(0,'rgba(255,229,184,.26)');
+ daylight.addColorStop(.28,'rgba(245,224,191,.10)');
+ daylight.addColorStop(.55,'rgba(43,49,49,0)');
+ daylight.addColorStop(1,'rgba(43,49,49,.25)');
  g.fillStyle=daylight;g.fillRect(0,0,144,160);
- meadowSurfaces.set(sprite,surface);
+ // Retain the original sprite dimensions and cap the cache across all liveries.
+ if(!cached&&meadowSurfaces.size>=72)meadowSurfaces.delete(meadowSurfaces.keys().next().value);
+ meadowSurfaces.set(id,{sprite,surface});
  return surface;
 }
-export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0,damaged=false,meadow=false){
+export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0,damaged=false,meadowHeading=null){
  const redAce=key==='fokker_red',variant=key==='fokker_voss',standard=key==='fokker';const cacheKey=redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key;
  const sourceKey=campaignSpriteAliases[key]||(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);
  // Never fall back to the retired procedural planes while the authored art is
@@ -430,12 +437,14 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const damageStage=typeof damaged==='number'?Math.min(5,damaged):0;const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),damageStage?cacheKey+'#stage'+damageStage:cacheKey,damageStage):cache.get(cacheKey);
  c.save();c.imageSmoothingEnabled=false;c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);
- if(shadow){if(!shadows.has(cacheKey)){const sh=document.createElement('canvas');sh.width=144;sh.height=160;const sc=sh.getContext('2d');sc.imageSmoothingEnabled=true;sc.imageSmoothingQuality='high';// 20261111 soft cast shadow, baked once per sprite: the silhouette is stamped in a small
+ const meadow=Number.isFinite(meadowHeading);
+ if(shadow){const shadowKey=meadow?cacheKey+'#meadow':cacheKey,pad=meadow?7:0;
+  if(!shadows.has(shadowKey)){const sh=document.createElement('canvas');sh.width=144+2*pad;sh.height=160+2*pad;const sc=sh.getContext('2d');sc.imageSmoothingEnabled=true;sc.imageSmoothingQuality='high';// 20261111 soft cast shadow, baked once per sprite: the silhouette is stamped in a small
   // ring so its edge feathers like a shadow thrown from height (no per-frame cost, no
   // canvas filter, which Safari lacks). The draw stays a single drawImage.
-  const R=SHADOW_SOFTNESS;for(let i=0;i<12;i++){const t=i/12*Math.PI*2,r=i%2?R:R*.5;sc.globalAlpha=.16;sc.drawImage(sprite,Math.cos(t)*r,Math.sin(t)*r,144,160)}
-  sc.globalAlpha=.3;sc.drawImage(sprite,0,0,144,160);sc.globalAlpha=1;sc.globalCompositeOperation='source-in';sc.fillStyle='#14211a';sc.fillRect(0,0,144,160);shadows.set(cacheKey,sh)}c.globalAlpha*=.36;c.drawImage(shadows.get(cacheKey),-72,-76)}
- else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(meadow?meadowAirframeSurface(sprite):sprite,-72,-76,144,160);{const lean=pendingLean;pendingLean=0;if(Math.abs(lean)>.04){const a0=c.globalAlpha;c.globalAlpha=a0*Math.abs(lean);c.drawImage(leanOverlay(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,lean>0),-72,-76);c.globalAlpha=a0}}if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+  const R=meadow?6:SHADOW_SOFTNESS;for(let i=0;i<12;i++){const t=i/12*Math.PI*2,r=i%2?R:R*.5;sc.globalAlpha=meadow?.12:.16;sc.drawImage(sprite,pad+Math.cos(t)*r,pad+Math.sin(t)*r,144,160)}
+  sc.globalAlpha=meadow?.2:.3;sc.drawImage(sprite,pad,pad,144,160);sc.globalAlpha=1;sc.globalCompositeOperation='source-in';sc.fillStyle=meadow?'#28271e':'#14211a';sc.fillRect(0,0,sh.width,sh.height);shadows.set(shadowKey,sh)}c.globalAlpha*=.36;c.drawImage(shadows.get(shadowKey),-72-pad,-76-pad)}
+ else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(meadow?meadowAirframeSurface(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,meadowHeading):sprite,-72,-76,144,160);{const lean=pendingLean;pendingLean=0;if(Math.abs(lean)>.04){const a0=c.globalAlpha;c.globalAlpha=a0*Math.abs(lean);c.drawImage(leanOverlay(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,lean>0),-72,-76);c.globalAlpha=a0}}if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
  c.restore();
 }
 

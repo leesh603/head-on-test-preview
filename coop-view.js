@@ -1,25 +1,25 @@
-import {secretBomberAirframe,drawSecretAirframeHardware} from './secret-weapon-fx.js?v=1091f4e17a46a92b';
+import {secretBomberAirframe,drawSecretAirframeHardware} from './secret-weapon-fx.js?v=6b7189b889c2fc7c';
 import {drawSpecialOperationTrain} from './special-operation-view.js?v=a09a7cbc62f4d4d8';
 import {drawDoverConvoy} from './dover-breakthrough-view.js?v=d7a0cfcfc455802b';
 import {renderLegacySquadrons} from './legacy-squadron-adapter.js?v=d7a0cfcfc455802b';
 import {drawExpansionObjectives} from './expansion-objective-view.js?v=d7a0cfcfc455802b';
 import {drawRevisionDecoys} from './voss-decoy-fx.js?v=d7a0cfcfc455802b';
 import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js?v=d7a0cfcfc455802b';
-import {prepareMeadowGraphics,isMeadowMinefield,drawMeadowMinefield,drawMeadowGunFlash,drawMeadowGroundImpact,drawMeadowAirSmoke} from './meadow-graphics.js?v=1091f4e17a46a92b';
-import {drawCloudShadows} from './cloud-cover1.js?v=1091f4e17a46a92b';
-import {drawGroundFacilities} from './ground-facility-view.js?v=1091f4e17a46a92b';
+import {isMeadowMinefield,drawMeadowMinefield,drawMeadowGunFlash,drawMeadowGroundImpact,drawMeadowAirSmoke} from './meadow-graphics.js?v=6b7189b889c2fc7c';
+import {drawCloudShadows} from './cloud-cover1.js?v=6b7189b889c2fc7c';
+import {drawGroundFacilities} from './ground-facility-view.js?v=6b7189b889c2fc7c';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js?v=d7a0cfcfc455802b';
 import {drawCapitalPilots} from './capital-pilots-view.js?v=d7a0cfcfc455802b';
 import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js?v=d7a0cfcfc455802b';
 import {drawWingDurability} from './wingman-durability.js?v=d7a0cfcfc455802b';
-import {drawAirThreat} from './air-threat-art.js?v=1091f4e17a46a92b';
+import {drawAirThreat} from './air-threat-art.js?v=6b7189b889c2fc7c';
 import {drawProjectileTactic} from './gun-signatures.js?v=d7a0cfcfc455802b';
 const _combatMount={x:0,y:0};
 import {drawEnemyDanger} from './enemy-danger-view.js?v=d7a0cfcfc455802b';
 import {defianceAirframePose} from './death-defiance-fx.js?v=d7a0cfcfc455802b';
 import {pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=d7a0cfcfc455802b';
 import {drawMannockWing} from './fire-dive-fx.js?v=d7a0cfcfc455802b';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=1091f4e17a46a92b';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=6b7189b889c2fc7c';
 import {impactMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
 import {getLocale} from './i18n.js?v=d7a0cfcfc455802b';
 import {unitNameEN} from './event-text-en.js?v=1091f4e17a46a92b';
@@ -30,25 +30,25 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=d7a0cfcfc455802b';
 import {fx,fxReady,fxTint} from './fx-art.js?v=d7a0cfcfc455802b';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=d7a0cfcfc455802b';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=1091f4e17a46a92b';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=1091f4e17a46a92b';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=6b7189b889c2fc7c';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=6b7189b889c2fc7c';
 import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=d7a0cfcfc455802b';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=1091f4e17a46a92b';
-import {drawStageBoss} from './stageboss-view.js?v=1091f4e17a46a92b';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=6b7189b889c2fc7c';
+import {drawStageBoss} from './stageboss-view.js?v=6b7189b889c2fc7c';
 import {bombSprite} from './bomb-sprites.js?v=d7a0cfcfc455802b';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz','friedrich_karl','robinson']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {PLANES,BATTLEFIELD113} from './engine.js?v=1091f4e17a46a92b';
+import {PLANES,BATTLEFIELD113} from './engine.js?v=6b7189b889c2fc7c';
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=d7a0cfcfc455802b';
-import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=1091f4e17a46a92b';
-import {enemyAircraftKey} from './enemy-aircraft-art.js?v=1091f4e17a46a92b';
+import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=6b7189b889c2fc7c';
+import {enemyAircraftKey} from './enemy-aircraft-art.js?v=6b7189b889c2fc7c';
 import {drawEquipment} from './equipment.js?v=d7a0cfcfc455802b';
 import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=a09a7cbc62f4d4d8';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=1091f4e17a46a92b';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=6b7189b889c2fc7c';
 import {drawSpecialAmmoIcon} from './icons.js?v=d7a0cfcfc455802b';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=1091f4e17a46a92b';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=6b7189b889c2fc7c';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=a09a7cbc62f4d4d8';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=d7a0cfcfc455802b';
 
@@ -71,10 +71,9 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const p of g.players)for(const d of p.vossAfterimages||[]){c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,p.bomberTransfer?.sprite||aircraftKey(p.plane,false,p.pilot),p.bomberTransfer?.scale??1);c.restore();}
  for(const e of g.enemies)for(const d of e.vossTrails||[]){if(cl(d.x,d.y,110))continue;c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,enemyAircraftKey(e,'fokker_voss'),enemyAircraftScale(e),true);c.restore();}
  drawRevisionDecoys(c,g,{planeSprite,aircraftKey});
- if(meadow)prepareMeadowGraphics();
  const ring=(x,y,r,color,width=2)=>{c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke()};
  const heart=(x,y,size,color)=>{const s=Math.max(1,Math.round(size/4));c.fillStyle=color;c.fillRect(x-2*s,y-s,s,s);c.fillRect(x+s,y-s,s,s);c.fillRect(x-3*s,y,6*s,s);c.fillRect(x-2*s,y+s,4*s,s);c.fillRect(x-s,y+2*s,2*s,s)};
- const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y),visual=defianceAirframePose(p,pressureAirframePose(p,combatVisualPose(p),t));key=q.sprite||key;q.x+=visual.x;q.y+=visual.y;q.roll=visual.roll;q.bank=visual.bank;if(p.crashing){const v=enemyCrashVisual(p);q.roll=v.roll;q.bank=v.bank;}if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}if(!enemy||p.type!=='bomber'&&p.type!=='zeppelin'){c.save();c.globalAlpha*=q.shadowAlpha;c.translate(Math.round(q.x+(p.crashing?enemyCrashVisual(p).shadowX:p.pilot==='immelmann'?q.shadowX:14)),Math.round(q.y+(p.crashing?enemyCrashVisual(p).shadowY:p.pilot==='immelmann'?q.shadowY:20)+q.height));applyPlayerAttitude(c,p,q,true);planeSprite(c,0,0,0,key,scale*q.scale*q.shadowScale,enemy,true);c.restore();}c.save();c.globalAlpha*=(p.ballCloak>0?.24:1)*(q.alpha??1);c.translate(q.x,q.y);applyPlayerAttitude(c,p,q);planeSprite(c,0,0,0,key,scale*q.scale,enemy,false,enemy&&visual.active?Math.min(.16,p.hitFlash||0):p.hitFlash||0,p.pilot==='barker'?Math.max(p.barkerDamageStage||0,p.barkerScarStage||0):p.hp<p.maxHp*.5,meadow&&!p.bomberTransfer&&!p.bossPilot&&!p.crashing);if(!enemy)drawSecretAirframeHardware(c,p,scale*q.scale,t);if(enemy)drawPressureEnemyFront(c,g,p,fx,scale*q.scale,fxTint);c.restore();if(!enemy)drawPilotSignatureFront(c,p,q.x,q.y)};
+ const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y),visual=defianceAirframePose(p,pressureAirframePose(p,combatVisualPose(p),t));key=q.sprite||key;q.x+=visual.x;q.y+=visual.y;q.roll=visual.roll;q.bank=visual.bank;const meadowHeading=meadow&&!p.bomberTransfer&&!p.bossPilot&&!p.crashing?p.a+q.roll:null;if(p.crashing){const v=enemyCrashVisual(p);q.roll=v.roll;q.bank=v.bank;}if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}if(!enemy||p.type!=='bomber'&&p.type!=='zeppelin'){c.save();c.globalAlpha*=q.shadowAlpha;c.translate(Math.round(q.x+(p.crashing?enemyCrashVisual(p).shadowX:p.pilot==='immelmann'?q.shadowX:14)),Math.round(q.y+(p.crashing?enemyCrashVisual(p).shadowY:p.pilot==='immelmann'?q.shadowY:20)+q.height));applyPlayerAttitude(c,p,q,true);planeSprite(c,0,0,0,key,scale*q.scale*q.shadowScale,enemy,true,0,false,meadowHeading);c.restore();}c.save();c.globalAlpha*=(p.ballCloak>0?.24:1)*(q.alpha??1);c.translate(q.x,q.y);applyPlayerAttitude(c,p,q);planeSprite(c,0,0,0,key,scale*q.scale,enemy,false,enemy&&visual.active?Math.min(.16,p.hitFlash||0):p.hitFlash||0,p.pilot==='barker'?Math.max(p.barkerDamageStage||0,p.barkerScarStage||0):p.hp<p.maxHp*.5,meadowHeading);if(!enemy)drawSecretAirframeHardware(c,p,scale*q.scale,t);if(enemy)drawPressureEnemyFront(c,g,p,fx,scale*q.scale,fxTint);c.restore();if(!enemy)drawPilotSignatureFront(c,p,q.x,q.y)};
  for(const gas of g.gasZones){if(cl(gas.x,gas.y,(gas.r||80)+60))continue;drawGasCloud196(c,gas,gas.x,gas.y,t);c.fillStyle='#e0dfb0';c.font='13px sans-serif';c.textAlign='center';c.fillText(gas.warning>0?'독가스 살포 '+gas.warning.toFixed(1)+'초':'독가스 · 조종 저하 / 지속 피해',gas.x,gas.y-gas.r-12)}
  for(const field of g.hostileMinefields){if(meadow&&isMeadowMinefield(field)){drawMeadowMinefield(c,field,worldPoint,visible,BATTLEFIELD113.mineTrigger);continue;}if(!field.encounterId)ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead&&!cl(m.x,m.y,80)){drawDrachenMine(c,m.x,m.y,64,64);ring(m.x,m.y,m.triggerRadius||18,field.warning>0?'#ffe0a188':'#ff876e')}}
  // The app defers ordinary heals until after cloud cover; standalone views keep their own pass.

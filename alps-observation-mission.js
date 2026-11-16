@@ -1,6 +1,6 @@
-import {prepareAirThreatArt} from './air-threat-art.js?v=1091f4e17a46a92b';
+import {prepareAirThreatArt} from './air-threat-art.js?v=6b7189b889c2fc7c';
 import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=d7a0cfcfc455802b';
-import {configureAA} from './air-threat-profiles.js?v=1091f4e17a46a92b';
+import {configureAA} from './air-threat-profiles.js?v=6b7189b889c2fc7c';
 import {beginAircraftCrash} from './aircraft-crash.js?v=d7a0cfcfc455802b';
 import {predictPilot} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
 

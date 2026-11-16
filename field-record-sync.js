@@ -1,6 +1,6 @@
 import {RARE_SPECIALIZATIONS,rareSpecializationFor} from './rare-specializations.js?v=d7a0cfcfc455802b';
 // The field record uses the same final registries, artwork and descriptions as sortie selection.
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=1091f4e17a46a92b';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=6b7189b889c2fc7c';
 import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=d7a0cfcfc455802b';
 import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=d7a0cfcfc455802b';
 import {hangarArtSource} from './hangar-art.js?v=d7a0cfcfc455802b';

@@ -1,30 +1,26 @@
-let mineArt;
-let mineGroundArt;
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=d7a0cfcfc455802b';
 
-export function prepareMeadowGraphics(){
- if(mineArt||typeof Image==='undefined')return;
- mineArt=new Image();
- mineArt.decoding='async';
- mineArt.addEventListener('load',()=>{
-  const w=mineArt.naturalWidth,h=mineArt.naturalHeight,pad=18;
-  if(!w||!h)return;
-  const bitmap=document.createElement('canvas');
-  bitmap.width=w+pad*2;bitmap.height=h+pad*2;
-  const c=bitmap.getContext('2d');
-  if(!c)return;
-  drawMeadowContactShadow(c,mineArt,bitmap.width/2,bitmap.height/2,w,h);
-  c.drawImage(mineArt,pad,pad);
-  mineGroundArt=bitmap;
- },{once:true});
- mineArt.src='./meadow-flachmine17.webp?v=1';
+let mineShadow;
+function bakedMineShadow(){
+ if(mineShadow)return mineShadow;
+ const bitmap=document.createElement('canvas');bitmap.width=40;bitmap.height=40;
+ const ink=bitmap.getContext('2d');
+ if(!drawAADefense(ink,'drachenMine',20,20,31,31))return null;
+ ink.globalCompositeOperation='source-in';
+ ink.fillStyle='#262319';
+ ink.fillRect(0,0,40,40);
+ const soft=document.createElement('canvas');soft.width=40;soft.height=40;
+ const shade=soft.getContext('2d');
+ shade.filter='blur(1.6px)';
+ shade.drawImage(bitmap,0,0);
+ return mineShadow=soft;
 }
 
 export function isMeadowMinefield(field){
  return !field.encounterId;
 }
 
-// The wooden box and its tin lid follow AWM RELAWM04162. The amber marks
-// communicate the game's existing trigger distance independently of the art.
+// Restore the authored mine silhouette. The amber marks use the existing trigger distance.
 export function drawMeadowMinefield(c,field,point,visible,triggerRadius){
  const [x,y]=point(field.x,field.y),arming=field.warning>0;
  const radius=field.radius;
@@ -42,17 +38,19 @@ export function drawMeadowMinefield(c,field,point,visible,triggerRadius){
   c.stroke();
  }
  c.setLineDash([]);
- const drawMine=!!mineArt?.naturalWidth,art=mineGroundArt||mineArt;
- const scale=drawMine?32/mineArt.naturalWidth:0;
- const w=drawMine?scale*(mineGroundArt?.width||mineArt.naturalWidth):0;
- const h=drawMine?scale*(mineGroundArt?.height||mineArt.naturalHeight):0;
  const halfArc=.24;
  for(const mine of field.mines){
   if(mine.dead)continue;
   const [mx,my]=point(mine.x,mine.y),range=mine.triggerRadius||triggerRadius;
   if(!visible(mx,my,Math.max(range,18)))continue;
-  if(drawMine)c.drawImage(art,mx-w/2,my-h/2,w,h);
-  if(arming&&drawMine)continue;
+  const shadow=bakedMineShadow();
+  if(shadow){
+   const alpha=c.globalAlpha;
+   c.globalAlpha=alpha*.37;
+   c.drawImage(shadow,mx-13,my-9,44,37);
+   c.globalAlpha=alpha;
+  }
+  drawDrachenMine(c,mx,my,52,52);
   c.beginPath();
   for(let side=0;side<4;side++){
    const angle=side*Math.PI/2,start=angle-halfArc;

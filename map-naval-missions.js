@@ -1,6 +1,6 @@
 // Map objectives observe the existing fleet's motion, hull damage and ordnance.
 // The host owns stage completion, rewards and pause; there is no second fleet update.
-import {SHIP_TYPES} from './fleet-naval1.js?v=1091f4e17a46a92b';
+import {SHIP_TYPES} from './fleet-naval1.js?v=6b7189b889c2fc7c';
 import {vacantShipPose} from './naval-spacing.js?v=d7a0cfcfc455802b';
 
 const regions=new Set([1,16]);

@@ -1,6 +1,6 @@
 import {FACILITY_ART} from './ground-facility-profiles.js?v=d7a0cfcfc455802b';
 import {configureFacilityArtReady,facilityStageKey} from './ground-facility-missions.js?v=d7a0cfcfc455802b';
-import {drawMeadowContactShadow} from './meadow-graphics.js?v=1091f4e17a46a92b';
+import {drawMeadowContactShadow} from './meadow-graphics.js?v=6b7189b889c2fc7c';
 const images=new Map();
 const BESSONNEAU='meadow-bessonneau-hangar.webp';
 const ENTENTE_AIRFIELD=FACILITY_ART['rural-airfield-entente'].file;
