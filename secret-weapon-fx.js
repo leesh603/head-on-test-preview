@@ -401,7 +401,7 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    break;
   }
   case 'wingAttack':
-   forward('muzzleTwin',23,0,29,14,a,Math.max(0,1-age/.13));
+   forward(cue.rear?'muzzleRear':'muzzleTwin',23,0,29,14,a,Math.max(0,1-age/.13));
    forward('gunSmoke',23+age*48,0,23,10,a,.52*fade);
    break;
   case 'wingHit':
@@ -410,8 +410,11 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    break;
   case 'wingSkill':
    if(cue.mode==='ignite')forward('fireWing',16,0,48,20);
-   else if(['dive','charge'].includes(cue.mode))forward('smokeTrail',-25,0,65,14);
-   else forward('muzzleTwin',27,0,38,17);
+   else if(cue.mode==='dive'||cue.mode==='charge')forward('smokeTrail',-25,0,65,14);
+   else if(cue.mode==='rockets'){
+    forward('rocket',23,-11,32,13);forward('rocket',23,11,32,13);
+   }else if(cue.mode==='bomb')forward('gunSmoke',-14-t*22,0,36,18,a,.55*fade);
+   else if(cue.mode==='fan'||cue.mode==='salvo'||cue.mode==='rally')forward('muzzleTwin',27,0,38,17);
    break;
   case 'bomberRelease':
    forward('gunSmoke',-14-t*22,0,46,24,a,.58*fade);

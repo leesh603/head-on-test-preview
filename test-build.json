@@ -279,6 +279,28 @@
           "gitBlob": "9ce117bfa3b298d7bb17db2a8b56f72dc96521dd"
         }
       ]
+    },
+    {
+      "sha": "d3524a8b01ef97e657f3ecc7ee6260aa637a7955",
+      "pr": 716,
+      "files": [
+        {
+          "path": "ace-wingman-pilots.js",
+          "gitBlob": "bedef02bb1e48c914b062166322fd6a818dfa663"
+        },
+        {
+          "path": "secret-weapon-combat.js",
+          "gitBlob": "a6e567c165ac126e1f0cdb1f1ff7422bda35e3f4"
+        },
+        {
+          "path": "engagement-flow174.js",
+          "gitBlob": "7d163bce7b3be3feabd6338c3f92e45c465e93c6"
+        },
+        {
+          "path": "secret-weapon-fx.js",
+          "gitBlob": "d9f0d4f0450fa52e86e8dd5399cb884ed369e653"
+        }
+      ]
     }
   ],
   "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5"

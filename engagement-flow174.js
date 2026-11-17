@@ -1,6 +1,7 @@
 import {wwiWingTarget,wwiBossAimPoint} from './wwi-equipment.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 import {tacticalAimPoint} from './tactical-combat.js?v=arras-tactics20261024&td4=20261026';
+import {aceWingFlightTuning,eliteWingApproach,noteAceWingTurn} from './ace-wingman-pilots.js';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
 // formations continue through their existing support poses.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
@@ -134,17 +135,21 @@ export function aceWingmanBossStep(world,owner,wing,dt){
  return wingmanBossPass(world,owner,wing,wing._netAceTarget,owner.aceWingmanTarget(),dt,{aimPoint:e=>wwiBossAimPoint(owner,e,wing),passAlignment:.04});
 }
 
-function secretWingPriority(world,owner,now){
- let plan=eliteWingFocus.get(owner);
- if(plan&&plan.scanAt>now&&validModTarget(world,owner,plan.target,520))return plan.target;
- if(plan&&plan.scanAt>now&&!plan.target)return null;
+function secretWingPriority(world,owner,wing,approach,now){
+ const key=approach?wing:owner,range=approach?.leash??520,priority=approach?.priority;
+ const plan=eliteWingFocus.get(key);
+ if(plan?.scanAt>now&&(!plan.target||validModTarget(world,owner,plan.target,range)))return plan.target;
  let target=null,score=-Infinity;
  for(const candidate of wingTargets(world)){
-  if(!eligibleModTarget(owner,candidate,520)||!offensiveWingTarget(candidate)||owner.canHitTarget?.(candidate)===false)continue;
-  const weight=priorityTarget(candidate)*180-distance(candidate,owner);
+  if(!eligibleModTarget(owner,candidate,range)||!offensiveWingTarget(candidate)||owner.canHitTarget?.(candidate)===false)continue;
+  const ownerGap=distance(candidate,owner),air=!(candidate.surface||candidate.stationary)&&!candidate.stageBossBody?.surface;
+  if(priority==='nearOwner'&&!air)continue;
+  const airship=candidate.type==='zeppelin'||candidate.fieldUnit==='balloon'||candidate.heavyBomber||candidate.stageBossBody?.airshipBoss;
+  const bonus=priority==='airship'&&airship?760:priority==='surface'&&!air?760:0;
+  const weight=bonus+(priority==='nearOwner'?-ownerGap*2.8:priorityTarget(candidate)*180-ownerGap);
   if(weight>score){score=weight;target=candidate;}
  }
- plan={target,scanAt:now+.32};eliteWingFocus.set(owner,plan);return target;
+ eliteWingFocus.set(key,{target,scanAt:now+.32});return target;
 }
 
 export function wingmanEngagementStep(world,owner,wing,home,dt){
@@ -187,6 +192,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  }
  if(owner.upgrades?.lufberyCircle||wing.boelckePincer||wing.orbit||!mod&&(wing.secretAce?owner.skillTime>0&&commandPilots.has(owner.pilot):owner.wingmanDamageMult>1||commandPilots.has(owner.pilot))||mod&&owner.skillTime>0&&commandPilots.has(owner.pilot))return false;
  const now=world.t||0,active=wing.engagementTarget;
+ const approach=wing.secretAce&&!wing.secretBomber&&!mod?eliteWingApproach(wing):null;
  if(active&&(!eligibleModTarget(owner,active,580)||!targetInWorld(world,active)||distance(active,wing)>700)){
   wing.engagementTarget=null;
   if(wing.secretAce&&['INTERCEPT','PASS'].includes(wing.engagementState)){
@@ -201,7 +207,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  }
  if(!mod&&(wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
   let best=650,chosen=priorityContact;
-  if(wing.secretAce)chosen=secretWingPriority(world,owner,now);
+  if(wing.secretAce)chosen=secretWingPriority(world,owner,wing,approach,now);
   if(!chosen&&!wing.secretAce)for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||!offensiveWingTarget(enemy))continue;
    let assigned=0;if(world.allies)for(const other of world.allies)if(other!==wing&&other.engagementTarget===enemy)assigned++;
    const score=distance(enemy,wing)+assigned*230;
@@ -217,19 +223,33 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  if(wing.engagementState==='INTERCEPT'&&!target)wing.engagementState='RETURN';
  if(wing.engagementState==='INTERCEPT'&&target){
   const bearing=Math.atan2(target.y-wing.y,target.x-wing.x),gap=distance(wing,target);
-  if(gap<(wing.secretAce&&(wing.slot||0)%3!==0?174:240)&&Math.abs(angleDiff(bearing,wing.a))<.55){wing.engagementState='PASS';wing.engagementUntil=now+.75;wing.engagementHeading=bearing}
+  if(gap<(approach?.range??(wing.secretAce&&(wing.slot||0)%3!==0?174:240))&&Math.abs(angleDiff(bearing,wing.a))<.55){wing.engagementState='PASS';wing.engagementUntil=now+(approach?.pass??.75);wing.engagementHeading=bearing}
   else if(mod&&now>=wing.engagementUntil){wing.engagementState='RETURN';wing.engagementTarget=null;}
  }
- if(wing.engagementState==='PASS'&&now>=wing.engagementUntil){wing.engagementState='BREAK';wing.engagementUntil=now+1.1;wing.engagementHeading=wing.a+((wing.slot||0)%2?-.7:.7);wing.engagementTarget=null}
+ if(wing.engagementState==='PASS'&&now>=wing.engagementUntil){wing.engagementState='BREAK';wing.engagementUntil=now+1.1;wing.engagementHeading=wing.a+((wing.slot||0)%2?-1:1)*(approach?.breakAngle??.7);wing.engagementTarget=null}
  if(wing.engagementState==='BREAK'&&now>=wing.engagementUntil)wing.engagementState='RETURN';
  if(wing.engagementState==='RETURN'&&distance(wing,home)<80){wing.engagementState='HOME';wing.engagementTarget=null;return mod?modWingHome(wing,owner,home,dt):false}
  if(distance(wing,owner)>500){wing.engagementState='RETURN';wing.engagementTarget=null}
  const point=target?owner.tacticalWingAim?.(wing,target)||target:null;let tx=point?.x,ty=point?.y;
- if(target&&(wing.tacticalCrossfire||wing.secretAce&&(wing.slot||0)%3!==0)&&wing.engagementState==='INTERCEPT'){const side=(wing.slot||0)%2?-1:1,offset=(wing.secretAce?148:130)*clamp((distance(wing,target)-145)/180,0,1);tx-=Math.sin(owner.a)*side*offset;ty+=Math.cos(owner.a)*side*offset;}
+ if(target&&wing.engagementState==='INTERCEPT'){
+  const side=(wing.slot||0)%2?-1:1;
+  if(approach&&!target.surface&&!target.stationary&&Number.isFinite(target.a)){
+   const ramp=clamp((distance(wing,target)-approach.range)/200,0,1);
+   const depth=(approach.depth||0)*ramp,offset=side*(approach.lateral||0)*ramp;
+   tx+=Math.cos(target.a)*depth-Math.sin(target.a)*offset;
+   ty+=Math.sin(target.a)*depth+Math.cos(target.a)*offset;
+  }else if(!approach&&(wing.tacticalCrossfire||wing.secretAce&&(wing.slot||0)%3!==0)){
+   const offset=(wing.secretAce?148:130)*clamp((distance(wing,target)-145)/180,0,1);
+   tx-=Math.sin(owner.a)*side*offset;ty+=Math.cos(owner.a)*side*offset;
+  }
+ }
  const goal=wing.engagementState==='INTERCEPT'&&target?Math.atan2(ty-wing.y,tx-wing.x):wing.engagementState==='RETURN'?Math.atan2(home.y-wing.y,home.x-wing.x):wing.engagementHeading??wing.a;
- const turn=clamp((wing.personality?.highSpeedHandling||1)*(wing.engagementState==='RETURN'?2.8:2.25),1.6,3.3)*dt;
- wing.a+=clamp(angleDiff(goal,wing.a),-turn,turn);
- const speed=wing.engagementState==='RETURN'?clamp((owner.speed||170)*1.45,210,290):clamp((owner.speed||170)*(wing.tacticalBreakthrough?1.25:1.08)*(wing.personality?.acceleration||1),145,wing.tacticalBreakthrough?260:225);
+ const skill=approach?aceWingFlightTuning(wing):null;
+ const turn=clamp((wing.personality?.highSpeedHandling||1)*(wing.engagementState==='RETURN'?2.8:2.25)*(approach?.turn??1)*(skill?.turn??1),1.6,3.3)*dt;
+ const bank=clamp(angleDiff(goal,wing.a),-turn,turn);
+ wing.a+=bank;
+ if(approach&&dt>0)noteAceWingTurn(wing,bank/dt);
+ const speed=wing.engagementState==='RETURN'?clamp((owner.speed||170)*1.45,210,290):clamp((owner.speed||170)*(wing.tacticalBreakthrough?1.25:1.08)*(wing.personality?.acceleration||1)*(approach?.speed??1)*(skill?.speed??1),145,wing.tacticalBreakthrough||approach?260:225);
  wing.x+=Math.cos(wing.a)*speed*dt;wing.y+=Math.sin(wing.a)*speed*dt;
  return true;
 }

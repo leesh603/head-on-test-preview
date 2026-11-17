@@ -1,5 +1,7 @@
 import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
-import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile} from './ace-wingman-pilots.js';
+import {hasAceWingProfile,tickAceWingPilot,aceWingDefensiveSkill,aceWingFireProfile,aceWingRearShot} from './ace-wingman-pilots.js';
+import {isWWIFlyingTarget} from './wwi-equipment.js';
+import {fighterAim} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
 import {equipmentTargets,wimperisTarget} from './flight-equipment.js';
 
 import {tickSecretOrdnance,fireSecretDavis,secretOrdnanceContact,secretOrdnanceAllowsTarget,secretPuwImpact,clearSecretOrdnanceTransient} from './secret-ordnance.js';
@@ -488,8 +490,16 @@ export function secretWingState(p,wing,dt,acePool){
   state.readyAt=Number.isFinite(wing.secretAceReady)?wing.secretAceReady:state.readyAt+Math.max(0,wing.slot||0)*.9;
  }
  const before=state.readyAt;
+ const world=worldOf(p);
  aceWingDefensiveSkill(wing,wing.engagementTarget);
- if(state.readyAt!==before){cue(p,'wingSkill',wing,{mode:state.mode});sound(p,'secretWingSkill');}
+ const rear=wing.secretBomber?null:aceWingRearShot(wing,world.enemies||[],e=>isWWIFlyingTarget(e)&&p.canHitTarget?.(e)!==false);
+ if(rear){
+  const a=fighterAim(world,wing,rear.target,490,.9);
+  emit(p,{x:wing.x+Math.cos(a)*23,y:wing.y+Math.sin(a)*23,vx:Math.cos(a)*490,vy:Math.sin(a)*490,life:1.45,
+   damage:(p.supportPower?.(rear.damage)??rear.damage)*ELITE_WING_DAMAGE,ally:true,secretWeapon:'eliteAirWing'});
+  cue(p,'wingAttack',wing,{a,life:.18,rear:true});sound(p,'secretWingVolley');
+ }
+ if(state.readyAt!==before&&state.mode!=='rear'){cue(p,'wingSkill',wing,{mode:state.mode});sound(p,'secretWingSkill');}
  wing.secretAceReady=Math.max(0,state.readyAt-state.clock);
 }
 export function updateSecretWing(p,wing,dt,pilots,planes,prepare){
@@ -511,8 +521,11 @@ export function secretWingGun(p,wing,target,heading,damage,prepare){
  const profile=aceWingFireProfile(worldOf(p),p,wing,target,Math.hypot(target.x-wing.x,target.y-wing.y));
  if(state.readyAt!==previous){cue(p,'wingSkill',wing,{mode:state.mode});sound(p,'secretWingSkill');}
  const emitWing=(offset,power,rocket=false)=>{
-  const a=heading+offset,speed=rocket?350:470;
-  emit(p,{x:wing.x+Math.cos(a)*23,y:wing.y+Math.sin(a)*23,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1.45,damage:damage*power*ELITE_WING_DAMAGE,ally:true,rocket,pierce:!!profile.pierce,synthesisPayload:profile.ignite?{incendiary:true}:undefined,secretWeapon:'eliteAirWing'});
+  const a=heading+offset,speed=rocket?470:535;
+  emit(p,{x:wing.x+Math.cos(a)*23,y:wing.y+Math.sin(a)*23,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1.45,
+   damage:damage*power*ELITE_WING_DAMAGE,ally:true,pierce:!rocket&&!!profile.pierce,
+   ...(rocket?{rocket:true,upgradeRocket:true,explosionBaseRadius:60,collisionRadius:10}:{specialColor:'#fff0bb'}),
+   synthesisPayload:profile.ignite?{incendiary:true}:undefined,secretWeapon:'eliteAirWing'});
  };
  if((wing.secretVolleyAt??-Infinity)<=time(p)){
   wing.secretVolleyAt=time(p)+.23;
