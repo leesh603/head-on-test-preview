@@ -10,7 +10,7 @@ import {drawCloudShadows} from './cloud-cover1.js?v=gal1&perf=1029&depth=2026111
 import {drawGroundFacilities} from './ground-facility-view.js';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js';
 import {drawCapitalPilots} from './capital-pilots-view.js';
-import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js';
+import {collishawWingArt,drawCollishawWingNames,drawWingNames,formationWingScale} from './collishaw-flight.js';
 import {drawWingDurability} from './wingman-durability.js';
 import {drawAirThreat} from './air-threat-art.js';
 import {drawProjectileTactic} from './gun-signatures.js';
@@ -21,7 +21,7 @@ import {pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js
 import {drawMannockWing} from './fire-dive-fx.js?v=firedive1';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
 import {impactMark} from './tactical-marks.js?v=tame3';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {getLocale,pilotName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2&mapop=20261103';
 import {drawRegionalBug} from './regional-boss-view352.js?v=outline1&ai=1018&harbor=20261021';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=tame3';
@@ -40,7 +40,7 @@ const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz','friedrich_karl','robinson']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {PLANES,BATTLEFIELD113} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
+import {PLANES,PILOTS,BATTLEFIELD113} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {planeSprite,drawFriendlyBomber,aircraftKey,warmSquadronAircraft} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111&lazy=20261117';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
@@ -103,8 +103,10 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
   else if(e.bossMinion&&(e.callSign||e.callSignKo)){c.font='600 11px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';const w=Math.ceil(_tw(c,(getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign))))+14;c.fillStyle='rgba(18,13,11,.86)';c.fillRect(Math.round(e.x-w/2),Math.round(e.y-56),w,17);c.strokeStyle='#743d35';c.lineWidth=1;c.strokeRect(Math.round(e.x-w/2)+.5,Math.round(e.y-56)+.5,w-1,16);c.fillStyle='#f0d7a4';c.fillText((getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign)),Math.round(e.x),Math.round(e.y-48))}
  }
  drawCombatFeedback(c,g,(x,y)=>[x,y],{fx,planeSprite});
- for(const a of g.allies){if(a.carrierHidden)continue;drawWingDurability(c,a,a.x,a.y,z);const owner=g.player(a.ownerId);if(owner&&!a.secretBomber&&!a.aceWingman&&!a.secretAce&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,a.secretBomber?secretBomberAirframe(PLANES[owner?.plane]?.faction):collishawWingArt(owner,a,(a.aceWingman||a.secretAce)?aircraftKey(a.secretAce?PILOT_AIRCRAFT[a.acePilot]?.defaultAircraft||a.plane:a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane),(a.secretBomber?1.42:a.aceWingman?1:.78)*(a.carrierScale??1));if(a.life>0&&owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
- const blackFlightLabels=[];for(const p of g.players)drawCollishawWingNames(c,p,g.allies,undefined,getLocale(),z,{left:g.x-W/(2*z)+6/z,top:g.y-H/(2*z)+18/z,right:g.x+W/(2*z)-6/z,bottom:g.y+H/(2*z)-6/z},blackFlightLabels);
+ for(const a of g.allies){if(a.carrierHidden)continue;drawWingDurability(c,a,a.x,a.y,z);const owner=g.player(a.ownerId);if(owner&&!a.secretBomber&&!a.aceWingman&&!a.secretAce&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,a.secretBomber?secretBomberAirframe(PLANES[owner?.plane]?.faction):collishawWingArt(owner,a,(a.aceWingman||a.secretAce)?aircraftKey(a.secretAce?PILOT_AIRCRAFT[a.acePilot]?.defaultAircraft||a.plane:a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane),formationWingScale(a));if(a.life>0&&owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
+ const wingBounds={left:g.x-W/(2*z)+6/z,top:g.y-H/(2*z)+18/z,right:g.x+W/(2*z)-6/z,bottom:g.y+H/(2*z)-6/z};
+ const wingLabels=drawWingNames(c,g.allies,w=>w.acePilot&&(w.aceWingman||w.secretAce)?pilotName(w.acePilot,PILOTS[w.acePilot]?.name):'',undefined,z,wingBounds);
+ for(const p of g.players)drawCollishawWingNames(c,p,g.allies,undefined,getLocale(),z,wingBounds,wingLabels);
  for(const patrol of g.patrols){const scale=patrol.renderScale||.9,key=aircraftKey(patrol.plane,false,patrol.acePilot);if(patrol.crashing){drawAircraftCrash(c,patrol,patrol.x,patrol.y,t,fx);sprite(patrol,key,scale*enemyCrashScale(patrol));continue;}if(patrol.hp<=0)continue;sprite(patrol,key,scale);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34*scale/.9,32*patrol.hp/patrol.maxHp,3)}
  drawExpansionObjectives(c,g,W,H,{locale:getLocale(),worldToScreen:(x,y)=>[x,y],visible:(x,y,r)=>!cl(x,y,r)});
  for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])drawMannockWing(c,p,wing,wing.x,wing.y,planeSprite,fx);

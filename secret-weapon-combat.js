@@ -11,6 +11,7 @@ const live=e=>e&&e.hp>0&&!e.crashing&&!e.expired&&!e.dead;
 const ownerLive=p=>live(p)&&p.status!=='downed'&&p.state!=='lost';
 const time=p=>worldOf(p).t||0;
 const activeWing=w=>w.permanent&&!w.aceWingman&&w.life>0&&!w.carrierHidden;
+const ELITE_WING_DAMAGE=1.5,ELITE_WING_CADENCE=1.25;
 const hitTimers=new WeakMap();
 const wakes=new WeakMap();
 const dartCharges=new WeakMap();
@@ -511,7 +512,7 @@ export function secretWingGun(p,wing,target,heading,damage,prepare){
  if(state.readyAt!==previous){cue(p,'wingSkill',wing,{mode:state.mode});sound(p,'secretWingSkill');}
  const emitWing=(offset,power,rocket=false)=>{
   const a=heading+offset,speed=rocket?350:470;
-  emit(p,{x:wing.x+Math.cos(a)*23,y:wing.y+Math.sin(a)*23,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1.45,damage:damage*power,ally:true,rocket,pierce:!!profile.pierce,synthesisPayload:profile.ignite?{incendiary:true}:undefined,secretWeapon:'eliteAirWing'});
+  emit(p,{x:wing.x+Math.cos(a)*23,y:wing.y+Math.sin(a)*23,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1.45,damage:damage*power*ELITE_WING_DAMAGE,ally:true,rocket,pierce:!!profile.pierce,synthesisPayload:profile.ignite?{incendiary:true}:undefined,secretWeapon:'eliteAirWing'});
  };
  if((wing.secretVolleyAt??-Infinity)<=time(p)){
   wing.secretVolleyAt=time(p)+.23;
@@ -520,7 +521,7 @@ export function secretWingGun(p,wing,target,heading,damage,prepare){
  for(const offset of profile.volley)emitWing(offset,profile.airburst?1.7:.58,profile.airburst);
  if(profile.cannon)emitWing(0,1.75);
  if(profile.bomb&&prepare)dropWingBomb(p,wing,target.x,target.y,prepare,'eliteAirWing');
- return profile;
+ return {...profile,damage:profile.damage*ELITE_WING_DAMAGE,cadence:profile.cadence*ELITE_WING_CADENCE};
 }
 export function secretBomberWing(p,wing,targetFor,prepare){
  if(!activeWing(wing))return;
@@ -546,7 +547,8 @@ export function secretBomberWing(p,wing,targetFor,prepare){
  cue(p,'bomberRelease',wing,{life:.44});sound(p,'secretBomberRelease');
 }
 function dropWingBomb(p,wing,x,y,prepare,id='longRangeBombers',slot){
- const g=worldOf(p),duration=.7,damage=p.payloadPower?.(SECRET_COMBAT.cooperDamage)??SECRET_COMBAT.cooperDamage;
+ const g=worldOf(p),duration=.7,baseDamage=SECRET_COMBAT.cooperDamage*(id==='eliteAirWing'?ELITE_WING_DAMAGE:1);
+ const damage=p.payloadPower?.(baseDamage)??baseDamage;
  const bomb=prepare(p,{x,y,sx:wing.x,sy:wing.y,life:duration,maxLife:duration,radius:SECRET_COMBAT.cooperRadius,damage,secretWeapon:id,secretBomberSlot:slot,sprite:'cooper',pilotSupport:true,releaseAngle:wing.a});
  (g.friendlyBombs??=[]).push(bomb);
  return bomb;

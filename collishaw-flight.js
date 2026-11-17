@@ -5,6 +5,7 @@ export const COLLISHAW_WING_NAMES=Object.freeze({
  en:Object.freeze(['Black Prince','Black Death','Black Roger','Black Sheep'])
 });
 export const isCollishawWing=(p,w)=>!!p&&p.pilot==='collishaw'&&!!w&&w.ownerId===(p.id||'p1')&&w.permanent===true&&!w.aceWingman&&!w.temporary&&!w.boelckePincer;
+export const formationWingScale=w=>(w.secretBomber?1.42:w.aceWingman||w.secretAce?1.08:.92)*(w.carrierScale??1);
 const living=w=>w.life>0&&(w.hp==null||w.hp>0)&&!w.dead&&!w.crashing&&!w.crashed;
 export const collishawWingArt=(p,w,fallback)=>isCollishawWing(p,w)?COLLISHAW_WING_ART:fallback;
 export function collishawWingName(p,w,locale='ko'){
@@ -22,9 +23,12 @@ export function normalizeCollishawSlots(p){
 // either solo or cooperative camera zoom; no badges, boxes or combat markers.
 export function drawCollishawWingNames(c,p,wings,point=(x,y)=>[x,y],locale='ko',zoom=1,bounds=null,placed=[]){
  if(p?.pilot!=='collishaw')return placed;
+ return drawWingNames(c,wings,w=>w.secretAce?'':collishawWingName(p,w,locale),point,zoom,bounds,placed);
+}
+export function drawWingNames(c,wings,nameFor,point=(x,y)=>[x,y],zoom=1,bounds=null,placed=[]){
  const z=Math.max(.25,zoom),font=11/z,gap=15/z;
  c.save();c.font=`600 ${font}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=3/z;c.strokeStyle='#142021';c.fillStyle='#eee5ce';c.globalAlpha=.95;
- for(const w of wings){const name=collishawWingName(p,w,locale);if(!name)continue;
+ for(const w of wings){if(!living(w)||w.carrierHidden)continue;const name=nameFor(w);if(!name)continue;
   const q=point(w.x,w.y);let x=q[0],y=q[1]-38/z;const half=Math.min(64/z,c.measureText(name).width/2+3/z);
   if(bounds&&(x<bounds.left-64/z||x>bounds.right+64/z||q[1]<bounds.top-48/z||q[1]>bounds.bottom+48/z))continue;
   if(bounds)x=Math.max(bounds.left+half,Math.min(bounds.right-half,x));

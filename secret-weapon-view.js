@@ -53,7 +53,8 @@ export function paintSecretBadge(rb,p,g,en,faction){
  const flash=progress>=1&&rb.lastProgress<1;
  if(flash)rb.flashAt=g.t;
  const glint=secret.id==='badinBreakthrough'?0:Math.max(assembly,1-clamp(((g.t||0)-(rb.flashAt??-1))/.3));
- const key=progress.toFixed(2)+'|'+label+'|'+glint.toFixed(2)+'|'+icon;
+ const key=progress.toFixed(2)+'|'+glint.toFixed(2)+'|'+icon;
+ c.canvas.dataset.secretStatus=label;
  if(rb.frameKey===key)return;
  rb.frameKey=key;rb.lastProgress=progress;
  c.save();
@@ -70,10 +71,5 @@ export function paintSecretBadge(rb,p,g,en,faction){
   c.strokeStyle=glint>0?'#fff1bc':'#ffe9a8';c.lineWidth=2;
   c.beginPath();c.arc(24,24,21,-Math.PI/2,glint>0?Math.PI*1.5:angle);c.stroke();
  }
- if(label){
-  c.font='bold 10px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle='#101719';c.fillStyle='#fff2ca';
-  c.strokeText(label,24,44);c.fillText(label,24,44);
- }
  c.restore();
- c.canvas.dataset.secretStatus=label;
 }
