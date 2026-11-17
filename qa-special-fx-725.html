@@ -3,7 +3,7 @@
 <title>HEAD-ON 특수장비 전투 검증</title>
 <style>body{background:#1b1b18;color:#ede1cb;font:14px system-ui;margin:12px}header{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}button,select{font:inherit;padding:6px}iframe{border:0;display:block;max-width:100%;margin:auto}output{display:block;margin:0 0 6px}</style>
 <header><label>화면 <select id="size"><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
-<button data-case="lePrieurSalvo" disabled>르 프리외르</button><button data-case="flechettes" disabled>플레셰트</button><button data-case="fieryGrapnel" disabled>화염 갈고리</button><button data-case="cooperRack" disabled>쿠퍼 폭탄</button><button data-case="rankinShell" disabled>랭킨 유산탄</button></header><output id="status">로딩 중</output><iframe id="game" title="전투" src="./index.html?headonTest=1&autostart=0&qa=725"></iframe><script>
+<button data-case="lePrieurSalvo" disabled>르 프리외르</button><button data-case="flechettes" disabled>플레셰트</button><button data-case="fieryGrapnel" disabled>화염 갈고리</button><button data-case="cooperRack" disabled>쿠퍼 폭탄</button><button data-case="rankinShell" disabled>랭킨 유산탄</button></header><output id="status">로딩 중</output><iframe id="game" title="전투" src="./index.html?headonTest=1&autostart=0&qa=e7f7c0a0-2"></iframe><script>
 const frame=document.querySelector('#game'),status=document.querySelector('#status'),size=document.querySelector('#size'),buttons=[...document.querySelectorAll('[data-case]')];
 function resize(){const [w,h]=size.value.split('x');frame.width=w;frame.height=h;}resize();size.onchange=resize;
 const enable=value=>buttons.forEach(b=>b.disabled=!value);
@@ -18,7 +18,7 @@ g.state='playing';g.invuln=0;g.rankinShrapnelTimer=0;g.wwiGrapnelCooldown=0;g.ww
 const e=g.spawnEnemy('scout')||g.enemies.at(-1),d=id==='fieryGrapnel'?28:id==='rankinShell'?-65:125;Object.assign(e,{x:g.x+Math.cos(g.a)*d,y:g.y+Math.sin(g.a)*d,a:g.a+Math.PI,fire:999,hp:1800,maxHp:1800,speed:0,spawnTime:0,invuln:0});
 const start=g.t,begin=performance.now();status.value='전투 진행 중';
 const observe=()=>{const projectile=(g.bullets||[]).find(v=>id==='lePrieurSalvo'?v.secretWeapon===id:id==='flechettes'?v.flechette:id==='fieryGrapnel'?v.fieryGrapnel:false),bomb=(g.friendlyBombs||[]).find(v=>v.cooper||v.wwiCooper||v.sprite==='cooper'),cue=(g.secretWeaponFx||[]).find(v=>v.kind==='lePrieurIgnition');
-let signal=projectile?'발사체 피해 '+projectile.damage:cue?'8연장 점화':id==='rankinShell'&&g.rankinFlash>0?'후방 탄막 전개':id==='fieryGrapnel'&&g.wwiGrapnel?'갈고리 부착':id==='cooperRack'&&(bomb||g.wwiCooperCooldown>0)?'연속 투하':null;
+let signal=projectile?'발사체 피해 '+projectile.damage+' / 기대 '+(id==='lePrieurSalvo'?g.payloadPower(72):projectile.damage):cue?'8연장 점화':id==='rankinShell'&&g.rankinFlash>0?'후방 탄막 전개':id==='fieryGrapnel'&&g.wwiGrapnel?'갈고리 부착':id==='cooperRack'&&(bomb||g.wwiCooperCooldown>0)?'연속 투하':null;
 if(signal){status.value='확인 · '+b.textContent+' · '+size.value+' · '+signal+' · 전투 '+(g.t-start).toFixed(2)+'초 · 표적 피해 '+(1800-e.hp).toFixed(1);g.state='paused';enable(true);}
 else if(performance.now()-begin>18000){status.value='미재현 · '+b.textContent+' · '+(g.t-start).toFixed(2)+'초';g.state='paused';enable(true);}else requestAnimationFrame(observe);};requestAnimationFrame(observe);
 }catch(e){enable(true);status.value='오류 '+e.message;}};</script>
