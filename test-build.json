@@ -136,13 +136,14 @@
       ]
     },
     {
-      "sha": "42a3bc1c6dcf5c1133e131f30e6a88f8243ed889",
+      "sha": "62bce5c812df1e15f4f16870676520024005fffc",
       "pr": 709,
       "prs": [
+        704,
         696,
+        710,
         709,
-        693,
-        710
+        693
       ],
       "files": [
         {
@@ -193,7 +194,10 @@
           "path": "projectile-contacts.js",
           "gitBlob": "ec4b1a881b1fea63668c1dba1ff0878ce774dc8f"
         }
-      ]
+      ],
+      "candidateSha": "42a3bc1c6dcf5c1133e131f30e6a88f8243ed889",
+      "ref": "main"
     }
-  ]
+  ],
+  "main_sha": "62bce5c812df1e15f4f16870676520024005fffc"
 }
