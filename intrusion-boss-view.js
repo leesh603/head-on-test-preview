@@ -229,7 +229,7 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
  for(const q of e.naval?.torpedoes||[]){const p=point(q.x,q.y);if(q.age<q.warning){fx(c,'foamRing',p.x,p.y,30*z,30*z,0,.7);continue;}c.save();c.translate(p.x,p.y);c.scale(z*.45,z*.45);drawTorpedo(c,{...q,x:0,y:0});c.restore();}
  drawMaritimeGuide(c,g,W,H);
  c.save();c.lineWidth=1.5;c.strokeStyle='#ffdba4';c.fillStyle='#d56a4f';
- for(const h of e.hazards||[]){const p=point(h.x,h.y),r=h.radius*z,q=Math.min(1,h.age/Math.max(.01,h.warning));
+ for(const h of e.hazards||[]){let p=point(h.x,h.y);const r=h.radius*z,q=Math.min(1,h.age/Math.max(.01,h.warning));
   if(h.kind==='naval-splash'){
    c.strokeStyle='#b8e8f4';c.fillStyle='#80bbcc';
     if(h.done){const fade=Math.max(0,1-(h.age-h.warning)/.35),heavy=h.fireAt!=null?1.3:1;fx(c,'splashShell',p.x,p.y,r*3*heavy,r*3*heavy,0,fade);fx(c,'waterColumn',p.x,p.y-r*.5,r*1.7*heavy,r*3*heavy,0,fade);continue;}
@@ -238,8 +238,12 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
      const shell=point(h.fireX+(h.x-h.fireX)*t,h.fireY+(h.y-h.fireY)*t);
      fx(c,'shell',shell.x,shell.y-Math.sin(Math.PI*t)*24*z,24*z,10*z,Math.atan2(h.y-h.fireY,h.x-h.fireX),1);
     }
-   fx(c,'foamRing',p.x,p.y,r*2,r*2,0,.25+.35*q);
   }else{c.strokeStyle='#ffdba4';c.fillStyle='#d56a4f';if(h.done)continue;}
+  if(h.edgeWarning){
+   const pad=Math.min(r+5,W*.15,H*.15);
+   p={x:Math.max(pad,Math.min(W-pad,p.x)),y:Math.max(pad,Math.min(H-pad,p.y))};
+  }
+  if(h.kind==='naval-splash')fx(c,'foamRing',p.x,p.y,r*2,r*2,0,.25+.35*q);
   c.globalAlpha=.18;c.beginPath();c.arc(p.x,p.y,r,0,Math.PI*2);c.fill();c.globalAlpha=.8;c.setLineDash([5,5]);c.stroke();c.setLineDash([]);
   c.beginPath();c.arc(p.x,p.y,r*q,0,Math.PI*2);c.stroke();
  }

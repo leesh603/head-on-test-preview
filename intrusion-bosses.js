@@ -8,7 +8,7 @@ import {submarineObstacles,guardSubmarineMovement} from './naval-spacing.js?v=pa
 import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact,submarinePhase,queueSubmarineTorpedo,m1Reloading,M1_RELOAD,SUBMARINE_SINK_DURATION} from './submarine-intrusion.js';
 import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import { intrusionLayout, ownHullClear } from './intrusion-boss-layouts.js';
-import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js';
+import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact,queueNavalSplash} from './maritime-intrusion.js';
 import {enqueueIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
 import {stepIntrusionSignature} from './intrusion-signatures.js';
 export const intrusionProfiles = Object.freeze({
@@ -129,6 +129,13 @@ function predictBombImpact(g,e,p,warning,lateral=0,forward=0){
  if(visible(g,e,{x:x-vx*approach,y:y-vy*approach}))return{x,y};
  return null;
 }
+function predictEdgeWarnedImpact(g,e,p,warning){
+ const impact=predictBombImpact(g,e,p,warning);
+ if(impact||e.operationOwned||!visible(g,e,p))return impact;
+ const {vx,vy}=intrusionVelocity(p);
+ // Warn at the screen edge while a fast flypast closes on this fixed splash.
+ return {x:p.x+vx*warning,y:p.y+vy*warning,edgeWarning:true};
+}
 export function ownBodyClear(e,group,muzzle,angle,length=1500){if(intrusionLayout(e.profileId).shotOcclusion)return ownHullClear(e.profileId,group,muzzle,angle,length,Object.fromEntries(Object.entries(e.parts).map(([k,v])=>[k,v.state])));const end={x:muzzle.x+Math.cos(angle)*length,y:muzzle.y+Math.sin(angle)*length};return ownHullClear(e.profileId,group,muzzle,angle,length,Object.fromEntries(Object.entries(e.parts).map(([k,v])=>[k,v.state])))&&!intrusionLayout(e.profileId).targets.some(t=>t.id!==group&&e.parts[t.id]?.hp>0&&segmentHitsEllipse(muzzle,end,t,1));}
 function airGunTarget(e,p){
  const {vx,vy}=intrusionVelocity(p);
@@ -145,7 +152,7 @@ function commitFiringCourse(e){
 function queueAttack(g,e){
  const l=intrusionLayout(e.profileId);
  // Dispatch by profile; an empty maritime solution must not fall through to air attacks.
- if(isMaritimeIntrusion(e))return queueMaritimeAttack(g,e,l,{alive,local,world:intrusionWorldPoint,visible,predictImpact:predictBombImpact,clear:ownBodyClear,canFire:intrusionPartCanFire});
+ if(isMaritimeIntrusion(e))return queueMaritimeAttack(g,e,l,{alive,local,world:intrusionWorldPoint,visible,predictImpact:predictEdgeWarnedImpact,clear:ownBodyClear,canFire:intrusionPartCanFire});
  const ps=alive(g);if(!ps.length)return false;
  const p=ps[e.volley%ps.length],target=airGunTarget(e,p),guns=l.targets.filter(t=>t.muzzle),side=e.volley%2?-1:1;
  const group=gun=>e.profileId==='armed-svyatogor'?guns.indexOf(gun)%2:e.profileId==='bastion'?Math.floor((Number(gun.id.split('_').at(-1))-1)/2):gun.x<0?-1:1;
@@ -224,7 +231,7 @@ function airOrdnanceSources(e){
  return intrusionLayout(e.profileId).targets.filter(t=>t.muzzle&&intrusionPartCanFire(e,t.id))
   .map(t=>({sourcePartId:t.id,side:0}));
 }
-const SIGNATURE_API={commit:e=>{if(!isMaritimeIntrusion(e))commitFiringCourse(e);},sea:isMaritimeIntrusion,alive,local,world:intrusionWorldPoint,visible,layout:intrusionLayout,velocity:intrusionVelocity,newSubmarine:isNewSubmarine,muzzle:queueArtilleryMuzzle,
+const SIGNATURE_API={commit:e=>{if(!isMaritimeIntrusion(e))commitFiringCourse(e);},sea:isMaritimeIntrusion,alive,local,world:intrusionWorldPoint,visible,layout:intrusionLayout,velocity:intrusionVelocity,newSubmarine:isNewSubmarine,muzzle:queueArtilleryMuzzle,navalSplash:queueNavalSplash,
  predict:predictBombImpact,clear:ownBodyClear,canFire:intrusionPartCanFire,
  ready:e=>!isMaritimeIntrusion(e)||maritimeAttackable(e)&&maritimeWeaponsReady(e)&&!m1Reloading(e)&&(!isNewSubmarine(e)||submarinePhase(e)==='surfaced'),
  bombSources:airOrdnanceSources};
@@ -263,21 +270,27 @@ function combat(g,e,dt){
   if(fired){q.fired=(q.fired||0)+1;q.done=true;if(e.firingCourse)e.firingCourse.discharged=true;queueArtilleryMuzzle(g,{x:q.x,y:q.y,angle:q.a,scale:.55,heavy:true});}
  }
  e.shotCues=e.shotCues.filter(q=>q.age<q.warning+((q.rounds||1)-1)*.14+.2);
+ let muzzleFlashes;
  for(const hazard of e.hazards){
   if(!hazard.fired&&hazard.sourcePartId&&!intrusionPartCanFire(e,hazard.sourcePartId)){
    hazard.done=true;hazard.age=hazard.warning+.35;continue;
   }
   hazard.age+=dt;
   if(hazard.done)continue;
-  if(isNewSubmarine(e)&&hazard.localMuzzle&&!hazard.fired&&hazard.age>=(hazard.fireAt??hazard.warning)){
+  if((isNewSubmarine(e)||hazard.fireAt!=null)&&hazard.localMuzzle&&!hazard.fired&&hazard.age>=(hazard.fireAt??hazard.warning)){
    const m=intrusionWorldPoint(e,hazard.localMuzzle);
    if(hazard.fireAt!=null){
     hazard.fired=true;hazard.fireX=m.x;hazard.fireY=m.y;
-    e.naval.reloadUntil=e.naval.clock+M1_RELOAD;
-    emit(g,{type:'bossSound',text:'artilleryNavalFire'});
+    if(e.profileId==='m1')e.naval.reloadUntil=e.naval.clock+M1_RELOAD;
    }
-   e.naval.gunRecoil=1;
-   queueArtilleryMuzzle(g,{x:m.x,y:m.y,angle:e.a+hazard.localAngle+Math.PI/2,scale:e.profileId==='m1'?1.25:.65,heavy:true});
+   // A multi-impact broadside leaves one gun in the same simulation tick.
+   muzzleFlashes||=new Set();
+   if(!muzzleFlashes.has(hazard.sourcePartId)){
+    muzzleFlashes.add(hazard.sourcePartId);
+    if(hazard.fireAt!=null)emit(g,{type:'bossSound',text:'artilleryNavalFire'});
+    e.naval.gunRecoil=1;
+    queueArtilleryMuzzle(g,{x:m.x,y:m.y,angle:e.a+hazard.localAngle+Math.PI/2,scale:e.profileId==='m1'?1.25:.65,heavy:true});
+   }
   }
   if(hazard.age<hazard.warning)continue;
   hazard.done=true;
@@ -297,35 +310,47 @@ function combat(g,e,dt){
 // lands on screen; a disguised Q-ship keeps its cover and a Svyatogor with its
 // transmission cut stays without bomb runs.
 export const INTRUSION_SILENCE=Object.freeze({window:4,air:Object.freeze({radius:28,damage:19,warning:1.5}),sea:Object.freeze({radius:34,damage:17,warning:1.8})});
-function threatCount(e){return e.shotCues.length+e.hazards.length+(e.naval?.torpedoes?.length||0)+(e.riiShots?.length||0)+(e.v1500Shots?.length||0)+(e.releasedBombs?.length||0);}
+// A turret can warn and then abort its firing pass. An aborted warning must
+// not keep resetting the silence clock when no projectile ever leaves.
+function threatCount(e){return e.shotCues.filter(q=>q.fired).length+e.hazards.length+(e.naval?.torpedoes?.length||0)+(e.riiShots?.length||0)+(e.v1500Shots?.length||0)+(e.releasedBombs?.length||0);}
 function breakIntrusionSilence(g,e){
- const now=finite(e.activeAge),n=threatCount(e);
+ const now=finite(e.activeAge),n=threatCount(e),sea=isMaritimeIntrusion(e);
  // A submarine's dive is its evasion: hidden and relocating, it cannot be shot
  // and does not shoot. The watch starts again when it is back on the surface.
  if(isNewSubmarine(e)&&submarinePhase(e)!=='surfaced'){e.silenceAt=now;e.silenceCount=n;return;}
  if(e.silenceAt==null||n>finite(e.silenceCount))e.silenceAt=now;
  e.silenceCount=n;
- if(now-e.silenceAt<INTRUSION_SILENCE.window||m1Reloading(e))return;
- if(isMaritimeIntrusion(e)&&!isNewSubmarine(e)&&!maritimeWeaponsReady(e))return;
+ if(sea&&(e.hazards.length||e.shotCues.some(q=>q.fired)||e.naval?.torpedoes?.some(q=>q.age>=q.warning)))e.navalOpeningFired=true;
+ const opening=sea&&!e.operationOwned&&!e.navalOpeningFired&&e.phaseAge>=(e.phase==='entering'?1.2:.8);
+ if((!opening&&now-e.silenceAt<INTRUSION_SILENCE.window)||m1Reloading(e))return;
+ if(sea&&!maritimeWeaponsReady(e))return;
  const ps=alive(g),p=ps[finite(e.volley)%Math.max(1,ps.length)];if(!p)return;
- const sea=isMaritimeIntrusion(e),k=sea?INTRUSION_SILENCE.sea:INTRUSION_SILENCE.air;
- const impact=predictBombImpact(g,e,p,k.warning);if(!impact)return;
+ const k=sea?INTRUSION_SILENCE.sea:INTRUSION_SILENCE.air;
  // At sea the splash comes from a living, visible gun that clears its own
  // superstructure (a submarine's lobbed deck-gun splash needs no clear lane,
  // as in its own attack), as every authored splash does; no gun, no splash.
- let source={};
  if(sea){
-  const guns=intrusionLayout(e.profileId).targets.filter(t=>t.muzzle&&intrusionPartCanFire(e,t.id)&&e.parts[t.id]?.hp>0&&(isNewSubmarine(e)||ownBodyClear(e,t.id,t.muzzle,t.muzzle.angle))).map(t=>({t,w:intrusionWorldPoint(e,t.muzzle)})).sort((a,b)=>Math.hypot(a.w.x-p.x,a.w.y-p.y)-Math.hypot(b.w.x-p.x,b.w.y-p.y));
+  const impact=predictEdgeWarnedImpact(g,e,p,k.warning);if(!impact)return;
+  const guns=intrusionLayout(e.profileId).targets.filter(t=>t.muzzle&&t.kind!=='anti_air'&&intrusionPartCanFire(e,t.id)).flatMap(t=>{
+   const m=t.muzzle,d=finite(e.turretAngles[t.id]),c=Math.cos(d),s=Math.sin(d);
+   const point={x:m.pivotX+(m.x-m.pivotX)*c-(m.y-m.pivotY)*s,y:m.pivotY+(m.x-m.pivotX)*s+(m.y-m.pivotY)*c};
+   const a=m.angle+d,w=intrusionWorldPoint(e,point);
+   return isNewSubmarine(e)||ownBodyClear(e,t.id,point,a)?[{t,w,point,a}]:[];
+  }).sort((a,b)=>Math.hypot(a.w.x-p.x,a.w.y-p.y)-Math.hypot(b.w.x-p.x,b.w.y-p.y));
   // Prefer a gun whose muzzle is on screen; a long hull whose only gun sits
   // just off screen still fires once the hull itself is in view.
-  const gun=(guns.find(x=>visible(g,e,x.w))||(visible(g,e,{x:e.x,y:e.y})?guns[0]:null))?.t;
+  const gun=guns.find(x=>visible(g,e,x.w))||(visible(g,e,e)?guns[0]:null);
   if(!gun)return;
-  source={sourcePartId:gun.id,localMuzzle:{x:gun.muzzle.x,y:gun.muzzle.y},localAngle:gun.muzzle.angle};
+  queueNavalSplash(g,e,{...impact,radius:k.radius,warning:k.warning,damage:k.damage,sourcePartId:gun.t.id,localMuzzle:gun.point,localAngle:gun.a,silenceBreak:true},gun.w);
+  e.navalOpeningFired=true;
  }else{
   const mounts=airOrdnanceSources(e);if(!mounts.length)return;
-  source={sourcePartId:mounts[finite(e.volley)%mounts.length].sourcePartId};
+  const {sourcePartId}=mounts[finite(e.volley)%mounts.length];
+  const visibleMount=intrusionLayout(e.profileId).targets.some(t=>mounts.some(m=>m.sourcePartId===t.id)&&visible(g,e,intrusionWorldPoint(e,t)));
+  const impact=visibleMount||visible(g,e,e)?predictEdgeWarnedImpact(g,e,p,k.warning):predictBombImpact(g,e,p,k.warning);
+  if(!impact)return;
+  e.hazards.push({kind:'bomb',...impact,radius:k.radius,age:0,warning:k.warning,damage:k.damage,done:false,silenceBreak:true,sourcePartId});
  }
- e.hazards.push({kind:sea?'naval-splash':'bomb',x:impact.x,y:impact.y,radius:k.radius,age:0,warning:k.warning,damage:k.damage,done:false,silenceBreak:true,...source});
  e.silenceAt=now;e.silenceCount=threatCount(e);
 }
 /** Citadel's diagonal approaches alternate around a short broadside hold; no teleporting turn. */
@@ -412,7 +437,7 @@ function routeMove(g,e,dt,cameraX=finite(g.x),cameraY=finite(g.y)){
    }
    advanceMaritimeSafely(g,e,dt,stepMaritimeTransit);return; // One water contact, then world-space vessel inertia.
   }
-  if(e.phase==='active'){if(isNewSubmarine(e))submarineSteering(g,e,dt,intrusionLayout(e.profileId),predictBombImpact);advanceMaritimeSafely(g,e,dt,stepMaritimeMotion);if(isNewSubmarine(e)){
+  if(e.phase==='active'){if(isNewSubmarine(e))submarineSteering(g,e,dt,intrusionLayout(e.profileId),predictEdgeWarnedImpact);advanceMaritimeSafely(g,e,dt,stepMaritimeMotion);if(isNewSubmarine(e)){
    const n=e.naval;
    if(n.phase==='submerged'&&n.phaseAge<.45&&n.torpedoCycle!==n.cycle&&queueSubmarineTorpedo(g,e,intrusionLayout(e.profileId),{visible,world:intrusionWorldPoint},'submerged'))n.torpedoCycle=n.cycle;
    stepSubmarineTorpedoes(g,e,dt);

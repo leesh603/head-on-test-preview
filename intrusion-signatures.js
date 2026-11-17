@@ -155,11 +155,12 @@ function bombPattern(g,e,p,api,name){
  const shown=owned.filter(({q})=>api.visible(g,e,q));
  if(!shown.length||shown.length<Math.ceil(owned.length*.6))return 0;
  const k=INTRUSION_SIGNATURE.splash;
- for(const {q,source:{sourcePartId,localMuzzle,localAngle}} of shown)e.hazards.push({
-  kind:sea?'naval-splash':'bomb',sourcePartId,localMuzzle,localAngle,x:q.x,y:q.y,radius:sea?k.radius:q.r,
-  age:0,warning:sea?k.warning:q.w,damage:sea?k.damage:q.dmg,signature:name,done:false
- });
- if(sea)api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
+ for(const {q,source:{sourcePartId,localMuzzle,localAngle}} of shown){
+  const hazard={sourcePartId,localMuzzle,localAngle,x:q.x,y:q.y,radius:sea?k.radius:q.r,warning:sea?k.warning:q.w,damage:sea?k.damage:q.dmg,signature:name};
+  if(e.profileId==='seeadler')api.navalSplash(g,e,hazard,gun.world);
+  else e.hazards.push({kind:sea?'naval-splash':'bomb',...hazard,age:0,done:false});
+ }
+ if(sea&&e.profileId!=='seeadler')api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
  return shown.length;
 }
 
@@ -169,8 +170,12 @@ function straddle(g,e,p,api){
  const c=signatureLead(p,finite(e.signatureTurn),k.warning,api);if(!api.visible(g,e,c))return 0;
  const enraged=intrusionEnraged(e),lanes=enraged?[-1,0,1,-2,2]:[-1,0,1];let n=0;
  lanes.forEach((l,i)=>{const q={x:c.x+lx*l*k.spread,y:c.y+ly*l*k.spread};if(!api.visible(g,e,q))return;
-  e.hazards.push({kind:'naval-splash',...q,radius:k.radius,age:0,warning:k.warning,damage:k.damage,sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,signature:'straddle',done:false});n++;});
- if(n)api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
+  const hazard={...q,radius:k.radius,warning:k.warning,damage:k.damage,sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,signature:'straddle'};
+  if(e.profileId==='seeadler')api.navalSplash(g,e,hazard,gun.world);
+  else e.hazards.push({kind:'naval-splash',...hazard,age:0,done:false});
+  n++;
+ });
+ if(n&&e.profileId!=='seeadler')api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
  return n;
 }
 

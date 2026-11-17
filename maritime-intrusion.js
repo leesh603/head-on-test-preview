@@ -16,6 +16,12 @@ const finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const angle=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const SPLASH_WARNING=1.8;
+const SEEADLER_SHELL_FLIGHT=.55;
+export function queueNavalSplash(g,e,h,world){
+ const showShell=e.profileId==='seeadler';
+ e.hazards.push({kind:'naval-splash',...h,age:0,done:false,fireAt:showShell?h.warning-SEEADLER_SHELL_FLIGHT:undefined});
+ if(!showShell&&!isNewSubmarine(e))queueArtilleryMuzzle(g,{x:world.x,y:world.y,angle:h.localAngle+e.a+Math.PI/2,scale:.9,heavy:true});
+}
 export const isMaritimeIntrusion=e=>!!MARITIME_PROFILES[typeof e==='string'?e:e?.profileId];
 export function maritimeAttackable(e){return !isSubmarine(e)||!e.naval||e.naval.phase==='surfaced';}
 export function maritimeOpacity(e,visual=true){
@@ -218,7 +224,7 @@ export function queueMaritimeAttack(g,e,layout,api){
    // Deck/main guns shell the sea, never emit horizontal anti-aircraft bullets.
    // Spray danger to low-flying aircraft is a disclosed arcade exaggeration.
    if(heavyQueued)continue;
-   if(!e.hazards.some(h=>h.sourcePartId===gun.id&&!h.done)){heavyQueued=true;e.hazards.push({kind:'naval-splash',x:impact.x,y:impact.y,radius:34,age:0,warning:SPLASH_WARNING,damage:17,sourcePartId:gun.id,localMuzzle:muzzle,localAngle:a,done:false});queueArtilleryMuzzle(g,{x:world.x,y:world.y,angle:a+e.a+Math.PI/2,scale:.9,heavy:true});}
+   if(!e.hazards.some(h=>h.sourcePartId===gun.id&&!h.done)){heavyQueued=true;queueNavalSplash(g,e,{...impact,radius:34,warning:SPLASH_WARNING,damage:17,sourcePartId:gun.id,localMuzzle:muzzle,localAngle:a},world);}
    continue;
   }
   const spread=[-.09,0,.09];

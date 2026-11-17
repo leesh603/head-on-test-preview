@@ -31,7 +31,8 @@ function submarineImpact(g,e,p,predictImpact,warning){
  // Give the ring the same minimum on-screen warning as a straight flypast.
  const impact=flightPoint(p,track.speed,track.heading,track.turn,warning);
  const approach=flightPoint(p,track.speed,track.heading,track.turn,warning-.65);
- return inView(g,e,{x:impact.x-approach.x+p.x,y:impact.y-approach.y+p.y})?impact:null;
+ if(inView(g,e,{x:impact.x-approach.x+p.x,y:impact.y-approach.y+p.y}))return impact;
+ return !e.operationOwned&&inView(g,e,p)?{...impact,edgeWarning:true}:null;
 }
 export const submarineTimings=e=>({exposed:e.profileId==='m1'?14:12,diving:1,submerged:1.6,surfacing:1.2});
 export const submarineGunArc=e=>e.profileId==='m1'?Math.PI/12:Math.PI/3;
@@ -97,7 +98,7 @@ export function queueSubmarineAttack(g,e,layout,api){
   if((!heavy||range>M1_SPLASH_RADIUS)&&api.visible(g,e,wp)&&api.visible(g,e,p)&&Math.abs(angle(bearing-barrel))<(heavy?.12:.2)&&!e.hazards.some(h=>!h.done)){
    if(heavy)e.naval.course=e.a;
    const splash=heavy?{x:fireX+Math.cos(barrel)*range,y:fireY+Math.sin(barrel)*range}:impact;
-   e.naval.didQueueAttack=true;e.hazards.push({kind:'naval-splash',...splash,radius:heavy?M1_SPLASH_RADIUS:30,age:0,warning,damage:heavy?22:14,sourcePartId:gun.id,localMuzzle:m,localAngle:-Math.PI/2+rotation,fireAt:heavy?warning-M1_SHELL_FLIGHT:undefined,done:false});
+   e.naval.didQueueAttack=true;e.hazards.push({kind:'naval-splash',...splash,edgeWarning:impact.edgeWarning,radius:heavy?M1_SPLASH_RADIUS:30,age:0,warning,damage:heavy?22:14,sourcePartId:gun.id,localMuzzle:m,localAngle:-Math.PI/2+rotation,fireAt:heavy?warning-M1_SHELL_FLIGHT:undefined,done:false});
   }
  }
  if(e.profileId==='uboat'&&api.canFire(e,'torpedo_tubes')){
