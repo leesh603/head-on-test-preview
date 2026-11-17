@@ -841,18 +841,18 @@ syncServerRanking=async()=>{
  const active=()=>game===run&&rankingModalSequence===view&&$('soloRankingStatus')===status;
  const render=()=>{
   if(!active())return;document.getElementById('soloRankingRetry')?.remove();
-  status.textContent=request.state==='saved'?(en?'Ranking record registered.':'랭킹에 등록했습니다.'):request.state==='failed'?(en?'Server registration failed · please retry.':'서버 등록 실패 · 다시 시도해 주세요'):(en?'Registering ranking record…':'랭킹에 등록하는 중…');
+  status.textContent=request.state==='queued'?(en?'Record saved on this device. It will upload when connected.':'기록을 기기에 보관했습니다. 연결되면 전송합니다.'):request.state==='saved'?(en?'Ranking record registered.':'랭킹에 등록했습니다.'):request.state==='failed'?(en?'Server registration failed · please retry.':'서버 등록 실패 · 다시 시도해 주세요'):(en?'Registering ranking record…':'랭킹에 등록하는 중…');
   if(request.state==='saved')renderRankingMedals(request.rows);
   if(request.state==='failed'){const retry=document.createElement('button');retry.id='soloRankingRetry';retry.className='primary';retry.textContent=en?'Retry registration':'등록 다시 시도';retry.onclick=()=>syncServerRanking();$('modalActions').append(retry);}
  };
- if(request.state==='saved'){render();return;}
+ if(request.state==='saved'||request.state==='queued'){render();return;}
  if(request.state!=='pending'){
   request.state='pending';
   request.promise=(async()=>{try{
    const response=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(request.record)});
    if(!response.ok)throw Error('Ranking request failed');
    const rows=await response.json();if(!Array.isArray(rows))throw Error('Invalid ranking response');
-   request.rows=rows;request.state='saved';
+   request.rows=rows;request.state=response.status===202?'queued':'saved';
   }catch{request.state='failed';}})();
  }
  render();await request.promise;render();
@@ -1783,7 +1783,23 @@ function showEndNickname(run,coop,onReturn=null){
 }
 function showCoopResult(run){if(run.online){coopInput.clear();show('touch',false);modal('ONLINE CO-OP',cityDefenseOutcome(run,getLocale()==='en')||'협동 작전 종료',`P1 + P2 · 주요 ${run.priorityKills}기 · ${Math.floor(run.t)}초\n온라인 협동 점수는 랭킹에 제출하지 않습니다.`+(run.state==='lost'&&damageReport(run.player(run.localPlayerId),getLocale()==='en')?'\n'+damageReport(run.player(run.localPlayerId),getLocale()==='en'):''),[{label:'출격 화면',run:returnHangar}]);return;}return showEndNickname(run,true)}
 function saveCoopResult(run,onReturn=null){coopInput.clear();show('skillCutin',false);const record=coopRecord(run),rows=saveCoopLocal(localStorage,record);modal(onReturn?'FRONT COMPLETE':'COOP SORTIE LOST',onReturn?(getLocale()==='en'?'Co-op Loop Record':'협동 회차 기록'):t('coop.result.title'),`${record.players.map(p=>p.name).join(' + ')}\n${t('coop.result.summary',{score:record.score,seconds:record.durationSeconds})}\n\n${t('coop.result.serverSaving')}\n${t('coop.result.local')}\n${coopRankingText(rows)}`,onReturn?[{label:getLocale()==='en'?'Back to loop report':'회차 결과로',run:onReturn}]:[{label:t('coop.result.retry'),run:start},{label:t('coop.result.setup'),run:returnHangar}]);syncCoopRanking(run,record)}
-async function syncCoopRanking(run,record){if(run.online)return;const view=rankingModalSequence;try{const response=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(record)});if(!response.ok)throw Error();const rows=await response.json();if(game===run&&view===rankingModalSequence&&['lost','front-complete'].includes(game.state))$('modalText').textContent=`${record.players.map(p=>p.name).join(' + ')}\n${t('coop.result.summary',{score:record.score,seconds:record.durationSeconds})}\n\n${t('coop.result.server')}\n${coopRankingText(rows)}`}catch{if(game!==run||view!==rankingModalSequence||!['lost','front-complete'].includes(game.state))return;$('modalText').textContent=$('modalText').textContent.replace(t('coop.result.serverSaving'),t('coop.result.saveFailed'));const retry=document.createElement('button');retry.className='primary';retry.textContent=t('coop.result.retrySave');retry.onclick=()=>{retry.remove();syncCoopRanking(run,record)};$('modalActions').append(retry)}}
+async function syncCoopRanking(run,record){
+ if(run.online)return;
+ const view=rankingModalSequence;
+ try{
+  const response=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(record)});
+  if(!response.ok)throw Error();
+  const rows=await response.json(),queued=response.status===202;
+  if(game===run&&view===rankingModalSequence&&['lost','front-complete'].includes(game.state)){
+   const saved=queued?(getLocale()==='en'?'Record saved on this device. It will upload when connected.':'기록을 기기에 보관했습니다. 연결되면 전송합니다.'):t('coop.result.server')+'\n'+coopRankingText(rows);
+   $('modalText').textContent=record.players.map(p=>p.name).join(' + ')+'\n'+t('coop.result.summary',{score:record.score,seconds:record.durationSeconds})+'\n\n'+saved;
+  }
+ }catch{
+  if(game!==run||view!==rankingModalSequence||!['lost','front-complete'].includes(game.state))return;
+  $('modalText').textContent=$('modalText').textContent.replace(t('coop.result.serverSaving'),t('coop.result.saveFailed'));
+  const retry=document.createElement('button');retry.className='primary';retry.textContent=t('coop.result.retrySave');retry.onclick=()=>{retry.remove();syncCoopRanking(run,record)};$('modalActions').append(retry);
+ }
+}
 async function showCoopLeaderboard(){if(game)return;modal('COOP RANKING',t('coop.ranking.title'),t('ranking.loading'),[{label:t('coop.result.setup'),run:()=>show('modal',false)}]);try{const response=await fetch('/api/rankings?mode=coop2');if(!response.ok)throw Error();const rows=await response.json();if(!game)$('modalText').textContent=coopRankingText(rows)}catch{if(!game)$('modalText').textContent=t('ranking.loadFailed')}}
 $('coopMode').onclick=()=>{if(game||!coopAvailable)return;selectedMode='coop2';plane=pilotPlane(pilot);roster()};
 $('coopPilot2').onchange=()=>{if(game)return;coopPilot2=$('coopPilot2').value;renderCoopSetup()};

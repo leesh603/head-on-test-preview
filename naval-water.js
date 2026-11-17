@@ -2,7 +2,7 @@
 const images=new Map();
 const WATER_RECTS=[[10,15,482,415],[521,16,480,423],[1041,10,485,432],[210,432,112,568],[642,430,295,565],[1120,428,335,570]];
 const FILES={adriatic:'adriatic-water-contact-20261117.webp',wake:'ship-wake.webp',atlas:'naval-water-atlas.webp',roundel:'aircraft-roundel.svg',cross:'aircraft-iron-cross.svg'};
-function image(key){if(typeof Image==='undefined')return null;if(!images.has(key)){const im=new Image();im.crossOrigin='anonymous';im.src='./'+FILES[key]+'?v=tame3';images.set(key,im);}return images.get(key);}
+function image(key){if(typeof Image==='undefined')return null;if(!images.has(key)){const im=new Image();im.crossOrigin='anonymous';im.src='./'+FILES[key]+'?v='+(key==='adriatic'?'cohesion2':'tame3');images.set(key,im);}return images.get(key);}
 export function prepareNavalWater(adriatic=false){
  for(const k of Object.keys(FILES))if(k!=='adriatic'||adriatic)image(k);
 }
@@ -13,7 +13,7 @@ export function drawShipWater(c,b,width,height,point=(x,y)=>[x,y],{adriatic=fals
  if(b.dead||b.destroying)return;
  const moving=!b.moored&&b.driveVelocity>1;
  if(!moving&&!adriatic)return;
- const yaw=b.hullYaw??b.angle??(b.a+Math.PI/2),[x,y]=local?[0,0]:point(b.x,b.y);
+ const yaw=b.hullYaw??(local?b.angle??0:b.a+Math.PI/2),[x,y]=local?[0,0]:point(b.x,b.y);
  const speed=moving?Math.min(1,b.driveVelocity/38):0,trail=b.wakeTrail||[],im=moving?image('wake'):null;
  const water=adriatic?image('adriatic'):null;
  const ca=Math.cos(yaw),sa=Math.sin(yaw);
@@ -32,24 +32,19 @@ export function drawShipWater(c,b,width,height,point=(x,y)=>[x,y],{adriatic=fals
   c.drawImage(im,-w/2,0,w,h);c.restore();
  }
  c.save();c.translate(x,y);if(!local)c.rotate(yaw);
+ const clock=b.waterTime||0;
  if(water?.naturalWidth){
-  c.save();
-  c.globalAlpha*=.76;
-  c.drawImage(water,768,0,256,512,-width*.73,-height*.56,width*1.58,height*1.14);
-  c.restore();
+  // Precomposited water contact and six foam phases cost one blit per hull.
+  const frame=moving?Math.floor(clock*6)%6:6,alpha=c.globalAlpha;
+  c.globalAlpha=alpha*(moving?.67+speed*.30:.7);
+  c.drawImage(water,frame%4*192,Math.floor(frame/4)*384,192,384,-width*.82,-height*.57,width*1.64,height*1.15);
+  c.globalAlpha=alpha;
  }
  if(moving){
-  const clock=b.waterTime||0,bw=width*1.65,bh=bw*.88;
-  if(water?.naturalWidth){
-   // Blend adjacent painted foam phases rather than switching three opaque quads.
-   const step=clock*3,frame=Math.floor(step)%3,mix=step%1,top=-height*.50;
-   const alpha=c.globalAlpha,opacity=alpha*(.72+speed*.21);
-   c.globalAlpha=opacity*(1-mix);
-   c.drawImage(water,frame*256,0,256,224,-bw/2,top,bw,bh);
-   c.globalAlpha=opacity*mix;
-   c.drawImage(water,((frame+1)%3)*256,0,256,224,-bw/2,top,bw,bh);
-   c.globalAlpha=alpha;
-  }else atlas(c,Math.floor(clock*5)%3,0,-height*.50+bh*.49,bw,bh,0,.45+speed*.25);
+  if(!water?.naturalWidth){
+   const bw=width*1.65,bh=bw*.88;
+   atlas(c,Math.floor(clock*5)%3,0,-height*.50+bh*.49,bw,bh,0,.45+speed*.25);
+  }
   if(im?.naturalWidth){const w=width*.75,h=Math.min(height*.50,w*3);c.globalAlpha*=.35+speed*.20;c.drawImage(im,-w/2,height*.40,w,h);}
  }
  c.restore();

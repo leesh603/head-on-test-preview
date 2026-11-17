@@ -1,4 +1,3 @@
-import {fx} from './fx-art.js?v=tame3';
 import {hitIntrusionEnvironmentalDamage} from './intrusion-boss-host.js';
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
@@ -8,14 +7,14 @@ export const TRENCH_BALANCE=Object.freeze({
  smokeMax:3,smokeR:190,smokeLife:50,smokeDrift:14,smokeGap:14,aimCut:.45,tailCut:.65
 });
 const trenchMarks=new WeakMap();
-const MARK_LIMIT=8,MARK_SECONDS=22;
+const MARK_LIMIT=6,MARK_SECONDS=22;
 let craterArt;
 function markTrenchImpact(game,x,y){
  let marks=trenchMarks.get(game);
  if(!marks){marks=[];trenchMarks.set(game,marks);}
  if(marks.some(mark=>(x-mark.x)**2+(y-mark.y)**2<1200&&game.t-mark.time<MARK_SECONDS))return;
  if(marks.length===MARK_LIMIT)marks.shift();
- marks.push({x,y,time:game.t,angle:(x+y)%6.28,size:45+Math.abs(Math.round(x+y)%18)});
+ marks.push({x,y,time:game.t,size:45+Math.abs(Math.round(x+y)%18)});
 }
 function drawTrenchMarks(c,game,point){
  if(game.worldRegion?.()!==2)return;
@@ -25,13 +24,14 @@ function drawTrenchMarks(c,game,point){
  if(!craterArt?.naturalWidth)return;
  const marks=trenchMarks.get(game);
  if(!marks?.length)return;
+ const opacity=c.globalAlpha;
  for(const mark of marks){
   const [x,y]=point(mark.x,mark.y),age=game.t-mark.time,r=mark.size*.5;
   if(age<0||age>=MARK_SECONDS||x<-r||x>c.canvas.width+r||y<-r||y>c.canvas.height+r)continue;
-  c.save();c.translate(x,y);c.rotate(mark.angle);
-  c.globalAlpha*=.8*Math.min(1,(MARK_SECONDS-age)/5);
-  c.drawImage(craterArt,-r,-r,mark.size,mark.size);c.restore();
+  c.globalAlpha=opacity*.85*Math.min(1,(MARK_SECONDS-age)/5);
+  c.drawImage(craterArt,x-r,y-r,mark.size,mark.size);
  }
+ c.globalAlpha=opacity;
 }
 export function installTrenchWar(Game,TAILING_BALANCE){
  const P=Game.prototype,B=TRENCH_BALANCE;
@@ -132,26 +132,13 @@ export function drawTrenchLayer(c,game,{point}){
   g.addColorStop(0,`rgba(118,112,92,${.4*fade})`);g.addColorStop(1,'rgba(118,112,92,0)');
   c.fillStyle=g;c.beginPath();c.arc(x,y,z.r,0,7);c.fill();
  }
- if(b){
+ if(b?.warn>0){
   const nx=-Math.sin(b.dir),ny=Math.cos(b.dir);
-  const sx=Math.cos(b.dir),sy=Math.sin(b.dir);
-  if(b.warn>0){
-   c.save();c.globalAlpha=.5+.3*Math.sin(performance.now()/120);c.strokeStyle='#8a6a3a';c.lineWidth=2;
-   for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=45){
-    const[x0,y0]=point(b.x+nx*l+sx*b.pos*0,b.y+ny*l+sy*0);
-    c.beginPath();c.moveTo(x0-6,y0);c.lineTo(x0+6,y0);c.moveTo(x0,y0-6);c.lineTo(x0,y0+6);c.stroke();
-   }
-   c.restore();
-  }else{
-   c.save();
-   for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=34){
-    const a=b.pos+((l*37)%40)-20;
-    const[x0,y0]=point(b.x+sx*a+nx*l,b.y+sy*a+ny*l);
-    if(x0<-40||x0>cw+40||y0<-40||y0>ch+40)continue;
-    const wind=b.dir+Math.PI/2,pulse=.5+.25*Math.sin(game.t*7+l);
-    fx(c,'dustPuff',x0,y0,62,40,wind,pulse);
-   }
-   c.restore();
+  c.save();c.globalAlpha=.5+.3*Math.sin(performance.now()/120);c.strokeStyle='#8a6a3a';c.lineWidth=2;
+  for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=45){
+   const [x,y]=point(b.x+nx*l,b.y+ny*l);
+   c.beginPath();c.moveTo(x-6,y);c.lineTo(x+6,y);c.moveTo(x,y-6);c.lineTo(x,y+6);c.stroke();
   }
+  c.restore();
  }
 };
