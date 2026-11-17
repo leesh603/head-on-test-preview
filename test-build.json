@@ -222,9 +222,9 @@
       ]
     },
     {
-      "sha": "5e4b3affa381743a87f58624b9f39b132b36af3d",
+      "sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5",
       "pr": 712,
-      "ref": "fix/dover-intercept-render-order",
+      "ref": "main",
       "files": [
         {
           "path": "app.js",
@@ -246,8 +246,9 @@
           "path": "index.html",
           "gitBlob": "5bdb96672ddf5cdfd77fe6f5bedc293b64017103"
         }
-      ]
+      ],
+      "candidateSha": "5e4b3affa381743a87f58624b9f39b132b36af3d"
     }
   ],
-  "main_sha": "5fc2b7c7baeb619cb5a5d2baf42a1ee79fe30eed"
+  "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5"
 }
