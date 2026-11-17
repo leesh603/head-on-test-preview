@@ -19,7 +19,7 @@ import {momentumTier} from './ace-momentum.js';
 import {syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {airbrakeMovement} from './flight-equipment.js';
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
-import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111';
+import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111&gc=20261117';
 import {BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 import {stageBossSpeed} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027&raid=20261103-art1&zb=20261103&naval=20261106&bd=20261110&ci=20261111&ho=20261111';
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=pandemonium394r2';

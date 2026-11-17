@@ -6,7 +6,7 @@ import {roleImage} from './fx-role3.js?v=tame3&perf=1029&decode=1';
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
 import {drawBishopPassive} from './pilot-passive-art.js';
 import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112';
+import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112&gc=20261117';
 export const ORDNANCE_PILOTS=new Set(['guynemer','bishop']);
 const INSTALLED=Symbol.for('headon.ordnance-pilot-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

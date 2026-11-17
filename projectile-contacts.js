@@ -5,11 +5,12 @@ export function legacyProjectileTarget(world,target){return !!target?.eliteKind&
 export function projectileTargetRadius(target,radiusFor){return target?.eliteKind?(target.eliteKind==='schlachtstaffel'?24:18):radiusFor(target);}
 export function projectileContactTime(round,target,radiusFor){
  const x1=round.x,y1=round.y,x0=Number.isFinite(round.previousX)?round.previousX:x1,y0=Number.isFinite(round.previousY)?round.previousY:y1;
- if(![x0,y0,x1,y1,target.x,target.y].every(Number.isFinite))return Infinity;
+ // Per round x target pair: checks are inlined (no temporary array or closure per call).
+ if(!(Number.isFinite(x0)&&Number.isFinite(y0)&&Number.isFinite(x1)&&Number.isFinite(y1)&&Number.isFinite(target.x)&&Number.isFinite(target.y)))return Infinity;
  const moving=!!round.sweptProjectile,tx0=moving?(target.wwiPreviousX??target.previousX??target.x):target.x,ty0=moving?(target.wwiPreviousY??target.previousY??target.y):target.y;
  let ox=x0-tx0,oy=y0-ty0,dx=x1-target.x-ox,dy=y1-target.y-oy;
  const pad=Math.max(0,round.collisionRadius||0),scale=round.ammunitionHitScale||1;
- if(target.hullLength){const a=target.a||0,c=Math.cos(a),s=Math.sin(a),l=Math.abs(target.hullLength)*scale+pad,w=Math.abs(target.hullWidth)*scale+pad;if(!(l>0&&w>0))return Infinity;[ox,oy,dx,dy]=[(ox*c+oy*s)/l,(-ox*s+oy*c)/w,(dx*c+dy*s)/l,(-dx*s+dy*c)/w];}
+ if(target.hullLength){const a=target.a||0,c=Math.cos(a),s=Math.sin(a),l=Math.abs(target.hullLength)*scale+pad,w=Math.abs(target.hullWidth)*scale+pad;if(!(l>0&&w>0))return Infinity;const rox=(ox*c+oy*s)/l,roy=(-ox*s+oy*c)/w,rdx=(dx*c+dy*s)/l,rdy=(-dx*s+dy*c)/w;ox=rox;oy=roy;dx=rdx;dy=rdy;}
  else{const r=projectileTargetRadius(target,radiusFor)*scale+pad;if(!(r>0))return Infinity;ox/=r;oy/=r;dx/=r;dy/=r;}
  const c=ox*ox+oy*oy-1;if(c<=0)return 0;const a=dx*dx+dy*dy;if(!a)return Infinity;
  const dot=ox*dx+oy*dy,d=dot*dot-a*c;if(d<0)return Infinity;const t=(-dot-Math.sqrt(d))/a;return t>=0&&t<=1?t:Infinity;

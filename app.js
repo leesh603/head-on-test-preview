@@ -95,7 +95,7 @@ import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js
 import './hud-layout94.js?v=gal1&perf=1029&mission=left1&main=20261109';
 import {showBattlefieldEvent,hideBattlefieldEvent,regionalMissionUi} from './battlefield-event-ui.js?v=regional-missions-20261029';
 import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&join=1';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111&gc=20261117';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
 import {drawCoop} from './coop-view.js?v=deathdefiance1&heal=orb1&airbattle=20261025&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&zb=20261103&guide=20261107&cohud=20261110';
 import {drawSunStrike} from './sun-strike71.js?v=buildfit1&rail=42&afc=1';
@@ -115,7 +115,7 @@ import {campaignArtReady} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=
 import {drawGameIcon,drawSpecialAmmoIcon,hangarIconsReady,equipmentIconsReady,gameIconReady} from './icons.js?v=buildfit1&afc=1&opt=1';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?audio20261018&v=boss-score-20261115';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx,prepareSfx,setSfxDuckingListener,captureSfxStream} from './sfx.js?v=audio20261018&early=20261115&rail=20261115&secret=20261116';
-import {attachCombatFeedback,combatVisualPose,combatMountPoint,drawCombatFeedback,combatCameraOffset,combatFlightSound,drawFlightFlow,gunShotFeedback} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112';
+import {attachCombatFeedback,combatVisualPose,combatMountPoint,drawCombatFeedback,combatCameraOffset,combatFlightSound,drawFlightFlow,gunShotFeedback} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112&gc=20261117';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2&mapop=20261103';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
@@ -155,6 +155,7 @@ import {installEscortCommandFx,installEscortCoopFx} from './escort-command-fx.js
 installEscortCommandFx(Game);installEscortCoopFx(CoopGame);installFireDiveFx(Game);installPressureLinkFx(Game);installDeathDefianceFx(Game);
 const flightViewport=installFlightViewport(document,window);
 import {loadAirshipSprite,drawAirshipSprite} from './airship-sprite.js';
+import {createFirstSortieCoach} from './first-sortie-coach.js';
 const ententeAirshipSprite=loadAirshipSprite('entente');
 const zeppelinSprite=loadAirshipSprite('central');const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=gal1&b=326';
 const globalZeppelinSprite=zeppelinSprite;
@@ -3296,7 +3297,26 @@ function showAircraftCriticalNotice(){
  criticalToastPriority=notice.priority;criticalToastText=notice.text;const duration=notice.priority>=4?1.6:.85;
  criticalToastUntil=now+duration*1000;toastUntil=criticalToastUntil;if(game.mode==='coop2')coopToastUntil=game.t+duration;
 }
+// First solo sortie only: one-line prompts in the toast at the moment each becomes useful
+// (first-sortie-coach.js). Skipped in test mode unless ?coach=1 forces it.
+let firstSortieCoach,firstSortieShown=null;
+function showFirstSortiePrompt(){
+ if(firstSortieCoach===undefined){ // created on first use
+  firstSortieCoach=null;
+  try{const q=new URLSearchParams(location.search),force=q.get('coach')==='1';
+   const storage=localStorage;
+   const existing=Boolean(readStageCheckpoint()||storage.getItem('headon-priority-best-161')||storage.getItem('headon-ranking')||serviceRecordUI?.book?.data?.metrics?.seconds);
+   if(force||(!existing&&q.get('headonTest')!=='1'))firstSortieCoach=createFirstSortieCoach({storage,force});}catch(_){}
+ }
+ if(!firstSortieCoach?.active||!game||game.mode==='coop2')return;
+ const now=performance.now(),busy=regionTransitionUntil>0||now<toastUntil||game.t<bossArrivalUntil||now<bossCutinUntil;
+ const control=touchSteeringSupported?(mobileControlMode==='pointer'?'pointer':mobileControlMode==='gamepad'?'gamepad':'stick'):mouseSteeringSupported&&mouseSteering?'mouse':'keys';
+ // A prompt another notice replaced within two seconds is asked again later.
+ if(firstSortieShown&&now-firstSortieShown.at<2000&&$('toast').textContent!==firstSortieShown.text){firstSortieCoach.requeue(firstSortieShown.id,game);firstSortieShown=null;}
+ const prompt=firstSortieCoach.tick(game,{locale:getLocale(),control,busy});if(!prompt)return;
+ $('toast').classList.remove('warn');$('toast').textContent=prompt.text;show('toast');toastUntil=now+prompt.seconds*1000;firstSortieShown={id:prompt.id,text:prompt.text,at:now};
+}
 const eventsBeforeAircraftCritical=events;
-events=()=>{eventsBeforeAircraftCritical();showAircraftCriticalNotice();};
+events=()=>{eventsBeforeAircraftCritical();showAircraftCriticalNotice();showFirstSortiePrompt();};
 const coopEventsBeforeAircraftCritical=coopEvents;
 coopEvents=()=>{coopEventsBeforeAircraftCritical();showAircraftCriticalNotice();};

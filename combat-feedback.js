@@ -249,7 +249,9 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   const feedbackTime=this.t||0;
   for(const [id,expires] of state.heardCriticalIds)if(expires<=feedbackTime)state.heardCriticalIds.delete(id);
   let strongest=null,strongestPower=0,criticalCue=null;
-  for(const f of [...pruneCriticalFeedback(this),...(this.combatFX||[])])if(!state.heard.has(f)){
+  // Reused scratch list: spreading every live combat FX into a fresh array each step was a steady GC source.
+  const fxList=state.fxScratch??=[];fxList.length=0;for(const f of pruneCriticalFeedback(this))fxList.push(f);for(const f of this.combatFX||[])fxList.push(f);
+  for(const f of fxList)if(!state.heard.has(f)){
    state.heard.add(f);
    if(f.v1500Cascade||f.riiCascade)continue; // Four authored sound beats; no duplicate automatic boom/shake.
    if(f.audioExpires!=null&&f.audioExpires<=feedbackTime)continue;

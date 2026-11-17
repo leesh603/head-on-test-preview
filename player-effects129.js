@@ -5,7 +5,7 @@ import {drawScarffMount,drawCompassPickupWisps} from './equipment-mount-fx.js?v=
 import {drawRedScarf} from './equipment-detail-fx.js?v=equipmentdetail20261030';
 import {drawMercedesOutput,drawTelescopeAcquisition,drawMaximReload} from './equipment-extension-fx.js?v=equipmentextension20261030';
 import {drawBrockConcealment,drawRankinBurst,drawRepairStitch,drawGloveCadence} from './equipment-signature-fx.js?v=equipmentart20261030';
-import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112';
+import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112&gc=20261117';
 import {drawMomentumTrail,momentumTier} from './ace-momentum.js';
 import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=repairparcel20261023';
 import {nungesserCombatStatus} from './nungesser-combat.js';

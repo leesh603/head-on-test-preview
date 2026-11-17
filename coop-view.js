@@ -49,7 +49,7 @@ import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefiel
 import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
 import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
 import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112&gc=20261117';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 
 

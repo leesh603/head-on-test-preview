@@ -134,6 +134,66 @@
           "gitBlob": "af4e1dc40eaa34b80004c7e34a1e36722f86e0e5"
         }
       ]
+    },
+    {
+      "sha": "42a3bc1c6dcf5c1133e131f30e6a88f8243ed889",
+      "pr": 709,
+      "prs": [
+        696,
+        709,
+        693,
+        710
+      ],
+      "files": [
+        {
+          "path": "first-sortie-coach.js",
+          "gitBlob": "dfb799c264c7688e476dade45d8575ec538b73ef"
+        },
+        {
+          "path": "app.js",
+          "gitBlob": "f3944ce8f677b64b80e369e393b49a52df74f0a9"
+        },
+        {
+          "path": "combat-feedback.js",
+          "gitBlob": "da8e78d688c88a618dea380391aefac1ed656b61"
+        },
+        {
+          "path": "coop-engine.js",
+          "gitBlob": "3ba135e38b37828cd97c736dfc1b5d84f4e27ab9"
+        },
+        {
+          "path": "coop-view.js",
+          "gitBlob": "e264e3fe3c6d39236c14de4bac57d56c5a820ce1"
+        },
+        {
+          "path": "enemy-arrivals.js",
+          "gitBlob": "90b72f942888a3b5ae5a7fdfd13f1517b037fc02"
+        },
+        {
+          "path": "ground-facility-missions.js",
+          "gitBlob": "9905942bf399de61bfe163f35c76ec3f6740bbe9"
+        },
+        {
+          "path": "index.html",
+          "gitBlob": "cc6c1164b5d2449d2e3667423f581edd690b8cc4"
+        },
+        {
+          "path": "online-coop-game.js",
+          "gitBlob": "e699b7f723d526c6248a040fa388c83afc21b09f"
+        },
+        {
+          "path": "ordnance-pilot-fx.js",
+          "gitBlob": "c76d3d168fcc8920e96d6bfc43e05a7a88c4d2dd"
+        },
+        {
+          "path": "player-effects129.js",
+          "gitBlob": "6115a8938b1c4c9f8c7aae872615b0291c21b052"
+        },
+        {
+          "path": "projectile-contacts.js",
+          "gitBlob": "ec4b1a881b1fea63668c1dba1ff0878ce774dc8f"
+        }
+      ]
     }
   ]
 }

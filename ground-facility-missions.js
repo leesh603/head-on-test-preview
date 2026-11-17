@@ -133,8 +133,11 @@ export function facilityCollision(e,x,y,b={}){
  const cx=e.x+e.hitOffsetX,cy=e.y+e.hitOffsetY,pad=ammunitionPartPadding(b),hw=e.hitWidth/2+pad,hh=e.hitHeight/2+pad;
  if(b.actualExplosion){const dx=Math.max(0,Math.abs(x-cx)-hw),dy=Math.max(0,Math.abs(y-cy)-hh);return dx*dx+dy*dy<=(b.explosionRadius||0)**2;}
  // Segment/AABB test: high-speed rounds cannot tunnel through small roofs.
- const px=b.previousX??x,py=b.previousY??y,dx=x-px,dy=y-py;let lo=0,hi=1;
- for(const [p,d,min,max]of [[px,dx,cx-hw,cx+hw],[py,dy,cy-hh,cy+hh]]){if(Math.abs(d)<1e-9){if(p<min||p>max)return false;}else{const a=(min-p)/d,c=(max-p)/d;lo=Math.max(lo,Math.min(a,c));hi=Math.min(hi,Math.max(a,c));if(lo>hi)return false;}}
+ const px=b.previousX??x,py=b.previousY??y,dx=x-px,dy=y-py;
+ // Same slab test per axis as before, without building arrays per round x facility pair.
+ let lo=0,hi=1;
+ if(Math.abs(dx)<1e-9){if(px<cx-hw||px>cx+hw)return false;}else{const a=(cx-hw-px)/dx,c=(cx+hw-px)/dx;lo=Math.max(lo,Math.min(a,c));hi=Math.min(hi,Math.max(a,c));if(lo>hi)return false;}
+ if(Math.abs(dy)<1e-9){if(py<cy-hh||py>cy+hh)return false;}else{const a=(cy-hh-py)/dy,c=(cy+hh-py)/dy;lo=Math.max(lo,Math.min(a,c));hi=Math.min(hi,Math.max(a,c));if(lo>hi)return false;}
  return true;
 }
 export function damageFacility(g,e,b,damage){
@@ -163,7 +166,10 @@ export function allowFacilityAmbient(g,type){
 export function installGroundFacilities(Game,planes){
  const p=Game.prototype;if(Object.hasOwn(p,'__groundFacilities'))return;p.__groundFacilities=true;
  if(planes)p.facilityPlaneFaction=function(){return planes[this.plane]?.faction;};
- const candidates=p.projectileCandidates;p.projectileCandidates=function(b){const base=candidates.call(this,b),extra=facilityTargets(this);return extra.length&&!b?.enemy&&!b?.patrol?[...base,...extra]:base;};
+ // projectileCandidates runs for every round each step: the facility list is rebuilt once per
+ // simulation step (g.t). Collisions still check hp, so a facility destroyed mid-step is safe.
+ const stepTargets=new WeakMap(),facilityTargetsThisStep=g=>{const c=stepTargets.get(g);if(c&&c.t===g.t&&c.state===g.state)return c.list;const list=facilityTargets(g);stepTargets.set(g,{t:g.t,state:g.state,list});return list;};
+ const candidates=p.projectileCandidates;p.projectileCandidates=function(b){const base=candidates.call(this,b),extra=facilityTargetsThisStep(this);return extra.length&&!b?.enemy&&!b?.patrol?[...base,...extra]:base;};
  const collision=p.targetCollision;p.targetCollision=function(e,x,y,b){return e.groundFacility?e.hp>0&&facilityCollision(e,x,y,b):collision.call(this,e,x,y,b);};
  const offer=p.offerBattlefieldEvent;if(offer)p.offerBattlefieldEvent=function(...args){return args[0]==null&&reserveFacilitySlot(this)?null:offer.apply(this,args);};
  const canOffer=p.canOfferBattlefieldEvent;if(canOffer)p.canOfferBattlefieldEvent=function(...args){return !reserveFacilitySlot(this)&&canOffer.apply(this,args);};

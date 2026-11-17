@@ -11,7 +11,7 @@ export function admitEnemyArrivals(game){
  const pending=(game.enemies||[]).filter(e=>e.arrivalPending);
  // One translation for each freshly placed wing preserves its authored slots.
  const groups=new Map();
- for(const e of pending){delete e.arrivalPending;if(!aircraft(e))continue;
+ for(const e of pending){e.arrivalPending=undefined;if(!aircraft(e))continue;
   const key=e.directorSceneId?`${e.directorSceneId}:${e.directorLayout}:${['cross','pincer','decoyWing'].includes(e.directorLayout)?e.directorEntrySide:0}`:(e.formationLeader||e);
   const group=groups.get(key)||[];group.push(e);groups.set(key,group);
  }
@@ -42,7 +42,7 @@ export function admitEnemyArrivals(game){
  for(const e of game.enemies||[]){const entry=e.airArrival;if(!entry)continue;
   entry.lastAt=now;
   const visible=Math.abs(e.x-v.x)<Math.max(20,v.w-radius(e)*.35)&&Math.abs(e.y-v.y)<Math.max(20,v.h-radius(e)*.35);
-  if(visible||now-entry.startedAt>=6){delete e.airArrival;e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil||0,now+.45);continue;}
+  if(visible||now-entry.startedAt>=6){e.airArrival=undefined;e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil||0,now+.45);continue;}
   // Native tactical steering keeps the solved interception course during entry.
   e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil||0,now+.45);
  }
@@ -57,7 +57,7 @@ export function installEnemyArrivals(Game){
  const spawn=p.spawnEnemy;
  p.spawnEnemy=function(...args){const e=spawn.apply(this,args);if(e){e.arrivalPending=!!(this.arrivalFrameActive||this.directorSpawning||this.battlefieldEventSpawning);e.arrivalAuthored=!!(this.bossMechanicSpawn||this._escortSummon);}return e;};
  const update=p.update;
- p.update=function(...args){if(this.state!=='playing')return update.apply(this,args);this.arrivalFrameActive=true;try{const result=update.apply(this,args);if(this.state==='playing')admitEnemyArrivals(this);return result;}finally{delete this.arrivalFrameActive;}};
+ p.update=function(...args){if(this.state!=='playing')return update.apply(this,args);this.arrivalFrameActive=true;try{const result=update.apply(this,args);if(this.state==='playing')admitEnemyArrivals(this);return result;}finally{this.arrivalFrameActive=false;}};
  const steering=p.dogfightSteering;
  p.dogfightSteering=function(e,contact,dt,turn){return arrivalSteering(this,e,turn)||steering.call(this,e,contact,dt,turn);};
  const bomber=p.directorBomberSteering;

@@ -388,7 +388,7 @@ installFinalArenaGuards(CoopGame);
 
 // Co-op owns its frame loop; finish admission after event/mission wrappers too.
 const updateEnemyArrivalFrame=CoopGame.prototype.update;
-CoopGame.prototype.update=function(...args){if(this.state!=='playing')return updateEnemyArrivalFrame.apply(this,args);this.arrivalFrameActive=true;try{const result=updateEnemyArrivalFrame.apply(this,args);if(this.state==='playing')admitEnemyArrivals(this);return result;}finally{delete this.arrivalFrameActive;}};
+CoopGame.prototype.update=function(...args){if(this.state!=='playing')return updateEnemyArrivalFrame.apply(this,args);this.arrivalFrameActive=true;try{const result=updateEnemyArrivalFrame.apply(this,args);if(this.state==='playing')admitEnemyArrivals(this);return result;}finally{this.arrivalFrameActive=false;}};
 
 import {installWhiteFlightCoopFx} from './goering-whiteflight-fx.js';
 installWhiteFlightCoopFx(CoopGame);
