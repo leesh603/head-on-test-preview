@@ -26,7 +26,7 @@ import {doverBomberFrames,damageDoverBomber,tickDoverMission,ensureDoverMission,
 import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
 import {updateRuralRailGround,ruralRailApproach,ruralRailRoute,syncRuralRailGround} from './rural-rail-ground.js';
 import {ruralRailEntryStartY} from './rural-rail-layout.js?v=tame3';
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=pandemonium394r2';
+import {fleetHull,resolveSurfaceSpacing,surfaceTraffic} from './naval-spacing.js?v=pandemonium394r2';
 import {LAON_STAGE,ensureLaonBattle,clearLaonBattle,tickLaonBattle,handleLaonCue,discoverLaonBattle,laonAvailableSlots} from './laon-battle.js';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=pandemonium394r2&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
@@ -978,7 +978,8 @@ export function endStageBossFrame(g,dt){
   for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  }
  const doverBombers=addon.stages.stageIndex===17?doverBomberFrames(g):[],doverConvoy=(addon.stages.stageIndex===17?g.doverMission?.bombers||[]:[]).filter(b=>b.hp>0&&!b.doverResult&&!b.expired&&!b.crashing&&!b.crashed).map(b=>({id:b.id,alive:true,x:b.x,y:b.y,a:b.a,vx:b.vx||0,vy:b.vy||0,radius:b.hitRadius||24,lastHitAt:b.lastHitAt}));
- const frame={doverBombers,doverConvoy,doverTime:g.t,capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverWorldBounds(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:(cityRaidBattle(g)||g.londonBattle)?.districts||[],parisTargets:g.parisBattle?.districts||[]};
+ const doverShips=addon.stages.stageIndex===17&&activeEncounter&&g.doverMission?.bossObjective?surfaceTraffic(g).map(fleetHull):undefined;
+ const frame={doverBombers,doverConvoy,doverShips,doverTime:g.t,capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverWorldBounds(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:(cityRaidBattle(g)||g.londonBattle)?.districts||[],parisTargets:g.parisBattle?.districts||[]};
  frame.ruralRailRoute=ruralRailRoute(g);
  frame.laonAvailableSlots=laonAvailableSlots(g);addon.tick(dt,frame);
  for(const body of addon.stages.encounter?.bodies.values()||[])syncRuralRailGround(g,body);

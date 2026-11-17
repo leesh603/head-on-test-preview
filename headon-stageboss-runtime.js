@@ -3,6 +3,7 @@ import {chooseOperation,planOperationRoute,rollOperationChoices,SPECIAL_OPERATIO
 import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js';
 import {tickBossEntry} from './boss-entry-presentation.js';
 import {beginBossArrival,tickBossArrival} from './boss-arrival.js';
+import {clearDoverFlightOverlap,doverDuel} from './dover-flight-clearance.js';
 import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js';
 import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js';
 import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
@@ -388,7 +389,11 @@ export class StageBossAddon {
     const encounter=this.stages.encounter;
     pruneBossArrivalBombardments(this,encounter);
     tickBossEntry(this,encounter,dt);
-    if(tickBossArrival(this,encounter,dt,frame)){tickBossArrivalBombardment(this,encounter,dt,frame);return true;}
+    const dover=frame.mapBounds?.coastInset&&encounter?doverDuel([...encounter.bodies.values()]):null;
+    if(tickBossArrival(this,encounter,dt,frame)){
+      clearDoverFlightOverlap(dover,frame.doverShips);
+      tickBossArrivalBombardment(this,encounter,dt,frame);return true;
+    }
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
@@ -396,9 +401,11 @@ export class StageBossAddon {
       ?{faction:this.stages.teamFaction,bodies:[...encounter?.bodies.values()||[]].map(b=>({
         id:b.id,kind:b.kind,faction:b.faction,alive:!b.dead&&!b.hidden&&!b.arrivalPending,
         x:b.x,y:b.y,a:b.a,vx:b.velocityX||0,vy:b.velocityY||0,radius:b.coreRadius||25,
+        w:(b.layout?.width||0)*b.geometryScale,h:(b.layout?.height||0)*b.geometryScale,
         projectileHit:(h,x,y)=>b.locateHit({x:h.x,y:h.y,previousX:x,previousY:y,radius:h.radius||0})
       }))}:null;
     if(!this.defeatSequence&&encounter&&!encounter.completed)encounter.update(dt,{...frame,doverRaid,canBasicFire:this.canBasicFire,isIlluminated:p=>this.hazards.isIlluminated(p)});
+    clearDoverFlightOverlap(dover,frame.doverShips);
     if(this.showFloors&&encounter&&!encounter.completed)this.settleBanked();
     for(const b of encounter?.bodies.values()||[]){const ship=b.support129||(b.kind.startsWith('hms-zubian')?b:null);if(ship&&!b.dead){if(b.support129)ship.hullYaw=ship.angle||0;recordShipWake(ship,dt,ship.height||950);}}
     // Queued rounds leave the actual surviving mount, even while the hull

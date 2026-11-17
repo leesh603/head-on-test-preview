@@ -3,19 +3,20 @@ import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=tame3';
 // Measured barrel/receiver joints in the approved source crops. The lower
 // carriage retains its pivot; only the steel above this joint recoils.
 const JOINTS={douaumont:{heavy:[100,95],mg:[64,62],aa:[86,82]},souville:{bunker:[63],pit:[86]}};
-export function drawVerdunWeapon(c,im,type,state,x,y,muzzle,angle,sou=false,recoil=0){
+export function drawVerdunWeapon(c,im,type,state,x,y,muzzle,angle,sou=false,recoil=0,cupola=false){
  if(!im?.naturalWidth)return;
  const key=sou?'souville':'douaumont',frames=VERDUN_PART_FRAMES[key].guns[type];if(!frames)return;
  const f=frames[state],[sx,sy,sw,sh]=f.rect,[px,py]=f.pivot,wreck=state===frames.length-1,k=muzzle/(wreck?frames[0].reach:f.reach);
- c.save();c.translate(x,y);c.rotate(angle+Math.PI/2);c.imageSmoothingEnabled=true;
  const joint=JOINTS[key][type]?.[state];
+ // Cupolas carry only the barrel and its short collar above the fixed dome.
+ // The full field carriage belongs to the open AA well.
+ const end=cupola&&joint?Math.min(sh,joint+16):sh;
+ c.save();c.translate(x,y);c.rotate(angle+Math.PI/2);c.imageSmoothingEnabled=true;
  if(!wreck&&recoil>0&&joint){
-  // The receiver lip occludes the retracting barrel. No part of the mount,
-  // ammunition feed or gun shield is translated with the shot.
   c.save();c.beginPath();c.rect(-px*k,-py*k,sw*k,joint*k);c.clip();
   c.drawImage(im,sx,sy,sw,joint,-px*k,-py*k+recoil,sw*k,joint*k);c.restore();
-  c.drawImage(im,sx,sy+joint,sw,sh-joint,-px*k,(joint-py)*k,sw*k,(sh-joint)*k);
- }else c.drawImage(im,sx,sy,sw,sh,-px*k,-py*k,sw*k,sh*k);
+  c.drawImage(im,sx,sy+joint,sw,end-joint,-px*k,(joint-py)*k,sw*k,(end-joint)*k);
+ }else c.drawImage(im,sx,sy,sw,end,-px*k,-py*k,sw*k,end*k);
  c.restore();
 }
 

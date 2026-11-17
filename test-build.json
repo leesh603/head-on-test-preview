@@ -1,1 +1,67 @@
-{"sha":"29e87c250aeb183959acd3f2ab7e3643e06eaa71","ref":"feat/visual-cohesion-2-0","source_pr":702,"method":"exact-commit-static-mirror","source_repo":"leesh603/head-on-aces-source"}
+{
+  "sha": "29e87c250aeb183959acd3f2ab7e3643e06eaa71",
+  "ref": "feat/visual-cohesion-2-0",
+  "source_pr": 702,
+  "method": "exact-commit-static-mirror",
+  "source_repo": "leesh603/head-on-aces-source",
+  "applied_source": [
+    {
+      "sha": "b48c0b652019ea8c757eb4c8ba94aa6d12cc5632",
+      "pr": 704,
+      "files": [
+        {
+          "path": "boss-arrival.js",
+          "gitBlob": "463a1b9e46d3ba0d8c94395a21f25167dfab46f1"
+        },
+        {
+          "path": "dover-flight-clearance.js",
+          "gitBlob": "04c88f5aa6a2b1549f26860e827f398a4c6dc195"
+        },
+        {
+          "path": "dover-night-bosses.js",
+          "gitBlob": "89970f6501a6e1e94fc6ce8afe56dfaaaa9fd2d0"
+        },
+        {
+          "path": "headon-stageboss-runtime.js",
+          "gitBlob": "588f92930e346f95e5e065c19b2b33dabed4dcd6"
+        },
+        {
+          "path": "stageboss-host.js",
+          "gitBlob": "9b439bbbcffa4dad1bdabba6b4b94b95b9f23449"
+        },
+        {
+          "path": "capital-terrain.js",
+          "gitBlob": "2268c1f8dd4835e58f01083a32a2bc35a1192f9d"
+        },
+        {
+          "path": "terrain-capital-berlin-20261031.webp",
+          "gitBlob": "ea80ed26ef1026bc27e7723fb6a227ac65046fcf"
+        },
+        {
+          "path": "terrain-capital-london-20261031.webp",
+          "gitBlob": "196251261e6822bb14e5dfbabd550ade2adac997"
+        },
+        {
+          "path": "verdun-art.js",
+          "gitBlob": "e2b50189d62b3ea052aff5f10cb3742fea786931"
+        },
+        {
+          "path": "verdun-hardware-art.js",
+          "gitBlob": "e44d5efe15dcd3acafcbc60179b7066bbdf24f50"
+        },
+        {
+          "path": "verdun-fortresses.js",
+          "gitBlob": "1997ab20512fb4058877d50447bf8e8d01b1a250"
+        },
+        {
+          "path": "boss-douaumont-atlas-r8.webp",
+          "gitBlob": "302584691a530dba29b2b77d35ce6374fc869c5d"
+        },
+        {
+          "path": "boss-vaux-1916-20261116.webp",
+          "gitBlob": "c07d61730961fb6f552e159ee90c4839bfb99d61"
+        }
+      ]
+    }
+  ]
+}

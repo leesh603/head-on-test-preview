@@ -23,13 +23,13 @@ export const VERDUN_FORT_LAYOUT=Object.freeze({
   {id:'ammo-left',x:-141,y:142,w:91,h:64,rx:43,ry:29,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true},
   {id:'ammo-right',x:120,y:138,w:91,h:64,rx:43,ry:29,fraction:.07,muzzle:0,art:'ammo',kind:'ammo',locked:true}
  ])}),
- 'fort-vaux':Object.freeze({width:size(675),height:size(450),core:Object.freeze({x:0,y:size(115),rx:size(50),ry:size(31)}),parts:freezeParts([
-  {id:'bunker-left',x:-263,y:105,w:96,h:83,rx:43,ry:33,fraction:.105,muzzle:24,art:'bunker',kind:'bunker'},
-  {id:'bunker-right',x:263,y:105,w:96,h:83,rx:43,ry:33,fraction:.105,muzzle:24,art:'bunker',kind:'bunker'},
-  {id:'observer',x:0,y:-7,w:63,h:57,rx:31,ry:29,fraction:.105,muzzle:0,art:'observer',kind:'observer'},
+ 'fort-vaux':Object.freeze({width:size(675),height:size(450),core:Object.freeze({x:0,y:size(91),rx:size(50),ry:size(31)}),parts:freezeParts([
+  {id:'bunker-left',x:-246,y:91,w:96,h:83,rx:43,ry:33,fraction:.105,muzzle:24,art:'bunker',kind:'bunker'},
+  {id:'bunker-right',x:246,y:91,w:96,h:83,rx:43,ry:33,fraction:.105,muzzle:24,art:'bunker',kind:'bunker'},
+  {id:'observer',x:0,y:7,w:63,h:57,rx:31,ry:29,fraction:.105,muzzle:0,art:'observer',kind:'observer'},
   {id:'aa-left',x:-207,y:-18,w:69,h:56,rx:28,ry:25,fraction:.085,muzzle:32,art:'aa',kind:'aa'},
   {id:'aa-right',x:208,y:-18,w:69,h:56,rx:28,ry:25,fraction:.085,muzzle:32,art:'aa',kind:'aa'},
-  {id:'ammo',x:-87,y:95,w:84,h:61,rx:39,ry:27,fraction:.14,muzzle:0,art:'ammo',kind:'ammo',locked:true}
+  {id:'ammo',x:-87,y:82,w:84,h:61,rx:39,ry:27,fraction:.14,muzzle:0,art:'ammo',kind:'ammo',locked:true}
  ])}),
  'fort-souville':Object.freeze({width:size(900),height:size(540),core:Object.freeze({x:0,y:size(162),rx:size(72),ry:size(54)}),parts:freezeParts([
   {id:'bunker-left',x:-333,y:61,w:148,h:118,rx:58,ry:42,fraction:.08,muzzle:57,art:'bunker',kind:'bunker'},

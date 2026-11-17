@@ -1,4 +1,4 @@
-import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=20261022';
+import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=verdun-overhead1';
 import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4&trenchart=20261022';
 import {RURAL_TRACK_ART} from './rural-rail-track-art.js';
@@ -10,7 +10,7 @@ import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=tame
 import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 // Authored atlas frames keep measured pivots; component transition canvases are reused.
-const sources={map:'./terrain-verdun-siege-20261116.webp',vaux:'./boss-vaux-1916-20261116.webp',crater:'./verdun-impact-crater-20261116.webp',douaumont:'./boss-douaumont-atlas-r8.webp?v=douaumont1916',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=douaumont1916',souvilleParts:'./boss-souville-parts-r8.webp?v=r5',
+const sources={map:'./terrain-verdun-siege-20261116.webp',vaux:'./boss-vaux-1916-20261116.webp?v=overhead1',crater:'./verdun-impact-crater-20261116.webp',douaumont:'./boss-douaumont-atlas-r8.webp?v=overhead1',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=douaumont1916',souvilleParts:'./boss-souville-parts-r8.webp?v=r5',
  train:'./operation-cargo-train-ink-20261115.webp',track:RURAL_TRACK_ART.url,
  mortarStates:'./minenwerfer-structural-states-20261022.webp',mortarBarrels:'./boss-minenwerfer-barrels-20261009.webp',
  centralObserver:'./asset-bank/ground-facilities/signal-hq-maan-central-clean.webp',ententeObserver:'./asset-bank/ground-facilities/signal-hq-maan-entente-clean.webp',
@@ -82,21 +82,35 @@ function drawVaux(c,b,destruction){
  for(const p of b.parts.values()){
   const destroyed=p.destroyed||collapsed||fallen?.has(p.id);
   if(p.kind==='aa'){
-   drawVerdunMount(c,parts,'aa',destroyed?2:0,p,true,false,1,0);
-   drawWeapon(c,parts,'aa',destroyed?2:0,p.x,p.y,p.muzzleLength,p.angle,false,(p.recoil||0)*24*scale);
+   drawFortAAMount(c,parts,p,scale,destroyed,collapsed||fallen?.has(p.id));
   }else if(p.kind==='ammo'&&!destroyed&&p.revealed){
    drawMount(c,parts,'ammo',1,p.x,p.y,p.drawWidth,p.drawHeight);
   }
   if(destroyed&&p.kind!=='aa'){
    drawRubble(c,p.x,p.y+p.drawHeight*.08,p.drawWidth*1.05,p.drawHeight*.73,collapsed?1:p.damageBlend||.22);
    fx(c,'smokeDark',p.x,p.y-12*scale,43*scale,58*scale,0,.26);
-  }else if(p.hp<p.maxHp*.55){
+  }else if(p.kind!=='aa'&&p.hp<p.maxHp*.55){
    drawRubble(c,p.x-p.drawWidth*.26,p.y+p.drawHeight*.22,p.drawWidth*.63,p.drawHeight*.38,.8);
   }
  }
  const k=b.regionalCore;
  if(collapsed){drawRubble(c,k.x,k.y,k.rx*2.5,k.ry*1.9);fx(c,'smokeDark',k.x,k.y-20*scale,95*scale,130*scale,0,.34);}
  else if(b.coreVulnerable)drawRubble(c,k.x,k.y+k.ry*.5,k.rx*2.0,k.ry*.72);
+ c.restore();
+}
+
+function drawFortAAMount(c,parts,p,scale,dead,structuralFall){
+ const state=dead?2:p.hp<p.maxHp*.55?1:0;
+ const blend=structuralFall?1:p.repairBlend>0?1-p.repairBlend:p.damageBlend??1;
+ drawVerdunMount(c,parts,'aa',state,p,true,false,state===0?1:blend);
+ if(dead&&blend<1){
+  c.save();c.globalAlpha*=1-blend;
+  drawWeapon(c,parts,'aa',0,p.x,p.y,p.muzzleLength,p.angle);
+  c.restore();
+ }
+ c.save();
+ if(dead)c.globalAlpha*=blend;
+ drawWeapon(c,parts,'aa',state,p.x,p.y,p.muzzleLength,p.angle,false,dead?0:(p.recoil||0)*24*scale);
  c.restore();
 }
 
@@ -117,18 +131,18 @@ export function drawVerdunFort(c,b,destruction={}){
   const cupola=!sou&&(p.kind==='heavy'||p.kind==='mg');
   const opens=['pit','ammo','core'].includes(p.art);
   const state=artSou?(dead?3:damaged?2:opens&&p.revealed?1:0):(dead?2:damaged?1:0);
-  // The fixed iron dome occludes the rotating receiver. Only the short
-  // muzzle beyond its edge remains visible when the turret fires.
-  if(cupola&&!dead)drawWeapon(c,partImage,p.art,damaged?1:0,p.x,p.y,p.muzzleLength,p.angle,false,(p.recoil||0)*24*scale);
   // Souville's intact casemates and AA foundations belong to the connected
   // authored hull. Overlay independent foundations only for state changes.
   if(p.kind==='pit'&&!dead){
    drawVerdunPit(c,partImage,p);
+  }else if(!sou&&p.kind==='aa'){
+   drawFortAAMount(c,partImage,p,scale,dead,structuralFall);
   }else if(!sou||dead||damaged||opens&&p.revealed){
    const blend=structuralFall?1:dead?(p.repairBlend>0?1-p.repairBlend:p.damageBlend??1):damaged?p.damageBlend??1:1;
    drawVerdunMount(c,partImage,p.art,state,p,gun,artSou,blend,artSou&&opens&&p.revealed?1:0);
   }
-  if(gun&&!cupola&&(p.kind!=='pit'||p.active)&&(dead||p.revealed||p.openAmount>0||!sou)){
+  if(cupola&&!dead)drawWeapon(c,partImage,p.art,damaged?1:0,p.x,p.y,p.muzzleLength,p.angle,false,(p.recoil||0)*24*scale,true);
+  if(gun&&!cupola&&(sou||p.kind!=='aa')&&(p.kind!=='pit'||p.active)&&(dead||p.revealed||p.openAmount>0||!sou)){
    c.save();if(p.kind==='pit'&&!dead)c.globalAlpha*=p.openAmount??1;
    const gunState=artSou?(dead?1:0):(dead?2:damaged?1:0);
    const wreckBlend=structuralFall?1:dead?(p.repairBlend>0?1-p.repairBlend:p.damageBlend??1):1;

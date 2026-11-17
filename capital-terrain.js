@@ -2,8 +2,8 @@
 // Native art is cached without shrinking it; neighbouring tiles only translate.
 export const CAPITAL_TERRAIN_SIZE=2560;
 export const CAPITAL_TERRAIN_SOURCES=Object.freeze({
- 11:'./terrain-capital-london-20261031.webp?art=combat-scale-20261109',
- 18:'./terrain-capital-berlin-20261031.webp'
+ 11:'./terrain-capital-london-20261031.webp?art=london-night-20261117',
+ 18:'./terrain-capital-berlin-20261031.webp?art=joined-streets-20261117'
 });
 const baseColor=region=>region===11?'#232a36':'#45514d';
 const createCanvas=(width,height)=>{
