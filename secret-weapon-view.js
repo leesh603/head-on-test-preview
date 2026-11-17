@@ -11,7 +11,7 @@ export function secretCondition(recipe,en,name,family){
  const {body,catalysts,ranks,extra}=recipe;
  return [...[body.map(name).join(en?' or ':' 또는 ')],...catalysts.map(name),
   ...Object.entries(ranks).map(([id,n])=>family(id)+' ×'+n),
-  ...Object.entries(extra).map(([id,n])=>(id==='wings'?(en?'Permanent wingmen':'영구 일반 편대기'):name(id))+' ×'+n)].join(' + ');
+  ...Object.entries(extra).map(([id,n])=>(id==='wings'?(en?'Permanent wingmen':'상설 일반 편대기'):name(id))+' ×'+n)].join(' + ');
 }
 function badgeState(recipe,p,g,en){
  const id=recipe.id,e=p.secretWeaponState?.effects[id]||{},now=g.t||0;
@@ -61,15 +61,17 @@ export function paintSecretBadge(rb,p,g,en,faction){
  const scale=c.canvas.width/48;
  c.setTransform(scale,0,0,scale,0,0);
  c.clearRect(0,0,48,48);
- c.beginPath();c.arc(24,24,23,0,Math.PI*2);c.clip();
- c.globalAlpha=progress<1?.32:1;drawGameIcon(c,icon,24,24,42);c.globalAlpha=1;
- const angle=-Math.PI/2+progress*Math.PI*2;
- if(progress>0&&progress<1){
-  c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,26,-Math.PI/2,angle);c.closePath();c.clip();drawGameIcon(c,icon,24,24,42);c.restore();
+ c.beginPath();
+ c.moveTo(24,2);c.lineTo(36,2);c.lineTo(46,12);c.lineTo(46,36);
+ c.lineTo(36,46);c.lineTo(12,46);c.lineTo(2,36);c.lineTo(2,12);c.lineTo(12,2);c.closePath();
+ c.fillStyle='#291c22';c.fill();
+ c.lineWidth=2.5;c.strokeStyle='#85694f';c.stroke();
+ if(progress>0||glint>0){
+  const perimeter=96+40*Math.SQRT2;
+  if(glint<=0&&progress<1)c.setLineDash([perimeter*progress,perimeter]);
+  c.strokeStyle=glint>0?'#fff0c2':'#e5bb78';c.stroke();
  }
- if(glint>0||(progress>0&&progress<1)){
-  c.strokeStyle=glint>0?'#fff1bc':'#ffe9a8';c.lineWidth=2;
-  c.beginPath();c.arc(24,24,21,-Math.PI/2,glint>0?Math.PI*1.5:angle);c.stroke();
- }
+ c.beginPath();c.arc(24,24,19.5,0,Math.PI*2);c.clip();
+ c.globalAlpha=progress<1?.66:1;drawGameIcon(c,icon,24,24,39);
  c.restore();
 }

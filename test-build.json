@@ -301,7 +301,34 @@
           "gitBlob": "d9f0d4f0450fa52e86e8dd5399cb884ed369e653"
         }
       ]
+    },
+    {
+      "sha": "bcc51c6d7577a321ccdbf91e193dc2bda62c5dd8",
+      "pr": 723,
+      "files": [
+        {
+          "path": "secret-weapon-combat.js",
+          "gitBlob": "5384918f2da548f3dd995c39344cb35e00a0b2b2"
+        },
+        {
+          "path": "secret-weapons.js",
+          "gitBlob": "24bb464ee54a73e993a9829a883480b88fcc1943"
+        },
+        {
+          "path": "secret-weapon-view.js",
+          "gitBlob": "be251cb542dd8ca17027b6ee1a509b6c8454026f"
+        },
+        {
+          "path": "secret-weapon-fx.js",
+          "gitBlob": "72b7dd9765eadb5889732d5876c7706e572214a9"
+        },
+        {
+          "path": "hud-ww1-397.css",
+          "gitBlob": "98e33bb027f372bacb4dca56fd135ef00ebb13c1"
+        }
+      ]
     }
   ],
-  "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5"
+  "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5",
+  "built_at": "2026-11-17T12:57:27.189Z"
 }

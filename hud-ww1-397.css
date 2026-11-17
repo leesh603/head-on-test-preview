@@ -549,6 +549,12 @@ body.astra-ui.playing #legendaryInventory .legendary-badge{
  background:radial-gradient(circle at 35% 30%,#3a3424,#111110 72%)!important;box-shadow:0 0 0 2px #0008,var(--ho-lift)!important;overflow:visible;
 }
 body.astra-ui.playing #legendaryInventory .legendary-badge canvas{border-radius:50%}
+body.astra-ui.playing #legendaryInventory .legendary-badge:has(>canvas[data-secret-status]){
+ border-radius:8px!important;border-color:#b38669!important;
+ background:#291c22!important;box-shadow:0 0 0 2px #150e13b8,var(--ho-lift)!important;
+}
+body.astra-ui.playing #legendaryInventory .legendary-badge>canvas[data-secret-status],
+body.astra-ui.playing .coop-instrument .relics>canvas[data-secret-status]{border-radius:4px}
 body.astra-ui.playing #legendaryInventory .legendary-tip156{
  padding:6px 12px!important;border:1px solid var(--ho-hair)!important;border-radius:10px!important;background:var(--ho-glass-strong)!important;
  color:var(--ho-parchment)!important;font:500 11px/1.4 var(--astra-type)!important;
@@ -1593,3 +1599,14 @@ body.astra-ui #modal .build-objective151[data-state=success]{border-left-color:#
  body:is(.local-coop,.online-playing).playing #viewport #flightTop151 .flight-survival :is(.health151,#ammoHud) .bar{width:16px!important;min-width:16px!important;flex:0 0 16px!important}
  body:is(.local-coop,.online-playing).playing #viewport #flightTop151 .flight-survival :is(#healthText,#ammoCount){font-size:12px!important;letter-spacing:-.01em}
 }
+
+
+@keyframes ho-kill-pop-alt{0%{transform:scale(1.45);color:#f0cf7c}100%{transform:scale(1)}}
+@keyframes ho-xp-levelup-alt{0%{background:#f0cf7c80}100%{background:transparent}}
+@keyframes ho-beat-alt{0%,100%{transform:scale(1)}15%{transform:scale(1.28)}30%{transform:scale(1)}45%{transform:scale(1.18)}}
+@keyframes ho-combo-pop-alt{0%{transform:translateY(-3px);opacity:.4}100%{transform:none;opacity:1}}
+/* Alternate identical animation names to replay feedback without synchronous layout reads. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #kills.ho-kill-pop.ho-kill-pop-alt{animation-name:ho-kill-pop-alt}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-levelup.xp-levelup-alt>.bar{animation-name:ho-xp-levelup-alt}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-levelup.xp-levelup-alt>span{animation-name:ho-beat-alt}
+body.astra-ui.playing #viewport #comboHud.pop.pop-alt .combo-n{animation-name:ho-combo-pop-alt}

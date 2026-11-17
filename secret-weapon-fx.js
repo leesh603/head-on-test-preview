@@ -172,7 +172,11 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   if(!b.secretAirRound||b.actualExplosion||b.life<=0||!visible(b.x,b.y,30))continue;
   const a=Math.atan2(b.vy,b.vx),x=sx(b.x),y=sy(b.y);
   if(b.secretWeapon==='villarPerosa')fx(c,'bulletBrass',x,y,11*z,2.7*z,a,.94);
-  else if(b.secretWeapon==='rankenExplosiveDarts')paint(c,'ranken',x,y,22*z,5.4*z,a);
+  else if(b.secretWeapon==='rankenExplosiveDarts'){
+   const dx=Math.cos(a),dy=Math.sin(a);
+   fx(c,'smokeTrail',x-dx*17*z,y-dy*17*z,32*z,6*z,a,.74);
+   paint(c,'ranken',x,y,29*z,7.2*z,a);
+  }
   else if(b.secretDavisRear)fx(c,'metalShard3',x,y,13*z,5*z,a+b.life*19,.9);
  }
  for(const cue of world.secretWeaponFx||[]){
@@ -250,19 +254,30 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    break;
   }
   case 'rankenLaunch':
-   if(age<.10)stamp('muzzleRear',0,0,25,15,a,1-age/.10);
-   forward('gunSmoke',age*40,0,20+age*30,12,a,.65*fade);
+   if(age<.20)forward('muzzleHeavy',8,0,49+age*55,28,a,1-age/.20);
+   for(let i=-2;i<=2;i++){
+    if(low&&i%2)continue;
+    const h=a+i*(cue.spread??.085),travel=17+age*168;
+    stamp('smokeTrail',Math.cos(h)*travel,Math.sin(h)*travel,39+t*32,6+t*5,h,.82*fade);
+   }
+   forward('gunSmoke',age*38,0,37+t*26,24+t*9,a,.77*fade);
    break;
-  case 'rankenEmbed':
-   paint(c,'ranken',x-ca*6*z,y-sa*6*z,18*z,4*z,a);
-   if(age<.10)stamp('armorSpark',0,0,17,14,a,1-age/.10);
+  case 'rankenEmbed': {
+   const fuse=clamp((t-.34)/.66);
+   paint(c,'ranken',x-ca*8*z,y-sa*8*z,26*z,6*z,a);
+   if(age<.13)stamp('armorSpark',0,0,28,21,a,1-age/.13);
+   if(fuse>0)forward('fireSmall',-9,0,11+fuse*12,9+fuse*9,a,fuse*(.72+.28*Math.sin(age*67)**2));
    break;
-  case 'rankenBurst':
-   if(age<.21)stamp(age<.085?'shellBurst0':'shellBurst1',0,0,34+age*50,28+age*44,a,1-age/.21);
-   if(age<.29)spray(low?2:4,76,(i,h,dx,dy)=>stamp('metalShard'+i,dx,dy,9,5,h+age*12,1-age/.29));
-   stamp('fireSmall',2,-2,22,18,a,.83*fade);
-   if(age>.08)stamp('smokeDark',5*t,-10*t,19+t*16,16+t*16,a,.7*fade);
+  }
+  case 'rankenBurst': {
+   const r=cue.radius||48;
+   if(age<.14)stamp('fireFlash',0,0,r*1.26,r*.94,a,1-age/.14);
+   if(age<.39)stamp('shellBurst'+Math.min(2,Math.floor(age/.13)),0,0,r*(1.02+t*1.10),r*(.76+t*.83),a,Math.min(1,(1-age/.39)*1.7));
+   if(age<.33)spray(low?3:6,116,(i,h,dx,dy)=>stamp(i%2?'fireSmall':'metalShard'+i%6,dx,dy,12,8,h+age*12,1-age/.33));
+   forward('fireSmall',-9-t*14,0,31+t*8,23,a,.88*fade);
+   if(age>.08)forward('smokeDark',-11-t*27,3,29+t*25,21+t*21,a,.78*fade);
    break;
+  }
   case 'rotary': {
    if(age<.085){
     const offset=Math.sin(cue.phase+age*85)*4.5;
@@ -378,14 +393,28 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    }
    break;
   }
-  case 'ram':
-   if(age<.12)stamp('armorSpark',0,0,63,43,a,1-age/.12);
+  case 'ram': {
+   const approach=cue.approach??a,strength=cue.strength??.5;
+   const ax=Math.cos(approach),ay=Math.sin(approach),weight=1+strength*.18;
+   if(age<.22){
+    const impact=1-age/.22;
+    stamp('armorSpark',0,0,92*weight,56*weight,a,impact);
+    stamp('ricochet',0,0,77*weight,35,a+Math.PI/2,impact*.88);
+   }
+   if(age<.46){
+    const opacity=1-age/.46,trail=36+age*50;
+    for(const side of [-1,1]){
+     stamp('vaporTrail',-ax*trail-ay*side*15,-ay*trail+ax*side*15,76+age*35,13,approach+side*.18,opacity*.81);
+    }
+   }
+   forward('smokeDark',12+age*34,0,37+t*30,24+t*24,a,.68*fade);
    for(let i=0;i<(low?4:8);i++){
-    const h=a+(i-3.5)*.26,r=age*(78+i%3*46);
-    if(i%3)stamp('debris',Math.cos(h)*r,Math.sin(h)*r+age*age*51,20+i%4*5,16+i%3*3,h+age*(5+i),fade);
-    else stamp('metalShard'+i%6,Math.cos(h)*r,Math.sin(h)*r,16,9,h+age*6,fade);
+    const side=i%2?-1:1,h=a+side*(.42+Math.floor(i/2)*.36),r=age*(117+i%3*37);
+    const key=i<2?'debrisShard':i%3?'metalShard'+i%6:'spark';
+    stamp(key,Math.cos(h)*r,Math.sin(h)*r+age*age*36,i<2?29:17,i<2?15:8,h+side*age*(5+i),fade);
    }
    break;
+  }
   case 'armorLaunch':
    if(age<.12)stamp('armorSpark',ca*12,sa*12,38,29,a,.95*(1-age/.12));
    for(let i=0;i<(low?3:5);i++){

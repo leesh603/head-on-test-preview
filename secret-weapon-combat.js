@@ -149,20 +149,21 @@ export function tickSecretKettering(world,p,b,dt){
 }
 
 const RANKEN_ID='rankenExplosiveDarts';
+const RANKEN_SPEED=640,RANKEN_LIFE=.46,RANKEN_SPREAD=.085,RANKEN_BLAST_RADIUS=48;
 export function secretRankenPulse(p){
  if(!hasSecretWeapon(p,RANKEN_ID)||!ownerLive(p))return;
  const rear=p.a+Math.PI;
- const target=wimperisTarget(p,{heading:rear,range:224,cone:1.05,time:.16,filter:airTarget});
- if(!target)return;
- const a=Math.atan2(target.y-p.y,target.x-p.x),speed=560,damage=mgDamage(p);
- const x=p.x+Math.cos(rear)*16,y=p.y+Math.sin(rear)*16,center=Math.atan2(target.y-y,target.x-x);
+ const x=p.x+Math.cos(rear)*16,y=p.y+Math.sin(rear)*16;
+ const target=wimperisTarget(p,{x,y,heading:rear,range:240,cone:1.05,speed:RANKEN_SPEED,filter:airTarget});
+ if(!target||target.time>RANKEN_LIFE)return;
+ const center=Math.atan2(target.y-y,target.x-x),damage=mgDamage(p);
  const burnScale=p.upgrades.buckinghamBelt?1+Math.max(0,p.gunUpgradeBonus||0):0;
- const salvo={bossDamage:new Map(),bossCap:damage*5,splashed:new Set(),burnScale};
+ const salvo={bossDamage:new Map(),bossCap:damage*7,splashed:new Set(),burnScale};
  for(let i=0;i<5;i++){
-  const b=newAirRound(RANKEN_ID,x,y,center+(i-2)*.105,speed,.43,damage*.48,3.5);
+  const b=newAirRound(RANKEN_ID,x,y,center+(i-2)*RANKEN_SPREAD,RANKEN_SPEED,RANKEN_LIFE,damage*.48,4.5);
   b.dartSlot=i;dartSalvos.set(emit(p,b),salvo);
  }
- cue(p,'rankenLaunch',{x,y,a},{life:.23});
+ cue(p,'rankenLaunch',{x,y,a:center},{life:.48,spread:RANKEN_SPREAD});
  sound(p,'secretRankenLaunch');
 }
 function attachRanken(p,b,target){
@@ -173,7 +174,7 @@ function attachRanken(p,b,target){
  if(!ownerLive(p)||!salvo||charges.length>=10)return;
  const fx=cue(p,'rankenEmbed',{x,y,a:angle},{life:at-time(p)});
  charges.push({target,body,at,fx,a:angle-heading,u:dx*Math.cos(heading)+dy*Math.sin(heading),
-  v:-dx*Math.sin(heading)+dy*Math.cos(heading),damage:b.damage*3.2,salvo});
+  v:-dx*Math.sin(heading)+dy*Math.cos(heading),damage:b.damage*4.1,salvo});
  dartCharges.set(p,charges);
  const state=secretWeaponEffect(p,RANKEN_ID);
  if(!(state.pingAt>world.t)){
@@ -193,13 +194,13 @@ function tickRankenCharges(p){
   }
   if(now<q.at)continue;
   charges.splice(i,1);
-  p.queueExplosionDamage(fx.x,fx.y,34,q.damage,{secondaryExplosion:true,presentation:false,bomberSalvo:q.salvo});
+  const radius=p.queueExplosionDamage(fx.x,fx.y,RANKEN_BLAST_RADIUS,q.damage,{secondaryExplosion:true,presentation:false,bomberSalvo:q.salvo});
   const blast=g.bullets.at(-1);
   blast.secretAirRound=true;
   blast.secretWeapon='rankenBurst';
   dartBursts.set(blast,q);
   if(q.salvo.burnScale)blast.synthesisPayload={incendiary:true,burnScale:q.salvo.burnScale};
-  cue(p,'rankenBurst',fx,{life:.8});sound(p,'secretRankenBurst');
+  cue(p,'rankenBurst',fx,{life:.88,radius});sound(p,'secretRankenBurst');
  }
 }
 function sameTargetReady(p,e,key,delay){
@@ -411,13 +412,13 @@ function tickWake(p,dt,previous){
  }
 }
 export function secretRam(p,target,damage){
- if(!hasSecretWeapon(p,'nesterovRam')||!live(target)||target.surface||target.stationary)return damage;
+ if(!hasSecretWeapon(p,'nesterovRam')||!live(target)||target.surface||target.stationary||!airTarget(target))return damage;
  const speed=secretRamSpeed(p);
  if(speed<0||!sameTargetReady(p,target,'ram',SECRET_COMBAT.ramDelay))return damage;
- direct(p,target,mgDamage(p)*(8+8*speed),'nesterovRam');
- const a=Math.atan2(target.y-p.y,target.x-p.x),distance=Math.hypot(target.x-p.x,target.y-p.y);
+ direct(p,target,mgDamage(p)*(12+14*speed),'nesterovRam');
+ const dx=target.x-p.x,dy=target.y-p.y,distance=Math.hypot(dx,dy),a=distance>0?Math.atan2(dy,dx):p.a;
  const radius=Math.min(distance,(p.playerCollisionRadius??20)*.72);
- cue(p,'ram',{x:p.x+Math.cos(a)*radius,y:p.y+Math.sin(a)*radius,a},{life:.74});sound(p,'secretRam');
+ cue(p,'ram',{x:p.x+Math.cos(a)*radius,y:p.y+Math.sin(a)*radius,a},{life:.86,approach:p.a,strength:speed});sound(p,'secretRam');
  return damage*.3;
 }
 export function secretRamSpeed(p){
