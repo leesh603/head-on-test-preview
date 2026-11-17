@@ -28,7 +28,7 @@ const putAircraftName=(node,text)=>{
  node.style.setProperty('font-size',max+'px','important');
  const size=Math.min(max,Math.floor(max*width/Math.max(width,node.scrollWidth)*10)/10);
  node.style.setProperty('font-size',size+'px','important');node.dataset.aircraftFit=key;
-};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=lobby1', aces: 'lobby-ic-aces420.webp?v=lobby1', medals: 'lobby-ic-medals420.webp?v=lobby1', home: 'lobby-ic-home420.webp?v=lobby1' };
+};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=brass1', aces: 'lobby-ic-aces420.webp?v=brass1', medals: 'lobby-ic-medals420.webp?v=brass1', home: 'lobby-ic-home420.webp?v=brass1' };
 const LOCK = '<svg viewBox="0 0 12 14" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="currentColor"/></svg>';
 
 // Roster labels identify the ace, including siblings and both crew members.

@@ -248,6 +248,37 @@
         }
       ],
       "candidateSha": "5e4b3affa381743a87f58624b9f39b132b36af3d"
+    },
+    {
+      "sha": "204d5d7f15c0b7e04c6d46ac39c47811c7c13349",
+      "pr": 715,
+      "ref": "fix/lobby-navigation-icons",
+      "files": [
+        {
+          "path": "index.html",
+          "gitBlob": "bb67992854535ecf3c9161034ee7a6ef47d5faf8"
+        },
+        {
+          "path": "lobby-420.js",
+          "gitBlob": "a3f0b3c509d8b0df1396e2ab7980dcc9f7a0affe"
+        },
+        {
+          "path": "lobby-ic-aces420.webp",
+          "gitBlob": "e692bca25802032e318bc02f78bb0052ed520743"
+        },
+        {
+          "path": "lobby-ic-home420.webp",
+          "gitBlob": "d10418e538e98fce514bfc58e9a8551995b7c207"
+        },
+        {
+          "path": "lobby-ic-medals420.webp",
+          "gitBlob": "260d256692592f285d703473b11f3c43b1d56546"
+        },
+        {
+          "path": "lobby-ic-ranking420.webp",
+          "gitBlob": "9ce117bfa3b298d7bb17db2a8b56f72dc96521dd"
+        }
+      ]
     }
   ],
   "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5"
