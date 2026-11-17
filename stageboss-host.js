@@ -139,11 +139,12 @@ export function spawnCapitalAcePair(g,event){
  const encounter=g.stageBoss?.stages.encounter,body=encounter?.bodies.get(event.bossId);
  if(!body?.isCapitalBoss||body.capitalAceSpawned)return [];
  const state=g.syncAceSortie?.(),history=state?.downed,deck=g.bossDeck;
- const saved={bossMechanicSpawn:g.bossMechanicSpawn,escort:g._escortSummon,battlefield:g.battlefieldEventSpawning,rival:g._rivalReturnPilot};
+ const saved={bossMechanicSpawn:g.bossMechanicSpawn,escort:g._escortSummon,battlefield:g.battlefieldEventSpawning,rival:g._rivalReturnPilot,aircraft:g._capitalAceAircraft};
  const spawned=[];body.capitalAceSpawned=[];
  try{
   if(state)state.downed=new Set();g._rivalReturnPilot=null;
   g.bossMechanicSpawn=true;g._escortSummon=true;g.battlefieldEventSpawning=true;
+  if(body.kind==='final-leviathan')g._capitalAceAircraft={fonck:'fonck_spad'};
   g.reserveEnemySlots?.(2);
   if(g.enemies.length>=60){const remove=g.enemies.filter(e=>!e.bossPilot&&!e.stageBossBody&&!e.bossMinion&&!e.missionTarget&&!e.formationLeader).sort((a,b)=>Math.hypot(b.x-g.x,b.y-g.y)-Math.hypot(a.x-g.x,a.y-g.y)).slice(0,2);g.enemies=g.enemies.filter(e=>!remove.includes(e));}
   for(let i=0;i<2;i++){
@@ -152,7 +153,7 @@ export function spawnCapitalAcePair(g,event){
    const before=g.enemies.length,result=g.spawnEnemy('boss'),e=result||g.enemies.length>before&&g.enemies.at(-1);
    if(e?.bossPilot){e.capitalEscortToken=encounter.id;e.capitalEscort=true;spawned.push(e);body.capitalAceSpawned.push(e.bossPilot);}
   }
- }finally{if(state)state.downed=history;g.bossDeck=deck;g.bossMechanicSpawn=saved.bossMechanicSpawn;g._escortSummon=saved.escort;g.battlefieldEventSpawning=saved.battlefield;g._rivalReturnPilot=saved.rival;}
+ }finally{if(state)state.downed=history;g.bossDeck=deck;g.bossMechanicSpawn=saved.bossMechanicSpawn;g._escortSummon=saved.escort;g.battlefieldEventSpawning=saved.battlefield;g._rivalReturnPilot=saved.rival;g._capitalAceAircraft=saved.aircraft;}
  g.event('wave','수도 에이스 2기 난입 · 주력 포좌 재장전');return spawned;
 }
 export function stageBossSpeed(p){let factor=1;for(const s of p.bossStatuses?.values()||[])factor=Math.min(factor,s.speedFactor??1);return factor;}

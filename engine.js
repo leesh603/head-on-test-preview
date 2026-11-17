@@ -457,7 +457,7 @@ Game.prototype._spnWorld=function(type){
  this._spnHeavy(type);const e=this.enemies.at(-1);e.ace=false;if(type==='zeppelin'){e.hp=e.maxHp=Math.round(e.hp*1.6);e.hitRadius=90;e.hullLength=170;e.hullWidth=45;}
  if(type!=='boss')return;
  const threatWeight=.12+.88*Math.min(1,this.t/600);const weights=this.bossDeck.map(id=>['baron','fonck'].includes(id)?threatWeight:1);let roll=this.rng()*weights.reduce((a,b)=>a+b,0),pick=weights.length-1;for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<=0){pick=i;break}}
- const pilotId=this.bossDeck.splice(pick,1)[0],fits=this.availableAceAircraft(pilotId);e.bossPilot=pilotId;e.bossPlane=fits[Math.floor(this.rng()*fits.length)];e.name=PILOTS[e.bossPilot].name;e.ace=true;this.registerSortieAce(e);
+ const pilotId=this.bossDeck.splice(pick,1)[0],fits=this.availableAceAircraft(pilotId);const randomFit=fits[Math.floor(this.rng()*fits.length)],preferredFit=this._capitalAceAircraft?.[pilotId];e.bossPilot=pilotId;e.bossPlane=fits.includes(preferredFit)?preferredFit:randomFit;e.name=PILOTS[e.bossPilot].name;e.ace=true;this.registerSortieAce(e);
  e.hp=e.maxHp=Math.round(700*(1+combatStatTime(this)/150));e.abilityTimer=4;e.fire=.8;e.encounterPending=true;e.aceSpawnT=this.t;if(e.bossPilot==='baron')e.speed*=2.4;
  if(e.bossPilot==='bishop'){e.hp=e.maxHp=Math.round(e.maxHp*ENEMY_BOSS_BALANCE.bishopHpMultiplier);e.speed*=1.1;e.abilityTimer=ENEMY_BOSS_BALANCE.bishopFirstAbility;e.fire=.5}
  this.event('wave','적 에이스 · '+e.name+' / '+PILOTS[e.bossPilot].skill);
