@@ -345,7 +345,7 @@ function drawRailConsist181(c,b){
 }
 
 const FORMATION_BOSS_KEYS=new Set(['jasta11-circus','naval10-black-flight']);
-const LARGE_HULLS=Object.freeze({'o400-raider':{halfWidth:92,halfHeight:61.333},'gotha-raider':{halfWidth:105,halfHeight:105},'london-apron-raid':{halfWidth:185,halfHeight:130},'armored-harbor-fortress':{halfWidth:245,halfHeight:235},'jasta11-circus':{halfWidth:42,halfHeight:42},'naval10-black-flight':{halfWidth:42,halfHeight:42}});
+const LARGE_HULLS=Object.freeze({'o400-raider':{halfWidth:92,halfHeight:61.333},'gotha-raider':{halfWidth:105,halfHeight:105},'armored-harbor-fortress':{halfWidth:245,halfHeight:235},'jasta11-circus':{halfWidth:42,halfHeight:42},'naval10-black-flight':{halfWidth:42,halfHeight:42}});
 
 // Wipes use painted hull bounds, including wings and outer envelopes.
 const bossEntryBounds=b=>{
@@ -358,6 +358,7 @@ const bossEntryBounds=b=>{
  if(b.fortressBoss)return verdunFortExtents(b);
  if(b.sommeBoss)return sommeExtents(b);
  if(b.kind==='drachen-net')return{halfWidth:400*(b.cityArtScale||1),halfHeight:360*(b.cityArtScale||1)};
+ if(b.kind==='london-apron-raid')return{halfWidth:400*(b.apronScale||1),halfHeight:410*(b.apronScale||1)};
  if(b.kind==='flak-tower-cell')return{halfWidth:190*(b.regionalScale||1),halfHeight:190*(b.regionalScale||1)};
  if(b.layout)return{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2};
  const hull=LARGE_HULLS[b.kind];if(!hull)return null;
@@ -794,8 +795,17 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.drawImage(wa,0,0,wa.naturalWidth,wa.naturalHeight*.22,-125,-55,250,130);
     c.restore();c.restore()}}
 
-   // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
-   if(b.assetKey==='treffas-wagen'&&b.churn?.length){c.save();for(const pt of b.churn){c.save();c.translate(pt.x-b.x,pt.y-b.y);c.rotate(pt.heading||0);c.globalAlpha=Math.max(0,1-(pt.age||0)/12)*.25;c.fillStyle='#33291d';for(const side of [-1,1]){c.beginPath();c.ellipse(side*112,65,29,18,0,0,Math.PI*2);c.fill();}c.restore();}c.restore();}
+   // Wheel dust stays at the contact trail rather than moving with the hull.
+   if(b.assetKey==='treffas-wagen'&&b.churn?.length)for(const pt of b.churn.slice(-14)){
+    const age=pt.age||0;if(age>2.4)continue;
+    const direction=-Math.sign(pt.speed||-1),power=Math.min(1,Math.abs(pt.speed||0)/64),angle=pt.heading||0;
+    c.save();c.translate(pt.x-b.x,pt.y-b.y);c.rotate(angle);
+    for(const [side,rolling] of [[-1,pt.left],[1,pt.right]])if(rolling!==false){
+     fx(c,'dirtMix',side*112,direction*8,48,29,0,(1-age/2.4)*.44);
+     if(age<1.15)fx(c,'smokeDust',side*(112+age*14),direction*(28+age*29),45+age*37,29+age*29,0,(1-age/1.15)*power*.48);
+    }
+    c.restore();
+   }
    const trenchArmor=['a7v-flak','mark-v-cruiser'].includes(b.assetKey);
    if(trenchArmor){drawArmorGround(c,b);c.scale(b.geometryScale,b.geometryScale);}
    else if(!rail&&!structure&&!plane){c.scale(2.025,2.025);c.translate(0,b.recoil*18);}

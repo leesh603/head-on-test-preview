@@ -44,7 +44,15 @@ export function drawSommeBoss(c,b){
    weapon(c,b.tankRole==='male'?'mark1-gun-heavy':'mark1-gun-mg',state(p,dead),p);
   }
   for(const p of parts.filter(p=>p.art==='hull-mg'))weapon(c,'mark1-gun-mg',state(p,dead),p);
-  if(b.driveMoving&&!dead)for(const side of [-1,1]){const a=b.hullYaw||0,x=b.x+Math.cos(a)*side*48*s-Math.sin(a)*92*s,y=b.y+Math.sin(a)*side*48*s+Math.cos(a)*92*s;fx(c,'smokeDust',x-b.x,y-b.y,24*s,32*s,a,.12);}
+  if(b.driveMoving&&!dead){
+   const power=Math.min(1,Math.abs(b.driveVelocity)/45),a=b.hullYaw||0;
+   c.save();c.rotate(a);
+   for(const [i,side] of ['left','right'].entries())if(!parts.find(p=>p.id==='track-'+side)?.destroyed){
+    const q=(Math.abs(treadPose[side])/48+i*.5)%1;
+    fx(c,'smokeDust',(i?1:-1)*(48+q*6)*s,(b.driveDirection||1)*(92+q*37)*s,(31+q*30)*s,(24+q*24)*s,0,(1-q)*power*.42);
+   }
+   c.restore();
+  }
   if(b.salvo&&!dead){const q=b.salvo,prog=clamp(1-q.remaining/(q.warning||1.05),0,1);const p=parts.find(p=>p.id===q.partId);if(p){const m=sommeMuzzle(b,p);aimLine(c,m.x-b.x,m.y-b.y,q.x-b.x,q.y-b.y,{alpha:.6,chevron:false,dash:[6,7]});}warningRing(c,q.x-b.x,q.y-b.y,clamp(37*s,24,37),prog);}
  }else{
   if(!drawSommeDetailHull(c,b))sprite(c,'body',dead?'wreck':b.coreVulnerable?'breached':b.hp<b.maxHp*.72?'damaged':'normal',0,0,680*s,340*s);

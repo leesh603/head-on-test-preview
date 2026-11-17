@@ -92,7 +92,7 @@ function drawTracks(c,b,frame){
  const l=b.layout,sx=frame.width/l.width,sy=frame.height/l.height;
  for(const [id,x,y,w,h] of trackStrips[b.kind]||[]){
   const p=b.parts.get(id);if(p.destroyed)continue;
-  const pitch=b.kind==='wustenpanzer'?11:9,offset=((p.trackRoll||0)%pitch+pitch)%pitch;
+  const pitch=b.kind==='wustenpanzer'?11:9,offset=(-(p.trackRoll||0)%pitch+pitch)%pitch;
   c.save();c.beginPath();c.rect(x-w/2,y-h/2,w,h);c.clip();
   for(let dy=-h/2-pitch+offset;dy<h/2;dy+=pitch)c.drawImage(frame.image,frame.x+(x-w/2+l.width/2)*sx,frame.y+(y+l.height/2-pitch/2)*sy,w*sx,pitch*sy,x-w/2,y+dy,w,pitch);
   c.restore();
@@ -113,6 +113,17 @@ export function drawMaanBoss(c,b){
  const l=b.layout,t=b.entryAge,key=b.kind==='wustenpanzer'?'wusten':'sinai',im=load(key);
  const parts=b.parts,frame=maanHullFrame(im,b),motions=maanBarrelMotion(b);
  const main=parts.get('heavy-gun'),recoil=!b.dead&&!main?.destroyed?main?.recoil||0:0;
+ if(!b.dead&&Math.abs(b.driveVelocity)>1){
+  const strips=trackStrips[b.kind]||[],speed=b.driveVelocity,power=Math.min(1,Math.abs(speed)/45);
+  for(const [id,x,y,w,h] of strips){
+   const track=parts.get(id);if(track?.destroyed)continue;
+   const side=Math.sign(x),direction=Math.sign(speed),exitY=y+direction*h*.48;
+   for(let i=0;i<2;i++){
+    const travel=(Math.abs(track.trackRoll||0)/66+i*.5)%1;
+    fx(c,'smokeDust',x+side*travel*10,exitY+direction*travel*48,28+travel*46,19+travel*36,0,(1-travel)*power*.34);
+   }
+  }
+ }
  c.save();
  if(recoil>0||motions.length){
   c.beginPath();c.rect(-l.width/2-20,-l.height/2-20,l.width+40,l.height+40);
@@ -132,9 +143,6 @@ export function drawMaanBoss(c,b){
   if(p.kind==='fuel'){drawPartFuelFire(c,fx,p,p.localX,p.localY,time,46);continue;}
   if(['engine','command'].includes(p.kind))fx(c,'fireSmall',p.localX,p.localY,42,55,0,.85);
   for(let i=0;i<2;i++){const drift=(time*.32+i*.5)%1;fx(c,p.kind==='cooling'?'smokeGray':'smokeDark',p.localX+Math.sin(i+time)*10,p.localY-drift*58,30+drift*48,30+drift*48,0,(1-drift)*.58);}
- }
- if(b.driveVelocity>1)for(const side of [-1,1])for(let i=0;i<3;i++){
-  const q=(time*.45+i*.33)%1;fx(c,'dustPuff',side*l.width*.39,l.height*.38+q*65,35+q*65,35+q*60,0,(1-q)*.32);
  }
  if(!b.dead&&!b.gone('engine')){const q=(time*.55)%1;fx(c,'smokeDark',0,l.height*.28+q*50,25+q*35,30+q*45,0,(1-q)*.22);}
  c.restore();

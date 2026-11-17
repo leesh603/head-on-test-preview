@@ -630,7 +630,7 @@ function updateMinions(g,dt){
     if(advanceCambraiBug(e,dt)){
       for(const target of players(g))if(alive(target)&&Math.hypot(e.x-target.x,e.y-target.y)<39){
         if(g.players)g.hitPlayer(target,e.contactDamage);else g.hit(e.contactDamage);}
-      e.hp=0;g.combatBlast(e.x,e.y,42,'enemy','mineBlast');
+      e.hp=0;g.combatBlast(e.x,e.y,42,'enemy','aircraft');
     }
     continue;
    }

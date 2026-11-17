@@ -182,7 +182,9 @@ export class StageBossAddon {
   startBoss({x,y,presentArrival=this.presentArrivals,entryBounds=this.frameContext?.bounds}) {
     if(this.ended||this.stages.phase!=='explore')return null;
     if(!Number.isFinite(x)||!Number.isFinite(y))throw new Error('Current world spawn point required');
-    const bossId=this.stages.bossId,id=this.runId+':stageboss:'+this.serial++;
+    const bossId=this.stages.bossId,entry=BOSS_CATALOG[bossId];
+    if(!entry)return null;
+    const id=this.runId+':stageboss:'+this.serial++;
     // Host returns CURRENT loop/player-count-scaled stats. This module adds no scaling.
     let tuning=this.hooks.getTuning({bossId,stageIndex:this.stages.stageIndex,loopIndex:this.stages.loopIndex});
     // The Alps' climax is the aircraft itself. The shared layout scale also
@@ -193,7 +195,7 @@ export class StageBossAddon {
     if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
     if(['fort-douaumont','fort-souville','fort-vaux'].includes(bossId))tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     if(bossId==='mark4-wedge')tuning={...tuning,sommeApproach:true};
-    const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
+    const faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const dover=this.stages.stageIndex===17?this.hooks.getDoverMission?.({initialize:true}):null;
     const wingId=bossId==='supermarine-nighthawk'?'siemens-schuckert-r-viii':'supermarine-nighthawk';
     const doverWing=dover?.bossObjective?{id:wingId,destinationY:dover.destinationY,tuning:this.hooks.getTuning({bossId:wingId,stageIndex:17,loopIndex:this.stages.loopIndex})}:null;

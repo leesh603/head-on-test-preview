@@ -2920,7 +2920,11 @@ function installHeadOnTestLab(){
  };
  const startTest=(options={})=>{
   if(game)returnHangar();
-  const requestedPilot=String(options.pilot||pilot);
+  const selectedPilot=String(options.pilot||pilot);
+  const selectedFaction=PILOTS[selectedPilot]?.faction||faction;
+  const entry=capitalTestEntry(options,selectedFaction);
+  const requestedRegion=Number.parseInt(entry.region,10),region=Number.isInteger(requestedRegion)?Math.max(0,Math.min(HEADON_TEST_REGION_NAMES.length-1,requestedRegion)):0;
+  const requestedPilot=region===18&&selectedFaction==='central'?'fonck':selectedPilot;
   const requestedCoop=String(options.coop||'');
   selectedMode=requestedCoop&&PILOTS[requestedCoop]?'coop2':'endless';
   coopTestOverride=selectedMode==='coop2'&&!coopAvailable;
@@ -2935,8 +2939,6 @@ function installHeadOnTestLab(){
   game.testMode=true;game.maanOrbit=options.orbit===true;game.nextBossAt=Number.POSITIVE_INFINITY;game.viewWidth=W;game.viewHeight=H;
   // Direct QA launches bypass the hangar's paint-ready splash dismissal.
   document.body.classList.add('hangar-shown');
-  const entry=capitalTestEntry(options,faction);
-  const requestedRegion=Number.parseInt(entry.region,10),region=Number.isInteger(requestedRegion)?Math.max(0,Math.min(HEADON_TEST_REGION_NAMES.length-1,requestedRegion)):0;
   const addon=configureRegion(game,region);if(entry.capital&&addon){addon.stages.finalArena.enabled=true;addon.stages.capitalRound=1;}
   if(region===13&&options.fire===false)game.fire=Number.POSITIVE_INFINITY;
   transitionAssetPrep(region);

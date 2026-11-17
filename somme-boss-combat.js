@@ -6,8 +6,8 @@ import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
 import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=tame3&somme=20261021';
 
 class SommeBoss extends BaseBoss{
- constructor(o,layout,kind,tank=false){
-  const scale=o.tuning.sommeScale||sommeScale(o.tuning,tank);
+ constructor(o,layout,kind,tank=false,scaleMultiplier=1){
+  const scale=(o.tuning.sommeScale||sommeScale(o.tuning,tank))*scaleMultiplier;
   super({...o,maxHp:o.tuning.maxHp,parts:layout.map(p=>new BossPart({id:p.id,maxHp:o.tuning.maxHp*p.fraction,radius:Math.max(p.rx,p.ry)*scale,kind:'somme-part'}))});
   this.t=o.tuning;this.faction=o.faction;this.kind=kind;this.sommeBoss=true;this.ownsMotion129=true;this.sommeScale=scale;this.regionalScale=scale;this.clock=0;this.cursor=o.slot||0;this.hullYaw=0;
   for(const d of layout){const p=this.parts.get(d.id);Object.assign(p,{localX:d.x,localY:d.y,hitLocalX:d.hitX??d.x,hitRadiusX:d.rx*scale,hitRadiusY:d.ry*scale,drawWidth:d.w*scale,drawHeight:d.h*scale,art:d.art,muzzleLength:d.muzzle*scale,angle:-Math.PI/2,recoil:0});}
@@ -63,7 +63,7 @@ class SommeBoss extends BaseBoss{
 
 // Stable encounter ID is retained for saves/test lab; the boss is now Schwaben.
 export class SchwabenFortress extends SommeBoss{
- constructor(o){super(o,SCHWABEN_PARTS,'morser-battery');this.coreVulnerable=false;this.phase='observation';this.lockProgress=0;this.wave=0;this.batteryTurn=0;this.timers.set('barrage',3.8);this.timers.set('twin-aa',2.6);this.timers.set('mg-left',2.1);this.timers.set('mg-right',3.4);}
+ constructor(o){super(o,SCHWABEN_PARTS,'morser-battery',false,1.5);this.coreVulnerable=false;this.phase='observation';this.lockProgress=0;this.wave=0;this.batteryTurn=0;this.timers.set('barrage',3.8);this.timers.set('twin-aa',2.6);this.timers.set('mg-left',2.1);this.timers.set('mg-right',3.4);}
  liveHeavy(){return ['gun-left','gun-right','twin-aa'].filter(id=>!this.parts.get(id).destroyed);}
  // Below 35% the fortress empties its magazines: shorter reloads between curtains.
  reloadInterval(){return this.parts.get('ammo').destroyed?10.8:this.hp<=this.maxHp*.35?4.8:6.7;}

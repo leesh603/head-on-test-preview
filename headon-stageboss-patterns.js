@@ -1719,7 +1719,10 @@ export class TreffasWagen extends PatternBoss {
     for(const p of this.parts.values()){const q=treffasPoint(this,p.mountX,p.mountY);p.x=q.x-this.x;p.y=q.y-this.y;if(p.id.startsWith('mg-')){p.recoil=Math.max(0,(p.recoil||0)-dt);p.gunFlash=Math.max(0,(p.gunFlash||0)-dt);}}
     for(const p of this._churn)p.age+=dt;this._churn=this._churn.filter(p=>p.age<12);
     const last=this._churn.at(-1);
-    if(Math.abs(this.driveVelocity)>3&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>24))this._churn.push({x:this.x,y:this.y,heading:this.heading,age:0});
+    if(Math.abs(this.driveVelocity)>3&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>24))this._churn.push({
+      x:this.x,y:this.y,heading:this.heading,age:0,speed:this.driveVelocity,
+      left:!this.parts.get('wheel-left').destroyed,right:!this.parts.get('wheel-right').destroyed
+    });
     if(this._churn.length>48)this._churn.shift();
     if(Math.abs(this.driveVelocity)>8&&this.due('treffas-drive-sound',dt,.8))this.command('armor-drive');
     if(Math.abs(this.driveVelocity)>8&&this.due('treffas-debris',dt,.75))for(const id of ['wheel-left','wheel-right']){
@@ -2076,7 +2079,7 @@ export class LondonRaidApron extends LondonApron {
   const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700;
   // The outer balloons extend beyond the camera during an approach. Scale
   // the full rig, its hitboxes and gun mounts together.
-  const scale=Math.max(.28,Math.min(1.9,(w-36)/430,(h-84)/316)),ratio=scale/this.apronScale;
+  const scale=2*Math.max(.28,Math.min(1.9,(w-36)/430,(h-84)/316)),ratio=scale/this.apronScale;
   for(const [i,p] of [...this.parts.values()].entries()){
    p.x*=ratio;p.y=p.y*ratio+APRON_RIG_OFFSETS[i]*scale;p.radius*=ratio;p.hitRadiusX*=ratio;p.hitRadiusY*=ratio;
   }
@@ -2176,7 +2179,7 @@ const constructors={'paris-geschuetz':ParisGeschuetz,'french-counter-battery':Fr
   'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'fort-vaux':FortVaux,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship,'gallipoli-fortress':GallipoliFortress,'paris-staaken-rvi':ParisStaakenRVI,'paris-searchlight-fortress':ParisSearchlightFortress};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction,doverWing}) {
   if(BOSS_CATALOG[bossId]?.capitalFinal)return new BossEncounter({id,bossId,bodies:[createCapitalBoss({id:id+':body',tuning,x,y,emit,rng,faction},bossId)]});
-  if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100})]});encounter.bossId=bossId;return encounter;}
+  if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100},1.2)]});encounter.bossId=bossId;return encounter;}
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
   if(bossId==='mark4-wedge'){
    const scale=sommeScale(tuning,true)*.82,count=9,t={...tuning,maxHp:tuning.maxHp/count,sommeScale:scale};
