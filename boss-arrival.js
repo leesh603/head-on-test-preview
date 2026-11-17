@@ -102,6 +102,8 @@ function positionDoverArrival(bodies,frame){
  const halfDepth=(bomber.layout.height*bomber.geometryScale+interceptor.layout.height*interceptor.geometryScale)/2;
  const gap=halfDepth+425;
  const wingGap=(bomber.layout.width*bomber.geometryScale+interceptor.layout.width*interceptor.geometryScale)/2;
+ const preferredSide=baseX<centerX?1:-1;
+ const bomberLane=baseX-preferredSide*Math.min(wingGap*.44,span*.36);
  for(const [body,dir,speed] of [[bomber,-1,142],[interceptor,1,190]]){
   const y=centerY+dir*-gap/2;
   body.a=dir*Math.PI/2;body.rotateMounts();
@@ -109,8 +111,7 @@ function positionDoverArrival(bodies,frame){
   const extent=bossArrivalBounds(body).halfHeight;
   const dy=dir<0?Math.max(180,bounds.bottom+extent+100-y):Math.min(-180,bounds.top-extent-100-y);
   const margin=body.airframeExtents().x+18;
-  const preferredSide=baseX<centerX?1:-1;
-  const candidates=dir<0?[0,-110,110,-220,220,-360,360,-530,530].map(dx=>baseX+dx):
+  const candidates=dir<0?[0,-110,110,-220,220,-360,360,-530,530].map(dx=>bomberLane+dx):
    [preferredSide,-preferredSide].flatMap(side=>[0,90,180,300].map(dx=>bomber.x+side*(wingGap+55+dx)));
   const safeX=candidates.find(x=>{
    if(x<frame.mapBounds.left+margin||x>frame.mapBounds.right-margin)return false;
