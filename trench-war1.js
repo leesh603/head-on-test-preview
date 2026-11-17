@@ -1,4 +1,3 @@
-import {fx} from './fx-art.js?v=tame3';
 import {hitIntrusionEnvironmentalDamage} from './intrusion-boss-host.js';
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
@@ -7,32 +6,6 @@ export const TRENCH_BALANCE=Object.freeze({
  barrageTravel:1500,playerHit:.13,hitCooldown:1.35,enemyHit:.3,lullAfter:5,
  smokeMax:3,smokeR:190,smokeLife:50,smokeDrift:14,smokeGap:14,aimCut:.45,tailCut:.65
 });
-const trenchMarks=new WeakMap();
-const MARK_LIMIT=8,MARK_SECONDS=22;
-let craterArt;
-function markTrenchImpact(game,x,y){
- let marks=trenchMarks.get(game);
- if(!marks){marks=[];trenchMarks.set(game,marks);}
- if(marks.some(mark=>(x-mark.x)**2+(y-mark.y)**2<1200&&game.t-mark.time<MARK_SECONDS))return;
- if(marks.length===MARK_LIMIT)marks.shift();
- marks.push({x,y,time:game.t,angle:(x+y)%6.28,size:45+Math.abs(Math.round(x+y)%18)});
-}
-function drawTrenchMarks(c,game,point){
- if(game.worldRegion?.()!==2)return;
- if(!craterArt&&typeof Image!=='undefined'){
-  craterArt=new Image();craterArt.decoding='async';craterArt.src='./verdun-impact-crater-20261116.webp';
- }
- if(!craterArt?.naturalWidth)return;
- const marks=trenchMarks.get(game);
- if(!marks?.length)return;
- for(const mark of marks){
-  const [x,y]=point(mark.x,mark.y),age=game.t-mark.time,r=mark.size*.5;
-  if(age<0||age>=MARK_SECONDS||x<-r||x>c.canvas.width+r||y<-r||y>c.canvas.height+r)continue;
-  c.save();c.translate(x,y);c.rotate(mark.angle);
-  c.globalAlpha*=.8*Math.min(1,(MARK_SECONDS-age)/5);
-  c.drawImage(craterArt,-r,-r,mark.size,mark.size);c.restore();
- }
-}
 export function installTrenchWar(Game,TAILING_BALANCE){
  const P=Game.prototype,B=TRENCH_BALANCE;
  P.spawnBarrage=function(){
@@ -82,7 +55,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
   _twUpdate.call(this,dt,input);
   if(this.state!=='playing')return;
   const step=Math.min(.04,Math.max(0,dt)),region=this.worldRegion();
-  if(region!==2){this.barrage=null;trenchMarks.delete(this);}
+  if(region!==2)this.barrage=null;
   if(region===2){
    if(!this.barrage){this._barrageT=(this._barrageT||30)-step;if(this._barrageT<=0)this.spawnBarrage()}
    const b=this.barrage;
@@ -92,7 +65,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
      b.pos+=B.barrageSpeed*step;
      if(this.rng()<step*14){const a=b.pos+this.rng()*40,l=(this.rng()-.5)*2*B.barrageHalfWidth;
       const ix=b.x+Math.cos(b.dir)*a-Math.sin(b.dir)*l,iy=b.y+Math.sin(b.dir)*a+Math.cos(b.dir)*l;
-      this.burst(ix,iy,'#7a6248',5,'groundShell');this.smoke(ix,iy,true,true);markTrenchImpact(this,ix,iy);}
+      this.burst(ix,iy,'#7a6248',5,'groundShell');this.smoke(ix,iy,true,true)}
      if((this._barragePlayerHit||0)<=0&&this.inBarrageBand(this.x,this.y)){
       this._barragePlayerHit=B.hitCooldown;this.hit(Math.max(6,Math.round(this.maxHp*B.playerHit)))}
      this._barragePlayerHit=(this._barragePlayerHit||0)-step;
@@ -123,7 +96,6 @@ export function installTrenchWar(Game,TAILING_BALANCE){
 };
 export function drawTrenchLayer(c,game,{point}){
  const b=game.barrage,cw=c.canvas.width,ch=c.canvas.height;
- drawTrenchMarks(c,game,point);
  for(const z of game.smokeZones||[]){
   if(z.expired)continue;const[x,y]=point(z.x,z.y);
   if(x<-z.r||x>cw+z.r||y<-z.r||y>ch+z.r)continue;
@@ -148,8 +120,9 @@ export function drawTrenchLayer(c,game,{point}){
     const a=b.pos+((l*37)%40)-20;
     const[x0,y0]=point(b.x+sx*a+nx*l,b.y+sy*a+ny*l);
     if(x0<-40||x0>cw+40||y0<-40||y0>ch+40)continue;
-    const wind=b.dir+Math.PI/2,pulse=.5+.25*Math.sin(game.t*7+l);
-    fx(c,'dustPuff',x0,y0,62,40,wind,pulse);
+    const g=c.createRadialGradient(x0,y0,2,x0,y0,26);
+    g.addColorStop(0,'rgba(96,74,50,.55)');g.addColorStop(.6,'rgba(70,58,40,.28)');g.addColorStop(1,'rgba(70,58,40,0)');
+    c.fillStyle=g;c.beginPath();c.arc(x0,y0,26,0,7);c.fill();
    }
    c.restore();
   }

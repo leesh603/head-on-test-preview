@@ -15,7 +15,7 @@ export function drawDressingSprite(c,kind,x,y,size,angle=0,alpha=.74){
 // [kind, normalized terrain x/y, footprint size, heading, context]. Roads,
 // trench shoulders and farm yards are checked against the unmodified masters.
 export const TERRAIN_DRESSING=Object.freeze({
- rural:[['wagon',.691,.379,29,-.8,'farm-road'],['supplies',.728,.359,20,.1,'farm-yard'],['farm',.071,.940,49,.08,'roadside-yard']],
+ rural:[['wagon',.691,.379,29,-.8,'farm-road'],['supplies',.728,.359,20,.1,'farm-yard']],
  trenches:[['gun',.194,.178,58,.32,'trench-shoulder'],['tank',.696,.697,56,-.55,'trench-approach'],['brokenGun',.493,.333,43,.8,'trench-shoulder']],
  burning:[['gun',.731,.444,57,.45,'trench-shoulder'],['tank',.267,.585,55,.35,'trench-approach'],['brokenGun',.524,.252,41,-.3,'trench-shoulder']],
  cambrai:[['tank',.457,.260,45,.2,'trench-approach'],['gun',.475,.683,44,-.3,'trench-shoulder']],
@@ -30,11 +30,11 @@ export function drawRepeatedDressing(c,key,left,top,width,height,period){
  for(let iy=Math.floor(top/period);iy<=Math.floor((top+height)/period);iy++)for(let ix=Math.floor(left/period);ix<=Math.floor((left+width)/period);ix++){
   const seed=variant(ix,iy),mirror=key==='cambrai',mx=mirror&&Math.abs(ix%2),my=mirror&&Math.abs(iy%2);
   for(let j=0;j<sites.length;j++){
-   const [kind,u,v,size,a,context]=sites[j];
+   const [kind,u,v,size,a]=sites[j];
    // Animated vehicles are painted in a live pass, never baked as ghosts.
    if(kind==='tank'||kind==='ambulance'||kind==='lorry')continue;
    // Two or three approved sites per tile, with alternating damage/heading.
-   if(context!=='roadside-yard'&&(seed+j)%4===3)continue;
+   if((seed+j)%4===3)continue;
    if(kind==='train'&&(ix%3!==0||iy%3!==0||trains))continue;
    const x=(ix+(mx?1-u:u))*period-left,y=(iy+(my?1-v:v))*period-top;
    if(x+size/2<0||y+size/2<0||x-size/2>width||y-size/2>height)continue;
