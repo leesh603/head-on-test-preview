@@ -16,6 +16,6 @@ export function drawEquipmentDecals(c,p){
  if(p.upgrades?.sacredCowling){c.save();c.translate(20,0);c.rotate(Math.PI/2);sprite(c,'cowling',.5);c.restore();}
 }
 export function drawHeineckeCloth(c,open,pop){
- if(open>0)sprite(c,'canopy'+Math.min(2,Math.floor(open*3)));
+ if(open>0)sprite(c,'canopy'+Math.min(2,Math.floor(open*3)),1+.18*open);
  if(pop>0)sprite(c,'pilot');
 }

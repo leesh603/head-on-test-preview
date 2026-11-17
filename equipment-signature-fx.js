@@ -35,7 +35,9 @@ export function drawBrockConcealment(c,p,x,y,{low=false,scale=1}={}){
  const left=clamp(p.kaiserFogTime,0,3),age=3-left,fade=Math.min(1,age/.18,left/.25);
  // One whole-aircraft cloud in both quality modes. Only phase blending changes.
  const q=age<.5?age:age<2.25?.5:.5+(age-2.25)/1.5;
- phase(c,'brock',q,x,y,104*clamp(scale,.5,3),finite(p.a)+Math.PI/2,.83*fade,low);
+ const heading=finite(p.a),fit=clamp(scale,.5,3);
+ const expansion=1-Math.exp(-age*5),drift=8*expansion*fit;
+ phase(c,'brock',q,x-drift*Math.cos(heading),y-drift*Math.sin(heading),(104+28*expansion)*fit,heading+Math.PI/2,.88*fade,low);
 }
 export function drawRankinBurst(c,p,x,y,{low=false}={}){
  if(!alive(p)||!(p.rankinFlash>0))return;
@@ -43,24 +45,24 @@ export function drawRankinBurst(c,p,x,y,{low=false}={}){
  const ox=x+(Number.isFinite(record?.x)?record.x-finite(p.x):0),oy=y+(Number.isFinite(record?.y)?record.y-finite(p.y):0),a=finite(record?.a,finite(p.a));
  // Native fan points down; in game forward is +X and rear is -X.
  const tailX=ox-Math.cos(a)*23,tailY=oy-Math.sin(a)*23;
- phase(c,'rankin',q,tailX,tailY,95+q*100,a+Math.PI/2,Math.pow(1-q,.3),low);
- if(q<.3&&Array.isArray(record?.clears))for(let i=0,n=Math.min(record.clears.length,low?6:12);i<n;i++){
-  const hit=record.clears[i];if(Number.isFinite(hit?.x)&&Number.isFinite(hit?.y))paint(c,images.combat,SPARK,x+hit.x-finite(p.x),y+hit.y-finite(p.y),15+q*18,0,1-q/.3);
+ phase(c,'rankin',q,tailX,tailY,112+Math.sqrt(q)*152,a+Math.PI/2,Math.pow(1-q,.3),low);
+ if(q<.65&&Array.isArray(record?.clears))for(let i=0,n=Math.min(record.clears.length,low?6:12);i<n;i++){
+  const hit=record.clears[i];if(Number.isFinite(hit?.x)&&Number.isFinite(hit?.y))paint(c,images.combat,SPARK,x+hit.x-finite(p.x),y+hit.y-finite(p.y),22+q*25,a,1-q/.65);
  }
 }
 export function drawRepairStitch(c,p,x,y,{low=false}={}){
  if(!alive(p)||!(p.repairFlash151>0))return;
  const q=clamp(1-p.repairFlash151/.75),a=finite(p.a),fade=Math.min(1,q*10,(1-q)*4);
- for(const side of [-1,1]){const sideOffset=side*(23-q*5);phase(c,'repair',q,x+Math.cos(a)*12-Math.sin(a)*sideOffset,y+Math.sin(a)*12+Math.cos(a)*sideOffset,14,a,fade,low);}
+ for(const side of [-1,1]){const sideOffset=side*(24-q*10),station=15-q*18;phase(c,'repair',q,x+Math.cos(a)*station-Math.sin(a)*sideOffset,y+Math.sin(a)*station+Math.cos(a)*sideOffset,20+4*Math.sin(q*Math.PI),a,fade,low);}
 }
 export function drawGloveCadence(c,p,x,y,{low=false}={}){
  if(!alive(p)||!p.upgrades?.flightGloves||!(p.bishopGlovesTime>0)||p.invuln>0||!(p.muzzleFlash>0)||p.reloadTime!==0)return;
  const a=finite(p.a),fade=clamp(p.muzzleFlash/.08);
- paint(c,images.muzzle,MUZZLE,x+Math.cos(a)*29,y+Math.sin(a)*29,low?28:32,a,fade);
+ paint(c,images.muzzle,MUZZLE,x+Math.cos(a)*29,y+Math.sin(a)*29,low?38:44,a,fade);
 }
 export function drawWimperisSight(c,x,y,remaining,{low=false}={}){
  if(!(remaining>0)||!Number.isFinite(x)||!Number.isFinite(y))return;
- const q=clamp(1-remaining/.4),width=46,fade=Math.min(1,remaining/.1);
+ const q=clamp(1-remaining/.4),width=46+16*(1-q)*(1-q),fade=Math.min(1,remaining/.1);
  // Authored sight frames already converge; single frames avoid double etched bars.
  phase(c,'sight',q,x,y,width,0,fade,true);
 }
@@ -69,7 +71,7 @@ export function drawAirbrakePressure(c,p,x,y,{low=false,local=false}={}){
  const age=p.strutterBrakeAge;if(age<0||age>=.34)return;
  const a=local?0:finite(p.a),open=Math.min(1,age/.04)*clamp((.34-age)/.12);
  for(const side of [-1,1]){const dx=-12-age*12,dy=side*21;
-  paint(c,images.atmosphere,low?VAPOR:GUST,x+dx*Math.cos(a)-dy*Math.sin(a),y+dx*Math.sin(a)+dy*Math.cos(a),26+age*28,a+Math.PI,.68*open);
+  paint(c,images.atmosphere,low?VAPOR:GUST,x+dx*Math.cos(a)-dy*Math.sin(a),y+dx*Math.sin(a)+dy*Math.cos(a),33+age*65,a+Math.PI+side*.13,.85*open);
  }
 }
 export function drawVeryDesignation(c,x,y,r,age,remaining,{low=false}={}){
@@ -77,6 +79,6 @@ export function drawVeryDesignation(c,x,y,r,age,remaining,{low=false}={}){
  const settle=clamp(age/.4),offset=Math.max(18,finite(r,24))*.7,fade=Math.min(1,remaining/.35);
  // Authored coral flare and smoke identify the actual designated target.
  // A single drifting plume is distinct from the brass launch-only sight.
- paint(c,images.wwi,WWI_FRAMES.verySmoke,x,y-offset,27+(1-settle)*14,-Math.PI/2,.6*fade);
- if(!low||age<.35)paint(c,images.wwi,WWI_FRAMES.veryFlare,x,y-offset,18,-Math.PI/2,fade*(age<.4?1:.45));
+ paint(c,images.wwi,WWI_FRAMES.verySmoke,x,y-offset,34+(1-settle)*20,-Math.PI/2,.74*fade);
+ if(!low||age<.35)paint(c,images.wwi,WWI_FRAMES.veryFlare,x,y-offset,24,-Math.PI/2,fade*(age<.4?1:.65));
 }

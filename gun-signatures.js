@@ -11,8 +11,10 @@ export const GUN_SIGNATURES=Object.freeze({
  counter:P('#ead7ff','#ae78d4','teardrop',17,5.8),
  intercept:P('#d8f4ed','#85baa7','comet',34,3.6),
  piercing:P('#c5e8ee','#719cad','needle',34,3.5),
+ steelExit:P('#ffedd8','#e49b61','needle',26,3.8),
+ prototype:P('#ffe5b5','#af845c','capsule',23,4),
  incendiary:P('#ffc56b','#dc7439','comet',30,4.5),
- mauser:P('#e2c8ff','#a576da','orb',9,5.5),
+ mauser:P('#fff0c9','#d78249','teardrop',23,6.8),
  telescope:P('#d4e2ef','#90afc2','comet',32,3),
  reinforcement:P('#b9d3a0','#6b9271','capsule',23,3.5),
  eliteWing:P('#b8e7d6','#78b49f','teardrop',28,4),
@@ -49,11 +51,14 @@ export function gunSignatureId(b){
  // Explicit equipment is stronger than a pilot/tactic decoration. Tactical
  // piercing is a consequence of the doctrine, not an equipment selection.
  if(b.mauserRound)return 'mauser';if(b.wwiIncendiary)return 'incendiary';if(b.telescopeGuided)return 'telescope';
+ if(b.steelCoreRemaining!=null&&b.steelCoreDamage<1&&!b.tacticalStyle&&!b.projectileDoctrine&&!b.specialColor)return 'steelExit';
  if(b.pierce&&!b.tacticalStyle&&!b.projectileDoctrine)return 'piercing';
  if(b.mannockPass||b.fonckVolley||b.fonckSeeker||b.eagle||b.specialColor)return null;
  const doctrine=b.projectileDoctrine||b.tacticalStyle;
  if(doctrine==='elite')return 'eliteWing';if(GUN_SIGNATURES[doctrine])return doctrine;
- if(b.ally||b.formation||b.patrol)return 'reinforcement';return 'standard';
+ if(b.ally||b.formation||b.patrol)return 'reinforcement';
+ if(b.heavyRoundPrepared&&b.ammunitionScale>1&&!b.specialAmmo)return 'prototype';
+ return 'standard';
 }
 const cache=new Map(),SCALE=2,W=128,H=40;
 export function gunSignatureCacheStats(){return{entries:cache.size,accentEntries:accentCache.size,bytes:(cache.size+accentCache.size)*W*H*4,limit:96,accentLimit:48};}

@@ -1,3 +1,4 @@
+import {drawEquipmentSupport} from './equipment-support-fx.js';
 import {fx} from './fx-art.js?v=tame3';
 import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
 import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
@@ -58,6 +59,20 @@ function drawRotaryMount(c,p,now){
  c.restore();
 }
 
+// A Leica records priority kills on this owner. A new owner or newly fitted
+// camera starts from its current total without replaying earlier kills.
+const leicaRecords=new WeakMap();
+function drawLeicaShutter(c,p,front,now){
+ if(!p.upgrades?.urLeica){leicaRecords.delete(p);return;}
+ const count=p.priorityKills||0;
+ let record=leicaRecords.get(p);
+ if(!record){leicaRecords.set(p,{count,at:-Infinity});return;}
+ if(count>record.count)record.at=now;
+ record.count=count;
+ const age=now-record.at;
+ if(age>=0&&age<.34)sprite(c,'hytheShutter',front,8,32-12*age/.34,0,1-age/.34);
+}
+
 // Equipment stays inside the aircraft silhouette; show deployed ordnance
 // instead of inventory boxes pasted over the tail and wings.
 export function drawWWIEquipment(c,world,W,H,options={}){
@@ -66,6 +81,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  const sx=x=>(x-cx)*z+W/2,sy=y=>(y-cy)*z+H/2;
  const visible=(x,y,pad=90)=>Math.abs((x-cx)*z)<W/2+pad&&Math.abs((y-cy)*z)<H/2+pad;
  const players=world.players||[world];c.save();
+ drawEquipmentSupport(c,world,sx,sy,z,visible,options);
  drawSecretWeaponFx(c,world,{sx,sy,z,visible},{sprite,cable:drawGrapnelCable},options);
  for(const p of players){
   if(!(p.hp>0)||p.status==='downed'||p.heineckeEscape>0)continue;
@@ -80,6 +96,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   }
   c.save();c.translate(sx(pose.x),sy(pose.y));c.scale(z*(pose.scale||1),z*(pose.scale||1));c.globalAlpha*=pose.alpha??1;applyPlayerAttitude(c,p,pose);
   const front=fit?Math.min(26,fit.hullLength*.2):8;
+  drawLeicaShutter(c,p,front,world.t||0);
   if(hasSecretWeapon(p,'fokkerLeimberger'))drawRotaryMount(c,p,world.t||0);
   if(u.strutterAirbrake&&!fit&&Number.isFinite(p.strutterBrakeAge)){
    const age=p.strutterBrakeAge,open=Math.min(1,age/.04)*Math.max(0,Math.min(1,(.34-age)/.12));
@@ -88,7 +105,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    // Already in aircraft-local coordinates, so pass a zero heading.
    drawAirbrakePressure(c,p,0,0,{...options,local:true});
   }
-  if(u.hytheCamera&&p.wwiHytheShutter>.24)sprite(c,'hytheShutter',front+10,-5,15,0,(p.wwiHytheShutter-.24)/.14);
+  if(u.hytheCamera&&p.wwiHytheShutter>.24)sprite(c,'hytheShutter',front+10,-5,24,0,(p.wwiHytheShutter-.24)/.14);
   c.restore();
   const sight=p.wimperisCue;
   if(u.wimperisSight&&sight?.until>world.t&&visible(sight.x,sight.y)){
@@ -103,7 +120,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
      const x0=sx(p.x-Math.cos(p.a)*7),y0=sy(p.y-Math.sin(p.a)*7),x1=sx(x),y1=sy(y),a=Math.atan2(dy,dx);
      const fade=Math.min(1,cable.life/.25)*stretch,sag=Math.max(1,8*(1-Math.min(1,length/150)))*z;
      c.save();c.globalAlpha*=fade;
-     const width=40*z,ex=x1-Math.cos(a)*width*.86,ey=y1-Math.sin(a)*width*.86;
+     const width=49*z,ex=x1-Math.cos(a)*width*.86,ey=y1-Math.sin(a)*width*.86;
      drawGrapnelCable(c,x0,y0,ex,ey,z,sag);
      grapnelSprite(c,'grapnelFire',x1,y1,width,a);
      c.restore();
@@ -113,7 +130,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   const mark=wwiWingTarget(p),flare=p.wwiVery;
   if(mark&&flare&&visible(mark.x,mark.y)){
    const t=Math.min(1,flare.age/.4),x=flare.x+(mark.x-flare.x)*t,y=flare.y+(mark.y-flare.y)*t,a=Math.atan2(mark.y-flare.y,mark.x-flare.x);
-   sprite(c,t<1?'veryFlare':'verySmoke',sx(x)-Math.cos(a)*20*z,sy(y)-Math.sin(a)*20*z,(t<1?48:62)*z,a,Math.min(1,p.wwiVeryTime));
+   sprite(c,t<1?'veryFlare':'verySmoke',sx(x)-Math.cos(a)*20*z,sy(y)-Math.sin(a)*20*z,(t<1?58:72)*z,a,Math.min(1,p.wwiVeryTime));
    drawVeryDesignation(c,sx(mark.x),sy(mark.y),Math.max(24,Math.min(60,(mark.target.hitRadius||17)+10))*z,flare.age,p.wwiVeryTime,options);
   }
   const cue=currentCameraCue(p,world);
@@ -137,7 +154,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  for(const e of equipmentTargets(world)){
   if(!(e.hp>0&&e.burnTime>0&&e.burnAnchorSpace)||e.gontermannBurn)continue;
   const point=wwiBurnPoint(e);if(!point||!visible(point.x,point.y))continue;
-  const a=e.stageBossBody?.hullYaw??e.stageBossBody?.angle??e.a??0,width=(e.stageBossBody||e.type==='zeppelin'?80:62)*z;
+  const a=e.stageBossBody?.hullYaw??e.stageBossBody?.angle??e.a??0,width=(e.stageBossBody||e.type==='zeppelin'?92:72)*z;
   const direction=Math.hypot(e.vx||0,e.vy||0)>10?Math.atan2(e.vy,e.vx):a;
   drawIncendiaryFire(c,sx(point.x),sy(point.y),direction+Math.PI,width,e.fuelFxAge||0,Math.min(1,e.burnTime*4));
  }
@@ -147,7 +164,11 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    if(visible(px,py))drawWimperisSight(c,sx(px),sy(py),.4-((b.maxLife||.85)-b.life),options);
   }
   if(!b.cooperBomb||!(b.life>0)||!bomb?.naturalWidth||!visible(b.x,b.y))continue;
-  bombSprite(c,'cooper',sx(b.x),sy(b.y),30*z*(b.ammunitionScale||1)/.7,Math.atan2(b.vy,b.vx));
+  const bearing=Math.atan2(b.vy,b.vx),size=z*(b.ammunitionScale||1);
+  // Show the displacement immediately behind the tumbling bomb, then a short fuse at impact.
+  fx(c,'vaporTrail',sx(b.x)-Math.cos(bearing)*22*size,sy(b.y)-Math.sin(bearing)*22*size,32*size,7*size,bearing,.56);
+  bombSprite(c,'cooper',sx(b.x),sy(b.y),30*size/.7,bearing);
+  if(b.life<.18)fx(c,'spark',sx(b.x)-Math.cos(bearing)*12*size,sy(b.y)-Math.sin(bearing)*12*size,19*size,12*size,bearing,1-b.life/.18);
  }
  for(const b of world.bullets||[]){
   if(!(b.life>0)||!visible(b.x,b.y))continue;
@@ -158,7 +179,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    grapnelSprite(c,'grapnelFire',sx(b.x),sy(b.y),35*projectileScale,Math.atan2(b.vy,b.vx));
    continue;
   }
-  if(b.wwiIncendiary&&b.secretWeapon!=='fokkerLeimberger'){sprite(c,'burn0',sx(b.x),sy(b.y),11*projectileScale,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
+  if(b.wwiIncendiary&&b.secretWeapon!=='fokkerLeimberger'){sprite(c,'burn0',sx(b.x),sy(b.y),15*projectileScale,Math.atan2(b.vy,b.vx),.95);if(!b.flechette)continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
   if(b.secretWeapon==='fliegerpfeil'){
    const a=Math.atan2(b.vy,b.vx),x=sx(b.x),y=sy(b.y),trail=28*projectileScale;
@@ -169,11 +190,11 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   if(b.fieryGrapnel){
    const p=players.find(p=>(p.id??'p1')===(b.ownerId??'p1'));
    if(p&&p.hp>0&&p.status!=='downed'){
-    const a=Math.atan2(b.vy,b.vx),width=36*projectileScale;
+    const a=Math.atan2(b.vy,b.vx),width=43*projectileScale;
     drawGrapnelCable(c,sx(p.x-Math.cos(p.a)*7),sy(p.y-Math.sin(p.a)*7),sx(b.x)-Math.cos(a)*width*.86,sy(b.y)-Math.sin(a)*width*.86,z);
    }
   }
-  if(b.fieryGrapnel)grapnelSprite(c,'grapnelHead',sx(b.x),sy(b.y),36*projectileScale,Math.atan2(b.vy,b.vx));
+  if(b.fieryGrapnel)grapnelSprite(c,'grapnelHead',sx(b.x),sy(b.y),43*projectileScale,Math.atan2(b.vy,b.vx));
   else sprite(c,'flechetteDart',sx(b.x),sy(b.y),24*projectileScale,Math.atan2(b.vy,b.vx));
  }
  c.restore();

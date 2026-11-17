@@ -1459,8 +1459,51 @@ function stageBossCutinCheck(){
   else setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(sound);},delay);
  }
 }
+// Match the highlighted icon to a real equipment action. Reading the simulation
+// clock also keeps paused, rebuilt and remote-player badges on the same frame.
+const relicActivationLight={
+ passiveMedal:p=>1-((p.world?.t??p.t??0)-(p.passiveMedalAt??-Infinity))/.5,
+ rankinShell:p=>p.rankinFlash/.5,
+ sparkPlug:p=>p.repairFlash151/.75,
+ motorCannon:p=>p.cannonKind129==='motor'?p.cannonRecoil129/.24:0,
+ cow37:p=>p.cannonKind129==='cow'?p.cannonRecoil129/.14:0,
+ prancingHorse:p=>p.prancingHorseFlash160/.34,
+ mauserAceKiller:p=>p.mauserFlash160/.12,
+ hytheCamera:p=>p.wwiHytheShutter/.38,
+ telescope:p=>p.telescopeFocus156/.12,
+ heineckeRettungsfallschirm:p=>1-((p.t||0)-(p.heineckeLastAt??-Infinity))/.5,
+ strutterAirbrake:p=>1-p.strutterBrakeAge/.34,
+ veryPistol:p=>1-(p.wwiVery?.age??Infinity)/.48,
+ fieryGrapnel:p=>1-(p.wwiGrapnel?.age??Infinity)/.48,
+ cooperRack:p=>1-(WWI_BALANCE.cooper.cooldown-p.wwiCooperCooldown)/.48,
+ flechettes:p=>1-(WWI_BALANCE.flechettes.cooldown-p.wwiFlechetteCooldown)/.48,
+ kaiserFog:p=>1-(AUGMENTATION_OVERHAUL_BALANCE.smokeDuration-p.kaiserFogTime)/.5
+};
+function updateRelicLight(rb){
+ const p=rb.owner(),canvas=rb.ctx.canvas;
+ if(!p||!canvas.style)return;
+ const pickup=p.equipmentAcquire156;
+ const acquired=pickup?.id===rb.id&&pickup.life>0?pickup.life/pickup.maxLife:0;
+ let active=relicActivationLight[rb.id]?.(p)||0;
+ // These passives have no cooldown. Observe new earned records or XP;
+ // the initial snapshot on mounting an icon never plays an old action.
+ if(rb.id==='boelckeDicta'||rb.id==='urLeica'){
+  const now=p.world?.t??p.t??0;
+  const count=rb.id==='boelckeDicta'?(p.xp||0):(p.priorityKills||0);
+  const level=p.level||0;
+  if(rb.lastCount!==undefined&&(count>rb.lastCount||(rb.id==='boelckeDicta'&&level>rb.lastLevel)))rb.earnedAt=now;
+  rb.lastCount=count;rb.lastLevel=level;
+  active=1-(now-(rb.earnedAt??-Infinity))/.38;
+ }
+ const level=Math.round(6*Math.max(0,Math.min(1,Math.max(acquired,active))));
+ if(level===(rb.lightLevel||0))return;
+ rb.lightLevel=level;
+ // Lighten only the painted icon. No full-screen flash or extra HUD element.
+ canvas.style.filter=level?'brightness('+(1+level*.14)+')':'';
+}
 function paintRelicBadge(rb){if(rb.secret){const p=rb.owner();if(p&&game)paintSecretBadge(rb,p,game,getLocale()==='en',PLANES[p.plane]?.faction);return;}const c=rb.ctx,spec=RELIC_COOLDOWNS[rb.id],owner=rb.owner();let prog=1;if(spec&&owner){const iv=spec.iv(owner)||1;prog=Math.max(0,Math.min(1,1-Math.max(0,spec.rem(owner))/iv))}c.clearRect(0,0,48,48);if(prog>=1){drawGameIcon(c,rb.key,24,24,42);return}c.globalAlpha=.32;drawGameIcon(c,rb.key,24,24,42);c.globalAlpha=1;c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,26,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.closePath();c.clip();drawGameIcon(c,rb.key,24,24,42);c.restore();if(prog>0&&prog<1){c.save();c.strokeStyle='#ffe9a8';c.lineWidth=2;c.beginPath();c.arc(24,24,21,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.stroke();c.restore()}}
 function loadRelicBadge(rb){
+ if(!rb.secret)updateRelicLight(rb);
  if(rb.secret){
   const canvas=rb.ctx.canvas,ratio=Math.min(3,Math.max(1,Number(window.devicePixelRatio)||1));
   canvas.width=canvas.height=Math.round(48*ratio);
@@ -1470,7 +1513,14 @@ function loadRelicBadge(rb){
  const key=rb.secret?secretIconKey(rb.secret,PLANES[rb.owner().plane]?.faction):rb.key;
  gameIconReady(key).then(ok=>{if(ok&&rb.ctx.canvas.isConnected){rb.frameKey=null;paintRelicBadge(rb);}});
 }
-function relicCooldownTick(){for(const rb of soloRelicRefs)if(rb.secret||RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb);for(const arr of Object.values(coopRelicRefs))for(const rb of arr)if(rb.secret||RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb)}
+function tickRelicBadge(rb){
+ if(!rb.secret)updateRelicLight(rb);
+ if(rb.secret||RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb);
+}
+function relicCooldownTick(){
+ for(const rb of soloRelicRefs)tickRelicBadge(rb);
+ for(const arr of Object.values(coopRelicRefs))for(const rb of arr)tickRelicBadge(rb);
+}
 hud=()=>{_hud51();const g=hudPlayer();relicCooldownTick();const held=UPGRADES.filter(u=>g.upgrades[u.id]&&(u.legendary||secretWeaponForBody(g,u.id)));const signature=getLocale()+':'+held.map(u=>secretWeaponForBody(g,u.id)?.id||u.id).join(',')+':'+[g.shots,g.weapon.guns,g.weapon.belt,g.weaponMods?.GUN].join(',');if(signature!==legendarySignature){legendarySignature=signature;$('legendaryInventory').replaceChildren();soloRelicRefs.length=0;for(const u of held){const item=document.createElement('button');item.type='button';item.className='legendary-badge';item.setAttribute('aria-label',reinforcementName(u,g,PLANES)+' · '+(synthesisDescription(g,u.id,getLocale())||(u.id==='ironCross'?choiceDescription(u.id,u.desc,g):translatedUpgradeDescription(u.id,cleanDescription(u.desc)))));const tip=document.createElement('span');tip.className='legendary-tip156';tip.textContent=reinforcementName(u,g,PLANES)+' · '+(synthesisDescription(g,u.id,getLocale())||(u.id==='ironCross'?choiceDescription(u.id,u.desc,g):translatedUpgradeDescription(u.id,cleanDescription(u.desc))));const c=document.createElement('canvas');c.width=48;c.height=48;const key=u.id==='passiveMedal'?'passiveMedal-'+passiveMedalFaction(g,PLANES):u.id==='ironCross'?'ironCross-'+(PLANES[g.plane]?.faction==='entente'?'entente':'central'):reinforcementIconId(u.id,PLANES[g.plane]?.faction);const secret=secretWeaponForBody(g,u.id);if(secret){tip.textContent=secretName(secret,getLocale()==='en')+' · '+secretDescription(secret,getLocale()==='en');item.setAttribute('aria-label',tip.textContent);}soloRelicRefs.push({id:u.id,secret,key,ctx:c.getContext('2d'),owner:()=>hudPlayer()});loadRelicBadge(soloRelicRefs[soloRelicRefs.length-1]);item.append(c,tip);item.onclick=e=>{e.preventDefault();item.classList.toggle('tip156')};item.onblur=()=>item.classList.remove('tip156');$('legendaryInventory').append(item)}}};
 const _draw51=draw;
 draw=t=>{_draw51(t);if(!game)return;ctx.save();

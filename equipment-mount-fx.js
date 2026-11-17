@@ -38,7 +38,7 @@ export function drawCompassPickupWisps(c,p,x,y,{low=false}={}){
   // The existing painted wisp is dense at its left; its light tail extends
  // outward behind the inward-moving non-supply pickup, not around the plane.
  // Heal art is46px wide: keep the same short wisp just beyond its23px edge.
-  c.save();c.translate(x+dx+ux*offset,y+dy+uy*offset);c.rotate(a);c.globalAlpha*=.38;c.imageSmoothingEnabled=true;
+  c.save();c.translate(x+dx+ux*offset,y+dy+uy*offset);c.rotate(a);c.globalAlpha*=.48+.32*(1-dist/p.magnet);c.imageSmoothingEnabled=true;
   c.drawImage(images.wind,0,0,256,144,-7,-1.5,14,3);c.restore();
  }
 }

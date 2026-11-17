@@ -10,7 +10,7 @@ export const equipmentDetailArtReady=Promise.all([
 }))).then(result=>result.every(Boolean));
 export function drawRedScarf(c,p,x,y,{low=false,local=false}={}){
  if(!(p?.hp>0)||p.status==='downed'||p.heineckeEscape>0||!p.upgrades?.redScarf||p.bomberTransfer||!images.cloth||!Number.isFinite(x)||!Number.isFinite(y))return;
- const phase=Math.floor(Math.max(0,finite(p.t,finite(p.world?.t)))*(low?7:10))%3,f=DETAIL_FRAMES['scarf'+phase],a=local?0:finite(p.a),scale=29/f.visualHeight;
+ const phase=Math.floor(Math.max(0,finite(p.t,finite(p.world?.t)))*(p.tailLocked?(low?10:16):(low?7:10)))%3,f=DETAIL_FRAMES['scarf'+phase],a=local?0:finite(p.a),scale=(p.tailLocked?36:29)/f.visualHeight;
  // Native cloth falls down from its fixed knot. Game forward is +X, so rotate
  // that direction toward the tail; bank/scale may be supplied by the caller.
  c.save();c.translate(x+9*Math.cos(a),y+9*Math.sin(a));c.rotate(a+Math.PI/2);c.imageSmoothingEnabled=true;
@@ -23,6 +23,6 @@ export function drawFlechetteTrail(c,b,x,y,{scale=1,low=false}={}){
  // This source is dense on its left and fades right: turn it backward so its
  // dense end meets the dart and the painted wisps trail behind, never ahead.
  c.save();c.translate(x-Math.cos(a)*19*z,y-Math.sin(a)*19*z);c.rotate(a+Math.PI);
- c.globalAlpha*=Math.min(1,b.life/.10)*(low?.25:.32);c.imageSmoothingEnabled=true;
+ c.globalAlpha*=Math.min(1,b.life/.10)*(low?.53:.69);c.imageSmoothingEnabled=true;
  c.drawImage(images.wind,0,0,256,144,-length/2,-height/2,length,height);c.restore();
 }

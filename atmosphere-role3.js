@@ -17,6 +17,17 @@ export function drawGasVeil3(c,z,x,y,time=0,boundary=true){
  if(!roleReady('gasCloud0'))return false;
  const duration=z.maxLife||14,q=clamp(1-z.life/duration),frame=Math.min(3,Math.floor(q*4));
  const fade=Math.min(1,(1-q)*3.5),diameter=z.r*(1.65+q*.4),turn=(z.seed||0)*.08+time*.025;
+ // Grünkreuz releases overlapping puffs. Spread each from a tight discharge
+ // into two rolling eddies and leave the true contact radius visible.
+ if(boundary&&Number.isFinite(z.dmg)){
+  const age=q*duration,open=Math.min(1,age/.48),drift=(z.seed||0)+q*.72;
+  const spread=z.r*(.10+.30*q),dx=Math.cos(drift)*spread,dy=Math.sin(drift)*spread;
+  const span=z.r*(.48+1.27*open+.23*q),opacity=fade*(.56-.20*q);
+  roleDraw(c,'gasCloud'+frame,x+dx,y+dy,span,span*.76,drift,opacity);
+  roleDraw(c,'gasCloud'+Math.min(3,frame+1),x-dx,y-dy,span*.82,span*.7,-drift,opacity*.85);
+  c.save();c.globalAlpha*=fade*.35;c.strokeStyle='#a2a36c';c.lineWidth=1.2;c.setLineDash([5,9]);c.beginPath();c.arc(x,y,z.r,0,Math.PI*2);c.stroke();c.restore();
+  return true;
+ }
  roleDraw(c,'gasCloud'+frame,x,y,diameter,diameter,turn,.95*fade);
  roleDraw(c,'gasCloud'+Math.min(3,frame+1),x+Math.cos(turn+2)*z.r*.28,y+Math.sin(turn+2)*z.r*.22,diameter*.8,diameter*.68,-turn,.66*fade);
  // Green cast over the smoke atlas — reads as gas, not fog.

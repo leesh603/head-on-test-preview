@@ -32,7 +32,7 @@ export function drawMercedesOutput(c,p,x,y,{low=false}={}){
  // a new boost, an engine fire, or a permanent icon hovering over the aircraft.
  for(const side of [-1,1]){
   const dx=-36-output*12,dy=side*(8+Math.sin(t*8)*.5);
-  sprite(c,images.atmosphere,low?VAPOR:WIND,x+dx*Math.cos(a)-dy*Math.sin(a),y+dx*Math.sin(a)+dy*Math.cos(a),36+output*34,9+output*4,a,.22+output*.36);
+  sprite(c,images.atmosphere,low?VAPOR:WIND,x+dx*Math.cos(a)-dy*Math.sin(a),y+dx*Math.sin(a)+dy*Math.cos(a),34+output*54,8+output*8,a,.24+output*.51);
  }
 }
 export function drawTelescopeAcquisition(c,p,x,y,{low=false}={}){
@@ -41,12 +41,12 @@ export function drawTelescopeAcquisition(c,p,x,y,{low=false}={}){
  const left=Math.min(.12,p.telescopeFocus156),phase=Math.min(2,Math.floor((1-left/.12)*3));
  // Only the actual steered bullet's selected target receives optical glints.
  // Single authored frames keep the clear center free of ghosted HUD brackets.
- authored(c,'telescope'+phase,x+target.x-finite(p.x),y+target.y-finite(p.y),42,0,Math.min(1,left/.035)*(low?.8:.95));
+ authored(c,'telescope'+phase,x+target.x-finite(p.x),y+target.y-finite(p.y),43+14*left/.12,0,Math.min(1,left/.025)*(low?.8:.95));
 }
 export function drawMaximReload(c,p,x,y,{low=false,local=false}={}){
  if(!alive(p)||!p.upgrades?.maximBelt||!(p.reloadTime>0)||p.bomberTransfer)return;
  const a=local?0:finite(p.a),t=Math.max(0,finite(p.t,finite(p.world?.t))),phase=Math.floor(t*(low?10:14))%3;
  // The top feed point stays fixed at the receiver across all painted phases.
  // Actual fired brass remains in the established weapon FX, not duplicated here.
- authored(c,'belt'+phase,x+12*Math.cos(a)-3*Math.sin(a),y+12*Math.sin(a)+3*Math.cos(a),20,a,Math.min(1,p.reloadTime/.08)*.95,true);
+ authored(c,'belt'+phase,x+12*Math.cos(a)-3*Math.sin(a),y+12*Math.sin(a)+3*Math.cos(a),24,a,Math.min(1,p.reloadTime/.08)*.95,true);
 }

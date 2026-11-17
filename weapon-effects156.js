@@ -78,10 +78,10 @@ export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
  if(f.steelPenetration){
   const age=combatFxAge(f),a=f.direction,q=Math.max(0,1-age/f.maxLife);
-  if(age<.08&&fxReady('armorSpark'))fx(c,'armorSpark',x,y,28,15,a,q);
+  if(age<.12&&fxReady('armorSpark'))fx(c,'armorSpark',x,y,42,21,a,q);
   for(let i=0;i<2;i++){
-   const dir=a+(i===0?-.5:.5),travel=5+age*(i===0?105:145),key='metalShard'+i;
-   if(fxReady(key))fx(c,key,x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,8,6,dir+age*4,q);
+   const dir=a+(i===0?-.43:.57),travel=5+age*(i===0?135:178),key='metalShard'+i;
+   if(fxReady(key))fx(c,key,x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,11,7,dir+age*6,q);
   }
   return true;
  }
@@ -177,13 +177,17 @@ export function drawAmatolBlast(c,f,x,y){
  drawOrdnanceCharge(c,f,x,y);
 }
 function drawAmatolBlastBase(c,f,x,y){
- if(FX3&&fxReady('bossBlast0')){const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),d=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.82+q*.18);
-  fx(c,(f.secondaryExplosion?'structure':'bossBlast')+Math.floor(q*4),x,y,d,d,0,Math.min(1,(1-q)*3));return;
+ const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),stage=Math.min(3,Math.floor(q*4));
+ const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.67+.33*Math.min(1,q*3));
+ // The dedicated sheet carries its own flash, fireball and soot. Fall back
+ // to the shared atlas only while the painted Amatol sheet is loading.
+ if(!amatolEffect?.complete||!amatolEffect.naturalWidth){
+  const key=(f.secondaryExplosion?'structure':'bossBlast')+stage;
+  if(FX3&&fxReady(key))fx(c,key,x,y,diameter,diameter,0,Math.min(1,(1-q)*3));
+  return;
  }
- if(!amatolEffect?.complete||!amatolEffect.naturalWidth)return;
- const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=AMATOL_FRAMES[Math.min(3,Math.floor(q*4))],[sx,sy,sw,sh]=frame;
- const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(0.82+q*.18);
- c.save();c.globalAlpha=Math.min(1,(1-q)*3);c.drawImage(amatolEffect,sx,sy,sw,sh,x-diameter/2,y-diameter/2,diameter,diameter);c.restore();
+ const [sx,sy,sw,sh]=AMATOL_FRAMES[stage],width=diameter*sw/Math.max(sw,sh),height=diameter*sh/Math.max(sw,sh);
+ c.save();c.globalAlpha*=Math.min(1,(1-q)*3);c.drawImage(amatolEffect,sx,sy,sw,sh,x-width/2,y-height/2,width,height);c.restore();
 }
 
 // Short contact choreography over the existing dedicated explosion artwork.

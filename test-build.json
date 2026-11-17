@@ -341,6 +341,67 @@
           "gitBlob": "691fe13ef52d2011502ee9649a3da29c0a68defd"
         }
       ]
+    },
+    {
+      "sha": "e12090321a963c9c89f7c35a9d58d59d9be5d880",
+      "pr": 726,
+      "files": [
+        {
+          "path": "app.js",
+          "sourceBlob": "ea26a3b57512fd8387de2b46ae2ec22abd07f7f6",
+          "method": "applied PR diff over test-lab baseline"
+        },
+        {
+          "path": "atmosphere-role3.js",
+          "gitBlob": "49fa431a414a59fc715113ccb56782a6abed404c"
+        },
+        {
+          "path": "equipment-detail-fx.js",
+          "gitBlob": "7dfcbb8587b1a1ab2420308e8d0c642b213cfa32"
+        },
+        {
+          "path": "equipment-extension-fx.js",
+          "gitBlob": "cfdd32dd967772ff855c0b7d56adf5ccace8ff9c"
+        },
+        {
+          "path": "equipment-finishing-fx.js",
+          "gitBlob": "5c8fce00930093aecf7491240cba2bee5fdf19e1"
+        },
+        {
+          "path": "equipment-mount-fx.js",
+          "gitBlob": "6e00a2177229463d7c09d22fca28a4bbab0945da"
+        },
+        {
+          "path": "equipment-signature-fx.js",
+          "gitBlob": "ec0cbe4dca10ebd4783861f76335816995ea5901"
+        },
+        {
+          "path": "equipment-support-fx.js",
+          "gitBlob": "372832f375d65219006e4a078ee944e37857480e"
+        },
+        {
+          "path": "gun-signatures.js",
+          "gitBlob": "4aadb1772024f5c0067974338f58e2c053575ff5"
+        },
+        {
+          "path": "player-effects129.js",
+          "sourceBlob": "f1214616161c27a13dd0dbc362114f10b4c509d8",
+          "method": "applied PR diff over test-lab baseline"
+        },
+        {
+          "path": "projectiles.js",
+          "gitBlob": "7b98c9966e5afc940e482913459b7a0a99488e07"
+        },
+        {
+          "path": "weapon-effects156.js",
+          "gitBlob": "34dfadf1acf9fda268d3c2738cc8c979e51c9180"
+        },
+        {
+          "path": "wwi-equipment-art.js",
+          "sourceBlob": "f153dafed52460b1ce00e781404596840f270d1e",
+          "method": "applied PR diff over test-lab baseline"
+        }
+      ]
     }
   ],
   "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5",

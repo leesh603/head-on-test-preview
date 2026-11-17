@@ -78,7 +78,7 @@ function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus,meadow=false){
  }
  if(drawGunSignature(c,b,x,y))return true;
  drawProjectileTactic(c,b,x,y); // Keep custom pilot paint while exposing the real active tactic.
- const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
+ const color=b.mauserRound?'#f2bd83':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
  const weight=b.specialAmmo?3:b.formation||b.ally?2.5:b.pierce?2.6:2;
  const appearance=friendlyGunAppearance(b);
  const tactical=tacticalTracerProfile(b);
@@ -215,7 +215,8 @@ export function drawCannonProjectile(c,b,x,y){
   if(fx(c,'shellHeavy',0,0,32,10,0,1)){c.restore();return;}
  }
  // The COW's metal body stays legible without the white trail baked into its flight frame.
- const drawn=FX3&&(cow?fx(c,'cowBody',0,0,24,8):fx(c,'cannonMotor',0,0,31,7)||fx(c,'shellAuto',0,0,31,7));
+ if(FX3&&!cow&&!b.secretWeapon&&!b.secretDavisShell)fxTint(c,'tracerCore','#e8bc7d',-23,0,39,4.5,0,.87);
+ const drawn=FX3&&(cow?fx(c,'cowBody',0,0,35,13):fx(c,'cannonMotor',0,0,38,10)||fx(c,'shellAuto',0,0,38,10));
  if(drawn){c.restore();return;}
  // Original cannon atlas remains the rollback and loading fallback.
  if(cannonAtlas&&cannonAtlas.complete&&cannonAtlas.naturalWidth){

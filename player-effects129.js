@@ -107,22 +107,24 @@ function drawPrecisionEquipment156(c,p,x,y){
   // No floating dial or blue dash trails. This never creates extra projectiles.
   if(q>0&&p.muzzleFlash>0&&p.reloadTime===0){
    const f=Math.min(1,p.muzzleFlash/.07)*q;
-   for(let side=-1;side<=1;side+=2)fx(c,'muzzle',30,side*7,24+q*9,9,0,f*.6);
+   for(let side=-1;side<=1;side+=2)fx(c,'muzzle',30,side*7,29+q*15,10+q*4,0,f*.85);
   }
  }
  if(held.immelmannManual&&p.evadeTime>0){
   const f=Math.min(1,p.evadeTime/.18);
   // Two compact wingtip condensations are tied to the real evasive maneuver.
-  for(let s=-1;s<=1;s+=2)fx(c,'vaporTrail',-18,s*27,31,7,Math.PI+s*.15,f*.45);
+  for(let s=-1;s<=1;s+=2)fx(c,'vaporTrail',-18,s*27,38,8,Math.PI+s*.18,f*.6);
  }
  if(held.maximBelt&&p.muzzleFlash>0&&p.reloadTime===0){
   // Expelled brass marks rapid firing; its scale stays below a live bullet.
   const q=1-Math.min(1,p.muzzleFlash/.1);
-  for(let i=0;i<2;i++){const d=10+q*14+i*5;fx(c,'bulletBrass',7-i*4,18+d,7,3,1.2+i*.8+q,Math.max(0,.7-q*.6))}
+  for(let i=0;i<2;i++){const d=9+q*24+i*5;fx(c,'bulletBrass',7-i*4-q*7,18+d,9,4,1.2+i*.8+q*2,Math.max(0,.9-q*.6))}
  }
  if(held.quadLewis&&p.muzzleFlash>0&&p.reloadTime===0){
   const a=(p.gunDirection?.(0)??p.a)-p.a;c.save();c.rotate(a);
-  for(let i=0;i<4;i++)fx(c,'muzzle',29,(i-1.5)*8,19,11,0,Math.min(.8,p.muzzleFlash*8));c.restore();
+  const pressure=Math.min(1,p.muzzleFlash/.08);
+  for(let i=0;i<4;i++)fx(c,'muzzle',32,(i-1.5)*8,(i===1||i===2?26:20)+pressure*9,10,0,pressure);
+  c.restore();
  }
  // Mauser already has its own muzzle, aimed projectile and hit FX in the
  // actual weapon renderer. Do not overlay a second purple pseudo-projectile.
@@ -142,20 +144,21 @@ export function drawEquipmentDefense(c,p,x,y,options={}){
  // Above the airframe: the isolated horse cannot disappear beneath a wing.
  if(p.prancingHorseFlash160>0){
   const f=Math.min(1,p.prancingHorseFlash160/.14),a=(p.equipmentImpactAngle??p.a)-p.a;
-  fx(c,'ricochet',Math.cos(a)*29,Math.sin(a)*22,38,22,a,f*.75);
-  c.save();c.translate(43,0);c.rotate(-p.a);drawHorseSilhouette(c,0,-5,34,f*.92);c.restore();
+  fx(c,'ricochet',Math.cos(a)*29,Math.sin(a)*22,46,28,a,f*.95);
+  c.save();c.translate(43,0);c.rotate(-p.a);drawHorseSilhouette(c,0,-5,39,f*.95);c.restore();
  }
  if(p.upgrades?.ironCross&&p.skillTime>0){
   // A restrained gilt glint on both wings during the actual active skill.
   // The medal itself stays in the HUD, where it is legible.
   const pulse=Math.pow(Math.max(0,Math.sin((p.t||0)*5)),8);
-  if(pulse>.02)for(let side=-1;side<=1;side+=2)fx(c,'spark',2,side*24,14,6,p.a,pulse*.5);
+  if(pulse>.02)for(let side=-1;side<=1;side+=2)fx(c,'spark',2,side*24,20,8,0,pulse*.76);
  }
 
  const armor=equipmentArmorFeedback(p,(p.combatWorld?.()||p).t||0);
  if(armor){
   const q=1-armor.remaining/.24,a=armor.angle-p.a;
   const ix=Math.cos(a)*29,iy=Math.sin(a)*24;
+  if(q<.5)fx(c,'armorSpark',ix,iy,36+q*20,28,a,1-q*2);
   fx(c,'ricochet',ix,iy,24,14,a,(1-q)*.95);
   // A couple of metal fragments travel away from the impact; no force field.
   for(let i=0;i<2;i++){const b=a+(i?-.45:.45),d=4+q*12;fx(c,'metalShard'+i,ix+Math.cos(b)*d,iy+Math.sin(b)*d,7,4,b+q*3,(1-q)*.65)}
