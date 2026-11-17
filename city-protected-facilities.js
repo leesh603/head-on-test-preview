@@ -16,7 +16,7 @@ export function prepareCityFacilityArt(){
   ready=new Promise(resolve=>{
    im.onload=()=>{(im.decode?.()||Promise.resolve()).catch(()=>{}).finally(resolve);};
    im.onerror=resolve;
-   im.src='./city-protected-facilities-20261109.webp';
+   im.src='./city-protected-facilities-20261117.webp';
   });
  }
  return ready;

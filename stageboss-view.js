@@ -145,7 +145,7 @@ export function prepareStageBossAssets(region){ qfDetailGroup.release();
  if([1,7,16,17].includes(region))prepareSinkingWater();
  // Naval stages (and Gallipoli's sea approach) warm the fleet hull atlases here.
  const jobs=[flakAirburstArtReady,prepareBossArrivalShadows(region),capitalAssets,prepareCapitalTerrain(region),prepareBossCutins(region),prepareRegionalBossArt(region),prepareDoverAssets(region)];releaseLondonArt();if(region===4)jobs.push(prepareO400Art(),prepareCityFacilityArt());releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());if(region===4||region===11)jobs.push(prepareLondonArt(region===4));releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
- if([1,7,14,16,17].includes(region))jobs.push(prepareFleetShipArt(region===16,region===7),prepareNavalWater());
+ if([1,7,14,16,17].includes(region))jobs.push(prepareFleetShipArt(region===16,region===7),prepareNavalWater(region===1));
  if(region===19)jobs.push(prepareLaonArt());
  bossGroup.release();alpsGroup.release();supportGroup.release();adriaticDetailGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();

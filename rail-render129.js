@@ -35,7 +35,13 @@ export function drawRailTrack(c,boss,image){
   // Replace only the damaged section; its collision point need not snap to the texture's repeat.
   if(state){const low=Number.isFinite(lo)?lo:-1e7,high=Number.isFinite(hi)?hi:1e7,a=Math.max(low,Math.min(high,end-h/2)),b=Math.max(low,Math.min(high,end+h/2));c.save();c.beginPath();c.rect(-160,low,320,a-low);c.rect(-160,b,320,high-b);c.clip();}
   for(let n=first;n<last;n++)drawRuralTrackTile(c,0,n*h-h/2,n===terminalIndex);
-  if(state){c.restore();if(end+h/2>=lo&&end-h/2<=hi)drawRuralTrackTile(c,state,end-h/2);}
+  if(state){
+   c.restore();
+   if(end+h/2>=lo&&end-h/2<=hi){
+    c.beginPath();c.rect(-160,Math.max(lo,end-h/2),320,Math.min(hi,end+h/2)-Math.max(lo,end-h/2));c.clip();
+    drawRuralTrackTile(c,state,end-h/2);
+   }
+  }
   c.restore();return;
  }
  if(!boss.railTarget||boss.dead||!image?.naturalWidth)return;

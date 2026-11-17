@@ -6,7 +6,7 @@ import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawRaidApron} from './london-apron369.js?v=tame3&cityart=20261022';
 import {APRON_GROUND} from './london-apron-ground.js';
-import {drawCityFacility,releaseCityFacilityArt} from './city-protected-facilities.js';
+import {drawCityFacility,prepareCityFacilityArt,releaseCityFacilityArt} from './city-protected-facilities.js';
 const paths={districtDamage:'./city-raid-district-damage-20261103.webp',gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},pending={};
 export function releaseLondonArt(){art={};pending={};releaseGothaDetailArt();releaseCityBalloonArt();releaseCityFacilityArt();}
@@ -17,7 +17,7 @@ function loadLondonImage(key,path){
  im.src=path;
  return pending[key];
 }
-export function prepareLondonArt(daylightCity=false){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).filter(([key])=>!daylightCity||key!=='districtDamage').map(([key,path])=>loadLondonImage(key,path))]);}
+export function prepareLondonArt(daylightCity=false){return Promise.all([...(daylightCity?[prepareCityFacilityArt()]:[]),prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).filter(([key])=>!daylightCity||key!=='districtDamage').map(([key,path])=>loadLondonImage(key,path))]);}
 const londonImage=key=>{if(!art[key])prepareLondonArt();return art[key]?.naturalWidth?art[key]:null;};
 export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const crash=b.destroying?gothaCrashPose(b,b.destructionAge,b.destructionDuration):null,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
  c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??a);c.imageSmoothingEnabled=true;const scale=b.regionalScale||1;if(scale!==1)c.scale(scale,scale);if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
@@ -59,14 +59,16 @@ function drawCityFacilityFires(c,d,time){
  const damage=1-Math.max(0,d.hp)/d.maxHp;
  if(damage<=0)return;
  const sites=[[-16,6],[16,-9],[3,13]];
+ const collapsed=d.hp<=0;
  const count=Math.ceil(damage*sites.length);
  for(let i=0;i<count;i++){
   const [dx,dy]=sites[i],x=d.x+dx,y=d.y+dy;
   const flicker=Math.sin(time*8+i*2.3);
   const drift=Math.sin(time*1.4+i*1.7);
   const size=9+damage*9;
-  fx(c,'fire',x,y,size,size*(1.18+flicker*.09),0,.7+flicker*.1);
-  fx(c,'smokeDark',x+4+drift*4,y-size*.65,size*1.55,size*1.8,drift*.14,.26+damage*.23);
+  if(!collapsed||i===0)fx(c,'fireGround',x,y,size*1.29,size*.78,0,.58+flicker*.1);
+  const lift=collapsed?22:12,smoke=collapsed?size*2.45:size*1.65;
+  fx(c,collapsed?'smokeDark':'smokeGray',x+8+drift*5,y-lift,smoke,smoke,drift*.14,.25+damage*.29);
  }
 }
 
