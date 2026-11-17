@@ -1,3 +1,4 @@
+import {PARIS_MOUNTS} from './city-defense-decks.js?v=1022';
 // Read-only rendering of authored machinery and existing attack clocks.
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const coreBreaches=new WeakMap();
@@ -29,11 +30,18 @@ export function cityWeaponSignals(body,hazards){
 export const cityPartState=(body,p)=>p.destroyed||body.dead||body.destroying?2:p.hp<p.maxHp*.55?1:0;
 export function drawParisMovingMount(c,b,p,atlas,signals){
  const state=cityPartState(b,p),light=p.id.startsWith('light-'),heavy=p.id.startsWith('aa-'),signal=signals.get(p.id),scale=b.geometryScale||1;
- const angle=state===2?0:wrap((signal?.angle??p.angle??-Math.PI/2)+Math.PI/2),height=(p.radius/scale)*(light?2:heavy?1.8:2),width=height*260/(light?286:heavy?338:326);
- const sy=light?18:heavy?320:674,sh=light?286:heavy?338:326;
+ const mount=PARIS_MOUNTS[light?'light':heavy?'aa':'mg'],k=p.radius*mount.span/(scale*mount.height);
+ const angle=state===2?0:wrap((signal?.angle??p.angle??-Math.PI/2)+Math.PI/2);
  c.save();c.translate((p.localX??p.x)/scale,(p.localY??p.y)/scale);c.rotate(angle);
- if(!light)c.translate(0,state===2?0:(signal?.recoil||0)*(heavy?6:3));
- c.drawImage(atlas,[240,640,1040][state],sy,260,sh,-width/2,light?-height/2:-height*.02,width,height);c.restore();
+ const sourceX=[240,640,1040][state];
+ if(light||state===2)c.drawImage(atlas,sourceX,mount.y,260,mount.height,-mount.pivotX*k,-mount.pivotY*k,260*k,mount.height*k);
+ else{
+  const split=heavy?144:122,recoil=(signal?.recoil||0)*(heavy?6:3);
+  // Only the projecting barrel slides. The circular fixture stays seated.
+  c.drawImage(atlas,sourceX,mount.y,260,split,-mount.pivotX*k,-mount.pivotY*k+recoil,260*k,split*k);
+  c.drawImage(atlas,sourceX,mount.y+split,260,mount.height-split,-mount.pivotX*k,(split-mount.pivotY)*k,260*k,(mount.height-split)*k);
+ }
+ c.restore();
 }
 export function staakenRackLoaded(body,p,hazards){
  if(p.destroyed||body.dead||body.destroying)return false;

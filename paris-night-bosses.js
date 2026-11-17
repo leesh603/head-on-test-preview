@@ -1,20 +1,21 @@
+import {PARIS_MOUNTS} from './city-defense-decks.js?v=1022';
 import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
 import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 
 // These mounts are also the sprite atlas contract: source art faces north.
 export const PARIS_FORTRESS_PARTS = Object.freeze([
-  {id:'light-nw',x:-350,y:-210,radius:51,kind:'searchlight'},
-  {id:'light-ne',x:350,y:-210,radius:51,kind:'searchlight'},
-  {id:'light-sw',x:-350,y:120,radius:51,kind:'searchlight'},
-  {id:'light-se',x:350,y:120,radius:51,kind:'searchlight'},
-  {id:'light-main',x:0,y:-135,radius:64,kind:'searchlight'},
+  {id:'light-nw',x:-324,y:-202,radius:51,kind:'searchlight'},
+  {id:'light-ne',x:298,y:-202,radius:51,kind:'searchlight'},
+  {id:'light-sw',x:-310,y:113,radius:51,kind:'searchlight'},
+  {id:'light-se',x:297,y:113,radius:51,kind:'searchlight'},
+  {id:'light-main',x:-11,y:-132,radius:64,kind:'searchlight'},
   {id:'generator-left',x:-175,y:-35,radius:52,kind:'power'},
   {id:'generator-right',x:175,y:-35,radius:52,kind:'power'},
-  {id:'aa-left',x:-486,y:-220,radius:46,kind:'gun'},
-  {id:'aa-right',x:486,y:-220,radius:46,kind:'gun'},
-  {id:'mg-left',x:-510,y:35,radius:32,kind:'gun'},
-  {id:'mg-right',x:510,y:35,radius:32,kind:'gun'},
+  {id:'aa-left',x:-489,y:-216,radius:46,kind:'gun'},
+  {id:'aa-right',x:489,y:-216,radius:46,kind:'gun'},
+  {id:'mg-left',x:-506,y:142,radius:32,kind:'gun'},
+  {id:'mg-right',x:497,y:141,radius:32,kind:'gun'},
   {id:'command',x:0,y:190,radius:55,kind:'command'}
 ].map(Object.freeze));
 export const PARIS_STAAKEN_PARTS = Object.freeze([
@@ -80,6 +81,7 @@ export class ParisSearchlightFortress extends ParisBoss {
   constructor(options){
     const layout=options.layout||options.tuning.layout||PARIS_FORTRESS_LAYOUT;
     super({...options,kind:'paris-searchlight-fortress',layout,coreRadius:options.tuning.coreRadius||layout.core.radius});
+    for(const mount of this.parts.values())if(mount.kind==='gun'||mount.kind==='searchlight')mount.angle=-Math.PI/2;
     this.phase='scan';this.coreVulnerable=false;this.rhythmTime=0;this.rhythmBeat=0;this.rhythmCycle=0;
     this.locks=new Map();this.routeBearings=new Map();this.targetCursor=0;this.catchWeaponCursor=0;this.catchTargetCursor=0;this.catchRemaining=0;this.activeCatchPart=null;
   }
@@ -182,21 +184,27 @@ export class ParisSearchlightFortress extends ParisBoss {
     this.targetCursor++;
     this.command('paris-light-beat',{beat,cycle:this.rhythmCycle,seconds:this.beatSeconds(),orbitDirection:reverse,safeRoutes:routes.map(({targetId,angle})=>({targetId,angle}))});
   }
+  gunMuzzle(gun,target){
+    const mount=PARIS_MOUNTS[gun.id.startsWith('aa-')?'aa':'mg'];
+    const x=this.x+gun.x,y=this.y+gun.y,angle=Math.atan2(target.y-y,target.x-x);
+    const reach=Math.min(Math.hypot(target.x-x,target.y-y)*.5,gun.radius*mount.span*(mount.pivotY-mount.boreY)/mount.height);
+    gun.angle=angle;
+    return {x:x+Math.cos(angle)*reach,y:y+Math.sin(angle)*reach,angle};
+  }
   focus(record){
     const tracking=this.livePart('command')?.22:.06,lead=Math.min(1.2,record.unseen+tracking);
     const target={x:record.x+record.vx*lead,y:record.y+record.vy*lead};
     const order=['aa-left','mg-right','aa-right','mg-left'],id=Array.from({length:order.length},(_,i)=>order[(this.catchWeaponCursor+i)%order.length]).find(id=>this.livePart(id));
     if(!id){this.startOpening();return 0;}
     this.catchWeaponCursor=(order.indexOf(id)+1)%order.length;this.activeCatchPart=id;
-    const gun=this.parts.get(id),tag=this.id+':'+id;
+    const gun=this.parts.get(id),tag=this.id+':'+id,{x,y,angle}=this.gunMuzzle(gun,target);
     if(id.startsWith('aa-')){
       const count=this.livePart('command')?3:2;
-      this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:id});
+      this.command('muzzle',{x,y,partId:id});
       for(let i=0;i<count;i++)this.hazard('circle',{x:target.x+(i-(count-1)/2)*34,y:target.y+(i%2)*25,delay:i*.07,radius:38,
-        warning:1.05,duration:.3,once:true,damage:this.t.damage*1.4,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,sourcePartId:id,tag});
+        warning:1.05,duration:.3,once:true,damage:this.t.damage*1.4,visual:'black-flak',sourceX:x,sourceY:y,sourcePartId:id,tag});
       this.command('paris-light-lock',{targetId:record.id,seconds:1.55,x:target.x,y:target.y,partId:id});return 1.65;
     }
-    const x=this.x+gun.x,y=this.y+gun.y,angle=Math.atan2(target.y-y,target.x-x);
     fireFanSalvo(this,{x,y,angle,speed:this.t.bulletSpeed*1.05,damage:this.t.damage*.65,visual:'staaken-mg',tag,sourcePartId:id,count:9,spread:.75,beats:2,beat:.35,warning:.95,duration:1.8,gapIndex:id.endsWith('left')?2:5,step:id.endsWith('left')?1:-1});
     this.command('paris-light-lock',{targetId:record.id,seconds:3.2,x:target.x,y:target.y,partId:id});return 3.2;
   }
@@ -208,7 +216,7 @@ export class ParisSearchlightFortress extends ParisBoss {
     const slot=this.lastStandSlot++,id=['aa-left','mg-left','aa-right','mg-right'][slot%4];
     this.lastStandIn=slot%4===3?3.4:.8;if(!this.livePart(id))return;
     const gun=this.parts.get(id),target=targets[(slot+Math.floor(slot/4))%targets.length];
-    const x=this.x+gun.x,y=this.y+gun.y,tag=this.id+':'+id;
+    const {x,y,angle:aim}=this.gunMuzzle(gun,target),tag=this.id+':'+id;
     this.command('muzzle',{x,y,partId:id});
     if(id.startsWith('aa-')){
       // Two locked, sequential impacts can be escaped at normal flight
@@ -216,7 +224,7 @@ export class ParisSearchlightFortress extends ParisBoss {
       for(let i=0;i<2;i++)this.hazard('circle',{x:target.x+(i?42:0),y:target.y,delay:i*.3,radius:32,warning:.8,duration:.25,
         once:true,damage:this.t.damage*.65,visual:'aa-flak',sourceX:x,sourceY:y,partId:id,sourcePartId:id,targetId:target.id,tag});
     }else{
-      const aim=Math.atan2(target.y-y,target.x-x),count=clamp(Math.ceil(3*(this.t.projectileDensity??1)),1,3),speed=this.t.bulletSpeed*.85;
+      const count=clamp(Math.ceil(3*(this.t.projectileDensity??1)),1,3),speed=this.t.bulletSpeed*.85;
       for(let i=0;i<count;i++){
         const angle=aim+(count===1?0:(i/(count-1)-.5)*.38);
         this.hazard('projectile',{x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,radius:4,warning:.65,duration:3.2,

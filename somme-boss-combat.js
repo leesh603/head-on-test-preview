@@ -143,6 +143,7 @@ export class Mark1Landship extends SommeBoss{
   const age=e?.markClock??this.clock,final=e?.markFinal,q=final&&!final.done?final:null,entry=this.t.sommeApproach&&(!e?.markEntry?.done||live.some(b=>!b.entered));
   if(entry&&this.y>bounds.top+55*this.sommeScale)this.entered=true;
   const partDamage=live.some(b=>[...b.parts.values()].some(p=>p.destroyed)),damaged=live.length<all.length||partDamage,flank=age%18>=8||damaged;
+  const broken=live.length<all.length||live.some(b=>b.tracks()<2||b.parts.get('engine-deck').destroyed);
   this.lastStandActive=!!q;this.recovering=!!q&&q.age>=10.8;
   const rank=live.indexOf(this),side=live.length<=1?0:live.length===2?(rank?1:-1):this.column;
   const fan=entry?0:q?.age<2.4?0:q?.age<5.6?.18:flank?.28:.09;
@@ -150,7 +151,13 @@ export class Mark1Landship extends SommeBoss{
   this.phase=entry?'mark1-approach':q?(this.recovering?'mark1-counter':q.age<2.4?'mark1-regroup':'mark1-last-push'):this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':damaged?'mark1-broken-formation':flank?'mark1-flank':'advance';
   // Preserve the intact cannon line. A broken wedge releases the surviving
   // machine-gun wings into flanking lanes instead of filling the disabled slot.
-  if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=side*(damaged&&this.tankRole==='female'?285:244),trail=(damaged&&this.tankRole==='female'?-100:-160)-this.row*150*this.sommeScale,h=Math.atan2(p.vy||(p.vx?0:1),p.vx||0)+Math.PI/2,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*trail;
+  if(!broken){
+   // The normal stage's rear-line objective assigns each tank its own
+   // approach lane. In other encounters, intact tanks share one heading.
+   const target=leader.huntTarget,s=this.sommeScale;
+   const heading=!entry&&target?Math.PI-Math.atan2(clamp(target.x-leader.x,-96*s,96*s),Math.max(300*s,target.y-leader.y)):Math.PI;
+   this.driveOrder={advance:true,heading,speed:entry?38:q?28:24,halt:this.driveOrder.halt};
+  }else if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=side*(damaged&&this.tankRole==='female'?285:244),trail=(damaged&&this.tankRole==='female'?-100:-160)-this.row*150*this.sommeScale,h=Math.atan2(p.vy||(p.vx?0:1),p.vx||0)+Math.PI/2,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*trail;
    let tx=px+Math.cos(h)*off+Math.cos(h-Math.PI/2)*trail;
    const breach=e?.markBreach,clearance=breach&&breach.width/2+100*this.sommeScale;
    if(breach&&breach.bodyId!==this.id&&age<breach.until&&Math.abs(ty-breach.y)<310&&Math.abs(tx-breach.x)<clearance){
@@ -160,7 +167,12 @@ export class Mark1Landship extends SommeBoss{
    this.driveOrder={hunt:true,heading:Math.atan2(tx-this.x,-(ty-this.y)),speed:d>420?86:d>180?65:Math.max(0,(d-30)*.42),halt:this.recovering||!!q&&q.age<2.4};}}
   if(!entry&&this.mapAdvanceTarget){
    const q=this.mapAdvanceTarget,d=Math.hypot(q.x-this.x,q.y-this.y);
-   this.driveOrder={hunt:true,heading:Math.atan2(q.x-this.x,-(q.y-this.y)),speed:d>420?86:d>180?65:Math.max(0,(d-30)*.42),halt:this.recovering};
+   let speed=d>420?86:d>180?65:Math.max(0,(d-30)*.42);
+   if(!broken&&!leader.mapBreach&&this!==leader){
+    const s=this.sommeScale,lead=leader.y-leader.anchorY,travel=this.y-this.anchorY;
+    speed=Math.min(speed,Math.max(0,((leader.driveVelocity||0)+(lead-travel)*1.5)/s));
+   }
+   this.driveOrder={hunt:true,heading:Math.atan2(q.x-this.x,-(q.y-this.y)),speed,halt:this.recovering};
   }
   if(this.driveMoving&&this.due('engine-cue',dt,.75))this.command('armor-drive');
   return {entry,final:q,live};

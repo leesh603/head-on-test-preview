@@ -1,1 +1,51 @@
-{"sha":"286d3b333e597f5197d61f20d64e36f300cb6f23","ref":"feat/visual-cohesion-2-0","source_pr":702,"method":"exact-commit-static-mirror","source_repo":"leesh603/head-on-aces-source"}
+{
+  "sha": "286d3b333e597f5197d61f20d64e36f300cb6f23",
+  "ref": "feat/visual-cohesion-2-0",
+  "source_pr": 702,
+  "method": "exact-commit-static-mirror",
+  "source_repo": "leesh603/head-on-aces-source",
+  "applied_source": [
+    {
+      "sha": "98c81d99dd2adfaf513dbede1257b95fa94e820e",
+      "pr": 706,
+      "files": [
+        {
+          "path": "city-defense-art.js",
+          "gitBlob": "c32bdbb655fe6313a40bab8c71b01377cdf9e21f"
+        },
+        {
+          "path": "city-defense-decks.js",
+          "gitBlob": "97e1707f8a4d05c2f8347652c8bd66634c390ca3"
+        },
+        {
+          "path": "paris-night-atlas.js",
+          "gitBlob": "d9dc08cfba77fe2cfab468e3e79bcb43248ff32d"
+        },
+        {
+          "path": "paris-night-art.js",
+          "gitBlob": "f5d3d36289f30da1bf9f55dea9a395c5245d5629"
+        },
+        {
+          "path": "paris-night-bosses.js",
+          "gitBlob": "6d5a3e446db6f104474ce59ef9961c399ff4f53b"
+        },
+        {
+          "path": "paris-terrain.js",
+          "gitBlob": "171da0871c236814897c4282817bd4834e593f2c"
+        },
+        {
+          "path": "headon-stageboss-patterns.js",
+          "gitBlob": "2d711861624d727ae8b4b77a5c7dd084bbcae640"
+        },
+        {
+          "path": "somme-boss-combat.js",
+          "gitBlob": "5d20258787fa3fa6d530657572d2f8897a4d35da"
+        },
+        {
+          "path": "test-lab.html",
+          "gitBlob": "be4ea8d3c976b6d98cceb5bdf9391d6fba8a7af1"
+        }
+      ]
+    }
+  ]
+}

@@ -2180,10 +2180,13 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction,dover
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
   if(bossId==='mark4-wedge'){
    const scale=sommeScale(tuning,true)*.82,count=9,t={...tuning,maxHp:tuning.maxHp/count,sommeScale:scale};
-   const columns=[0,-1,1],front=tuning.sommeApproach?80:145;
-   const bodies=Array.from({length:count},(_,slot)=>new Mark1Landship({
-    id:id+':mark1:'+slot,slot,tuning:t,x:x+columns[slot%3]*244*scale,
-    y:y+(front-Math.floor(slot/3)*244)*scale,emit,rng,faction:faction||'entente'
+   const front=tuning.sommeApproach?80:145;
+   // One point tank, then two widening echelons. Rising slot order still
+   // assigns the same three gun tanks and six machine-gun tanks.
+   const offsets=[[0,0],[-178,-310],[178,-310],[0,-244],[-180,-568],[180,-568],[0,-488],[-330,-722],[330,-722]];
+   const bodies=offsets.map(([across,behind],slot)=>new Mark1Landship({
+    id:id+':mark1:'+slot,slot,tuning:t,x:x+across*scale,
+    y:y+(front+behind)*scale,emit,rng,faction:faction||'entente'
    }));
    return new BossEncounter({id,bossId,bodies});
   }
