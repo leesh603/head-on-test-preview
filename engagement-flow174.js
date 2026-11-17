@@ -33,7 +33,7 @@ function modWingPlan(world,owner,mode,now){
   plan.scanAt=now+WEAPON_WING_BALANCE.scanInterval;let best=-Infinity;plan.target=null;
   const carrier=owner.bomberTransfer?.kind==='airship',focus=owner.buildWingTarget?.(owner)||owner.airshipFocusTarget?.();
   for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||!carrier&&!offensiveWingTarget(enemy))continue;
-   const score=priorityTarget(enemy)*1000+(enemy===focus?600:0)-distance(enemy,owner);
+   const score=priorityTarget(enemy)*1000+(enemy===focus?3400:0)-distance(enemy,owner);
    if(score>best){best=score;plan.target=enemy;}
   }
  }
@@ -193,10 +193,16 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
    wing.engagementState='BREAK';wing.engagementUntil=now+.64;wing.engagementHeading=wing.a+((wing.slot||0)%2?-.65:.65);
   }
  }
+ let priorityContact=null;
+ if(!mod&&!wing.secretAce&&wing.engagementState!=='PASS'&&wing.engagementState!=='BREAK'){
+  const directed=owner.buildWingTarget?.(wing);
+  if(validModTarget(world,owner,directed,520)&&offensiveWingTarget(directed)&&owner.canHitTarget?.(directed)!==false)priorityContact=directed;
+  if(priorityContact&&wing.engagementState==='INTERCEPT')wing.engagementTarget=priorityContact;
+ }
  if(!mod&&(wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
-  let best=650,chosen=null;
+  let best=650,chosen=priorityContact;
   if(wing.secretAce)chosen=secretWingPriority(world,owner,now);
-  else for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||!offensiveWingTarget(enemy))continue;
+  if(!chosen&&!wing.secretAce)for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||!offensiveWingTarget(enemy))continue;
    let assigned=0;if(world.allies)for(const other of world.allies)if(other!==wing&&other.engagementTarget===enemy)assigned++;
    const score=distance(enemy,wing)+assigned*230;
    if(score<best){best=score;chosen=enemy}

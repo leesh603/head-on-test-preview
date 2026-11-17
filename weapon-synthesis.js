@@ -236,7 +236,12 @@ export function tickSynthesisWing(p,a,dt){
  // specialist still spends its own ammunition and keeps its own reload gate.
  if(handoff&&signaled&&a.synthesisAmmo>0)a.synthesisFire=Math.min(a.synthesisFire,.08*((a.slot||0)%3));
  if(a.synthesisFire>0)return true;
- const target=signaled||equipmentTargets(w).filter(e=>p.canHitTarget?.(e)!==false).map(e=>e.stageBossBody?wwiBossAimPoint(p,e,a):e).filter(e=>e&&Math.hypot(e.x-a.x,e.y-a.y)<550&&Math.abs(angle(Math.atan2(e.y-a.y,e.x-a.x),a.a))<.4).sort((e,f)=>Math.hypot(e.x-a.x,e.y-a.y)-Math.hypot(f.x-a.x,f.y-a.y))[0];
+ const directed=p.buildWingTarget?.(a);
+ const aim=e=>e.stageBossBody?wwiBossAimPoint(p,e,a):e;
+ const inCone=e=>e&&Math.hypot(e.x-a.x,e.y-a.y)<550&&Math.abs(angle(Math.atan2(e.y-a.y,e.x-a.x),a.a))<.4;
+ const commandPoint=directed&&p.canHitTarget?.(directed)!==false?aim(directed):null;
+ const target=signaled||(inCone(commandPoint)?commandPoint:null)||
+  equipmentTargets(w).filter(e=>p.canHitTarget?.(e)!==false).map(aim).filter(inCone).sort((e,f)=>Math.hypot(e.x-a.x,e.y-a.y)-Math.hypot(f.x-a.x,f.y-a.y))[0];
  if(!target||Math.abs(angle(Math.atan2(target.y-a.y,target.x-a.x),a.a))>.4)return true;
  const profile=secretWingGun(p,a,target,a.a,p.supportPower(5)*p.fighterSupplyDamage(a),prepareSynthesisBomb);
  if((a.secretBomber||a.secretAce)&&p.upgrades.cooperRack&&!p.cow37){
