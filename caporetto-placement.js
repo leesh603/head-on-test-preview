@@ -1,4 +1,4 @@
-import {caporettoWorldToScreen} from './caporetto-terrain.js?v=d7a0cfcfc455802b';
+import {caporettoWorldToScreen} from './caporetto-terrain.js';
 // Art-worker inspected native-source rectangles. Decoration only, NOT a navmesh
 // or destructible mission targets. Widths are calibrated at map scale 1.5.
 export const CAPORETTO_DECOR=Object.freeze([

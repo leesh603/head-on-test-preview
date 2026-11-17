@@ -1,11 +1,11 @@
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=d7a0cfcfc455802b';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
 
 let mineShadow;
 function bakedMineShadow(){
  if(mineShadow)return mineShadow;
  const bitmap=document.createElement('canvas');bitmap.width=40;bitmap.height=40;
  const ink=bitmap.getContext('2d');
- if(!drawAADefense(ink,'drachenMine',20,20,31,31))return null;
+ if(!drawAADefense(ink,'meadowMine',20,20,31,31))return null;
  ink.globalCompositeOperation='source-in';
  ink.fillStyle='#262319';
  ink.fillRect(0,0,40,40);
@@ -20,7 +20,7 @@ export function isMeadowMinefield(field){
  return !field.encounterId;
 }
 
-// Restore the authored mine silhouette. The amber marks use the existing trigger distance.
+// The meadow alone uses its overhead twin-balloon mine. Other regions keep Drachen art.
 export function drawMeadowMinefield(c,field,point,visible,triggerRadius){
  const [x,y]=point(field.x,field.y),arming=field.warning>0;
  const radius=field.radius;
@@ -50,7 +50,11 @@ export function drawMeadowMinefield(c,field,point,visible,triggerRadius){
    c.drawImage(shadow,mx-13,my-9,44,37);
    c.globalAlpha=alpha;
   }
-  drawDrachenMine(c,mx,my,52,52);
+  const wx=mx+13,wy=my+29;
+  c.beginPath();c.moveTo(mx,my);c.lineTo(wx,wy);
+  c.strokeStyle='#3e3227ad';c.lineWidth=1.2;c.stroke();
+  drawAADefense(c,'meadowMineWinch',wx,wy,23,23);
+  if(!drawAADefense(c,mine.hp<=9?'meadowMineDamaged':'meadowMine',mx,my,70,70))drawDrachenMine(c,mx,my,52,52);
   c.beginPath();
   for(let side=0;side<4;side++){
    const angle=side*Math.PI/2,start=angle-halfArc;

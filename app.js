@@ -1,160 +1,160 @@
-import {secretBomberAirframe,drawSecretAirframeHardware} from './secret-weapon-fx.js?v=6b7189b889c2fc7c';
-import {SECRET_WEAPONS,SECRET_WEAPON_BY_ID,secretWeaponForBody,previewSecretWeapons} from './secret-weapons.js?v=d7a0cfcfc455802b';
-import {secretIconKey,paintSecretBadge,secretCondition,secretName,secretDescription} from './secret-weapon-view.js?v=d7a0cfcfc455802b';
-import {secretWeaponDiscovered,recordSecretWeaponDiscovery} from './achievements.js?v=d7a0cfcfc455802b';
-import {sortieProgressionOptions} from './sortie-options.js?v=d7a0cfcfc455802b';
-import {frontLength} from './dynamic-front.js?v=d7a0cfcfc455802b';
-import {mapCombatBriefing} from './map-combat-roles.js?v=d7a0cfcfc455802b';
-import {synthesisDescription} from './weapon-synthesis.js?v=d7a0cfcfc455802b';
-import {saveStageCheckpoint,readStageCheckpoint,restoreStageCheckpoint,persistStageCheckpoint,clearStageCheckpoint} from './stage-checkpoint.js?v=d7a0cfcfc455802b';
-import {createChoiceTransaction} from './choice-transaction.js?v=d7a0cfcfc455802b';
-import {waitForStartup} from './startup-readiness.js?v=d7a0cfcfc455802b';
-import {drawDoverConvoy,doverMissionCard} from './dover-breakthrough-view.js?v=d7a0cfcfc455802b';
-import {configureLegacySquadrons} from './legacy-squadron-adapter.js?v=d7a0cfcfc455802b';
-import {drawExpansionObjectives} from './expansion-objective-view.js?v=d7a0cfcfc455802b';
-import {squadronArrivalModel,squadronCutinSource,squadronCutinReady,warmSquadronCutin} from './squadron-cutin.js?v=d7a0cfcfc455802b';
-import {configureSquadronPresentation} from './squadron-patrols.js?v=d7a0cfcfc455802b';
+import {secretBomberAirframe,drawSecretAirframeHardware} from './secret-weapon-fx.js';
+import {SECRET_WEAPONS,SECRET_WEAPON_BY_ID,secretWeaponForBody,previewSecretWeapons} from './secret-weapons.js';
+import {secretIconKey,paintSecretBadge,secretCondition,secretName,secretDescription} from './secret-weapon-view.js';
+import {secretWeaponDiscovered,recordSecretWeaponDiscovery} from './achievements.js?v=pandemonium394r2';
+import {sortieProgressionOptions} from './sortie-options.js';
+import {frontLength} from './dynamic-front.js';
+import {mapCombatBriefing} from './map-combat-roles.js';
+import {synthesisDescription} from './weapon-synthesis.js';
+import {saveStageCheckpoint,readStageCheckpoint,restoreStageCheckpoint,persistStageCheckpoint,clearStageCheckpoint} from './stage-checkpoint.js';
+import {createChoiceTransaction} from './choice-transaction.js';
+import {waitForStartup} from './startup-readiness.js';
+import {drawDoverConvoy,doverMissionCard} from './dover-breakthrough-view.js';
+import {configureLegacySquadrons} from './legacy-squadron-adapter.js';
+import {drawExpansionObjectives} from './expansion-objective-view.js';
+import {squadronArrivalModel,squadronCutinSource,squadronCutinReady,warmSquadronCutin} from './squadron-cutin.js';
+import {configureSquadronPresentation} from './squadron-patrols.js';
 configureSquadronPresentation({ready:squadronCutinReady,load:warmSquadronCutin});
-import {drawRevisionDecoys} from './voss-decoy-fx.js?v=d7a0cfcfc455802b';
-import {paintCapitalTerrain} from './capital-terrain.js?v=d7a0cfcfc455802b';
-import {capitalTestEntry} from './capital-test-entry.js?v=d7a0cfcfc455802b';
-import {requestFortressAttack,damageFortressZone} from './fortress-systems.js?v=d7a0cfcfc455802b';
-import {createFinalArenaMusic} from './final-arena-music.js?v=a09a7cbc62f4d4d8';
-import {prepareFinalArenaAssets,serviceFinalArenaAssets,drawFinalArenaTerrain,drawFinalArenaBoss,drawFinalArenaHud,finalArenaVisible,finalArenaFormView,FINAL_ARENA_CUTINS} from './final-arena-view.js?v=d7a0cfcfc455802b';
-import {criticalNotice} from './aircraft-critical-view.js?v=d7a0cfcfc455802b';
-import {isMeadowMinefield,drawMeadowMinefield,drawMeadowGunFlash,drawMeadowGroundImpact,drawMeadowAirSmoke} from './meadow-graphics.js?v=6b7189b889c2fc7c';
-import {drawGroundFacilities} from './ground-facility-view.js?v=6b7189b889c2fc7c';
-import {createHudTags} from './hud-tags.js?v=a09a7cbc62f4d4d8';
-import {photoReconHudModel} from './photo-recon-view.js?v=d7a0cfcfc455802b';
-import {laonMissionCard} from './laon-view.js?v=6b7189b889c2fc7c';
-import {cityRaidMissionCard,cityRaidBattle} from './city-air-raid.js?v=6b7189b889c2fc7c';
-import {zeebruggeMissionCard} from './zeebrugge-raid.js?v=d7a0cfcfc455802b';
-import {operationMissionCard} from './special-operation-combat.js?v=d7a0cfcfc455802b';
-import {submarineOperationBriefing} from './submarine-operation.js?v=d7a0cfcfc455802b';
-import {mapMissionCard} from './map-primary-objectives.js?v=6b7189b889c2fc7c';
-import {paintLaonTerrain} from './laon-terrain.js?v=d7a0cfcfc455802b';
-import {facilityMission} from './ground-facility-missions.js?v=d7a0cfcfc455802b';
-import {drawNavarreFrommherz} from './navarre-frommherz-view.js?v=d7a0cfcfc455802b';
-import {drawCapitalPilots} from './capital-pilots-view.js?v=d7a0cfcfc455802b';
-import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js?v=d7a0cfcfc455802b';
-import {drawWingDurability} from './wingman-durability.js?v=d7a0cfcfc455802b';
-import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=d7a0cfcfc455802b';
-import {intrusionCutinModel,prepareIntrusionView,releaseIntrusionView,intrusionArtReady} from './intrusion-boss-view.js?v=d7a0cfcfc455802b';
-import {momentumCount,MOMENTUM_WINDOW,momentumTime,recordMomentumKill} from './ace-momentum.js?v=d7a0cfcfc455802b';
-import {drawAirThreat,prepareAirThreatArt} from './air-threat-art.js?v=6b7189b889c2fc7c';
-import {activeFronts,FRONT_TYPES,frontLocation,frontBrief} from './rural-fronts.js?v=d7a0cfcfc455802b';
-import {drawProjectileTactic} from './gun-signatures.js?v=d7a0cfcfc455802b';
-import {prepareBossOrdnance} from './boss-ordnance-art.js?v=d7a0cfcfc455802b';
-import {prepareTacticalIcons} from './tactical-icon-assets.js?v=d7a0cfcfc455802b';
-import {selectPilotKeyart} from './pilot-keyart.js?v=d7a0cfcfc455802b';
-import {installFireDiveFx,drawMannockWing} from './fire-dive-fx.js?v=d7a0cfcfc455802b';
-import {installPressureLinkFx,pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=d7a0cfcfc455802b';
-import {installDeathDefianceFx,defianceAirframePose} from './death-defiance-fx.js?v=d7a0cfcfc455802b';
-import {BARON_ALBATROS_IDS,isBaronAlbatros,PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,SORTIE_FITS,pilotAircraftChoices,pilotAircraftUnlocked,pilotKillCount,selectedPilotAircraft,aircraftChoiceLabel,readAircraftSelections,saveAircraftSelection} from './pilot-aircraft.js?v=d7a0cfcfc455802b';
-import {drawTrenchDiorama,prepareTrenchDiorama,releaseTrenchDiorama,dioramaStats} from './trench-diorama.js?v=d7a0cfcfc455802b';
-import {pilotUnlocked,pilotUnlockFallback} from './pilot-unlocks.js?v=d7a0cfcfc455802b';
-import {installPilotUnlockUI,renderPilotUnlockDetails} from './pilot-unlock-ui.js?v=d7a0cfcfc455802b';
-import {installAchievementUI} from './achievement-ui.js?v=d7a0cfcfc455802b';
-import {installPilotCloud} from './pilot-cloud.js?v=d7a0cfcfc455802b';
-import {bossCounterActive,bossCounterPhase} from './boss-feedback.js?v=d7a0cfcfc455802b';
-import {KEYBIND_DEFAULTS,BIND_ACTIONS,keybindConflict,restoreKeybinds} from './keybind-policy.js?v=d7a0cfcfc455802b';
-import {updateAllyRing,hideAllyRing} from './ally-ring.js?v=d7a0cfcfc455802b';
-import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=d7a0cfcfc455802b';
-import {bossCutinSource} from './boss-cutin-art.js?v=d7a0cfcfc455802b';
-import {periodicSandPixels} from './maan-ground.js?v=d7a0cfcfc455802b';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=6b7189b889c2fc7c';
-import {ownedMedalActivePresentation,ownedMedalPassivePresentation} from './medal-presentation.js?v=d7a0cfcfc455802b';
-import {pilotIdentityCopy,pilotPopoverDescription} from './pilot-identity-copy.js?v=d7a0cfcfc455802b';
-import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=6b7189b889c2fc7c';
-import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=d7a0cfcfc455802b';
-import {paintVerdun} from './verdun-art.js?v=a09a7cbc62f4d4d8';
-import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=a09a7cbc62f4d4d8';
-import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=d7a0cfcfc455802b';
-import {paintMaan,prepareMaanAssets} from './maan-view.js?v=a09a7cbc62f4d4d8';
-import {drawRegionalBug} from './regional-boss-view352.js?v=a09a7cbc62f4d4d8';
-import {drawGust3} from './atmosphere-role3.js?v=d7a0cfcfc455802b';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=d7a0cfcfc455802b';
-import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=d7a0cfcfc455802b';
-import {impactMark,aimLine} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=d7a0cfcfc455802b';
-import {passiveMedalFaction} from './passive-medal-copy.js?v=d7a0cfcfc455802b';
-import {CATEGORIES,categoryName,reinforcementName,reinforcementIconId,buildStats,heldStats,cumulativeText,cleanDescription,choiceDescription} from './reinforcement-ui151.js?v=d7a0cfcfc455802b';
-import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=d7a0cfcfc455802b';
-import {GamepadInput} from './gamepad-input.js?v=d7a0cfcfc455802b';
+import {drawRevisionDecoys} from './voss-decoy-fx.js';
+import {paintCapitalTerrain} from './capital-terrain.js';
+import {capitalTestEntry} from './capital-test-entry.js';
+import {requestFortressAttack,damageFortressZone} from './fortress-systems.js';
+import {createFinalArenaMusic} from './final-arena-music.js?v=boss-score-20261115';
+import {prepareFinalArenaAssets,serviceFinalArenaAssets,drawFinalArenaTerrain,drawFinalArenaBoss,drawFinalArenaHud,finalArenaVisible,finalArenaFormView,FINAL_ARENA_CUTINS} from './final-arena-view.js';
+import {criticalNotice} from './aircraft-critical-view.js';
+import {isMeadowMinefield,drawMeadowMinefield,drawMeadowGunFlash,drawMeadowGroundImpact,drawMeadowAirSmoke} from './meadow-graphics.js';
+import {drawGroundFacilities} from './ground-facility-view.js';
+import {createHudTags} from './hud-tags.js';
+import {photoReconHudModel} from './photo-recon-view.js';
+import {laonMissionCard} from './laon-view.js?v=strip20261104';
+import {cityRaidMissionCard,cityRaidBattle} from './city-air-raid.js?v=cityhud20261104';
+import {zeebruggeMissionCard} from './zeebrugge-raid.js?v=cull20261106';
+import {operationMissionCard} from './special-operation-combat.js?v=tension20261107';
+import {submarineOperationBriefing} from './submarine-operation.js';
+import {mapMissionCard} from './map-primary-objectives.js';
+import {paintLaonTerrain} from './laon-terrain.js';
+import {facilityMission} from './ground-facility-missions.js';
+import {drawNavarreFrommherz} from './navarre-frommherz-view.js';
+import {drawCapitalPilots} from './capital-pilots-view.js';
+import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js';
+import {drawWingDurability} from './wingman-durability.js';
+import {chooseIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {intrusionCutinModel,prepareIntrusionView,releaseIntrusionView,intrusionArtReady} from './intrusion-boss-view.js';
+import {momentumCount,MOMENTUM_WINDOW,momentumTime,recordMomentumKill} from './ace-momentum.js';
+import {drawAirThreat,prepareAirThreatArt} from './air-threat-art.js';
+import {activeFronts,FRONT_TYPES,frontLocation,frontBrief} from './rural-fronts.js';
+import {drawProjectileTactic} from './gun-signatures.js';
+import {prepareBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {prepareTacticalIcons} from './tactical-icon-assets.js?v=tacticalicons20261025';
+import {selectPilotKeyart} from './pilot-keyart.js?v=pilotkey4&perf=1029';
+import {installFireDiveFx,drawMannockWing} from './fire-dive-fx.js?v=firedive1';
+import {installPressureLinkFx,pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=pressurelink1';
+import {installDeathDefianceFx,defianceAirframePose} from './death-defiance-fx.js?v=deathdefiance1';
+import {BARON_ALBATROS_IDS,isBaronAlbatros,PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,SORTIE_FITS,pilotAircraftChoices,pilotAircraftUnlocked,pilotKillCount,selectedPilotAircraft,aircraftChoiceLabel,readAircraftSelections,saveAircraftSelection} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {drawTrenchDiorama,prepareTrenchDiorama,releaseTrenchDiorama,dioramaStats} from './trench-diorama.js?v=merge20261017';
+import {pilotUnlocked,pilotUnlockFallback} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {installPilotUnlockUI,renderPilotUnlockDetails} from './pilot-unlock-ui.js?v=lock8';
+import {installAchievementUI} from './achievement-ui.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {installPilotCloud} from './pilot-cloud.js?v=pilotcloud1';
+import {bossCounterActive,bossCounterPhase} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
+import {KEYBIND_DEFAULTS,BIND_ACTIONS,keybindConflict,restoreKeybinds} from './keybind-policy.js?v=flow20261015';
+import {updateAllyRing,hideAllyRing} from './ally-ring.js?v=gal1';
+import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+import {bossCutinSource} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&opt=1&zb=20261103';
+import {periodicSandPixels} from './maan-ground.js?v=tame3';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {ownedMedalActivePresentation,ownedMedalPassivePresentation} from './medal-presentation.js';
+import {pilotIdentityCopy,pilotPopoverDescription} from './pilot-identity-copy.js?v=merge20261017';
+import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
+import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
+import {paintVerdun} from './verdun-art.js?v=gal1-r9&ai=1018&sig=1019&boss=20261020b&phase=1021&verdunhw=20261022';
+import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=gal1-r10&ai=1018&sig=1019&boss=20261020b&phase=1021&gunart=20261023';
+import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {paintMaan,prepareMaanAssets} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b&maanart=20261022&hud=20261110';
+import {drawRegionalBug} from './regional-boss-view352.js?v=outline1&ai=1018&harbor=20261021';
+import {drawGust3} from './atmosphere-role3.js?v=tame3';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
+import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=tame3';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=gal1';
+import {passiveMedalFaction} from './passive-medal-copy.js';
+import {CATEGORIES,categoryName,reinforcementName,reinforcementIconId,buildStats,heldStats,cumulativeText,cleanDescription,choiceDescription} from './reinforcement-ui151.js?v=equipment20261023&afc=1&art=pilot-recovery2&stats=20261110';
+import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {GamepadInput} from './gamepad-input.js?v=gal1';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html?v=buildfit1&rail=42';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=6b7189b889c2fc7c';
-import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=a09a7cbc62f4d4d8';
-import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=d7a0cfcfc455802b';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner,drawEquipmentDefense} from './player-effects129.js?v=6b7189b889c2fc7c';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=6b7189b889c2fc7c';
-import {paintDover,paintDoverGround,doverGroundToken} from './dover-night-view.js?v=d7a0cfcfc455802b';
-import {paintParis} from './paris-night-art.js?v=d7a0cfcfc455802b';
-import {enableStageBoss,harborBankOffset,harborRouteHalfWidth,ZEEBRUGGE_ROUTE} from './stageboss-host.js?v=6b7189b889c2fc7c';
-import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=d7a0cfcfc455802b';
-import './hud-layout94.js?v=d7a0cfcfc455802b';
-import {showBattlefieldEvent,hideBattlefieldEvent,regionalMissionUi} from './battlefield-event-ui.js?v=d7a0cfcfc455802b';
-import {installOnlineLobby} from './online-coop-session.js?v=6b7189b889c2fc7c';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=6b7189b889c2fc7c';
-import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=d7a0cfcfc455802b';
-import {drawCoop} from './coop-view.js?v=6b7189b889c2fc7c';
-import {drawSunStrike} from './sun-strike71.js?v=d7a0cfcfc455802b';
-import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=a09a7cbc62f4d4d8';
-import {installFlightViewport} from './flight-viewport.js?v=d7a0cfcfc455802b';
-import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=d7a0cfcfc455802b';
-import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=d7a0cfcfc455802b';
-import {drawEnemyDanger} from './enemy-danger-view.js?v=d7a0cfcfc455802b';
-import {drawGas} from './gas-view.js?v=d7a0cfcfc455802b';
-import {drawWarAmbience,drawBurningFront,prepareBurningFront} from './war-ambience.js?v=d7a0cfcfc455802b';
-import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=d7a0cfcfc455802b';
-import {missionNavigation,drawMissionRadar} from './navigation.js?v=d7a0cfcfc455802b';
-import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=6b7189b889c2fc7c';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=6b7189b889c2fc7c';
-import {drawCampaign} from './campaign-view.js?v=6b7189b889c2fc7c';
-import {campaignArtReady} from './aircraft.js?v=6b7189b889c2fc7c';
-import {drawGameIcon,drawSpecialAmmoIcon,hangarIconsReady,equipmentIconsReady,gameIconReady} from './icons.js?v=d7a0cfcfc455802b';
-import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=d7a0cfcfc455802b';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx,prepareSfx,setSfxDuckingListener,captureSfxStream} from './sfx.js?v=d7a0cfcfc455802b';
-import {attachCombatFeedback,combatVisualPose,combatMountPoint,drawCombatFeedback,combatCameraOffset,combatFlightSound,drawFlightFlow,gunShotFeedback} from './combat-feedback.js?v=a09a7cbc62f4d4d8';
-import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=1091f4e17a46a92b';
-import {drawHeadOnFeedback} from './engagement-feedback.js?v=d7a0cfcfc455802b';
-import {drawTacticalCombatCue} from './tactical-combat-view.js?v=d7a0cfcfc455802b';
-import {drawTailEngagement,ENGAGEMENT_TONES,setEngagementPillSink} from './engagement-hud410.js?v=d7a0cfcfc455802b';
-import {portraitSources,portraitThumbnailSource,portraitsReady,portraitLoaded,ensurePortrait,ensurePortraitThumb,portraitOriginalSources} from './portraits.js?v=d7a0cfcfc455802b';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=d7a0cfcfc455802b';
-import {hasStagedBossEntrance} from './boss-entry-presentation.js?v=d7a0cfcfc455802b';
-import {bossArrivalHull} from './boss-arrival-shadow.js?v=d7a0cfcfc455802b';
-import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=d7a0cfcfc455802b';
-import {drawWWIEquipment} from './wwi-equipment-art.js?v=6b7189b889c2fc7c';
-import {WWI_BALANCE} from './wwi-equipment.js?v=d7a0cfcfc455802b';
-import {drawEquipment} from './equipment.js?v=d7a0cfcfc455802b';
-import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=a09a7cbc62f4d4d8';
-import{planeSprite,setPlaneLean,drawFriendlyBomber,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady,hasPaintedAircraft}from './aircraft.js?v=6b7189b889c2fc7c';
-import {enemyAircraftKey} from './enemy-aircraft-art.js?v=6b7189b889c2fc7c';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE,BATTLEFIELD113}from './engine.js?v=6b7189b889c2fc7c';
-import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT,compatibleEquipmentIds}from'./augmentation-overhaul150.js?v=d7a0cfcfc455802b';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,nextTacticalPrompt,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=d7a0cfcfc455802b';
-import {createTacticalNoticeTracker} from './tactical-notices.js?v=d7a0cfcfc455802b';
-import {drawCloudCover,drawCloudShadows}from'./cloud-cover1.js?v=6b7189b889c2fc7c';
-import {drawFleetLayer}from'./fleet-naval1.js?v=6b7189b889c2fc7c';
-import {drawTrenchLayer}from'./trench-war1.js?v=d7a0cfcfc455802b';
-import {drawCityAirLayer}from'./city-air1.js?v=6b7189b889c2fc7c';
-import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady,TERRAIN_PROFILES} from './alps-terrain117.js?v=d7a0cfcfc455802b';
-import {FXS,fxsBombFall,fxsBoomTail,fxsAtlasSources,fxsAtlasesReady,fxsWarm} from './fx-sample-preview.js?v=d7a0cfcfc455802b';
-import {bombSprite} from './bomb-sprites.js?v=d7a0cfcfc455802b';
-import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=6b7189b889c2fc7c';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
+import {paintJutland,prepareJutlandAssets} from './jutland-view.js';
+import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=pandemonium394r2';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner,drawEquipmentDefense} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&perf=1029&card=1&zb=20261103&perf=20261106&naval=20261106&hud=20261110';
+import {paintDover,paintDoverGround,doverGroundToken} from './dover-night-view.js?v=ground20261106';
+import {paintParis} from './paris-night-art.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=1022&paris=20261031';
+import {enableStageBoss,harborBankOffset,harborRouteHalfWidth,ZEEBRUGGE_ROUTE} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027&raid=20261103-art1&zb=20261103&naval=20261106&bd=20261110&ci=20261111&ho=20261111';
+import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=gal1';
+import './hud-layout94.js?v=gal1&perf=1029&mission=left1&main=20261109';
+import {showBattlefieldEvent,hideBattlefieldEvent,regionalMissionUi} from './battlefield-event-ui.js?v=regional-missions-20261029';
+import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&join=1';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111';
+import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
+import {drawCoop} from './coop-view.js?v=deathdefiance1&heal=orb1&airbattle=20261025&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&zb=20261103&guide=20261107&cohud=20261110';
+import {drawSunStrike} from './sun-strike71.js?v=buildfit1&rail=42&afc=1';
+import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018&strafe=20261111';
+import {installFlightViewport} from './flight-viewport.js?v=gal1';
+import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=gal1';
+import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=gal1&trait=20261111';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=role1';
+import {drawGas} from './gas-view.js?v=buildfit1&afc=1&art=pilot-recovery2&label=20261115';
+import {drawWarAmbience,drawBurningFront,prepareBurningFront} from './war-ambience.js?v=mobileperf1';
+import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=mobileperf1&paris=20261031';
+import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
+import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {drawCampaign} from './campaign-view.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {campaignArtReady} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111&lazy=20261117';
+import {drawGameIcon,drawSpecialAmmoIcon,hangarIconsReady,equipmentIconsReady,gameIconReady} from './icons.js?v=buildfit1&afc=1&opt=1';
+import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?audio20261018&v=boss-score-20261115';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx,prepareSfx,setSfxDuckingListener,captureSfxStream} from './sfx.js?v=audio20261018&early=20261115&rail=20261115&secret=20261116';
+import {attachCombatFeedback,combatVisualPose,combatMountPoint,drawCombatFeedback,combatCameraOffset,combatFlightSound,drawFlightFlow,gunShotFeedback} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112';
+import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2&mapop=20261103';
+import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
+import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
+import {drawTailEngagement,ENGAGEMENT_TONES,setEngagementPillSink} from './engagement-hud410.js?v=tame3&pill=20261110';
+import {portraitSources,portraitThumbnailSource,portraitsReady,portraitLoaded,ensurePortrait,ensurePortraitThumb,portraitOriginalSources} from './portraits.js?v=crew20261024&opt=1';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021&zb=20261103&ho=20261111&weak2=20261114&quiet=20261115';
+import {hasStagedBossEntrance} from './boss-entry-presentation.js';
+import {bossArrivalHull} from './boss-arrival-shadow.js';
+import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
+import {drawWWIEquipment} from './wwi-equipment-art.js?perf=1029';
+import {WWI_BALANCE} from './wwi-equipment.js';
+import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
+import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=wwifix20261025';
+import{planeSprite,setPlaneLean,drawFriendlyBomber,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady,hasPaintedAircraft}from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111&lazy=20261117';
+import {enemyAircraftKey} from './enemy-aircraft-art.js';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE,BATTLEFIELD113}from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&bd=20261110&strafe=20261111&ci=20261111&ho=20261111';
+import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT,compatibleEquipmentIds}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025&fai=20261108';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,nextTacticalPrompt,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {createTacticalNoticeTracker} from './tactical-notices.js?v=unlock20261026';
+import {drawCloudCover,drawCloudShadows}from'./cloud-cover1.js?v=gal1&perf=1029&depth=20261111&smooth=20261115';
+import {drawFleetLayer}from'./fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
+import {drawTrenchLayer}from'./trench-war1.js?v=gal1';
+import {drawCityAirLayer}from'./city-air1.js?v=gal1';
+import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady,TERRAIN_PROFILES} from './alps-terrain117.js?v=gal1&phoneperf=20261103&early=20261115';
+import {FXS,fxsBombFall,fxsBoomTail,fxsAtlasSources,fxsAtlasesReady,fxsWarm} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
+import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 
-import {installCommandFlightFx} from './command-flight-fx.js?v=d7a0cfcfc455802b';
+import {installCommandFlightFx} from './command-flight-fx.js?v=commandfx2';
 // Register the observer at the fresh app entry even if an older engine module is cached.
 installCommandFlightFx(Game);
-import {installOrdnancePilotFx} from './ordnance-pilot-fx.js?v=a09a7cbc62f4d4d8';
+import {installOrdnancePilotFx} from './ordnance-pilot-fx.js?v=ordnancefx1';
 installOrdnancePilotFx(Game);
-import {installCavalryRacerFx} from './cavalry-racer-fx.js?v=a09a7cbc62f4d4d8';
+import {installCavalryRacerFx} from './cavalry-racer-fx.js?v=cavalryracer1';
 installCavalryRacerFx(Game);
-import {installEscortCommandFx,installEscortCoopFx} from './escort-command-fx.js?v=a09a7cbc62f4d4d8';
+import {installEscortCommandFx,installEscortCoopFx} from './escort-command-fx.js?v=escortfx1';
 installEscortCommandFx(Game);installEscortCoopFx(CoopGame);installFireDiveFx(Game);installPressureLinkFx(Game);installDeathDefianceFx(Game);
 const flightViewport=installFlightViewport(document,window);
-import {loadAirshipSprite,drawAirshipSprite} from './airship-sprite.js?v=d7a0cfcfc455802b';
+import {loadAirshipSprite,drawAirshipSprite} from './airship-sprite.js';
 const ententeAirshipSprite=loadAirshipSprite('entente');
 const zeppelinSprite=loadAirshipSprite('central');const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=gal1&b=326';
 const globalZeppelinSprite=zeppelinSprite;
@@ -288,7 +288,7 @@ function __perfFrame(ms,active=true){
  // Judge sustained load. Asset decode, garbage collection and other isolated
  // stalls should not leave the canvas blurred for the rest of the sortie.
  const saver=mobileDisplay&&batterySaver&&!hiFpsMode;
- const slow=saver?30:14.5,fast=saver?23:12;
+ const slow=saver?24:14.5,fast=saver?18.5:12;// saver budget scaled to its 30 fps (33 ms) frame
  renderCostTotal+=Math.min(slow*2,ms);
  if(++renderCostSamples<90)return;
  const average=renderCostTotal/renderCostSamples;
@@ -591,6 +591,10 @@ document.addEventListener('visibilitychange',()=>{invalidateRender();last=perfor
 // describe timer scheduling, never display refresh rate or device performance.
 let incomingArtPending=false,incomingArtCheckAt=0;
 const incomingArtRetries=new Map();
+// Boot paints the 76 core airframes (PLANES, both factions: allies and wingmen) and aircraft.js the
+// generic enemy types. Named liveries and other special enemy art are painted
+// here nearest-first once the aircraft is within 640 px of the screen edge (a couple of seconds
+// before it can be seen), instead of all ~170 painted keys at boot.
 function warmIncomingAircraft(g,now){
  if(incomingArtPending||now<incomingArtCheckAt||g?.state!=='playing')return;
  incomingArtCheckAt=now+100;
@@ -600,8 +604,7 @@ function warmIncomingAircraft(g,now){
  for(const e of g.enemies){
   if(e.hp<=0||e.stageBossBody||e.finalArenaTarget||e.heavyBomber||e.doverBomber||
      e.fieldUnit||e.navalVessel||e.groundEscort||e.cityUnit||e.missionGround||
-     e.londonInstallation||e.bugDrone||e.type==='zeppelin'||
-     !(e.escortPlane||e.formationLivery||e.bossPlane||e.zeroDistrictAircraft))continue;
+     e.londonInstallation||e.bugDrone||e.type==='zeppelin')continue;
   const edge=Math.max(Math.abs(e.x-g.x)-halfWidth,Math.abs(e.y-g.y)-halfHeight);
   if(edge>640||edge>=nearest)continue;
   const next=enemyAircraftKey(e);
@@ -656,7 +659,8 @@ const stepGameInner=(g,dt,input)=>{if(g.testMode&&g.trenchDioramaDemoRunning){co
  }
  }
  return;
- }const n=Math.max(1,Math.ceil(dt/.034));for(let i=0;i<n;i++)g.update(dt/n,input)};
+ }/* Substeps are as long as the systems accept (every update clamps to 40 ms), so a 25-29 fps
+ phone runs the world once per frame instead of twice. */const n=Math.max(1,Math.ceil(dt/.04-1e-6));for(let i=0;i<n;i++)g.update(dt/n,input)};
 let simulationDebt=0,frameTimeEma=1/60;
 // Loaded only for the explicit phone diagnostic page. Normal play allocates no recorder.
 let flightRecorder=null;
@@ -675,7 +679,7 @@ function flightContext(){
   terrainPaintMs:flightTerrainStats.paintMs,terrainMaxPaintMs:flightTerrainStats.maxPaintMs};
 }
 if(new URLSearchParams(location.search).get('perf')==='1'){
- import('./flight-performance.js?v=d7a0cfcfc455802b').then(({createFlightRecorder})=>{
+ import('./flight-performance.js?v=phone-20261109').then(({createFlightRecorder})=>{
   flightRecorder=createFlightRecorder({context:()=>({
    ...flightContext(),
    stage:Number.isInteger(game?.stageBoss?.stages.orderPosition)?game.stageBoss.stages.orderPosition+1:null,
@@ -685,7 +689,7 @@ if(new URLSearchParams(location.search).get('perf')==='1'){
    simulationTime:game?.t??0,simulationDebt,
    enemies:game?.enemies?.length??0,bullets:game?.bullets?.length??0,particles:game?.particles?.length??0,drops:game?.drops?.length??0,
    renderScale,canvasWidth:canvas.width,canvasHeight:canvas.height,worldWidth:W,worldHeight:H,
-   targetFps:mobileDisplay&&!hiFpsMode?(batterySaver?24:60):null,mobileDisplay,hiFpsMode,batterySaver,userZoom,muted,sfxOff,bgmOff,state:game?.state??'hangar',
+   targetFps:mobileDisplay&&!hiFpsMode?(batterySaver?30:60):null,mobileDisplay,hiFpsMode,batterySaver,userZoom,muted,sfxOff,bgmOff,state:game?.state??'hangar',
    regionBoss:game?.stageBoss?.stages.phase==='boss',intrusion:game?.intrusionBoss?.phase??null
   })});
   window.__HEADON_PERF__=Object.freeze({
@@ -698,9 +702,17 @@ if(new URLSearchParams(location.search).get('perf')==='1'){
    read:()=>flightRecorder.read(),stop:reason=>{const report=flightRecorder.stop(reason);flightTerrainStats=null;return report;},status:()=>game?.state??'hangar'
   });
   document.addEventListener('visibilitychange',()=>flightRecorder.resetGap(document.hidden?'hidden':undefined));
+  // ?perf=1 on a phone: a small read-only corner readout (1 Hz, latest 10 s window) so frame,
+  // simulation and draw costs can be read off a screenshot without a desktop inspector.
+  if(window.__HEADON_PERF__.read().status==='idle')window.__HEADON_PERF__.start({source:'overlay'});
+  const perfBox=document.createElement('div');perfBox.id='perfReadout';
+  perfBox.style.cssText='position:fixed;left:6px;bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:9999;pointer-events:none;font:11px/1.35 ui-monospace,Menlo,monospace;color:#f3e7c6;background:rgba(12,10,8,.72);padding:4px 6px;border-radius:4px;white-space:pre';
+  document.body.append(perfBox);
+  setInterval(()=>{try{const r=flightRecorder.read(),b=r.buckets.at(-1)||r.summary,c=b.lastContext||{},f=n=>Math.round(n||0);
+   perfBox.textContent=r.status!=='recording'?'perf: '+r.status:`FPS ${(b.drawFps||0).toFixed(1)} · 1% ${f(b.onePercentLowFps)}\nframe p95 ${f(b.frameJsMs?.p95)}ms max ${f(b.frameJsMs?.max)}\nlogic p95 ${f(b.updateMs?.p95)} · draw p95 ${f(b.drawMs?.p95)}\nsteps max ${b.maxUpdateSteps||0} · scale ${c.renderScale??'-'}\nenemy ${c.enemies??0} bullet ${c.bullets??0}`;}catch(error){perfBox.textContent='perf: '+error.message}},1000);
  }).catch(error=>console.warn('[headon] performance recorder unavailable',error));
 }
-import {drawSpecialOperationTrain,drawOperationTargets,prepareSpecialOperationTrain} from './special-operation-view.js?v=a09a7cbc62f4d4d8';
+import {drawSpecialOperationTrain,drawOperationTargets,prepareSpecialOperationTrain} from './special-operation-view.js';
 const stepGame=(g,dt,input)=>{
  if(g.specialOperations||g.operationSnapshot)syncSpecialOperation(g);
  if(g.state==='front-complete'&&g.frontCompletion)showFrontCompletion(g);
@@ -709,7 +721,7 @@ const stepGame=(g,dt,input)=>{
  const before=g.combatBenchmarkSteps||0,sim=g.t||0;
  flightRecorder.updateStart();
  try{return stepGameInner(g,dt,input)}finally{
-  const steps=g.trenchDioramaDemoRunning?0:g.combatBenchmarkRunning&&g.combatBenchmarkScript?(g.combatBenchmarkSteps||0)-before:Math.max(1,Math.ceil(dt/.034));
+  const steps=g.trenchDioramaDemoRunning?0:g.combatBenchmarkRunning&&g.combatBenchmarkScript?(g.combatBenchmarkSteps||0)-before:Math.max(1,Math.ceil(dt/.04-1e-6));
   flightRecorder.updateEnd(steps,Math.max(0,(g.t||0)-sim));
  }
 };
@@ -737,10 +749,12 @@ function frameInner(now){try{serviceFinalArenaAssets(game);const elapsed=Math.ma
  lastRenderGame=game;lastRenderState=state;
  if(inactive)staticRenderAt=now;
  renderDirty=false;
- // Carry at most one missed deadline. Advancing by every overdue interval can
+ // Saver runs at 30 fps: an even divisor of 60 Hz, so frames are held for a steady two vsyncs
+  // (24 fps alternated two and three, a visible judder) and the phone stays cooler.
+  // Carry at most one missed deadline. Advancing by every overdue interval can
  // phase-lock a slightly late first callback into 30 FPS on a 60 Hz display.
  if(mobileDisplay&&!hiFpsMode){
-  const cap=batterySaver?1000/24:1000/60,gap=now-renderStamp;
+  const cap=batterySaver?1000/30:1000/60,gap=now-renderStamp;
   if(gap<cap-1){flightRecorder?.markSkip('limiter');scheduleGameFrame();return}
   renderStamp=gap<cap*4?Math.max(renderStamp+cap,now-cap):now;
  }else renderStamp=now;
@@ -1978,7 +1992,8 @@ gateDeps.tactics=tacticalIconAssets.ready;
 gateDeps.keyart=selectPilotKeyart($('hangar'),pilot);
 const hangarReady=Promise.all(Object.values(gateDeps));
 for(const n of Object.keys(gateDeps))gateDeps[n].then(()=>{(window.__gateMarks=window.__gateMarks||{})[n]=Math.round(performance.now()/100)/10},()=>{(window.__gateMarks=window.__gateMarks||{})[n]='err'});
-const battleReady=Promise.all([prepareAirThreatArt(),fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady,backgroundDressingReady,equipmentIconsReady]);
+const coreAircraftArtReady=Promise.all(Object.keys(PLANES).map(key=>paintedReady(key==='fokker'?'fokker_standard':key).catch(()=>false)));
+const battleReady=Promise.all([prepareAirThreatArt(),fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady,coreAircraftArtReady,backgroundDressingReady,equipmentIconsReady]);
 // The splash stays up until everything the first hangar screen shows can paint at once:
 // every visible <img> and CSS background decoded, measured on the laid-out
 // hangar itself (so nothing added later by other modules is missed). 30 s caps a dead network.
@@ -2294,7 +2309,7 @@ function showSettings151(page=settingsPage151){
  }
  if(page==='display'){
   add('fps','fps',en?'High frame rate':'고프레임',en?'Mobile: use the display refresh rate':'모바일 60fps 제한을 해제합니다. 기기 주사율을 따릅니다.',on(hiFpsMode),()=>{hiFpsMode=!hiFpsMode;if(hiFpsMode)batterySaver=false;saveDisplayPrefs151()},hiFpsMode,false,true);
-  add('saver','battery',en?'Battery saver':'절전 모드',en?'Mobile: 24fps to save battery':'모바일 24fps · 배터리 사용량 절약',on(batterySaver),()=>{batterySaver=!batterySaver;if(batterySaver)hiFpsMode=false;saveDisplayPrefs151()},batterySaver,false,true);
+  add('saver','battery',en?'Battery saver':'절전 모드',en?'Mobile: 30fps to save battery and heat':'모바일 30fps · 배터리 · 발열 절약',on(batterySaver),()=>{batterySaver=!batterySaver;if(batterySaver)hiFpsMode=false;saveDisplayPrefs151()},batterySaver,false,true);
   add('zoom','zoom',en?'Battlefield scale':'전장 배율',en?'Click to cycle 80–140%':'눌러서 80~140% 순환 조절',Math.round(userZoom*100)+'%',cycleZoom);
   const fullscreen=!!document.fullscreenElement,supported=!!document.documentElement.requestFullscreen;
   add('fullscreen','fullscreen',en?'Fullscreen':'전체화면',en?'Use the whole screen':'브라우저 전체화면 전환',supported?on(fullscreen):(en?'Unavailable':'미지원'),()=>{if(document.fullscreenElement)document.exitFullscreen?.()?.catch?.(()=>{});else flightViewport.fullscreen()},fullscreen,!supported,supported);

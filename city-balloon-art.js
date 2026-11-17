@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=tame3';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
 const SOURCES={hulls:'./boss-city-balloon-hulls-20261022.webp',center:'./boss-city-drachen-center-20261021.webp',machinery:'./boss-city-balloon-machinery-20261021.webp',guns:'./boss-mark1-guns-r3.webp',apronGondola:'./boss-london-apron-gondola.webp'};
 const APRON_GONDOLA_WIDTH=47;
 const APRON_GONDOLA_TOP=4;

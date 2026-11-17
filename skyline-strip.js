@@ -4,7 +4,7 @@
 //  - City air-raid defense: the four protected facilities.
 //  - Laon, Entente: Paris under the Paris Gun's shells.
 //  - Laon, Central: the Paris Gun on its rail mount, breaking part by part.
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=tame3';
 
 const CITY_LANDMARKS={entente:{west:'spire',docks:'dome',east:'clock',south:'twin'},central:{west:'twin',docks:'dome',east:'tower',south:'clock'}};
 const PARIS_LANDMARKS=[[.16,'notredame'],[.47,'eiffel'],[.8,'sacre']];

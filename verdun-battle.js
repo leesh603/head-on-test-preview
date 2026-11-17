@@ -1,5 +1,5 @@
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=d7a0cfcfc455802b';
-import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js?v=d7a0cfcfc455802b';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
+import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
 
 const APPROACH='verdun-approach';
 const MORTAR_LANES=[[-1,0,1,0,-1],[1,0,-1,0,1]];

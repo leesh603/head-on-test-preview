@@ -1,4 +1,4 @@
-import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js?v=d7a0cfcfc455802b';
+import {hasSecretWeapon,secretWeaponEffect} from './secret-weapons.js';
 
 export const SALAMANDER_HULL_FRACTION=.40;
 export const SALAMANDER_HULL_BONUS_CAP=96;

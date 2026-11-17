@@ -1,5 +1,5 @@
-import {applySeaColor} from './sea-colors.js?v=d7a0cfcfc455802b';
-import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=d7a0cfcfc455802b';
+import {applySeaColor} from './sea-colors.js?v=tame3';
+import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=tame3';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural-hedgerows-20261115.webp',base:'#424b3b',strength:1.25,tileSize:1254},
  sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=r5&b=326',base:'#245d62',strength:1.11,tileSize:1254},

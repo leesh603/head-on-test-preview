@@ -1,14 +1,14 @@
-import {pruneCriticalFeedback} from './aircraft-criticals.js?v=d7a0cfcfc455802b';
-import {bishopGlovesInterval} from './equipment-flight-balance.js?v=d7a0cfcfc455802b';
-import {recordEquipmentHit} from './equipment-hit-feedback.js?v=d7a0cfcfc455802b';
-import {weaponImpactKind} from './weapon-impact-profile.js?v=d7a0cfcfc455802b';
-import {combatImpactResult,ordinaryMgContact} from './combat-impact-result.js?v=d7a0cfcfc455802b';
-import {queueCombatImpact,advanceReplicaImpactFx,pushExplosionFx,combatFxAge} from './explosion-profiles.js?v=d7a0cfcfc455802b';
-import {playerAirframeModel} from './player-airframe-handling.js?v=d7a0cfcfc455802b';
-import {drawFuelFire} from './explosion-profiles.js?v=d7a0cfcfc455802b';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=a09a7cbc62f4d4d8';
-import {tacticalCueSound} from './tactical-combat-view.js?v=d7a0cfcfc455802b';
+import {pruneCriticalFeedback} from './aircraft-criticals.js';
+import {bishopGlovesInterval} from './equipment-flight-balance.js';
+import {recordEquipmentHit} from './equipment-hit-feedback.js';
+import {weaponImpactKind} from './weapon-impact-profile.js';
+import {combatImpactResult,ordinaryMgContact} from './combat-impact-result.js';
+import {queueCombatImpact,advanceReplicaImpactFx,pushExplosionFx,combatFxAge} from './explosion-profiles.js?v=fx5';
+import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
+import {drawFuelFire} from './explosion-profiles.js?v=fx5';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018&strafe=20261111';
+import {tacticalCueSound} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();

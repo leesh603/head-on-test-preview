@@ -1,4 +1,4 @@
-import {RURAL_TRACK_ART,holdRuralTrackArt} from './rural-rail-track-art.js?v=d7a0cfcfc455802b';
+import {RURAL_TRACK_ART,holdRuralTrackArt} from './rural-rail-track-art.js';
 export const RURAL_TRACK_PITCH=RURAL_TRACK_ART.height*RURAL_TRACK_ART.scale;
 export const onRuralRailMap=g=>g?.stageBoss?.stages?.stageIndex===0
  &&(g.worldRegion?.()??g.region??0)===0&&!g.operationBattle&&!g.finalArena;

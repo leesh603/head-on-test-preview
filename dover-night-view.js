@@ -1,13 +1,13 @@
-import {periodicSandPixels} from './maan-ground.js?v=d7a0cfcfc455802b';
-import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=d7a0cfcfc455802b';
-import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=d7a0cfcfc455802b';
-import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=d7a0cfcfc455802b';
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {drawBossOrdnance} from './boss-ordnance-art.js?v=d7a0cfcfc455802b';
-import {bombArcPose} from './bomb-sprites.js?v=d7a0cfcfc455802b';
-import {drawDressingSprite} from './background-dressing.js?v=d7a0cfcfc455802b';
-import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=d7a0cfcfc455802b';
-import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
+import {periodicSandPixels} from './maan-ground.js?v=tame3';
+import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=1022';
+import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover6';
+import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021&sortie=20261115';
+import {fx} from './fx-art.js?v=tame3';
+import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {bombArcPose} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {drawDressingSprite} from './background-dressing.js?v=mobileperf1&paris=20261031';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
+import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
 export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp',land:'terrain-dover-downland-20261030.webp',sea:'jutland-sea.webp'});
 const images=new Map();let pending=null,generation=0;

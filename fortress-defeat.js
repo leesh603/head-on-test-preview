@@ -1,4 +1,4 @@
-import {updateFortress,localToWorld} from './fortress-mechanics.js?v=d7a0cfcfc455802b';
+import {updateFortress,localToWorld} from './fortress-mechanics.js';
 export const FORTRESS_DEFEAT_DURATION=7;
 export const DEFEAT_CUES=Object.freeze([
  {at:.65,kind:'steam',x:415,y:260,size:190,life:1.9},

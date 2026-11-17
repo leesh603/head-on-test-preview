@@ -1,5 +1,5 @@
-import {drawEnemyProjectile} from '../../projectiles.js?v=a09a7cbc62f4d4d8';
-import {ELITE_KINDS} from './elite-config.js?v=d7a0cfcfc455802b';
+import {drawEnemyProjectile} from '../../projectiles.js?v=pilotfx20261018&strafe=20261111';
+import {ELITE_KINDS} from './elite-config.js';
 
 const defaultCrop = {};
 

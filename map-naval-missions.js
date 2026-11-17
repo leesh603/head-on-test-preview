@@ -1,7 +1,7 @@
 // Map objectives observe the existing fleet's motion, hull damage and ordnance.
 // The host owns stage completion, rewards and pause; there is no second fleet update.
-import {SHIP_TYPES} from './fleet-naval1.js?v=6b7189b889c2fc7c';
-import {vacantShipPose} from './naval-spacing.js?v=d7a0cfcfc455802b';
+import {SHIP_TYPES} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
+import {vacantShipPose} from './naval-spacing.js?v=pandemonium394r2';
 
 const regions=new Set([1,16]);
 export const NAVAL_MISSION_BALANCE=Object.freeze({

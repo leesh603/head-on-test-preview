@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
-import {LAON_LAYOUT,LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS,laonPartState,sweptLaonEllipse} from './laon-layout.js?v=d7a0cfcfc455802b';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {LAON_LAYOUT,LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS,laonPartState,sweptLaonEllipse} from './laon-layout.js';
 
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const PHASES=Object.freeze(['loading','ready','recoil','return','reload']);

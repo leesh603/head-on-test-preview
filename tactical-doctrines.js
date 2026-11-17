@@ -1,7 +1,7 @@
 // Sortie-local choices; never enter the upgrade or special-equipment pool.
-import {WWI_EQUIPMENT} from './wwi-equipment.js?v=d7a0cfcfc455802b';
-import {FLIGHT_EQUIPMENT} from './flight-equipment.js?v=d7a0cfcfc455802b';
-import {SPECIAL_DOCTRINES} from './airframe-doctrines.js?v=d7a0cfcfc455802b';
+import {WWI_EQUIPMENT} from './wwi-equipment.js';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
+import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
 export {SPECIAL_DOCTRINES};
 export const TACTICAL_FAMILIES=Object.freeze(['GUN','SPEED','EXPLOSIVE','FORMATION','SURVIVAL']);
 export const TACTICAL_FAMILY_NAMES=Object.freeze({GUN:'기관총',SPEED:'속도',EXPLOSIVE:'폭발물',FORMATION:'편대',SURVIVAL:'생존'});

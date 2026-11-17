@@ -1,17 +1,17 @@
-import {drawRIICollapseFx} from './rii-destruction-fx.js?v=d7a0cfcfc455802b';
-import {drawV1500CollapseFx} from './v1500-destruction-fx.js?v=d7a0cfcfc455802b';
-import {drawBishopBombImpact} from './bishop-sortie-fx.js?v=d7a0cfcfc455802b';
-import {drawArtilleryMuzzle} from './artillery-fx.js?v=d7a0cfcfc455802b';
-import {drawDetonationPresence} from './detonation-presence.js?v=d7a0cfcfc455802b';
-import {weaponImpactKind} from './weapon-impact-profile.js?v=d7a0cfcfc455802b';
-import {drawAircraftCritical} from './aircraft-critical-view.js?v=d7a0cfcfc455802b';
-import {roleDraw} from './fx-role3.js?v=d7a0cfcfc455802b';
-import {drawProjectileTactic} from './gun-signatures.js?v=d7a0cfcfc455802b';
-import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=d7a0cfcfc455802b';
-import {drawGameIcon} from './icons.js?v=d7a0cfcfc455802b';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=d7a0cfcfc455802b';
-import {fxsBoom} from './fx-sample-preview.js?v=d7a0cfcfc455802b';
-import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=d7a0cfcfc455802b';
+import {drawRIICollapseFx} from './rii-destruction-fx.js';
+import {drawV1500CollapseFx} from './v1500-destruction-fx.js';
+import {drawBishopBombImpact} from './bishop-sortie-fx.js';
+import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {drawDetonationPresence} from './detonation-presence.js';
+import {weaponImpactKind} from './weapon-impact-profile.js';
+import {drawAircraftCritical} from './aircraft-critical-view.js';
+import {roleDraw} from './fx-role3.js?v=tame3&perf=1029&decode=1';
+import {drawProjectileTactic} from './gun-signatures.js';
+import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=fx5';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
+import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
+import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=tame3&perf=1029';
 
 export function grenadeVisualPose(g,out={}){
  const dx=g.targetX-g.startX,dy=g.targetY-g.startY;

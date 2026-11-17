@@ -1,10 +1,10 @@
-import {LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS} from './laon-layout.js?v=d7a0cfcfc455802b';
-import {LAON_ART_FRAMES} from './laon-art-frames.js?v=d7a0cfcfc455802b';
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {impactMark,aimLine} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {planeSprite,paintedReady} from './aircraft.js?v=6b7189b889c2fc7c';
-import {prepareLaonTerrain,releaseLaonTerrain} from './laon-terrain.js?v=d7a0cfcfc455802b';
-import {paintSlotStrip,drawParisStrip,drawParisGunStrip} from './skyline-strip.js?v=d7a0cfcfc455802b';
+import {LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS} from './laon-layout.js';
+import {LAON_ART_FRAMES} from './laon-art-frames.js';
+import {fx} from './fx-art.js?v=tame3';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {planeSprite,paintedReady} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111&lazy=20261117';
+import {prepareLaonTerrain,releaseLaonTerrain} from './laon-terrain.js';
+import {paintSlotStrip,drawParisStrip,drawParisGunStrip} from './skyline-strip.js?v=20261104&perf=20261106';
 let images={},promise=null;
 const AIRCRAFT={breguet14:'breguet14',caudron_r11:'bank_plane_caudron_r11',salmson_2a2:'bank_plane_salmson_2a2'};
 const parts=b=>b?.parts instanceof Map?b.parts:new Map(Array.isArray(b?.parts)?b.parts.map(p=>[p.id,p]):Object.entries(b?.parts||{}));

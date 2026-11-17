@@ -1,8 +1,8 @@
-import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js?v=d7a0cfcfc455802b';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=d7a0cfcfc455802b';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=d7a0cfcfc455802b';
-import {verdunFortExtents} from './verdun-fortresses.js?v=d7a0cfcfc455802b';
-import {sommeExtents} from './somme-boss-layout.js?v=d7a0cfcfc455802b';
+import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
+import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {sommeExtents} from './somme-boss-layout.js?v=tame3&somme=20261021';
 // Preserve authored railway, buried-weapon and formation approaches.
 const authored=new Set(['bruno-railway-gun','lincomparable','livens-flame-projector','minenwerfer-battery','mark4-wedge','treffas-wagen','fliegerzug','jasta11-circus','naval10-black-flight','london-apron-raid','sinai-landship','wustenpanzer']);
 const installed=new Set(['armored-harbor-fortress','gallipoli-fortress']);

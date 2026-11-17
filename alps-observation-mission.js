@@ -1,8 +1,8 @@
-import {prepareAirThreatArt} from './air-threat-art.js?v=6b7189b889c2fc7c';
-import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=d7a0cfcfc455802b';
-import {configureAA} from './air-threat-profiles.js?v=6b7189b889c2fc7c';
-import {beginAircraftCrash} from './aircraft-crash.js?v=d7a0cfcfc455802b';
-import {predictPilot} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
+import {prepareAirThreatArt} from './air-threat-art.js';
+import {AIR_THREAT_ASSETS} from './air-threat-assets.js';
+import {configureAA} from './air-threat-profiles.js';
+import {beginAircraftCrash} from './aircraft-crash.js?v=descent20261022';
+import {predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 
 const LIMIT=105;
 const HP=280;

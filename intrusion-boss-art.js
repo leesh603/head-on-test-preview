@@ -1,9 +1,9 @@
-import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js?v=d7a0cfcfc455802b';
-import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js?v=d7a0cfcfc455802b';
-import {submarineLayers} from './submarine-intrusion.js?v=d7a0cfcfc455802b';
-import {maritimeReveal} from './maritime-intrusion.js?v=d7a0cfcfc455802b';
-import { intrusionLayout } from './intrusion-boss-layouts.js?v=d7a0cfcfc455802b';
-export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js?v=d7a0cfcfc455802b';
+import {drawRIIIntrusion,drawRIIIntrusionBombs} from './rii-intrusion.js';
+import {drawV1500Boss,drawV1500Bombs} from './v1500-render.js';
+import {submarineLayers} from './submarine-intrusion.js';
+import {maritimeReveal} from './maritime-intrusion.js';
+import { intrusionLayout } from './intrusion-boss-layouts.js';
+export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js';
 const banks=new Map();
 function browserLoader(src){return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error(`Intrusion texture failed: ${src}`));i.src=src;});}
 /** One decoded image per unique lossless texture. Reject failures; never draw a placeholder. */

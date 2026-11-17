@@ -1,5 +1,5 @@
-import {ordinaryFighter} from './dogfight-pass165.js?v=d7a0cfcfc455802b';
-import {requestFormationCover,battleDamageWithdrawing} from './battle-damage.js?v=d7a0cfcfc455802b';
+import {ordinaryFighter} from './dogfight-pass165.js?v=gal1&airbattle=20261108&strafe=20261111';
+import {requestFormationCover,battleDamageWithdrawing} from './battle-damage.js';
 export const PURSUIT_MATCH_BALANCE=Object.freeze({closingThreshold:18,maxReductionMin:.10,maxReductionMax:.20,acquireReduction:.07,closeDistance:125,engageRate:4.8,recoverRate:2.2});
 export const DEFENSE_OBSERVATION=Object.freeze({hunterInterval:.24,scoutInterval:.65,range:340,rearCone:.95,aimCone:.6,releaseCone:1.2,coverDelay:.7});
 

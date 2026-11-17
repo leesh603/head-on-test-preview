@@ -1,6 +1,6 @@
-import {capitalLondonRiverCover} from './capital-terrain.js?v=d7a0cfcfc455802b';
-import {aaMuzzle,configureAA} from './air-threat-profiles.js?v=6b7189b889c2fc7c';
-import {CITY_FACILITIES} from './city-protected-facilities.js?v=d7a0cfcfc455802b';
+import {capitalLondonRiverCover} from './capital-terrain.js';
+import {aaMuzzle,configureAA} from './air-threat-profiles.js';
+import {CITY_FACILITIES} from './city-protected-facilities.js';
 const heroes=g=>g.players||[g],live=g=>heroes(g).filter(p=>p.hp>0&&!p.down);
 const inLondon=g=>(g.worldRegion?.()??g.stageBoss?.stages.stageIndex)===11;
 const inGothaCity=g=>g.stageBoss?.stages.stageIndex===4&&g.stageBoss.stages.bossId==='gotha-squadron';

@@ -1,8 +1,8 @@
-import {ammunitionPartPadding} from './heavy-ammunition.js?v=d7a0cfcfc455802b';
-import {squadronPending} from './squadron-combat-state.js?v=d7a0cfcfc455802b';
-import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js?v=d7a0cfcfc455802b';
-import {verdunSupportTargets} from './verdun-battle.js?v=d7a0cfcfc455802b';
-import {recordCombatImpact} from './combat-impact-result.js?v=d7a0cfcfc455802b';
+import {ammunitionPartPadding} from './heavy-ammunition.js';
+import {squadronPending} from './squadron-combat-state.js';
+import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js';
+import {verdunSupportTargets} from './verdun-battle.js?v=vaux20261116';
+import {recordCombatImpact} from './combat-impact-result.js';
 
 export const FACILITY_BALANCE=Object.freeze({firstAt:14,duration:32,bossReserve:5,airfieldHp:84,signalHp:140,reduction:.25,minimumAirborne:3});
 export const FACILITY_TYPES=Object.freeze({airfield:'AIRFIELD_RAID',signal:'SIGNAL_HQ_RAID'});

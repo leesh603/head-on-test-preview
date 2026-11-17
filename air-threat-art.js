@@ -1,7 +1,7 @@
-import {drawMeadowContactShadow} from './meadow-graphics.js?v=6b7189b889c2fc7c';
-import {groundVisualSize,groundVisualRegion} from './ground-perspective.js?v=d7a0cfcfc455802b';
-import {airThreatMuzzles} from './air-threat-profiles.js?v=6b7189b889c2fc7c';
-import {AIR_THREAT_ASSETS} from './air-threat-assets.js?v=d7a0cfcfc455802b';
+import {drawMeadowContactShadow} from './meadow-graphics.js';
+import {groundVisualSize,groundVisualRegion} from './ground-perspective.js';
+import {airThreatMuzzles} from './air-threat-profiles.js';
+import {AIR_THREAT_ASSETS} from './air-threat-assets.js';
 // A small bounded cache, shared by solo/co-op and the asset-bank preview. No
 // canvas creation, pixel reads, filters, or network requests on the hot path.
 const images=new Map(),queue=[];

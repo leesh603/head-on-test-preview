@@ -1,4 +1,4 @@
-import {applySalamanderHull} from './secret-flight-fits.js?v=d7a0cfcfc455802b';
+import {applySalamanderHull} from './secret-flight-fits.js';
 
 const recipe=(id,body,catalysts,ranks,extra,icon,ko,en,detail)=>Object.freeze({id,body,catalysts,ranks,extra,icon,ko,en,detail});
 export const SECRET_WEAPONS=Object.freeze([

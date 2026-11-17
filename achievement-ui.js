@@ -1,5 +1,5 @@
-import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills,secretMedalDisclosure} from './achievements.js?v=d7a0cfcfc455802b';
-import {getLocale,subscribe} from './i18n.js?v=d7a0cfcfc455802b';
+import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills,secretMedalDisclosure} from './achievements.js?v=pandemonium394r2';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;

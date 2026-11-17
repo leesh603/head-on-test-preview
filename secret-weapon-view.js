@@ -1,7 +1,7 @@
-import {secretWeaponIcon} from './secret-weapons.js?v=d7a0cfcfc455802b';
-import {SECRET_ORDNANCE} from './secret-ordnance.js?v=d7a0cfcfc455802b';
-import {secretRamSpeed} from './secret-weapon-combat.js?v=d7a0cfcfc455802b';
-import {drawGameIcon} from './icons.js?v=d7a0cfcfc455802b';
+import {secretWeaponIcon} from './secret-weapons.js';
+import {SECRET_ORDNANCE} from './secret-ordnance.js';
+import {secretRamSpeed} from './secret-weapon-combat.js';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
 
 const clamp=n=>Math.max(0,Math.min(1,n));
 export const secretIconKey=(recipe,faction)=>'secret:'+secretWeaponIcon(recipe,faction).split('/').at(-1);

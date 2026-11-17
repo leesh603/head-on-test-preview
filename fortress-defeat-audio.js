@@ -44,7 +44,7 @@ export function createFortressDefeatAudio({context,destinations,document:doc=glo
  const done=new Set();
  // A module worker builds the PCM when available (no main-thread cost at all);
  // otherwise it is synthesised in idle slices as before.
- const fromWorker=()=>new Promise(resolve=>{let w;try{w=typeof Worker==='function'&&typeof location!=='undefined'?new Worker('./fortress-defeat-worker.js?v=a09a7cbc62f4d4d8',{type:'module'}):null;}catch{w=null;}if(!w)return resolve(null);
+ const fromWorker=()=>new Promise(resolve=>{let w;try{w=typeof Worker==='function'&&typeof location!=='undefined'?new Worker('./fortress-defeat-worker.js?v=1',{type:'module'}):null;}catch{w=null;}if(!w)return resolve(null);
   const finish=v=>{try{w.terminate();}catch{}resolve(v);};w.onmessage=e=>finish(Array.isArray(e.data?.pcm)&&e.data.pcm.length===2?e.data.pcm:null);w.onerror=()=>finish(null);w.postMessage({sampleRate:22050});});
  const ready=(async()=>{const fromW=await fromWorker();if(disposed)return;if(fromW){pcm=fromW;return;}const chunks=sampleChunks();let next;do{await idleSlice();if(disposed)return;next=chunks.next();}while(!next.done);pcm=next.value;})();
  function remember(id){done.add(id);while(done.size>64)done.delete(done.values().next().value);}

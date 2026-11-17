@@ -1,4 +1,4 @@
-import {hitIntrusionEnvironmentalDamage} from './intrusion-boss-host.js?v=d7a0cfcfc455802b';
+import {hitIntrusionEnvironmentalDamage} from './intrusion-boss-host.js';
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
 export const TRENCH_BALANCE=Object.freeze({

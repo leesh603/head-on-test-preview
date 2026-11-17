@@ -1,11 +1,11 @@
-import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js?v=d7a0cfcfc455802b';
-import {arrivalFlightTurn} from './boss-arrival-flight.js?v=d7a0cfcfc455802b';
-import {arcLead,trackPilotTurn} from './bomber-turn-lead.js?v=d7a0cfcfc455802b';
-import {abortCityBomb,planCityBomb,releaseCityBomb} from './gotha-squadron-combat.js?v=d7a0cfcfc455802b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=d7a0cfcfc455802b';
-import {CITY_BOMBER_GUN_REACH,cityBomberScale,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js?v=d7a0cfcfc455802b';
-import {O400_LAYOUT} from './o400-layout.js?v=d7a0cfcfc455802b';
-import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=d7a0cfcfc455802b';
+import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js';
+import {arrivalFlightTurn} from './boss-arrival-flight.js';
+import {arcLead,trackPilotTurn} from './bomber-turn-lead.js';
+import {abortCityBomb,planCityBomb,releaseCityBomb} from './gotha-squadron-combat.js?v=natural-flight20261031&orbit=20261107&bomber=20261113';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {CITY_BOMBER_GUN_REACH,cityBomberScale,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
+import {O400_LAYOUT} from './o400-layout.js';
+import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=tame3';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const severeWingPolygons=Object.fromEntries(Object.entries(O400_LAYOUT.severeWings).map(([side,outline])=>[
  side,outline.map(([x,y])=>({x:side==='left'?-x:x,y}))

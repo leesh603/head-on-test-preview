@@ -1,16 +1,16 @@
-import {initializeRII,stepRIIMotion,stepRIICombat,beginRIIDestruction,stepRIIDestruction,locateRIIIntrusionHit} from './rii-intrusion.js?v=d7a0cfcfc455802b';
-import {stepGiantArrivalShadow} from './giant-intrusion-arrival.js?v=d7a0cfcfc455802b';
-import {initializeV1500,stepV1500Motion,stepV1500Combat,beginV1500Destruction,stepV1500Destruction} from './handley-page-v1500.js?v=d7a0cfcfc455802b';
-import {majorEncounterBlocked} from './encounter-admission.js?v=d7a0cfcfc455802b';
-import {hullOverlap} from './adriatic-boss-layout.js?v=d7a0cfcfc455802b';
-import {submarineObstacles,guardSubmarineMovement} from './naval-spacing.js?v=d7a0cfcfc455802b';
+import {initializeRII,stepRIIMotion,stepRIICombat,beginRIIDestruction,stepRIIDestruction,locateRIIIntrusionHit} from './rii-intrusion.js';
+import {stepGiantArrivalShadow} from './giant-intrusion-arrival.js';
+import {initializeV1500,stepV1500Motion,stepV1500Combat,beginV1500Destruction,stepV1500Destruction} from './handley-page-v1500.js';
+import {majorEncounterBlocked} from './encounter-admission.js';
+import {hullOverlap} from './adriatic-boss-layout.js?v=tame3';
+import {submarineObstacles,guardSubmarineMovement} from './naval-spacing.js?v=pandemonium394r2';
 /** Host-authoritative optional encounters. No stage advancement or regular-boss rewards. */
-import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact,submarinePhase,queueSubmarineTorpedo,m1Reloading,M1_RELOAD,SUBMARINE_SINK_DURATION} from './submarine-intrusion.js?v=d7a0cfcfc455802b';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=d7a0cfcfc455802b';
-import { intrusionLayout, ownHullClear } from './intrusion-boss-layouts.js?v=d7a0cfcfc455802b';
-import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js?v=d7a0cfcfc455802b';
-import {enqueueIntrusionEquipmentReward} from './intrusion-equipment-rewards.js?v=d7a0cfcfc455802b';
-import {stepIntrusionSignature} from './intrusion-signatures.js?v=d7a0cfcfc455802b';
+import {isNewSubmarine,submarineSteering,stepSubmarineTorpedoes,placeSubmarineContact,submarinePhase,queueSubmarineTorpedo,m1Reloading,M1_RELOAD,SUBMARINE_SINK_DURATION} from './submarine-intrusion.js';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import { intrusionLayout, ownHullClear } from './intrusion-boss-layouts.js';
+import {MARITIME_PROFILES,isMaritimeIntrusion,maritimeAttackable,maritimeDamageMultiplier,stepMaritimeMotion,stepMaritimeTransit,stepMaritimeWreck,maritimeWeaponsReady,revealMaritimeDecoy,aimMaritimeGuns,queueMaritimeAttack,maritimeAttackInterval,placeMaritimeContact} from './maritime-intrusion.js';
+import {enqueueIntrusionEquipmentReward} from './intrusion-equipment-rewards.js';
+import {stepIntrusionSignature} from './intrusion-signatures.js';
 export const intrusionProfiles = Object.freeze({
  ...MARITIME_PROFILES,
  bastion:{id:'bastion',name:'바스티옹',faction:'entente',mode:'armored-loiter',enabled:true,stages:[0,2,3,4,5,12],detail:'장갑을 벗겨 기낭을 노려라',independentBarrels:false,artStatus:'user-supplied whole turrets; no independent barrels; damaged barrels cease fire; destroyed turrets removed without wreck imagery'},

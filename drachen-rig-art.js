@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {DRACHEN_MINES,DRACHEN_MG,drachenMuzzle} from './city-airship-combat378.js?v=d7a0cfcfc455802b';
+import {fx} from './fx-art.js?v=tame3';
+import {DRACHEN_MINES,DRACHEN_MG,drachenMuzzle} from './city-airship-combat378.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&quiet=20261115';
 
 // Destination rects and cable eyes are measured in the existing boss layout.
 // The canvas and collider use the same rig offset, scale and suspension origin.

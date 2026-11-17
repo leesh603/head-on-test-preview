@@ -1,5 +1,5 @@
 // The attached hot root uses one atlas cell, with the existing painted wake.
-import {fx,fxArtReady,fxReady} from './fx-art.js?v=d7a0cfcfc455802b';
+import {fx,fxArtReady,fxReady} from './fx-art.js?v=tame3';
 
 const CELL=128,FRAME_SECONDS=.105;
 let attachedArt;

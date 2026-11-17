@@ -1,11 +1,11 @@
 /** R.II intrusion adapter. Native rear-quarter guns / external racks, plain network state. */
-import {followTurningArrival} from './giant-intrusion-arrival.js?v=d7a0cfcfc455802b';
-import {LinkeHofmannRII,RII_LAYOUT,RII_WEAPON_ARCS} from './linke-hofmann-rii.js?v=d7a0cfcfc455802b';
-import {drawRIIBoss,drawRIIReleasedBombs} from './linke-hofmann-rii-render.js?v=d7a0cfcfc455802b';
-import {riiCollapseSites,riiCollapsePulse,queueRIICollapseFx} from './rii-destruction-fx.js?v=d7a0cfcfc455802b';
-import {pushExplosionFx} from './explosion-profiles.js?v=d7a0cfcfc455802b';
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {queueArtilleryMuzzle} from './artillery-fx.js?v=d7a0cfcfc455802b';
+import {followTurningArrival} from './giant-intrusion-arrival.js';
+import {LinkeHofmannRII,RII_LAYOUT,RII_WEAPON_ARCS} from './linke-hofmann-rii.js';
+import {drawRIIBoss,drawRIIReleasedBombs} from './linke-hofmann-rii-render.js';
+import {riiCollapseSites,riiCollapsePulse,queueRIICollapseFx} from './rii-destruction-fx.js';
+import {pushExplosionFx} from './explosion-profiles.js?v=fx5';
+import {fx} from './fx-art.js?v=tame3';
+import {queueArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 export const RII_DESTRUCTION_TIME=2.65;
 const cache=new WeakMap(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const fields=['phase','phaseClock','cycle','dropIndex','dropClock','visualBombs','visualBombSerial','bombHeading','finishClock','rackAmmo','gunCadence','nextGun','turretStates','flightSpeed','rpm','propellerPhase','crash','defeatAge','defeatProgress','dead'];

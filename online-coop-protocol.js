@@ -1,5 +1,5 @@
-import {cleanNavarreFrommherzVisual} from './navarre-frommherz-view.js?v=d7a0cfcfc455802b';
-import {cleanCapitalPilotsVisual} from './capital-pilots-view.js?v=d7a0cfcfc455802b';
+import {cleanNavarreFrommherzVisual} from './navarre-frommherz-view.js';
+import {cleanCapitalPilotsVisual} from './capital-pilots-view.js';
 export const NET_HZ=15;
 export const MAX_TETHER=1100;
 export function seededRandom(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}

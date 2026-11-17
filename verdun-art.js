@@ -1,13 +1,13 @@
-import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=d7a0cfcfc455802b';
-import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=d7a0cfcfc455802b';
-import {drawMinenInstallation} from './minenwerfer-art-render.js?v=d7a0cfcfc455802b';
-import {RURAL_TRACK_ART} from './rural-rail-track-art.js?v=d7a0cfcfc455802b';
-import {fx} from './fx-art.js?v=d7a0cfcfc455802b';
-import {drawTracerBolt} from './projectiles.js?v=a09a7cbc62f4d4d8';
-import {impactMark} from './tactical-marks.js?v=d7a0cfcfc455802b';
-import {drawShellFlight} from './boss-rounds.js?v=a09a7cbc62f4d4d8';
-import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=d7a0cfcfc455802b';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=d7a0cfcfc455802b';
+import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=20261022';
+import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
+import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4&trenchart=20261022';
+import {RURAL_TRACK_ART} from './rural-rail-track-art.js';
+import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018&strafe=20261111';
+import {impactMark} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
+import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=tame3';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 // Authored atlas frames keep measured pivots; component transition canvases are reused.
 const sources={map:'./terrain-verdun-siege-20261116.webp',vaux:'./boss-vaux-1916-20261116.webp',crater:'./verdun-impact-crater-20261116.webp',douaumont:'./boss-douaumont-atlas-r8.webp?v=douaumont1916',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=douaumont1916',souvilleParts:'./boss-souville-parts-r8.webp?v=r5',

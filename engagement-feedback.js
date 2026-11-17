@@ -1,6 +1,6 @@
-import {drawHeadOnEngagement} from './engagement-hud410.js?v=d7a0cfcfc455802b';
+import {drawHeadOnEngagement} from './engagement-hud410.js?v=tame3&pill=20261110';
 // Presentation only: the head-on damage rule itself lives in head-on-bonus.js.
-import {HEAD_ON_BALANCE} from './head-on-bonus.js?v=d7a0cfcfc455802b';
+import {HEAD_ON_BALANCE} from './head-on-bonus.js';
 export function headOnTarget(player,enemies){
  if(!player||player.hp<=0||player.status&&player.status!=='alive')return null;
  const px=Math.cos(player.a),py=Math.sin(player.a);let nearest=null,best=420;

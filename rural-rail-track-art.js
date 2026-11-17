@@ -1,5 +1,5 @@
 // Native alpha artwork, registered to the existing 92px rail gauge.
-import {warmRaster} from './raster-warm.js?v=d7a0cfcfc455802b';
+import {warmRaster} from './raster-warm.js';
 export const RURAL_TRACK_ART=Object.freeze({url:'./rail-track-states-20261110.webp',cellWidth:512,height:1024,scale:92/194,
  centers:[257,254,254],gauges:[192,196,192]});
 let image,terminal,pending,generation=0,held=false,lastRegion=0;

@@ -1,9 +1,9 @@
 // Cosmetic only: host arrival clocks, actual hull alpha, no weapons/FX renderer.
-import {ALPS_BOMBER_LAYOUT} from './alps-bomber-layout.js?v=d7a0cfcfc455802b';
-import {PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=d7a0cfcfc455802b';
-import {O400_LAYOUT} from './o400-layout.js?v=d7a0cfcfc455802b';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=d7a0cfcfc455802b';
-import {capitalPartPose} from './capital-bosses.js?v=d7a0cfcfc455802b';
+import {ALPS_BOMBER_LAYOUT} from './alps-bomber-layout.js?v=gal1';
+import {PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {O400_LAYOUT} from './o400-layout.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {capitalPartPose} from './capital-bosses.js';
 const clamp=q=>Math.max(0,Math.min(1,q));
 const sources={
  'supermarine-nighthawk':['./asset-bank/outlined/native/boss-dover-nighthawk.webp',17],

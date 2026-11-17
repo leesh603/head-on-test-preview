@@ -1,7 +1,7 @@
-import {drawGroundSearchlight,prepareGroundSearchlights} from './ground-searchlight-art.js?v=d7a0cfcfc455802b';
-import {groundVisualSize} from './ground-perspective.js?v=d7a0cfcfc455802b';
-import {drawThreatAA} from './air-threat-art.js?v=6b7189b889c2fc7c';
-import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=d7a0cfcfc455802b';
+import {drawGroundSearchlight,prepareGroundSearchlights} from './ground-searchlight-art.js';
+import {groundVisualSize} from './ground-perspective.js';
+import {drawThreatAA} from './air-threat-art.js';
+import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=tame3';
 const images=new Map(),pending=new Map();
 function load(key){if(images.has(key))return images.get(key);const im=new Image();im.crossOrigin='anonymous';im.decoding='async';images.set(key,im);pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Ground enemy art '+key));}));im.src='./'+GROUND_SHEETS[key].replace(/\.webp$/,'-q92.webp')+'?v=r5';return im;}
 export function prepareGroundEnemyArt(){const lamps=prepareGroundSearchlights();for(const key of Object.keys(GROUND_SHEETS))load(key);return Promise.all([...pending.values(),lamps]);}

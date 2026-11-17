@@ -1,4 +1,5 @@
-import {bombFallPose} from './bomb-sprites.js?v=d7a0cfcfc455802b';
+import {warmRaster} from './raster-warm.js';
+import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
@@ -37,7 +38,7 @@ export const fxsReady = !FXS || typeof Image === 'undefined' ? Promise.resolve(f
     const im = new Image();
     // Decode off the main thread first: the first drawImage of an undecoded atlas would decode it
     // synchronously inside a combat frame (a visible hitch).
-    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); warmCells(); res(true); });
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); warmRaster(im); res(true); });
     im.onerror = () => res(false);
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href; ATLAS_SOURCES.push(im.src);
   })).catch(() => false);
@@ -77,15 +78,10 @@ export function fxsImage(key) {
   cellCache.set(k, cv); return cv;
 }
 
-// The first cell cut from the atlas still decoded the whole 2048px atlas inside
-// a combat frame (about 300 ms at phone speed, in the first seconds of a stage).
-// Cut every cell once while the region is still loading, a few per idle slice.
-function warmCells() {
-  if (typeof document === 'undefined') return;
-  const keys = [...rects.keys()], idle = typeof requestIdleCallback === 'function' ? f => requestIdleCallback(f, { timeout: 1200 }) : f => setTimeout(f, 0);
-  const step = () => { const end = performance.now() + 6; while (keys.length && performance.now() < end) fxsImage(keys.shift()); if (keys.length) idle(step); };
-  idle(step);
-}
+// The first cell cut from the atlas used to decode the whole 2048px atlas inside a combat
+// frame. warmRaster uploads the atlas once while the region loads; cells are then cut on
+// first use only. (Pre-cutting every cell kept ~180 canvases / 63 MB of backing store alive
+// on phones, which press against Safari's total canvas memory.)
 const tintCache = new Map();
 export function fxsTintedCanvas(key, color) {
   const src = fxsImage(key); if (!src) return null;

@@ -1,6 +1,6 @@
 // A recovered belt is shown only after the authoritative transfer returned rounds.
 // Existing painted equipment material; no new ammo, timing, random state or target.
-import {EXTENSION_ATLAS,EXTENSION_FRAMES} from './equipment-extension-art-data.js?v=d7a0cfcfc455802b';
+import {EXTENSION_ATLAS,EXTENSION_FRAMES} from './equipment-extension-art-data.js';
 let art;
 export const lotharTransferArtReady=new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}

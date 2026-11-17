@@ -3,6 +3,7 @@
 const SOURCES={
   drachen:'./boss-drachen-parts-v2.webp?v=tame3',
   london:'./boss-london-apron-parts-v2.webp?v=tame3',
+  meadow:'./meadow-balloon-mine-topdown.webp?v=20261117',
   fx:'./fx-aa-defense-atlas.webp?v=tame3'
 };
 const CELLS={
@@ -10,6 +11,10 @@ const CELLS={
   drachenWinch:['drachen',920,0,615,500],
   drachenMine:['drachen',165,510,550,510],
   drachenWreck:['drachen',760,510,760,510],
+  meadowMine:['meadow',0,0,512,512],
+  meadowMineDamaged:['meadow',512,0,512,512],
+  meadowMineCollapsed:['meadow',0,512,512,512],
+  meadowMineWinch:['meadow',512,512,512,512],
   londonBalloon:['london',0,60,818,475],
   londonWinch:['london',810,65,725,455],
   londonKnot:['london',40,535,735,485],

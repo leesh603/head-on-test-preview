@@ -1,6 +1,6 @@
-import {activatePilotSignature,signatureCue} from './pilot-signature-state.js?v=d7a0cfcfc455802b';
-import {tickLotharFlightFx,lotharGunFx} from './lothar-pursuit-fx.js?v=d7a0cfcfc455802b';
-import {isReplacementPrimary} from './pilot-primary.js?v=d7a0cfcfc455802b';
+import {activatePilotSignature,signatureCue} from './pilot-signature-state.js';
+import {tickLotharFlightFx,lotharGunFx} from './lothar-pursuit-fx.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 // Lothar's immediate transfer from a falling opponent to the next aircraft
 // inspires this arcade pursuit loop; ammunition recovery is a game abstraction.
 export const LOTHAR_BALANCE=Object.freeze({duration:6.5,enhancedDuration:6.5,switchWindow:2.5,ammoFraction:.1,turnDuration:1.5,turnMultiplier:1.4,fireRate:1.5,speedMultiplier:1.15,extension:1,extensionCap:3});
