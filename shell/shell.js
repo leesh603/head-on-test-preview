@@ -33,8 +33,10 @@
     node.classList.toggle('offline', connected && !online);
     node.classList.toggle('unavailable', !connected);
     text(node, !connected ? '앱 연결 없음' : online ? '네트워크 연결' : '오프라인');
-    text($('storage-note'), connected && !online
-      ? '설치된 게임은 오프라인에서도 실행할 수 있습니다.'
+    const needsInstall = connected && channels.every(name => !state?.channels?.[name]?.installed);
+    text($('storage-note'), needsInstall
+      ? '최초 게임 데이터 설치에는 네트워크 연결이 필요합니다. 설치 후에는 자산을 기기에서 불러옵니다.'
+      : connected && !online ? '설치된 게임은 오프라인에서도 실행할 수 있습니다.'
       : '자산은 기기에서, 기록과 업데이트는 서버와 연결됩니다.');
   }
   function renderChannel(name, row, state, busy) {
@@ -48,16 +50,19 @@
     const online = typeof state?.online === 'boolean' ? state.online : navigator.onLine;
     const hasUpdate = !!candidate && (!installed || candidate.sourceSha !== installed.sourceSha || candidate.version !== installed.version);
     const appCompatible = !candidate || !finite(candidate.minimumAppVersion) || Number(candidate.minimumAppVersion) <= Number(state?.appVersion || 0);
-    text(field('status'), !connected ? '앱 연결 필요' : inProgress ? labels[status] : status === 'error' ? labels.error : hasUpdate ? labels.available : installed ? '준비됨' : '설치 필요');
+    text(field('status'), !connected ? '앱 연결 필요' : inProgress ? labels[status] : status === 'error' ? labels.error : hasUpdate ? (installed ? labels.available : '설치 준비됨') : installed ? '준비됨' : '설치 필요');
     field('status').dataset.state = status === 'error' ? 'error' : hasUpdate ? 'available' : status;
-    text(field('version'), installed ? version(installed.version) : connected ? '아직 설치되지 않음' : '—');
+    text(field('version'), installed ? version(installed.version) : connected ? '게임 데이터 설치 필요' : '—');
     field('version').title = installed ? version(installed.version) : '';
     text(field('sha'), shortSha(installed?.sourceSha));
     field('sha').title = installed?.sourceSha || '';
-    text(field('date'), installed ? buildDate(installed.createdAt) : connected ? '업데이트 확인 후 게임을 설치하세요.' : 'Android 앱에서 상태를 확인할 수 있습니다.');
+    const preparation = row?.preparation;
+    text(field('date'), installed ? buildDate(installed.createdAt) : connected
+      ? (finite(preparation?.downloadBytes) ? '내장 목록 기준 예상 다운로드 ' + size(preparation.downloadBytes) + '. ' : '') + '게임 데이터를 확인한 뒤 설치하세요.'
+      : 'Android 앱에서 상태를 확인할 수 있습니다.');
     action('launch').disabled = !connected || !installed || busy || actionPending;
     action('check').disabled = !connected || !online || busy || actionPending;
-    text(action('check'), status === 'checking' ? '확인 중…' : '업데이트 확인');
+    text(action('check'), status === 'checking' ? '확인 중…' : installed ? '업데이트 확인' : '게임 데이터 확인');
     field('update').hidden = !hasUpdate || status === 'downloading' || status === 'installing';
     if (hasUpdate) {
       text(field('update-title'), (installed ? '새 버전 · ' : '설치 가능 · ') + version(candidate.version));
@@ -67,14 +72,14 @@
         ? '예상 다운로드 ' + size(candidate.downloadBytes) + (finite(candidate.downloadFiles) ? ' · ' + count(candidate.downloadFiles) + '개 파일' : '')
         : '전체 패키지 ' + size(candidate.totalBytes);
       text(field('update-details'), appCompatible ? download : '앱 ' + candidate.minimumAppVersion + ' 이상에서 설치할 수 있습니다. APK를 먼저 업데이트하세요.');
-      text(action('install'), installed ? '업데이트 설치' : '게임 설치');
+      text(action('install'), installed ? '업데이트 설치' : '게임 데이터 설치');
       action('install').disabled = !connected || !online || !appCompatible || busy || actionPending;
     }
     field('progress-panel').hidden = !inProgress;
     if (inProgress) {
       const progress = card.querySelector('progress');
       const actual = finite(row?.progress) ? Math.max(0, Math.min(1, Number(row.progress))) : null;
-      text(field('progress-label'), status === 'checking' ? '새 버전 확인 중' : status === 'installing' ? '파일 검증 및 설치 중' : '게임 파일 다운로드 중');
+      text(field('progress-label'), status === 'checking' ? (installed ? '새 버전 확인 중' : '게임 데이터 확인 중') : status === 'installing' ? '파일 검증 및 설치 중' : '게임 파일 다운로드 중');
       if (status === 'downloading' && finite(row?.totalBytes) && Number(row.totalBytes) > 0) {
         progress.value = actual === null ? Math.min(1, count(row.downloadedBytes) / Number(row.totalBytes)) : actual;
         text(field('progress-count'), Math.floor(progress.value * 100) + '%');
@@ -82,7 +87,7 @@
       } else {
         progress.removeAttribute('value');
         text(field('progress-count'), '');
-        text(field('progress-detail'), status === 'checking' ? '서버에 게시된 패키지를 확인하고 있습니다.' : '확인이 끝나면 새 버전으로 전환됩니다.');
+        text(field('progress-detail'), status === 'checking' ? '서버에 게시된 패키지를 확인하고 있습니다.' : installed ? '확인이 끝나면 새 버전으로 전환됩니다.' : '모든 파일을 확인한 뒤 출격할 수 있습니다.');
       }
     }
     const error = row?.error ? String(row.error).slice(0, 300) : '';
