@@ -9,20 +9,21 @@ export function releaseCambraiDetailArt(){images={};pending=null;wheelFrames=[];
 const part=(b,id)=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
 export const cambraiPartState=(p,dead=false)=>dead||p?.destroyed?2:p?.hp<=p?.maxHp*.5?1:0;
 function component(c,row,state,w,h){const [x,y,bw,bh]=HW[row];c.drawImage(images.hardware,state*512,row*512,512,512,(-x-bw/2)*w/bw,(-y-bh/2)*h/bh,512*w/bw,512*h/bh);}
+const WHEEL_FRAMES=8;
+function drawWheelSurface(c,state,phase){
+ component(c,0,state,80,289);
+ const x=-23,y=-99.5,w=29,h=200,offset=phase*2,cell=state*512;
+ c.save();c.beginPath();c.rect(x,y,w,h);c.clip();
+ c.drawImage(images.hardware,cell+210,100+offset*2,56,320-offset*2,x,y,w,h*(160-offset)/160);
+ if(offset)c.drawImage(images.hardware,cell+210,100,56,offset*2,x,y+h*(160-offset)/160,w,h*offset/160);
+ c.restore();
+}
 function bakeWheelFrames(){
  if(!globalThis.document?.createElement)return;
- // Eight small wheel surfaces are baked once. Runtime scrolling allocates no
- // canvases or masks; rims, hubs, end caps and collision mounts stay fixed.
- for(let phase=0;phase<8;phase++){
-  const cv=document.createElement('canvas');cv.width=160;cv.height=578;const c=cv.getContext('2d');if(!c?.drawImage||!c.createLinearGradient){wheelFrames=[];return;}
-  c.scale(2,2);c.save();c.translate(40,144.5);component(c,0,0,80,289);c.restore();
-  const x=17,y=45,w=29,h=200,offset=phase*2;
-  c.save();c.beginPath();c.rect(x,y,w,h);c.clip();
-  // The authored front tread repeats under the stationary rim. Keep a clear
-  // margin at both ends, where its round cap carries the lighting.
-  c.drawImage(images.hardware,210,100+offset*2,56,320-offset*2,x,y,w,h*(160-offset)/160);
-  if(offset)c.drawImage(images.hardware,210,100,56,offset*2,x,y+h*(160-offset)/160,w,h*offset/160);
-  c.restore();wheelFrames.push(cv);
+ for(let phase=0;phase<WHEEL_FRAMES;phase++){
+  const cv=document.createElement('canvas');cv.width=160;cv.height=578;
+  const c=cv.getContext('2d');if(!c){wheelFrames=[];return;}
+  c.scale(2,2);c.translate(40,144.5);drawWheelSurface(c,0,phase);wheelFrames.push(cv);
  }
 }
 function weapon(c,p,key,x,y,angle,length,dead=false,recoil=0){
@@ -39,7 +40,11 @@ export function drawAuthoredTreffas(c,b){
  for(const [id,side]of [['wheel-left',-1],['wheel-right',1]]){
   const p=part(b,id),st=cambraiPartState(p,dead),roll=(side<0?b.wheelRollLeft:b.wheelRollRight)??b.wheelRoll??0;
   c.save();c.translate(side*112,-8);if(side>0)c.scale(-1,1);
-  if(st===0&&wheelFrames.length===8)c.drawImage(wheelFrames[Math.floor(Math.abs(roll)*8)%8],-40,-144.5,80,289);else component(c,0,st,80,289);c.restore();
+  const phase=((Math.floor(roll*WHEEL_FRAMES)%WHEEL_FRAMES)+WHEEL_FRAMES)%WHEEL_FRAMES;
+  if(st===0&&wheelFrames[phase])c.drawImage(wheelFrames[phase],-40,-144.5,80,289);
+  else if(st<2)drawWheelSurface(c,st,phase);
+  else component(c,0,st,80,289);
+  c.restore();
  }
  c.save();c.translate(0,124);component(c,1,cambraiPartState(part(b,'rudder'),dead),80,56);c.restore();
  const p=part(b,'turret'),st=cambraiPartState(p,dead),s=TREFFAS_ART.worldWidth/TREFFAS_ART.width,k=TREFFAS_ART.gunLength*s/272;

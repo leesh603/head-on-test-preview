@@ -3,6 +3,9 @@ import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
 import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {doverAircraftHull,doverDuel} from './dover-flight-clearance.js';
+import {hullOverlap} from './adriatic-boss-layout.js?v=tame3';
+import {doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
 // Preserve authored railway, buried-weapon and formation approaches.
 const authored=new Set(['bruno-railway-gun','lincomparable','livens-flame-projector','minenwerfer-battery','mark4-wedge','treffas-wagen','fliegerzug','jasta11-circus','naval10-black-flight','london-apron-raid','sinai-landship','wustenpanzer']);
 const installed=new Set(['armored-harbor-fortress','gallipoli-fortress']);
@@ -87,6 +90,36 @@ function positionAirArrival(encounter,bodies,frame){
   if(Number.isFinite(b.patrolFlowX)){b.patrolFlowX=vx*scale;b.patrolFlowY=vy*scale;}
  }
 }
+// Dover's real sides are fixed by the mission: the R.VIII flies north
+// toward England and the Nighthawk meets it from the Channel's north edge.
+function positionDoverArrival(bodies,frame){
+ const duel=doverDuel(bodies);if(!duel||!frame.mapBounds?.coastInset)return false;
+ const {bomber,interceptor}=duel,bounds=frame.bounds,span=bounds.right-bounds.left;
+ const pilot=frame.players?.find(p=>p.alive!==false),lead=Math.max(-650,Math.min(350,(pilot?.vy||0)*2.4));
+ const centerY=(bounds.top+bounds.bottom)/2+lead,centerX=(bounds.left+bounds.right)/2;
+ const lane=doverCliffRoute(frame.mapBounds,centerY,560,0).x;
+ const baseX=Math.max(centerX-span*.24,Math.min(centerX+span*.24,lane));
+ const halfDepth=(bomber.layout.height*bomber.geometryScale+interceptor.layout.height*interceptor.geometryScale)/2;
+ const gap=halfDepth+425;
+ const wingGap=(bomber.layout.width*bomber.geometryScale+interceptor.layout.width*interceptor.geometryScale)/2;
+ for(const [body,dir,speed] of [[bomber,-1,142],[interceptor,1,190]]){
+  const y=centerY+dir*-gap/2;
+  body.a=dir*Math.PI/2;body.rotateMounts();
+  body.flightSpeed=speed;body.velocityX=0;body.velocityY=dir*speed;body.turnVelocity=0;body.doverOpposedEntry=true;
+  const extent=bossArrivalBounds(body).halfHeight;
+  const dy=dir<0?Math.max(180,bounds.bottom+extent+100-y):Math.min(-180,bounds.top-extent-100-y);
+  const desiredX=baseX+(dir<0?0:-wingGap*.65-18),margin=body.airframeExtents().x+18;
+  const safeX=[0,-110,110,-220,220,-360,360,-530,530].map(dx=>desiredX+dx).find(x=>{
+   if(x<frame.mapBounds.left+margin||x>frame.mapBounds.right-margin)return false;
+   const footprint=doverAircraftHull(body,x,y+dy*.5);
+   footprint.h+=Math.abs(dy);
+   return !(frame.doverShips||[]).some(ship=>hullOverlap(footprint,ship,75));
+  });
+  body.x=safeX??desiredX;body.y=y+dy;
+  body.arrivalPath={x:body.x,y,dx:0,dy,endSlope:Math.min(1.5,speed*body.arrivalDuration/Math.abs(dy))};
+ }
+ return true;
+}
 export function bossArrivalProgress(body,age=body.arrivalAge){
  const q=clamp((age-body.arrivalHold)/body.arrivalDuration),m=body.arrivalPath?.endSlope||0;
  if(body.arrivalPath?.coastRamp){const ramp=body.arrivalPath.coastRamp;return q<ramp?q*q/(2*ramp*(1-ramp)):q>1-ramp?1-(1-q)**2/(2*ramp*(1-ramp)):(q-ramp/2)/(1-ramp);}
@@ -124,17 +157,19 @@ export function tickBossArrival(addon,encounter,dt,frame){
   finally{addon.preparingArrival=false;}
   const bodies=[...encounter.bodies.values()],lead=bodies[0],family=bossEntryFamily(encounter.bossId);
   // Travel follows the painted nose/tracks instead of sliding broadside into view.
-  const formation=formationArrival(encounter,bodies,frame);
-  if(!formation)positionAirArrival(encounter,bodies,frame);
-  const heading=formation?lead.a:family==='airship'&&!lead.isCapitalBoss?Math.PI:['naval','armour'].includes(family)||lead.isCapitalBoss?(lead.hullYaw||0)-Math.PI/2:lead.a??(lead.hullYaw||0)-Math.PI/2;
-  const offset=outsideOffset(bodies,frame.bounds,{x:-Math.cos(heading),y:-Math.sin(heading)});
-  for(const body of bodies){
-   // One progress clock and offset preserve the complete flight's spacing.
-   // Retain forward speed through handoff instead of stopping then restarting.
-   const speed=formation?(encounter.bossId==='o400-squadron'?135:170):['siemens-schuckert-r-viii','supermarine-nighthawk'].includes(body.kind)?body.flightSpeed||0:body.kind==='paris-staaken-rvi'?body.currentSpeed||0:0;
-   const endSlope=Math.min(1.5,speed*3/Math.max(1,Math.hypot(offset.x,offset.y))),coastRamp=['zeppelin-l70','hma23'].includes(body.kind)?.2:0;
-   Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3,arrivalPath:{x:body.x,y:body.y,dx:offset.x,dy:offset.y,...(endSlope?{endSlope}:{}),...(coastRamp?{coastRamp}:{})}});
-   body.x+=offset.x;body.y+=offset.y;if(body.support129){body.support129.x=body.x;body.support129.y=body.y;}
+  if(!positionDoverArrival(bodies,frame)){
+   const formation=formationArrival(encounter,bodies,frame);
+   if(!formation)positionAirArrival(encounter,bodies,frame);
+   const heading=formation?lead.a:family==='airship'&&!lead.isCapitalBoss?Math.PI:['naval','armour'].includes(family)||lead.isCapitalBoss?(lead.hullYaw||0)-Math.PI/2:lead.a??(lead.hullYaw||0)-Math.PI/2;
+   const offset=outsideOffset(bodies,frame.bounds,{x:-Math.cos(heading),y:-Math.sin(heading)});
+   for(const body of bodies){
+    // One progress clock and offset preserve the complete flight's spacing.
+    // Retain forward speed through handoff instead of stopping then restarting.
+    const speed=formation?(encounter.bossId==='o400-squadron'?135:170):['siemens-schuckert-r-viii','supermarine-nighthawk'].includes(body.kind)?body.flightSpeed||0:body.kind==='paris-staaken-rvi'?body.currentSpeed||0:0;
+    const endSlope=Math.min(1.5,speed*3/Math.max(1,Math.hypot(offset.x,offset.y))),coastRamp=['zeppelin-l70','hma23'].includes(body.kind)?.2:0;
+    Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3,arrivalPath:{x:body.x,y:body.y,dx:offset.x,dy:offset.y,...(endSlope?{endSlope}:{}),...(coastRamp?{coastRamp}:{})}});
+    body.x+=offset.x;body.y+=offset.y;if(body.support129){body.support129.x=body.x;body.support129.y=body.y;}
+   }
   }
   if(scene){const first=bodies[0];if(first)first.bossEntry=scene;for(const body of bodies)body.entryFamily=scene.family;}
   encounter.arrivalInitialized=true;

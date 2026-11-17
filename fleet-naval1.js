@@ -99,6 +99,7 @@ export function installFleet(Game){
 
 export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
+ const adriatic=game.worldRegion?.()===1;
  for(const q of game.navalExchanges||[]){const t=q.age/q.duration,[x,y]=point(q.sx+(q.x-q.sx)*t,q.sy+(q.y-q.sy)*t),a=Math.atan2(q.y-q.sy,q.x-q.sx);fx(c,'shell',x,y-Math.sin(t*Math.PI)*24,23,9,a,.95);if(t<.15)fx(c,'muzzleHeavy',...point(q.sx,q.sy),42,25,a,.65);}
  // Combat corpses are detached from the visual wreck as soon as they die.
  for(const e of [...(game.enemies||[]),...(game.friendlyShips||[])]){
@@ -106,7 +107,7 @@ export function drawFleetLayer(c,game,{point}){
   if(e.hp<=0)continue;
   const t=SHIP_TYPES[e.shipClass],[x,y]=point(e.x,e.y),h=t.drawnH*.9,w=h*.21;
   if(x<-h||x>cw+h||y<-h||y>ch+h)continue;
-   drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
+   drawShipWater(c,e,w,h,point,{adriatic});c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
    if(e.faction===playerFaction(game)){c.save();c.fillStyle='#b9d5c6';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText(e.blockship!==undefined?e.name:'아군 '+t.name,x,y+h*.53);c.restore();}
  }
  for(const p of game.shipSinkPuffs||[]){const [x,y]=point(p.x,p.y);if(x<-p.h||x>cw+p.h||y<-p.h||y>ch+p.h)continue;

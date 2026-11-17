@@ -79,10 +79,9 @@ export function drawArmorTreads(c,b,hull,profile,arrival){
   if(Math.abs(speed)>2){
    const y=(speed>0?1:-1)*h*.46;
    fx(c,'dustPuff',x,y,46,34,0,Math.min(.32,Math.abs(speed)/170));
-   if(arrival?.arrivalPending||b.tacticalState==='entry'){
-    const pulse=.5+.5*Math.sin(roll*.15+i*2.1),yTrail=y+Math.sign(speed)*(14+pulse*10);
-    fx(c,'dirtMix',x+(i?1:-1)*pulse*8,yTrail,58,48,0,Math.min(.4,Math.abs(speed)/85)*(.7+pulse*.3));
-   }
+   const trail=(Math.abs(roll)/42+i*.5)%1,life=1-trail,yTrail=y+Math.sign(speed)*(12+trail*29);
+   fx(c,'smokeDust',x+(i?1:-1)*trail*5,yTrail,35+trail*22,27+trail*21,0,Math.min(.45,Math.abs(speed)/95)*life);
+   if(arrival?.arrivalPending||b.tacticalState==='entry')fx(c,'dirtMix',x,yTrail,58,48,0,Math.min(.4,Math.abs(speed)/85)*life);
   }
  }
 }

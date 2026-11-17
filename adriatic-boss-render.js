@@ -11,7 +11,9 @@ export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
  rear:[641,312,286,446],rearWreck:[646,1073,288,443]
 });
 function atlasSprite(c,image,frame,x,y,width,height){if(!image?.naturalWidth)return false;c.drawImage(image,...frame,x-width/2,y-height/2,width,height);return true;}
-export function drawNavalWake(c,b,width,height){const a=b.hullYaw??b.angle??0,ca=Math.cos(a),sa=Math.sin(a);drawShipWater(c,{...b,x:0,y:0,hullYaw:0,wakeTrail:(b.wakeTrail||[]).map(p=>({...p,x:(p.x-b.x)*ca+(p.y-b.y)*sa,y:-(p.x-b.x)*sa+(p.y-b.y)*ca}))},width,height);}
+export function drawNavalWake(c,b,width,height){
+ drawShipWater(c,b,width,height,undefined,{adriatic:true,local:true});
+}
 export function drawZubianShip(c,b,images,detail){
  const role=b.assetKey.endsWith('front')?'front':b.assetKey.endsWith('rear')?'rear':null;
  const size=zubianSize({...b,role,t:{geometryScale:b.geometryScale}}),s=b.geometryScale||1;

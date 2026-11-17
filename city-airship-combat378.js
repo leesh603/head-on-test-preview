@@ -152,8 +152,8 @@ export class LondonApron extends CityAirships{
 }
 
 export class DrachenMineNet extends CityAirships{
- constructor(o){super(o,'drachen-net');this.mineQueue=[];this.burstQueue=[];this.mineSerial=0;this.driftTime=0;this.cityRigOffsets=[[0,0],[0,0],[0,0]];this.netState='mines';this.netStateAge=0;this.netStateFresh=true;this.mineSupportIndex=null;this.aimSupportIndex=null;
-  this.cityArtScale=1.5*Math.max(.32,Math.min(1.62,((this.t.regionalViewWidth||960)-60)/790*1.2,((this.t.regionalViewHeight||700)-150)/720*1.2));
+ constructor(o,scaleMultiplier=1){super(o,'drachen-net');this.mineQueue=[];this.burstQueue=[];this.mineSerial=0;this.driftTime=0;this.cityRigOffsets=[[0,0],[0,0],[0,0]];this.netState='mines';this.netStateAge=0;this.netStateFresh=true;this.mineSupportIndex=null;this.aimSupportIndex=null;
+  this.cityArtScale=scaleMultiplier*1.5*Math.max(.32,Math.min(1.62,((this.t.regionalViewWidth||960)-60)/790*1.2,((this.t.regionalViewHeight||700)-150)/720*1.2));
   this.regionalScale=this.apronScale=this.cityArtScale;this.syncRigs();this.timers.set('mine-lay',1.0);
   for(const p of this.parts.values())p.angle=Math.PI/2;
  }

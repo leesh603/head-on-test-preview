@@ -26,7 +26,16 @@ function feather(c,w,h,horizontal,vertical){
 function artwork(im){
  if(source===im)return true;
  const r=canvas(Math.round(im.naturalWidth*.09),seineBottom-seineTop);
- if(!r)return false;
+ const d=canvas(im.naturalWidth,im.naturalHeight);
+ if(!r||!d)return false;
+ // Rasterize all adjoining strips into one district so browser filtering
+ // samples across their joins at fractional camera coordinates.
+ const dc=d.getContext('2d'),height=PARIS_GROUND.bottom-PARIS_GROUND.top;
+ for(const [a,b,y0,y1] of bands){
+  const start=Math.round((y0-PARIS_GROUND.top)*d.height/height),end=Math.round((y1-PARIS_GROUND.top)*d.height/height);
+  dc.drawImage(im,0,a*im.naturalHeight,im.naturalWidth,(b-a)*im.naturalHeight,0,start,d.width,end-start);
+ }
+ feather(dc,d.width,d.height,.14,.13);
  // The district WebP includes the feathered boundary. Take the Seine
  // extension from inside that boundary, east of the last bridge.
  const rc=r.getContext('2d');
@@ -36,18 +45,26 @@ function artwork(im){
   rc.drawImage(im,im.naturalWidth*.82,im.naturalHeight*v,im.naturalWidth*.09,im.naturalHeight*height,0,top-seineTop,r.width,bottom-top);
  }
  feather(rc,r.width,r.height,0,.12);
- source=im;district=im;river=r;return true;
+ source=im;district=d;river=r;return true;
 }
 export function paintParisTerrain(c,g,cx,cy,w,h,images){
  const origin=g?.parisBattle?.origin;
  if(!origin||![images.map,images.surround].every(ready)||typeof c.createPattern!=='function'||!artwork(images.map))return false;
  if(citySource!==images.surround){
   citySource=images.surround;cityPatterns=new WeakMap();
-  cityTile=canvas(citySource.naturalWidth,citySource.naturalHeight);
-  const q=cityTile.getContext('2d');q.filter='saturate(.58) brightness(.69) contrast(.90)';q.drawImage(citySource,0,0);q.filter='none';
+  const size=512;
+  cityTile=canvas(size*2,size*2);
+  const q=cityTile.getContext('2d');
+  q.filter='saturate(.58) brightness(.69) contrast(.90)';
+  // Fold the existing city outskirts at both edges; facing street ends
+  // meet instead of jumping from one block to another on a repeat.
+  for(let row=0;row<2;row++)for(let col=0;col<2;col++){
+   q.save();q.translate(col*size*2,row*size*2);q.scale(col?-1:1,row?-1:1);
+   q.drawImage(citySource,0,0,size,size);q.restore();
+  }
  }
  if(!cityPatterns.has(c)){
-  const p=c.createPattern(cityTile,'repeat'),s=1152/cityTile.width;
+  const p=c.createPattern(cityTile,'repeat'),s=2304/cityTile.width;
   p.setTransform({a:s,b:0,c:0,d:s,e:0,f:0});cityPatterns.set(c,p);
  }
  const left=cx-w/2-origin.x,top=cy-h/2-origin.y,ground=PARIS_GROUND;
@@ -65,11 +82,8 @@ export function paintParisTerrain(c,g,cx,cy,w,h,images){
   }
  }
  // The parade ground fits the existing fortress; scenery never moves a boss.
- if(left<ground.left+ground.width&&left+w>ground.left){
-  for(const [a,b,y0,y1] of bands){
-   if(y0>=top+h||y1<=top)continue;
-   c.drawImage(district,0,a*district.height,district.width,(b-a)*district.height,ground.left,y0,ground.width,y1-y0);
-  }
+ if(left<ground.left+ground.width&&left+w>ground.left&&top<ground.bottom&&top+h>ground.top){
+  c.drawImage(district,ground.left,ground.top,ground.width,ground.bottom-ground.top);
  }
  c.restore();applyTerrainAtmosphere(c,'london',w,h);return true;
 }

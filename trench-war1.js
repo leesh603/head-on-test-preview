@@ -6,6 +6,33 @@ export const TRENCH_BALANCE=Object.freeze({
  barrageTravel:1500,playerHit:.13,hitCooldown:1.35,enemyHit:.3,lullAfter:5,
  smokeMax:3,smokeR:190,smokeLife:50,smokeDrift:14,smokeGap:14,aimCut:.45,tailCut:.65
 });
+const trenchMarks=new WeakMap();
+const MARK_LIMIT=6,MARK_SECONDS=22;
+let craterArt;
+function markTrenchImpact(game,x,y){
+ let marks=trenchMarks.get(game);
+ if(!marks){marks=[];trenchMarks.set(game,marks);}
+ if(marks.some(mark=>(x-mark.x)**2+(y-mark.y)**2<1200&&game.t-mark.time<MARK_SECONDS))return;
+ if(marks.length===MARK_LIMIT)marks.shift();
+ marks.push({x,y,time:game.t,size:45+Math.abs(Math.round(x+y)%18)});
+}
+function drawTrenchMarks(c,game,point){
+ if(game.worldRegion?.()!==2)return;
+ if(!craterArt&&typeof Image!=='undefined'){
+  craterArt=new Image();craterArt.decoding='async';craterArt.src='./verdun-impact-crater-20261116.webp';
+ }
+ if(!craterArt?.naturalWidth)return;
+ const marks=trenchMarks.get(game);
+ if(!marks?.length)return;
+ const opacity=c.globalAlpha;
+ for(const mark of marks){
+  const [x,y]=point(mark.x,mark.y),age=game.t-mark.time,r=mark.size*.5;
+  if(age<0||age>=MARK_SECONDS||x<-r||x>c.canvas.width+r||y<-r||y>c.canvas.height+r)continue;
+  c.globalAlpha=opacity*.85*Math.min(1,(MARK_SECONDS-age)/5);
+  c.drawImage(craterArt,x-r,y-r,mark.size,mark.size);
+ }
+ c.globalAlpha=opacity;
+}
 export function installTrenchWar(Game,TAILING_BALANCE){
  const P=Game.prototype,B=TRENCH_BALANCE;
  P.spawnBarrage=function(){
@@ -55,7 +82,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
   _twUpdate.call(this,dt,input);
   if(this.state!=='playing')return;
   const step=Math.min(.04,Math.max(0,dt)),region=this.worldRegion();
-  if(region!==2)this.barrage=null;
+  if(region!==2){this.barrage=null;trenchMarks.delete(this);}
   if(region===2){
    if(!this.barrage){this._barrageT=(this._barrageT||30)-step;if(this._barrageT<=0)this.spawnBarrage()}
    const b=this.barrage;
@@ -65,7 +92,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
      b.pos+=B.barrageSpeed*step;
      if(this.rng()<step*14){const a=b.pos+this.rng()*40,l=(this.rng()-.5)*2*B.barrageHalfWidth;
       const ix=b.x+Math.cos(b.dir)*a-Math.sin(b.dir)*l,iy=b.y+Math.sin(b.dir)*a+Math.cos(b.dir)*l;
-      this.burst(ix,iy,'#7a6248',5,'groundShell');this.smoke(ix,iy,true,true)}
+      this.burst(ix,iy,'#7a6248',5,'groundShell');this.smoke(ix,iy,true,true);markTrenchImpact(this,ix,iy);}
      if((this._barragePlayerHit||0)<=0&&this.inBarrageBand(this.x,this.y)){
       this._barragePlayerHit=B.hitCooldown;this.hit(Math.max(6,Math.round(this.maxHp*B.playerHit)))}
      this._barragePlayerHit=(this._barragePlayerHit||0)-step;
@@ -96,6 +123,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
 };
 export function drawTrenchLayer(c,game,{point}){
  const b=game.barrage,cw=c.canvas.width,ch=c.canvas.height;
+ drawTrenchMarks(c,game,point);
  for(const z of game.smokeZones||[]){
   if(z.expired)continue;const[x,y]=point(z.x,z.y);
   if(x<-z.r||x>cw+z.r||y<-z.r||y>ch+z.r)continue;
@@ -104,27 +132,13 @@ export function drawTrenchLayer(c,game,{point}){
   g.addColorStop(0,`rgba(118,112,92,${.4*fade})`);g.addColorStop(1,'rgba(118,112,92,0)');
   c.fillStyle=g;c.beginPath();c.arc(x,y,z.r,0,7);c.fill();
  }
- if(b){
+ if(b?.warn>0){
   const nx=-Math.sin(b.dir),ny=Math.cos(b.dir);
-  const sx=Math.cos(b.dir),sy=Math.sin(b.dir);
-  if(b.warn>0){
-   c.save();c.globalAlpha=.5+.3*Math.sin(performance.now()/120);c.strokeStyle='#8a6a3a';c.lineWidth=2;
-   for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=45){
-    const[x0,y0]=point(b.x+nx*l+sx*b.pos*0,b.y+ny*l+sy*0);
-    c.beginPath();c.moveTo(x0-6,y0);c.lineTo(x0+6,y0);c.moveTo(x0,y0-6);c.lineTo(x0,y0+6);c.stroke();
-   }
-   c.restore();
-  }else{
-   c.save();
-   for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=34){
-    const a=b.pos+((l*37)%40)-20;
-    const[x0,y0]=point(b.x+sx*a+nx*l,b.y+sy*a+ny*l);
-    if(x0<-40||x0>cw+40||y0<-40||y0>ch+40)continue;
-    const g=c.createRadialGradient(x0,y0,2,x0,y0,26);
-    g.addColorStop(0,'rgba(96,74,50,.55)');g.addColorStop(.6,'rgba(70,58,40,.28)');g.addColorStop(1,'rgba(70,58,40,0)');
-    c.fillStyle=g;c.beginPath();c.arc(x0,y0,26,0,7);c.fill();
-   }
-   c.restore();
+  c.save();c.globalAlpha=.5+.3*Math.sin(performance.now()/120);c.strokeStyle='#8a6a3a';c.lineWidth=2;
+  for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=45){
+   const [x,y]=point(b.x+nx*l,b.y+ny*l);
+   c.beginPath();c.moveTo(x-6,y);c.lineTo(x+6,y);c.moveTo(x,y-6);c.lineTo(x,y+6);c.stroke();
   }
+  c.restore();
  }
 };

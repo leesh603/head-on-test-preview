@@ -1,5 +1,5 @@
 import {cityWeaponSignals,drawParisMovingMount,drawStaakenPropellers,staakenRackLoaded} from './city-defense-art.js?v=1022';
-import {PARIS_DECK_FRAMES} from './city-defense-decks.js?v=1022';
+import {PARIS_DECK_FRAMES,PARIS_DECK_PLACEMENT} from './city-defense-decks.js?v=1022';
 import {fx} from './fx-art.js?v=tame3';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=gal1';
@@ -46,7 +46,18 @@ export function drawParisBoss(c,b,addon){
  for(const p of b.parts||[]){
   const wreck=p.destroyed||b.destroying,rect=clips[p.id];if(!rect)continue;
   c.save();c.beginPath();c.rect(...rect);c.clip();
-  if(movingFortress&&PARIS_DECK_FRAMES[p.id]){c.drawImage(images.decks,...PARIS_DECK_FRAMES[p.id],...rect);}
+  if(movingFortress&&PARIS_DECK_FRAMES[p.id]){
+   if(p.id.startsWith('mg-')){
+    // The lower platforms are painted into the fortress. Preserve the
+    // surrounding apron and mask only the old gun and its socket.
+    whole(normal);c.beginPath();
+    const side=p.id==='mg-left'?-1:1,x=p.localX/s,y=p.localY/s;
+    c.moveTo(x+side*49,y-76);c.lineTo(x+side*26,y-74);c.lineTo(x-side*31,y-26);
+    c.quadraticCurveTo(x-side*49,y+25,x,y+33);
+    c.quadraticCurveTo(x+side*51,y+26,x+side*43,y-17);c.closePath();c.clip();
+   }
+   c.drawImage(images.decks,...PARIS_DECK_FRAMES[p.id],...(PARIS_DECK_PLACEMENT[p.id]||rect));
+  }
   else{const original=wreck&&damaged?.naturalWidth?damaged:normal,empty=layeredPlane&&!wreck&&(p.kind==='engine'||p.kind==='payload'&&!staakenRackLoaded(native,p,addon?.hazards));whole(empty?images.emptyStaaken:original);}
   c.restore();
   if(movingFortress&&PARIS_DECK_FRAMES[p.id])drawParisMovingMount(c,b,p,images.hardware,signals);
