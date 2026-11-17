@@ -108,14 +108,18 @@ function positionDoverArrival(bodies,frame){
   body.flightSpeed=speed;body.velocityX=0;body.velocityY=dir*speed;body.turnVelocity=0;body.doverOpposedEntry=true;
   const extent=bossArrivalBounds(body).halfHeight;
   const dy=dir<0?Math.max(180,bounds.bottom+extent+100-y):Math.min(-180,bounds.top-extent-100-y);
-  const desiredX=baseX+(dir<0?0:-wingGap*.65-18),margin=body.airframeExtents().x+18;
-  const safeX=[0,-110,110,-220,220,-360,360,-530,530].map(dx=>desiredX+dx).find(x=>{
+  const margin=body.airframeExtents().x+18;
+  const preferredSide=baseX<centerX?1:-1;
+  const candidates=dir<0?[0,-110,110,-220,220,-360,360,-530,530].map(dx=>baseX+dx):
+   [preferredSide,-preferredSide].flatMap(side=>[0,90,180,300].map(dx=>bomber.x+side*(wingGap+55+dx)));
+  const safeX=candidates.find(x=>{
    if(x<frame.mapBounds.left+margin||x>frame.mapBounds.right-margin)return false;
    const footprint=doverAircraftHull(body,x,y+dy*.5);
    footprint.h+=Math.abs(dy);
    return !(frame.doverShips||[]).some(ship=>hullOverlap(footprint,ship,75));
   });
-  body.x=safeX??desiredX;body.y=y+dy;
+  body.x=safeX??Math.max(frame.mapBounds.left+margin,Math.min(frame.mapBounds.right-margin,candidates[0]));body.y=y+dy;
+  if(body===interceptor)body.doverInterceptSide=body.x<bomber.x?-1:1;
   body.arrivalPath={x:body.x,y,dx:0,dy,endSlope:Math.min(1.5,speed*body.arrivalDuration/Math.abs(dy))};
  }
  return true;

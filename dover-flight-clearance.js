@@ -18,25 +18,25 @@ export function doverDuel(bodies){
 export function doverInterceptCourse(body,target){
  const wingspan=(body.layout.width*body.geometryScale+target.w)/2;
  const tailGap=(body.layout.height*body.geometryScale+target.h)/2+34;
- const ahead=target.y-body.y;
+ const ahead=target.y-body.y,side=body.doverInterceptSide??(body.x<target.x?-1:1);
+ const lane=target.x+side*(wingspan+55);
  if(!body.doverInterceptLeg)body.doverInterceptLeg='head-on';
  if(body.doverInterceptLeg==='head-on'&&ahead<tailGap+315)body.doverInterceptLeg='pass';
  if(body.doverInterceptLeg==='head-on'){
-  return {angle:Math.atan2(Math.max(260,ahead),target.x-wingspan*.65-body.x),speed:190*body.speedRatio()};
+  return {angle:Math.atan2(Math.max(260,ahead),clamp(lane-body.x,-105,105)),speed:190*body.speedRatio()};
  }
  if(body.doverInterceptLeg==='pass'){
-  if(ahead>-tailGap-40){
-   const x=target.x-wingspan-55;
-   return {angle:Math.atan2(245,clamp(x-body.x,-285,85)),speed:205*body.speedRatio()};
+  if(ahead>-tailGap-80){
+   return {angle:Math.atan2(245,clamp(lane-body.x,-125,125)),speed:205*body.speedRatio()};
   }
   body.doverInterceptLeg='bank';
  }
  if(body.doverInterceptLeg==='bank'){
-  const angle=-Math.PI*.61;
+  const angle=-Math.PI*.5-side*Math.PI*.11;
   if(Math.abs(normalize(angle-body.a))>.55)return {angle,speed:166*body.speedRatio()};
   body.doverInterceptLeg='trail';
  }
- const x=target.x-48,y=target.y+tailGap;
+ const x=target.x+side*48,y=target.y+tailGap;
  const vx=(target.vx||0)+clamp((x-body.x)*.72,-125,125);
  const vy=(target.vy||0)+clamp((y-body.y)*.88,-155,110);
  return {angle:Math.atan2(Math.min(-35,vy),vx),speed:clamp(Math.hypot(vx,vy),48,238)*body.speedRatio()};

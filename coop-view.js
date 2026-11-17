@@ -59,10 +59,10 @@ const worldPoint=(x,y)=>[x,y];
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer,deferHostile=false,deferHealPickups=false}){
  // Start guest decode on the replicated offscreen arrival, before visibility culling.
  if(g.squadronArrival?.unitId)warmSquadronAircraft(g.squadronArrival.unitId);
- const t=g.t,z=g.camera.zoom,meadow=g.worldRegion?.()===0&&!finalArenaVisible(g);c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawSpecialOperationTrain(c,g,W,H);if(finalArenaVisible(g))drawFinalArenaBoss(c,g,W,H);else drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
+ const t=g.t,z=g.camera.zoom,meadow=g.worldRegion?.()===0&&!finalArenaVisible(g),dover=g.worldRegion?.()===17&&!finalArenaVisible(g);c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();const kick=combatCameraOffset(g);const worldLayer=()=>{c.save();c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);};if(dover){worldLayer();groundLayer?.();c.restore();}drawSpecialOperationTrain(c,g,W,H);if(finalArenaVisible(g))drawFinalArenaBoss(c,g,W,H);else drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);worldLayer();
  drawDoverConvoy(c,g,{drawFieldArt,fieldArtImg,fx,en:getLocale()==='en'});
  renderLegacySquadrons(c,g,(x,y)=>[x,y]);
- groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
+ if(!dover)groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
  for(const p of g.players)drawNavarreFrommherz(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
  for(const p of g.players)drawCapitalPilots(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
  const cl=(x,y,m)=>x<g.x-W/(2*z)-m||x>g.x+W/(2*z)+m||y<g.y-H/(2*z)-m||y>g.y+H/(2*z)+m;
