@@ -33,6 +33,7 @@ export const BOSS_LOADOUTS=Object.freeze({
  'morser-battery':['machine-gun','mortar','ap'],
  'gotha-squadron':['machine-gun','puw'],
  'fort-douaumont':['machine-gun','mortar','ap'],
+ 'fort-vaux':['machine-gun','mortar','ap'],
  'fort-souville':['machine-gun','mortar','ap','rifle-grenade'],
  wustenpanzer:['machine-gun','he','incendiary'],
  'jutland-grand-fleet':['he'],

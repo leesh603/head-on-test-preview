@@ -1659,7 +1659,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
     "images": {
       "structure": "./asset-bank/capital-bosses/leviathan-final-structure.webp",
       "hardware": "./asset-bank/capital-bosses/leviathan-final-hardware.webp",
-      "wingsHD": "./asset-bank/capital-bosses/leviathan-wings-hd-20261031.webp",
+      "wingsHD": "./asset-bank/capital-bosses/leviathan-wings-hd-20261031.webp?art=registered-wings-20261117",
       "hullHD": "./asset-bank/capital-bosses/leviathan-armored-hull-hd-20261031.webp"
     },
     "illustration": "./asset-bank/capital-bosses/leviathan-final-cutin.webp",
@@ -1783,21 +1783,21 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "frames": [
           [
             15,
-            15,
+            3,
             1224,
             455
           ],
           [
             15,
-            475,
+            464,
             1224,
-            438
+            455
           ],
           [
             15,
-            913,
+            925,
             1224,
-            341
+            455
           ]
         ],
         "id": "port-wing",
@@ -1837,21 +1837,21 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "frames": [
           [
             15,
-            15,
+            3,
             1224,
             455
           ],
           [
             15,
-            475,
+            464,
             1224,
-            438
+            455
           ],
           [
             15,
-            913,
+            925,
             1224,
-            341
+            455
           ]
         ],
         "id": "starboard-wing",

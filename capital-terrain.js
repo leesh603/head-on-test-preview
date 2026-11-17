@@ -3,43 +3,24 @@
 export const CAPITAL_TERRAIN_SIZE=2560;
 export const CAPITAL_TERRAIN_SOURCES=Object.freeze({
  11:'./terrain-capital-london-20261031.webp?art=london-night-20261117',
- 18:'./terrain-capital-berlin-20261031.webp?art=joined-streets-20261117'
+ 18:'./terrain-capital-berlin-20261031.webp?art=berlin-detail-20261117'
 });
 const baseColor=region=>region===11?'#232a36':'#45514d';
-const createCanvas=(width,height)=>{
- const canvas=typeof OffscreenCanvas==='function'?new OffscreenCanvas(width,height):document.createElement('canvas');
- canvas.width=width;canvas.height=height;return canvas;
-};
-
-// Match the painted capital tile’s own periodic endpoints without reflection.
-function joinTerrainEdges(canvas,border){
- const g=canvas.getContext('2d');if(typeof g.getImageData!=='function')return;
- const w=canvas.width,h=canvas.height,image=g.getImageData(0,0,w,h),d=image.data;
- const n=Math.min(border,Math.floor(Math.min(w,h)/4));
- const pair=(a,b,t)=>{for(let k=0;k<3;k++){const x=d[a+k],y=d[b+k];d[a+k]=Math.round(x*(1-t)+y*t);d[b+k]=Math.round(y*(1-t)+x*t);}};
- for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let y=0;y<h;y++)pair((y*w+i)*4,(y*w+w-1-i)*4,t);}
- for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let x=0;x<w;x++)pair((i*w+x)*4,((h-1-i)*w+x)*4,t);}
- g.putImageData(image,0,0);
-}
 
 export class CapitalTerrainRenderer{
- constructor({imageFactory=()=>typeof Image==='undefined'?null:new Image(),canvasFactory=createCanvas}={}){
-  this.imageFactory=imageFactory;this.canvasFactory=canvasFactory;this.entries=new Map();
+ constructor({imageFactory=()=>typeof Image==='undefined'?null:new Image()}={}){
+  this.imageFactory=imageFactory;this.entries=new Map();
  }
  prepare(region){
   const source=CAPITAL_TERRAIN_SOURCES[region];if(!source)return Promise.resolve(false);
   if(this.entries.has(region))return this.entries.get(region).ready;
   const image=this.imageFactory();if(!image)return Promise.resolve(false);
-  const entry={image,tile:null,ready:null};
+  const entry={tile:null,ready:null};
   entry.ready=new Promise(resolve=>{
    image.onload=()=>Promise.resolve(image.decode?.()).catch(()=>{}).then(()=>{
     if(!image.naturalWidth){resolve(false);return;}
-    // London's colour and joined edges are authored in the WebP. Keep one
-    // decoded surface instead of copying the larger texture to a canvas.
-    if(region===11){entry.tile=image;resolve(true);return;}
-    const tile=this.canvasFactory(image.naturalWidth,image.naturalHeight),g=tile.getContext('2d');
-    g.drawImage(image,0,0);joinTerrainEdges(tile,4);
-    entry.tile=tile;resolve(true);
+    // The WebPs contain the tile joins. Retain one decoded surface per city.
+    entry.tile=image;resolve(true);
    });
    image.onerror=()=>resolve(false);
   });
@@ -53,8 +34,7 @@ export class CapitalTerrainRenderer{
   const tile=entry?.tile;
   if(tile){
    const size=CAPITAL_TERRAIN_SIZE,left=cx-width/2,top=cy-height/2;
-   // Keep the heavier interpolation out of the shared Berlin renderer.
-   context.imageSmoothingEnabled=true;context.imageSmoothingQuality=region===11?'medium':'low';
+   context.imageSmoothingEnabled=true;context.imageSmoothingQuality='medium';
    for(let row=Math.floor(top/size);row*size<top+height;row++)for(let col=Math.floor(left/size);col*size<left+width;col++){
     // Integer world anchors plus a single pixel overlap avoid raster gaps at
     // positive and negative coordinates without reversing buildings or rivers.

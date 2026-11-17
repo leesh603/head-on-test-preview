@@ -10,7 +10,7 @@ import {WWI_FRAMES} from './wwi-equipment-art-data.js';
 import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
 import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
 import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027&pilotfx=20261117b';
 import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js';
 import {hasSecretWeapon} from './secret-weapons.js';
 import {secretRotaryMountSide} from './secret-weapon-combat.js';

@@ -83,10 +83,10 @@ import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,
 import {GamepadInput} from './gamepad-input.js?v=gal1';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html?v=buildfit1&rail=42';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&pilotfx=20261117b';
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=pandemonium394r2';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner,drawEquipmentDefense} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner,drawEquipmentDefense} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027&pilotfx=20261117b';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&perf=1029&card=1&zb=20261103&perf=20261106&naval=20261106&hud=20261110';
 import {paintDover,paintDoverGround,doverGroundToken} from './dover-night-view.js?v=ground20261106';
 import {paintParis} from './paris-night-art.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=1022&paris=20261031';
@@ -97,7 +97,7 @@ import {showBattlefieldEvent,hideBattlefieldEvent,regionalMissionUi} from './bat
 import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&join=1';
 import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027&raid=20261103-art1&zb=20261103&ops=20261107&elite=20261109&fai=20261108&strafe=20261111&ci=20261111&ho=20261111&gc=20261117';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=deathdefiance1&heal=orb1&airbattle=20261025&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&zb=20261103&guide=20261107&cohud=20261110&doverflight=20261117';
+import {drawCoop} from './coop-view.js?v=deathdefiance1&heal=orb1&airbattle=20261025&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023&zb=20261103&guide=20261107&cohud=20261110&doverflight=20261117&pilotfx=restore94';
 import {drawSunStrike} from './sun-strike71.js?v=buildfit1&rail=42&afc=1';
 import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018&strafe=20261111';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -125,7 +125,7 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1
 import {hasStagedBossEntrance} from './boss-entry-presentation.js';
 import {bossArrivalHull} from './boss-arrival-shadow.js';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
-import {drawWWIEquipment} from './wwi-equipment-art.js?perf=1029';
+import {drawWWIEquipment} from './wwi-equipment-art.js?perf=1029&pilotfx=20261117b';
 import {WWI_BALANCE} from './wwi-equipment.js';
 import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=wwifix20261025';
@@ -142,7 +142,7 @@ import {drawCityAirLayer}from'./city-air1.js?v=gal1';
 import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady,TERRAIN_PROFILES} from './alps-terrain117.js?v=gal1&phoneperf=20261103&early=20261115';
 import {FXS,fxsBombFall,fxsBoomTail,fxsAtlasSources,fxsAtlasesReady,fxsWarm} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&pilotfx=restore94';
 
 import {installCommandFlightFx} from './command-flight-fx.js?v=commandfx2';
 // Register the observer at the fresh app entry even if an older engine module is cached.
@@ -1250,11 +1250,11 @@ function drawWorldBuffered(key,cx,cy,W,H,source,painter){
  ctx.drawImage(b.cv,sx,sy,W,H,0,0,W,H);
 }
 function paintRegion(region,cx,cy,width=W,height=H){
- if(region!==1&&region!==7&&region!==14&&region!==16&&region!==17){
+ if(region!==1&&region!==7&&region!==14&&region!==16&&region!==17&&region!==18){
   paintRegionGround(region,cx,cy,width,height);
   return;
  }
- // Interpolate scaled maritime ground without changing aircraft or FX sampling.
+ // Interpolate scaled ground without changing aircraft or FX sampling.
  ctx.save();
  ctx.imageSmoothingEnabled=true;
  ctx.imageSmoothingQuality='low';
@@ -1267,7 +1267,7 @@ function paintRegionGround(region,cx,cy,width,height){
  if(region!==2)releaseTrenchDiorama();
  // The remaining hand-painted grounds are world-fixed too: buffered like the region tiles.
  if(region===19){const o=game?.laonBattle?.origin||game?.laonMission?.gun||game?.laonBattle?.gun;drawWorldBuffered('laon',cx,cy,W,H,`${o?.x},${o?.y}|${artLoadToken()}`,(g,x,y,bw,bh)=>paintLaonTerrain(g,game,x+bw/2,y+bh/2,bw,bh));return;}
- if(region===11||region===18){drawWorldBuffered('capital'+region,cx,cy,W,H,artLoadToken(),(g,x,y,bw,bh)=>{paintCapitalTerrain(g,region,x+bw/2,y+bh/2,bw,bh)});return;}
+ if(region===11||region===18){drawWorldBuffered('capital'+region,cx,cy,W,H,artLoadToken(),(g,x,y,bw,bh)=>paintCapitalTerrain(g,region,x+bw/2,y+bh/2,bw,bh));return;}
  // The Dover coast was re-rasterized every frame (~10 ms on a desktop core): buffered.
  if(region===17){drawWorldBuffered('dover',cx,cy,W,H,doverGroundToken(game),(g,x,y,bw,bh)=>paintDoverGround(g,game,x+bw/2,y+bh/2,bw,bh,terrainAlpsRenderer));paintDover(ctx,game,cx,cy,W,H,terrainAlpsRenderer,{groundPainted:true});return;}
  if(region===12){drawWorldBuffered('verdun',cx,cy,W,H,artLoadToken(),(g,x,y,bw,bh)=>{paintVerdun(g,game,x+bw/2,y+bh/2,bw,bh)});return;}
