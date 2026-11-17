@@ -16,7 +16,7 @@ import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilo
 import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
 import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
 import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
-import {drawImmelmannEnergy,drawImmelmannWake} from './immelmann-energy-fx.js';
+import {drawImmelmannEnergy} from './immelmann-energy-fx.js';
 import {drawMckeeverGuns} from './mckeever-crossfire-fx.js';
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
@@ -70,7 +70,6 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
   if(SORTIE_PILOTS.has(p.pilot))drawSortieWake(c,p,lotharTexture);
   if(METAL_PILOTS.has(p.pilot))drawMetalWake(c,p,lotharTexture);
   if(p.pilot==='lothar')drawLotharWake(c,p,lotharTexture);
-  if(p.pilot==='immelmann')drawImmelmannWake(c,p,lotharTexture);
   const world=p.combatWorld?.()||p,owner=p.id||'p1';
   if(p.pilot==='hawker'&&!(p.skillTime>0)&&p.straightCharge>0)for(const b of world.bullets||[]){
    if(b.life<=0||b.enemy||b.ally||b.patrol||b.formation||b.rocket||b.motorCannon||b.cow37||b.mauserRound||b.blast||b.actualExplosion||b.gun===undefined||(b.ownerId!==undefined&&b.ownerId!==owner)||Math.hypot(b.x-p.x,b.y-p.y)>700)continue;
@@ -142,7 +141,6 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
     }else{texture(c,'spark',19,0,24,13,0,.65);texture(c,'fireSmall',-24,4,17,10,Math.PI,.5)}
     break;
    }
-   case 'halfLoop':texture(c,'vaporTrail',-28,0,40,7,Math.PI,.1*(p.immelmannAltitude||0));break;
    case 'sixDirections':break; // Wingtip airflow follows actual owned decoys in the world pass.
    case 'redHunt':case 'huntConfirmation':texture(c,'sunshaft',-85,0,210,85,Math.PI,.15);break;
    case 'sightConverge':break; // Activation alone does not fire the gun.
@@ -188,7 +186,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
    case 'burnKill':texture(c,'explosionHot'+Math.min(3,Math.floor(q*4)),0,0,76,62,0,.8*(1-q*.4));texture(c,'fireFlash',0,0,48,36,0,.5*(1-q));break;
    case 'cannonShot':flash(c,false,1.8,true);texture(c,'gunSmoke',39,0,75,45,0,.48);break;
    case 'climbSalvo':if(p.aceSkillPhase==='vertical-fire'||!p.aceSkillPhase){flash(c,false,1.6);texture(c,'gunSmoke',-38,0,74,31,Math.PI,.22)}break;
-   case 'reverseShot':flash(c,false,1.1);smokeArc(c,36,1.6,3.9,time,.24,.65,7);break;
+   case 'reverseShot':flash(c,false,1.1);break;
    case 'rearShot':if(p.pilot==='huffzky')break;
    case 'handoff':flash(c,true,1.3);tracer(c,-58,0,42,6,Math.PI,.55);break;
    case 'aimedShot':tracer(c,36,0,74,5,0,.7);texture(c,'armorSpark',0,0,22,15,0,.65);break;
@@ -321,7 +319,6 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
    case 'gunPlatform':if(shot){flash(c,false,1.5);texture(c,'smokePuff',41,0,38,24,0,.25)}break;
    case 'climb':if(age>.4&&age<2.5){texture(c,'vaporTrail',-48,0,95,28,Math.PI,.18);if(shot)flash(c,false,1.25)}break;
    case 'roll':if(p.evadeTime>0){c.save();c.rotate((p.evadeDirection||1)*age*4);texture(c,'vaporTrail',-37,18,70,16,Math.PI,.24);c.restore()}break;
-   case 'reversal':if(p.immelmannTurn)texture(c,'vaporTrail',-29,0,44,7,Math.PI,.1*(p.immelmannAltitude||0));break;
    case 'tightTurn':if(Math.abs(s.turnRate)>.35)smokeArc(c,35,1.5,4.8,t,.20,.75,9);break;
    case 'defiance':if(p.hitFlash>0)metal(c,0,5,.7);break;
    case 'bombRun':if(shot)flash(c,true,1.25);break;

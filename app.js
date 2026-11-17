@@ -435,8 +435,11 @@ function help(onReturn){
 }
 function randomSortie(){
  if(game||sortiePending||selectedMode!=='endless')return;
- const pool=Object.keys(PILOTS).filter(pilotUnlocked);if(!pool.length)return;
- pilot=pool[Math.floor(Math.random()*pool.length)];faction=PILOTS[pilot].faction;plane=pilotPlane(pilot);roster();
+ const eligiblePilots=Object.keys(PILOTS).filter(pilotUnlocked);
+ if(!eligiblePilots.length)return;
+ // Each launch gives all unlocked pilots the same chance, including the last pilot.
+ pilot=eligiblePilots[Math.floor(Math.random()*eligiblePilots.length)];
+ faction=PILOTS[pilot].faction;plane=pilotPlane(pilot);roster();
  return sortie().then(run=>{
   if(!run||game!==run)return;
   const picks=game.rollChoices('normal').map(u=>({id:u.id,rarity:'normal'}));if(picks.length<3)return;
