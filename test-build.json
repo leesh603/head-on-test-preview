@@ -327,6 +327,20 @@
           "gitBlob": "98e33bb027f372bacb4dca56fd135ef00ebb13c1"
         }
       ]
+    },
+    {
+      "sha": "e7f7c0a08e7255b7c8b2b862f9cc8bb0ddbf2697",
+      "pr": 725,
+      "files": [
+        {
+          "path": "secret-ordnance.js",
+          "gitBlob": "ba0fa073c186ce082bf485dcc02b4c3831354771"
+        },
+        {
+          "path": "secret-weapon-combat.js",
+          "gitBlob": "691fe13ef52d2011502ee9649a3da29c0a68defd"
+        }
+      ]
     }
   ],
   "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5",

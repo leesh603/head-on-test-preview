@@ -4,7 +4,7 @@ import {cameraTargetPoint} from './wwi-equipment.js';
 
 const ROCKET='lePrieurSalvo', DAVIS='davisRecoilless', PUW='puw50';
 export const SECRET_ORDNANCE=Object.freeze({
- rocket:Object.freeze({count:8,period:6.8,stagger:.064,speed:550,life:1.55,damage:52,splash:.34,radius:56}),
+ rocket:Object.freeze({count:8,period:5.4,stagger:.064,speed:550,life:1.55,damage:72,splash:.5,radius:64}),
  davis:Object.freeze({speed:550,range:660,cone:.34,damageScale:1.55,armorScale:1.4,rearSpeed:300,rearLife:.23,rearDamageScale:.14}),
  puw:Object.freeze({count:4,period:8.8,spacing:72,maxRun:2.35,fallTime:.64,velocityRetention:.32,damage:110,radius:62})
 });

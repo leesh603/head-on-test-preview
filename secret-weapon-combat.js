@@ -21,7 +21,7 @@ const dartSalvos=new WeakMap();
 const dartBursts=new WeakMap();
 const clip=(n,a,b)=>Math.min(b,Math.max(a,n));
 export const POM_AIRBURST=Object.freeze({fuse:.82,radius:103,splash:.38});
-export const SECRET_COMBAT=Object.freeze({cooperDamage:70,cooperRadius:66,signalDelay:2.65,chainInterval:6,wakeDelay:.40,wakeLife:.85,ramDelay:.8,armorDelay:15,bomberInterval:10});
+export const SECRET_COMBAT=Object.freeze({cooperDamage:70,cooperRadius:66,signalDelay:2.65,chainInterval:3.2,wakeDelay:.40,wakeLife:.85,ramDelay:.8,armorDelay:15,bomberInterval:10});
 
 function cue(p,kind,origin=p,extra={}){
  const g=worldOf(p),items=g.secretWeaponFx??=[];
@@ -111,11 +111,11 @@ export function secretKetteringLaunch(p){
  const b={
   x:point.x-dx*reach,y:point.y-dy*reach,sx:point.x-dx*reach,sy:point.y-dy*reach,
   bugTargetX:point.x,bugTargetY:point.y,a,releaseAngle:a,life:duration,maxLife:duration,
-  damage:p.payloadPower(340),ownerId:ownerId(p),secretWeapon:'ketteringBug',synthesisBombPrepared:true,
+  damage:p.payloadPower(480),ownerId:ownerId(p),secretWeapon:'ketteringBug',synthesisBombPrepared:true,
   bugAirApproach:airTarget(point.entity),bugEngineAt:now
  };
  (g.friendlyBombs??=[]).push(b);
- s.readyAt=now+25;s.activeUntil=now+duration;
+ s.readyAt=now+15;s.activeUntil=now+duration;
 }
 export function tickSecretKettering(world,p,b,dt){
  if(b.life<=0)return;
@@ -323,14 +323,14 @@ export function secretGasProfile(p,b,radius,life){
 export function secretGrapnelContact(p,target,round,targets,point){
  if(round.secretWeapon||!hasSecretWeapon(p,'farnboroughFirechain'))return;
  const state=secretWeaponEffect(p,'farnboroughFirechain'),now=time(p);if(state.readyAt>now)return;
- const nearby=targets.filter(e=>e!==target&&live(e)&&p.canHitTarget?.(e)!==false&&Math.hypot(e.x-point.x,e.y-point.y)<=145).sort((a,b)=>Math.hypot(a.x-point.x,a.y-point.y)-Math.hypot(b.x-point.x,b.y-point.y)).slice(0,2);
+ const nearby=targets.filter(e=>e!==target&&live(e)&&p.canHitTarget?.(e)!==false&&Math.hypot(e.x-point.x,e.y-point.y)<=240).sort((a,b)=>Math.hypot(a.x-point.x,a.y-point.y)-Math.hypot(b.x-point.x,b.y-point.y)).slice(0,2);
  if(!nearby.length)return;
  state.readyAt=now+SECRET_COMBAT.chainInterval;state.activeUntil=now+1.4;
  for(const e of nearby){
   const speed=980,lead=Math.hypot(e.x-point.x,e.y-point.y)/speed;
   const x=e.x+Math.cos(e.a||0)*(e.speed||0)*lead,y=e.y+Math.sin(e.a||0)*(e.speed||0)*lead;
   const a=Math.atan2(y-point.y,x-point.x),wwiTargetId=e.tailId??p.tailIdFor?.(e);
-  emit(p,{x:point.x,y:point.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:.18,damage:round.damage,collisionRadius:8,sweptProjectile:true,fieryGrapnel:true,wwiTargetId,secretWeapon:'farnboroughFirechain',secretChainOrigin:{x:point.x,y:point.y,id:target.id??target.tailId}});
+  emit(p,{x:point.x,y:point.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:.22,damage:round.damage*3,collisionRadius:8,sweptProjectile:true,fieryGrapnel:true,wwiTargetId,secretWeapon:'farnboroughFirechain',secretChainOrigin:{x:point.x,y:point.y,id:target.id??target.tailId}});
  }
  sound(p,'secretChain');
 }
