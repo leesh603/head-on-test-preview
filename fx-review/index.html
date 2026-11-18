@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HEAD-ON 전투 FX 전후 비교</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#151814;color:#eee9dc}
+body{max-width:1100px;margin:auto;padding:clamp(16px,4vw,48px)} h1{font-size:clamp(24px,5vw,40px);margin:0 0 .35em} h2{font-size:1.3em;margin-top:1.7em} p,figcaption{line-height:1.65} a{color:#f3cb87} select{font:inherit;padding:.45em;max-width:100%} label{display:inline-block;margin:0 .7em .6em 0} figure{margin:.4em 0} figure img{display:block;width:100%;height:auto;background:#20241e} figcaption{margin:.4em 0;color:#c5c7bb} ul{line-height:1.9;padding-left:1.35em}
+</style>
+<h1>HEAD-ON 전투 FX 전후 비교</h1>
+<p>기준판과 수정판을 같은 전장·시드·시뮬레이션 시점에서 촬영했습니다. 전투 장면에는 재현용 표적 배치와 장비 입력을 사용했습니다. 이미지를 누르면 원본 크기로 볼 수 있습니다.</p>
+<label>전투 장면 <select id="scene">
+<option value="gun">기관총 공중전</option><option value="mixed">기관총·기관포 혼합</option><option value="payload">폭탄·로켓 연사</option><option value="secret">비밀병기 연속 발동</option><option value="streak" selected>다수 적기 연속 격추</option><option value="boss">대형 보스</option><option value="ground">지상 집중 포격</option><option value="naval">해상 착탄</option>
+</select></label>
+<label>화면 <select id="device"><option value="pc">PC</option><option value="mobile">모바일 에뮬레이션</option></select></label>
+<figure><a id="full" href="fx-cohesion-play/pc-streak.webp"><img id="pair" src="fx-cohesion-play/pc-streak.webp" alt="같은 순간에 촬영한 전투의 전후 비교"></a><figcaption>각 행의 왼쪽은 작업 시작 기준판, 오른쪽은 수정판입니다.</figcaption></figure>
+<h2>공격별 애니메이션</h2>
+<ul>
+<li><a href="fx-cohesion-play/pc-streak.gif">기체 연속 격추</a> · <a href="fx-cohesion-play/pc-rail.gif">열차포 사격</a> · <a href="fx-cohesion-secret-evidence/badinBreakthrough.gif">바댕 날개 끝 응결운</a></li>
+<li><a href="fx-cohesion-variant-evidence/uboat-hit.gif">어뢰 선체 직격</a> · <a href="fx-jutland-surface/pc-frames.gif">갑판과 수면 탄착 경계</a> · <a href="fx-jutland-surface/mobile-frames.gif">모바일 탄착 경계</a></li>
+<li><a href="fx-cohesion-boss-defeat/pc-dreadnought.gif">드레드노트 격파</a> · <a href="fx-cohesion-boss-defeat/mobile-factory.gif">모바일 공장 연쇄 파괴</a></li>
+<li><a href="equipment-art-followup/salvo-full-pc.webp">연속 로켓 전투</a> · <a href="equipment-art-followup/grunkreuz-mobile.webp">녹십자 분출 시계열</a></li>
+</ul>
+<h2>원화와 프레임</h2>
+<ul><li><a href="fx-cohesion-play/atlas-comparison.png">기존·개선 아틀라스</a> · <a href="fx-cohesion-play/materials.gif">재질별 4프레임</a> · <a href="fx-cohesion-play/special-atlases.png">전용 원화 비교</a> · <a href="fx-cohesion-play/tracers.png">탄도와 잔광 41종</a></li></ul>
+<script>
+const scene=document.querySelector('#scene'),device=document.querySelector('#device');
+function showPair(){
+ const src='fx-cohesion-play/'+device.value+'-'+scene.value+'.webp';
+ document.querySelector('#full').href=src;
+ document.querySelector('#pair').src=src;
+}
+scene.addEventListener('change',showPair);device.addEventListener('change',showPair);
+</script></html>
