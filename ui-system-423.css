@@ -414,3 +414,9 @@ html:lang(ko) :is(#modalText,#skillDesc,#passive103,#eventMissionMeta){text-wrap
 
 /* Reserve result feedback space while a ranking request completes. */
 html.ui423 #soloRankingStatus{height:2.8em;margin:8px 0;overflow:hidden;font-size:12px;line-height:1.4;color:#c9c1af}
+
+/* Plain confirmation modals: #modalActions was display:block, so the 8 px gap never applied and
+   stacked buttons touched edge to edge. Lay them out as a column with real spacing; the first
+   button stays the filled primary, later ones read as secondary, and a dismiss is a quiet link. */
+html.ui423 body.astra-ui #modal:not(.settings421):not(.choice-modal151):not(.build-modal151):not(.tactical-choice-modal):not(.tactical-codex-modal) #modalActions:not(:has(.choice)){display:flex!important;flex-direction:column!important;gap:10px!important}
+html.ui423 body.astra-ui #modal:not(.settings421):not(.choice-modal151):not(.build-modal151):not(.tactical-choice-modal):not(.tactical-codex-modal) #modalActions .primary.modal-ghost{min-height:40px!important;margin-top:2px!important;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--ui-muted,#a59e8e)!important;font-weight:500!important}

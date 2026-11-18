@@ -161,6 +161,7 @@ export function drawBallLone(c, g, point, t, px, py) {
  return pilotReadability.ball(c,g,point,t,px,py);
 }
 
+// The 94th Squadron hoop and hat are Rickenbacker’s signature active cue.
 // ---- Rickenbacker active "햇 인 더 링" / Hat in the Ring: while active, every burst also fires
 // rounds at up to 7 enemies within 780 px. Show the squadron ring on himself and stamp it on
 // each enemy the burst reaches.
@@ -278,56 +279,6 @@ export function drawGontermannHeat(c, g, point, t, px, py) {
 // Shared authored death/defiance layers own this pilot in solo and co-op.
 export function drawBarkerDefiance(c,g){return g.pilot==='barker';}
 
-// ---- Luke "소이탄 사냥꾼" / Balloon Buster: burning enemies take +20% MG damage.
-//   every enemy he has set alight carries a hot orange underglow and sheds rising embers,
-//   so the bonus targets stand out from plain fire
-export function drawLukeIgnited(c, g, point, t) {
-  if (g.pilot !== 'luke') return false;
-  sprites(); if (!EMBER) return false;
-  const burns = g.pilotIdentity?.burns; if (!burns || !burns.size) return true;
-  c.save(); c.globalCompositeOperation = 'lighter';
-  let n = 0;
-  for (const b of burns.values()) {
-    const e = b.enemy; if (!e || !(e.hp > 0) || b.time <= 0 || n++ > 8) continue;
-    const [x, y] = point(e.x, e.y), k = clamp(b.time / .6), R = sizeOf(e) * 1.6;
-    const gr = c.createRadialGradient(x, y, 4, x, y, R);
-    gr.addColorStop(0, 'rgba(255,150,60,.22)'); gr.addColorStop(.5, 'rgba(255,110,40,.16)'); gr.addColorStop(1, 'rgba(230,80,20,0)');
-    c.globalAlpha = k * (.8 + .2 * Math.sin(t * 12 + x)); c.fillStyle = gr; c.beginPath(); c.arc(x, y, R, 0, Math.PI * 2); c.fill();
-    for (let i = 0; i < 7; i++) {
-      const q = ((t * 1.4 + i / 7 + hash(e.x | 0, i)) % 1), ox = (hash(i, e.y | 0) - .5) * R * .9, em = 3.4 * (1 - q) + .8;
-      c.globalAlpha = k * (1 - q) * .9; c.drawImage(EMBER, x + ox + Math.sin(q * 6 + i) * 4 - em, y - q * R * 1.3 - em, em * 2, em * 2);
-    }
-  }
-  c.restore();
-  return true;
-}
-
-// ---- McKeever & Powell "표적인계" / Handoff: the front gun tags an enemy, Powell's rear gun
-// deals +30% to it for 3 s.  A green Very-pistol flare hangs over the tagged enemy, trailing a
-// thin green smoke wisp, and dies out with the handoff timer.
-export function drawMckeeverHandoff(c, g, point, t) {
-  if (g.pilot !== 'mckeever') return false;
-  sprites(); if (!VAPOR) return false;
-  const s = g.pilotIdentity, e = s?.handoff, ht = s?.handoffTime || 0;
-  const m = pst(g, () => ({ e: null, t0: 0, trail: [] }));
-  if (!e || !(e.hp > 0) || ht <= 0) { m.e = null; m.trail = []; return true; }
-  if (e !== m.e) { m.e = e; m.t0 = t; m.trail = []; }
-  const [x, y] = point(e.x, e.y), k = clamp(ht / .5), pop = clamp((t - m.t0) / .25);
-  const fx = x + Math.sin(t * 2.2) * 3, fy = y - sizeOf(e) * (.9 + .3 * pop) + Math.sin(t * 3.1) * 2;
-  push(m.trail, { x: fx, y: fy }, t, .6);
-  c.save();
-  for (const p of m.trail) { const age = (t - p.t) / .6, w = 3 + 7 * age;
-    c.globalAlpha = (1 - age) * .35 * k; c.drawImage(VAPOR, p.x - w + age * 4, p.y - w + age * 10, w * 2, w * 2); }
-  c.globalCompositeOperation = 'lighter';
-  const flick = .8 + .2 * Math.sin(t * 31);
-  const gr = c.createRadialGradient(fx, fy, 0, fx, fy, 14);
-  gr.addColorStop(0, 'rgba(235,255,225,1)'); gr.addColorStop(.3, 'rgba(120,255,120,.75)'); gr.addColorStop(1, 'rgba(40,200,60,0)');
-  c.globalAlpha = k * flick; c.fillStyle = gr; c.beginPath(); c.arc(fx, fy, 14, 0, Math.PI * 2); c.fill();
-  c.restore();
-  return true;
-}
-
-
 // ---- Nungesser "죽음의 기사" / Knight of Death: the lower his HP, the faster he fires and flies.
 //   a cold spectral glow gathers around his plane and pale blue-white wisps stream off the
 //   fuselage, growing as HP falls toward 20%
@@ -364,8 +315,6 @@ export function drawPassiveFxFront(c, g, point, t, px, py) {
   if (g.pilot === 'rickenbacker') drawRickenbackerRing(c, g, point, t, px, py, 'front');
   else if (g.pilot === 'baracca') drawBaraccaLance(c, g, point, t, px, py, 'front');
   else if (g.pilot === 'baron') drawSunHunter(c, g, point, t, px, py, 'front');
-  else if (g.pilot === 'luke') drawLukeIgnited(c, g, point, t);
-  else if (g.pilot === 'mckeever') drawMckeeverHandoff(c, g, point, t);
   else if (g.pilot === 'bishop') drawBishopClose(c, g, point, t, px, py);
   else if (g.pilot === 'boelcke') drawBoelckeDicta(c, g, point, t);
 }

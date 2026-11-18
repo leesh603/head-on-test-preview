@@ -34,6 +34,12 @@ function round(p,gun){
 export function drawMckeeverGuns(c,p,tex){
  if(p.pilot!=='mckeever'||!(p.hp>0)||p.status==='downed'||p.state!=='playing')return;
  if(p.reloadTime>0){drawBurstPowder(c,p,tex);return;}
+ // Brief reflected light as Powell actually swings the Lewis onto a live target.
+ const acquire=p.rearAcquire,aim=p.nineRearAim;
+ if(p.nineRearTarget?.hp>0&&acquire>0&&acquire<.24&&Number.isFinite(aim)&&!(p.nineRearFlash>0)){
+  const a=aim-p.a,station=p.bomberTransfer?.rear!==undefined?-p.bomberTransfer.rear:3;
+  tex(c,'metalShard0',station+Math.cos(a)*7,Math.sin(a)*7,13,4,a,.84*Math.sin(Math.PI*acquire/.24));
+ }
  for(const gun of [0,1]){
   const flash=gun===1?p.nineRearFlash:p.muzzleFlash;
   if(!(flash>0))continue;

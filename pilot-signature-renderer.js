@@ -17,7 +17,7 @@ import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
 import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
 import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
 import {drawImmelmannEnergy} from './immelmann-energy-fx.js';
-import {drawMckeeverGuns} from './mckeever-crossfire-fx.js';
+import {drawMckeeverGuns} from './mckeever-crossfire-fx.js?pilotfx=20261117b';
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
