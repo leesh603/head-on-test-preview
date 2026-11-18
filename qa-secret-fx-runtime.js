@@ -43,7 +43,7 @@ async function sample(id,realtime=false){
  if(!Object.values(g.secretWeaponState?.slots||{}).includes(id))throw Error('진화 실패');
  g.state='playing';g.enemies.length=0;g.bullets.length=0;g.events.length=0;g.spawn=Infinity;g.need=Infinity;g.invuln=0;g.fire=0;
  if(realtime==='sequence'){g.state='paused';await new Promise(resolve=>setTimeout(resolve,2100));g.state='playing';}
- const heading=g.a,dx=Math.cos(heading),dy=Math.sin(heading),dist=id==='nesterovRam'?7:id==='rankenExplosiveDarts'?-90:id==='farnboroughFirechain'?28:100;
+ const heading=g.a,dx=Math.cos(heading),dy=Math.sin(heading),dist=id==='sn1650'&&realtime==='sequence'?400:id==='nesterovRam'?7:id==='rankenExplosiveDarts'?-90:id==='farnboroughFirechain'?28:100;
  function enemy(d,s){const e=g.spawnEnemy('scout')||g.enemies.at(-1);Object.assign(e,{id:'qa'+d+','+s,x:g.x+dx*d-dy*s,y:g.y+dy*d+dx*s,a:g.a,fire:999,hp:9000,maxHp:9000,speed:0,spawnTime:0,invuln:0});return e;}
  const e=enemy(dist,0);if(id==='sn1650'&&realtime==='sequence')e.static=true;if(id==='farnboroughFirechain'){enemy(75,19);enemy(94,-23);}
  Object.assign(g,{rankinShrapnelTimer:0,airframeSpeed:1,cow37Timer:0,wwiGrapnelCooldown:0,motorCannonTimer:0,bomberTimer:0,mauserTimer:0});
@@ -63,11 +63,11 @@ async function sample(id,realtime=false){
    sheet.width=5*260;sheet.height=563;const ctx=sheet.getContext('2d'),out=parent.document.getElementById('tiles');out.replaceChildren(sheet);sheet.style.maxWidth='100%';
    g.combatBenchmarkRunning=true;g.combatBenchmarkMeta={scene:'secretWeapon'};g.combatBenchmarkScript=false;
    const stream=canvas.captureStream(30),chunks=[],rec=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9',videoBitsPerSecond:3600000});rec.ondataavailable=ev=>chunks.push(ev.data);const ended=new Promise(resolve=>rec.onstop=resolve);rec.start();
-   const times=[.04,.35,.81,1.5,2.8],startT=g.t,signals=new Set();let frame=0;
-   const orig=g.update;g.update=function(dt,input){orig.call(this,dt,{inputMode:'gamepad',fireHeld:true});for(const q of this.secretWeaponFx||[])signals.add(q.kind);};
+   const times=id==='sn1650'?[.5,1.5,2.5,3.5,5.8]:[.04,.35,.81,1.5,2.8],startT=g.t,signals=new Map();let frame=0;
+   const orig=g.update;g.update=function(dt,input){orig.call(this,dt,{inputMode:'gamepad',fireHeld:true});for(const q of this.secretWeaponFx||[])if(!signals.has(q.kind))signals.set(q.kind,(q.at-startT).toFixed(2));};
    try{await new Promise((resolve,reject)=>{const guard=setTimeout(()=>reject(Error('시계 시간 초과')),10000);api.startCombatCaptureClock('timer-30hz',()=>{if(frame<5 && g.t-startT>=times[frame]){ctx.drawImage(canvas,frame*260,0,260,563);frame++;}if(frame===5){clearTimeout(guard);resolve();}},parent);});}finally{api.stopCombatCaptureClock();g.update=orig;g.combatBenchmarkRunning=false;g.state='paused';}
    rec.stop();await ended;stream.getTracks().forEach(t=>t.stop());const a=parent.document.getElementById('download');a.href=URL.createObjectURL(new Blob(chunks,{type:rec.mimeType}));a.download=id+'.webm';a.hidden=false;
-   return {seq:[...signals].join('→')};
+   return {seq:[...signals].map(([k,v])=>k+'@'+v).join('→')};
  }
  const kinds=new Set(),dt=.02,start=g.t,held={fireHeld:true,inputMode:'gamepad'};let hit;const limit=performance.now()+18000;
  for(let i=0;i<320;i++){
