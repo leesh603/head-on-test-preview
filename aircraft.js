@@ -449,7 +449,13 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
   // canvas filter, which Safari lacks). The draw stays a single drawImage.
   const R=meadow?6:SHADOW_SOFTNESS;for(let i=0;i<12;i++){const t=i/12*Math.PI*2,r=i%2?R:R*.5;sc.globalAlpha=meadow?.12:.16;sc.drawImage(sprite,pad+Math.cos(t)*r,pad+Math.sin(t)*r,144,160)}
   sc.globalAlpha=meadow?.2:.3;sc.drawImage(sprite,pad,pad,144,160);sc.globalAlpha=1;sc.globalCompositeOperation='source-in';sc.fillStyle=meadow?'#28271e':'#14211a';sc.fillRect(0,0,sh.width,sh.height);shadows.set(shadowKey,sh)}c.globalAlpha*=.36;c.drawImage(shadows.get(shadowKey),-72-pad,-76-pad)}
- else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(meadow?meadowAirframeSurface(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,meadowHeading):sprite,-72,-76,144,160);{const lean=pendingLean;pendingLean=0;if(Math.abs(lean)>.04){const a0=c.globalAlpha;c.globalAlpha=a0*Math.abs(lean);c.drawImage(leanOverlay(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,lean>0),-72,-76);c.globalAlpha=a0}}if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+ else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(meadow?meadowAirframeSurface(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,meadowHeading):sprite,-72,-76,144,160);{const lean=pendingLean;pendingLean=0;if(Math.abs(lean)>.04){const a0=c.globalAlpha;c.globalAlpha=a0*Math.abs(lean);c.drawImage(leanOverlay(sprite,damaged?cacheKey+'#d'+damageStage:cacheKey,lean>0),-72,-76);c.globalAlpha=a0}}if(flash>0 && enemy){
+   // Relight the painted hull. Dark ribs, insignia and prior damage stay visible
+   // under bursts; the contact renderer supplies the short hot core at the hit.
+   c.globalCompositeOperation='screen';
+   c.globalAlpha*=Math.min(.88,flash/.16);
+   c.drawImage(sprite,-72,-76,144,160);
+  }else if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
  c.restore();
 }
 
