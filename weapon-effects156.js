@@ -13,7 +13,7 @@ import {drawProjectileTactic} from './gun-signatures.js';
 import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=fx5';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
-import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
+import {FXS,fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
 import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=tame3&perf=1029';
 
 export function grenadeVisualPose(g,out={}){
@@ -78,8 +78,12 @@ function blastFlame(c,x,y,d,q){
  if(q<.3)fx(c,'fireFlash',x,y,d*.68,d*.68,0,(1-q/.3)*.8);
  else if(q<.72)fx(c,'fireGround',x,y,d*.6,d*.6,0,(1-(q-.3)/.42)*.5);
 }
-export function drawFxExplosion(c,f,x,y,radius=0){
+export function drawFxExplosion(c,f,x,y,radius=0,combatFx=null){
  if(f.fxHidden||f.fxSource==='intrusionWaterContact')return true;
+ // An airship kill queues both the hydrogen blast and the generic large-aircraft
+ // breakup. Keep the latter available if the hydrogen cue is missing or culled.
+ if(FXS&&f.killExplosion&&f.kind==='aircraftHeavy'&&combatFx?.some(blast=>
+  blast.kind==='hydrogen'&&blast.life>0&&!blast.fxHidden&&blast.x===f.x&&blast.y===f.y))return true;
  if(f.wreckMaterial)return drawIntrusionBreak(c,f,x,y,radius,combatFxAge(f));
  if(f.salvoRelease&&f.fxSource==='lePrieur'){
   const q=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),lead=f.salvoRelease===1;

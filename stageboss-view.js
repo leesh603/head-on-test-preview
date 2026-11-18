@@ -62,7 +62,7 @@ import {londonStatus} from './london-battle.js?v=pandemonium394r2';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
 import {drawZeebruggeCanal} from './zeebrugge-raid.js?v=cull20261106';
 import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=outline1&gothaart=20261022&cityart=20261022&raid=20261103-art1';
-import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=ground20261106';
+import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,isDoverWaterImpact,doverExtents} from './dover-night-view.js?v=ground20261106';
 import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=1022&paris=20261031';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
@@ -742,6 +742,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
  const flagship=addon.stages.encounter?.bossId==='jutland-grand-fleet'?bodyOf(b=>b.jutlandBoss):null;
  if(layer!=='hazards'){drawBossArrivalShadows(c,addon.stages.encounter);drawBossEntryWorld(c,addon.stages.encounter,fx);}
+ // Dover bomb impacts belong to the water plane. Keep the warning and the
+ // falling bomb in the hazard pass, and let aircraft occlude the water crown.
+ const doverWater=addon.stages.stageIndex===17;
+ if(layer!=='hazards'&&doverWater)addon.hazards.pool.visit(h=>{
+  if(isDoverWaterImpact(h))drawDoverHazard(c,h,z);
+ });
  const arrivalDraw=draw=>spec=>{c.save();clipBossEntry(c,spec.entryReveal);c.globalAlpha*=spec.arrivalAlpha??1;try{return draw(spec);}finally{c.restore();}};
  renderStageBossLayer(addon,{layer,view,bodyBounds:bossEntryBounds,
   drawBody:arrivalDraw(b=>{if(layer==='hazards'||['paris-geschuetz','french-counter-battery'].includes(b.assetKey))return;
@@ -915,6 +921,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   }),
    drawHazard(h){if(layer==='bodies')return;
+    if(doverWater&&isDoverWaterImpact(h))return;
     if(drawDoverHazard(c,h,z))return;
     if(h.kind==='circle'&&h.phase==='active'&&groundShellProfile(h.visual)&&![1,7].includes(g.worldRegion?.()??-1)&&fxReady('mortarImpact0'))return;
     // Every ordinary boss round shares one renderer (special bodies excepted).

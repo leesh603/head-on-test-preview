@@ -942,7 +942,7 @@ draw=t=>{
   if(f.amatol){drawAmatolBlast(ctx,f,x,y);continue}
   if(f.grenade){drawGrenadeBlast(ctx,f,x,y);continue}
   if(game.worldRegion?.()===0&&!finalArenaVisible(game))drawMeadowGroundImpact(ctx,fx,f,x,y);
-  if(!drawFxExplosion(ctx,f,x,y))fx(ctx,'smokeDark',x,y,f.radius*(1+p)*2.2,f.radius*(1+p)*2.2,0,Math.min(1,f.life*3));
+  if(!drawFxExplosion(ctx,f,x,y,0,game.combatFX))fx(ctx,'smokeDark',x,y,f.radius*(1+p)*2.2,f.radius*(1+p)*2.2,0,Math.min(1,f.life*3));
   if(game.worldRegion?.()===0&&!finalArenaVisible(game))drawMeadowAirSmoke(ctx,fx,f,x,y);
   // Explosion art supplies hit confirmation; warning circles are drawn before impact.
  }

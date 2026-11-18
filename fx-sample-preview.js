@@ -193,12 +193,11 @@ const BOOM_TIME = {
   air:    [.26, 1.35, 4, 0, 0, .75, 0],
   ground: [.30, 1.7, 0, 7, 1, .8, 1],
   bishop: [.18, 1.05, 0, 0, 0, .38, 0],
-  heavy:  [.42, 2.1, 6, 5, 1, .7, 0]
+  heavy:  [.42, 2.1, 6, 5, 1, .7, 0],
+  hydrogen: [.42, 1.85, 6, 0, 0, .7, 0]
 };
 const BOOM_TAIL = new Map();
 let PUFF = null, GLOW = null, SCORCH = null;
-// Phones draw every other debris-trail sample (4 instead of 7 puffs per fragment).
-const TRAIL_STEP = typeof matchMedia === 'function' && matchMedia('(pointer:coarse)').matches ? 2 : 1;
 function boomSprites() {
   if (PUFF || typeof document === 'undefined') return;
   const mk = (stops) => { const k = document.createElement('canvas'); k.width = k.height = 64; const g = k.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
@@ -224,19 +223,37 @@ function drawBoom(c, r, x, y, age) {
   if (ring && age > .02 && age < .34) { const q = (age - .02) / .32, R = d0 * (.22 + q * .62);
     c.globalAlpha = (1 - q) * .42; c.strokeStyle = r.fam === 'ground' ? '#e2d4b4' : '#fff2da'; c.lineWidth = Math.max(1.5, d0 * .03 * (1 - q));
     c.beginPath(); c.ellipse(0, 0, R, R * .96, 0, 0, Math.PI * 2); c.stroke(); }
-  // dirt clods (ground) / flaming wreckage (air, heavy): arcing, trailing smoke
-  const frag = (k, flame) => { const life = flame ? .8 : .7;
-    if (age > life) return;
-    // Fragment seeds/directions are fixed for this explosion, not this frame.
-    const fragments=r.fragments||(r.fragments=[]),id=k*2+(flame?1:0);
-    let f=fragments[id];if(!f){const a=hash(r.wx+k*3.1,r.wy-k*1.7)*Math.PI*2,v=d0*(flame?1.25:1.0)*(.6+hash(k,r.wx)*.7);f=fragments[id]=[Math.cos(a)*v,Math.sin(a)*v];}
- const P = (t) => { const e = 1 - Math.exp(-3.2 * t); return [f[0] * e / 3.2 * 2.2, f[1] * e / 3.2 * 2.2 - (flame ? 0 : d0 * .5 * t * (1 - t / life) * 1.6)]; };
-    for (let j = 7; j >= 1; j -= TRAIL_STEP) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .08 : .07) * (1 + (age - ts) * 3.5); if (flame && px * px + py * py < d0 * d0 * .12) continue;
-      c.globalAlpha = (1 - j / 8) * (1 - age / life) * (flame ? .95 : .55); c.drawImage(PUFF, px - sz, py - sz - (age - ts) * d0 * .05, sz * 2, sz * 2); }
-    const [px, py] = P(age), f1 = 1 - age / life;
-    if (flame) { if (px * px + py * py > d0 * d0 * .1) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = f1 * .85; const g = d0 * .045 * (.6 + f1 * .6); c.drawImage(GLOW, px - g, py - g, g * 2, g * 2); c.globalCompositeOperation = 'source-over'; } }
-    else { const [qx, qy] = P(Math.max(0, age - .05)); c.globalAlpha = Math.min(1, f1 * 2) * .7; c.strokeStyle = '#3a2d22'; c.lineCap = 'round'; c.lineWidth = Math.max(1.4, d0 * .011);
-      c.beginPath(); c.moveTo(qx, qy); c.lineTo(px, py); c.stroke(); } };
+  // Each shard carries one painted wake, trailing its actual arc. Long-lived
+  // soot comes from the flipbook as the shorter wakes and hot fragments cool.
+  const frag = (k, flame) => {
+    const life = flame ? .8 : .7, opacity = 1 - age / life;
+    if (opacity <= 0) return;
+    const fragments = r.fragments || (r.fragments = []);
+    let f = fragments[k];
+    if (!f) {
+      const a = hash(r.wx + k * 3.1, r.wy - k * 1.7) * Math.PI * 2;
+      const v = d0 * (flame ? 1.25 : 1) * (.6 + hash(k, r.wx) * .7);
+      f = fragments[k] = { vx: Math.cos(a) * v, vy: Math.sin(a) * v, a };
+    }
+    const trailAge = Math.max(0, age - .19);
+    const distance = (1 - Math.exp(-3.2 * age)) * .6875;
+    const trailDistance = (1 - Math.exp(-3.2 * trailAge)) * .6875;
+    const lift = flame ? 0 : d0 * .8;
+    const px = f.vx * distance, py = f.vy * distance - lift * age * (1 - age / life);
+    if (px * px + py * py < d0 * d0 * (flame ? .066 : .02)) return;
+    const tx = f.vx * trailDistance, ty = f.vy * trailDistance - lift * trailAge * (1 - trailAge / life);
+    const dx = px - tx, dy = py - ty, direction = Math.atan2(dy, dx);
+    const size = d0 * (flame ? .125 : .105), spin = f.a + age * (k % 2 ? 9 : -8);
+    c.globalAlpha = 1;
+    if (flame) {
+      fxsDraw(c, 'smokeTrail', (px + tx) / 2, (py + ty) / 2,
+        Math.hypot(dx, dy) * 1.9, size * .43, direction, opacity * .63);
+    } else {
+      fxsDraw(c, 'dustPuff', tx, ty, size, size * .72, direction, opacity * .44);
+    }
+    fxsDraw(c, 'debrisShard', px, py, size, size, spin, Math.min(1, opacity * 2));
+    if (flame) fxsDraw(c, 'spark', px, py, size * .95, size * .95, direction, opacity * opacity);
+  };
   for (let k = 0; k < nDeb; k++) frag(k, false);
   // flipbook
   c.save(); c.translate(wind, -rise); c.rotate(r.rot + age * .05); c.imageSmoothingEnabled = true;
@@ -267,7 +284,7 @@ export function fxsBoom(c, f, x, y, radius = 0) {
   boomSprites();
   const [fam, k, cap] = spec, rr = radius || f.radius || 60;
   let r = BOOM_TAIL.get(f);
-  if (!r) { r = { wx: f.x, wy: f.y, fam, style: bishop ? 'bishop' : fam, d: Math.min(cap, Math.max(48, rr * k)), rot: (hash(f.x, f.y) - .5) * .5, ml: f.maxLife || .65 };
+  if (!r) { r = { wx: f.x, wy: f.y, fam, style: bishop ? 'bishop' : src === 'hydrogen' ? 'hydrogen' : fam, d: Math.min(cap, Math.max(48, rr * k)), rot: (hash(f.x, f.y) - .5) * .5, ml: f.maxLife || .65 };
     if (BOOM_TAIL.size < 96) BOOM_TAIL.set(f, r); }
   const age = Math.max(0, Math.min(1, 1 - f.life / f.maxLife)) * r.ml;
   drawBoom(c, r, x, y, age);
@@ -318,14 +335,19 @@ export function drawFuelPocket(c,x,y,width,progress,angle,alpha){
 }
 function fireZoneLayout(f, R, seed) {
   let layout = fireZoneLayouts.get(f);
-  if (layout && layout.radius === R && layout.seed === seed && layout.variants === FLAME.v) return layout.points;
+  const angle = f.wreck ? f.angle || 0 : 0;
+  if (layout && layout.radius === R && layout.seed === seed && layout.variants === FLAME.v && layout.angle === angle) return layout.points;
   const n = Math.max(5, Math.min(12, Math.round(R / 14))), points = [];
+  const ca = Math.cos(angle), sa = Math.sin(angle);
   for (let i = 0; i < n; i++) {
     const a = i * 2.39996 + seed * .7, rr = Math.sqrt((i + .5) / n) * R * .56 * (.85 + .3 * hash(seed, i));
-    points.push({ x: Math.cos(a) * rr, y: Math.sin(a) * rr * .8, h: R * (.66 + .44 * hash(i, seed)) * (1 - .4 * rr / R), v: (seed + i) % FLAME.v, ph: hash(i * 7, seed) });
+    const along = Math.cos(a) * rr, across = Math.sin(a) * rr * (f.wreck ? .63 : .8);
+    points.push({ x: along * ca - across * sa, y: along * sa + across * ca,
+      h: R * (.66 + .44 * hash(i, seed)) * (1 - .4 * rr / R), v: (seed + i) % FLAME.v,
+      ph: hash(i * 7, seed), igniteAt: .18 + .58 * rr / R, burnOut: 2.7 * hash(seed + 1, i) });
   }
   points.sort((p, q) => p.y - q.y);
-  fireZoneLayouts.set(f, { radius: R, seed, variants: FLAME.v, points });
+  fireZoneLayouts.set(f, { radius: R, seed, variants: FLAME.v, angle, points });
   return points;
 }
 export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
@@ -335,20 +357,26 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   if (t !== ZONE_T) { ZONE_T = t; ZONE_N = 0; }
   const rich = ZONE_N++ < 3;
   const R = f.radius || 100, seed = f.seed || Math.abs(Math.trunc((f.x || 0) * 31 + (f.y || 0) * 17)) % 997;
+  const age = f.maxLife ? Math.max(0, f.maxLife - f.life) : Math.max(0, t);
   const left = f.maxLife ? Math.min(1, f.life / Math.min(2.5, f.maxLife)) : 1; // flames die down over the last seconds
   const flick = .9 + .1 * Math.sin(t * 9.1 + seed) * Math.sin(t * 5.3);
+  const ignition = f.wreck ? Math.min(1, Math.max(0, (age - .19) / .56)) : 1;
   c.save();
   // scorched ground + firelight
-  c.globalAlpha = .75 * fade;
-  c.drawImage(SCORCH, x - R * .85, y - R * .7, R * 1.7, R * 1.4);
-  c.globalCompositeOperation = 'screen'; c.globalAlpha = .85 * fade * flick * (.4 + .6 * left);
-  c.drawImage(GLOW, x - R * .85, y - R * .75, R * 1.7, R * 1.5);
-  c.globalCompositeOperation = 'source-over';
-  if (under) { c.save(); under(); c.restore(); }
+  c.globalAlpha = .75 * fade * ignition;
+  if (ignition > 0) {
+    c.drawImage(SCORCH, x - R * .85, y - R * .7, R * 1.7, R * 1.4);
+    c.globalCompositeOperation = 'screen'; c.globalAlpha = .85 * fade * flick * (.4 + .6 * left) * ignition;
+    c.drawImage(GLOW, x - R * .85, y - R * .75, R * 1.7, R * 1.5);
+    c.globalCompositeOperation = 'source-over';
+  }
+  if (under && ignition > 0) {
+    if (f.wreck) c.globalAlpha = ignition;
+    c.save(); under(); c.restore();
+  }
   if (fuel) {
     // All four painted fuel beds have a common hot center. The final seconds
     // keep their footprint while the flame breaks into isolated ember banks.
-    const age = f.maxLife ? Math.max(0, f.maxLife - f.life) : Math.max(0, t);
     const rem = Math.max(0, f.life);
     const phase = rem < 2.4 ? 2 + (1 - rem / 2.4)
       : age < .55 ? age / .55 : 1 + (.5 - .5 * Math.cos((age - .55) * 3.9));
@@ -369,26 +397,45 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
     c.restore();
     return true;
   }
-  // flames, back to front
   const list = fireZoneLayout(f, R, seed);
+  // Soot leaves a burning socket, rises behind the flame and thins as it drifts.
+  const clock = f.wreck ? age : t;
+  if (f.wreck && rich && age > .45) {
+    c.globalAlpha = 1;
+    for (let k = 0; k < 2; k++) {
+      const p = list[(seed + k * Math.ceil(list.length / 2)) % list.length];
+      const q = ((clock - .45 + k * 1.2) % 2.4) / 2.4;
+      const size = R * (.31 + q * .57);
+      fxsDraw(c, 'smokeHeavy', x + p.x + q * R * .47, y + p.y - p.h * .32 - q * R * .74,
+        size, size, k + q * .4, fade * ignition * left * Math.sin(Math.PI * q) * .48);
+    }
+  }
+  // Preserve the upright flame tongues and light them along the wreck.
   for (const p of list) {
-    const h = p.h * (.25 + .75 * left) * (.94 + .06 * flick), w = h * 64 / 96;
-    const fp = (t * 13 + p.ph * FLAME.n) % FLAME.n, i = Math.floor(fp), u = fp - i;
+    const heat = f.wreck ? Math.min(1, (age - p.igniteAt) / .37, (f.life - p.burnOut) / 1.5) : left;
+    if (f.wreck && heat <= 0) continue;
+    const h = p.h * (.25 + .75 * heat) * (.94 + .06 * flick), w = h * 64 / 96;
+    const fp = (clock * 13 + p.ph * FLAME.n) % FLAME.n, i = Math.floor(fp), u = fp - i;
     const draw = (j, al) => { const rc = FLAME.rects['flame' + p.v + '_' + (j % FLAME.n)]; if (!rc || al <= 0) return;
-      c.globalAlpha = al * fade; c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], x + p.x - w / 2, y + p.y - h * .92, w, h); };
-    draw(i, 1); if (rich) draw(i + 1, u);
+      c.globalAlpha = al * fade * (f.wreck ? Math.min(1, heat * 2) : 1);
+      c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], x + p.x - w / 2, y + p.y - h * .92, w, h); };
+    if (f.wreck && !rich) draw(Math.round(fp), 1);
+    else { draw(i, 1); if (rich) draw(i + 1, u); }
   }
   // smoke plume leaning downwind + embers drifting up (looping, seeded)
-  if (rich) for (let k = 0; k < 2; k++) {                       // two light puffs, not a column
+  if (!f.wreck && rich) for (let k = 0; k < 2; k++) {
     const per = 3.4, q = ((t + k * per / 2 + hash(k, seed) * per * .15) % per) / per, ox = (hash(seed, k + 3) - .5) * R * .5;
     const sz = R * (.45 + q * .6);
     fxsDraw(c, 'smokeHeavy', x + ox + q * R * .5, y - R * .25 - q * R * .7, sz, sz, k + q * .6, fade * .5 * Math.sin(Math.min(1, q * 2.5) * Math.PI * .5) * (1 - q) * (.3 + .7 * left));
   }
   c.globalCompositeOperation = 'lighter';
   for (let k = 0; k < (rich ? 6 : 3); k++) {
-    const per = 1.3, q = ((t + hash(k, seed + 1) * per) % per) / per, ox = (hash(seed + 2, k) - .5) * R * 1.1;
-    const g = 3 + 3 * hash(k, 9); c.globalAlpha = fade * left * (1 - q) * .8;
-    c.drawImage(GLOW, x + ox + Math.sin(q * 6 + k) * 6 - g, y - q * R * .9 - g, g * 2, g * 2);
+    const per = 1.3, q = ((clock + hash(k, seed + 1) * per) % per) / per;
+    const p = list[(seed + k * 3) % list.length];
+    const ox = f.wreck ? p.x + q * R * .37 : (hash(seed + 2, k) - .5) * R * 1.1;
+    const oy = f.wreck ? p.y : 0;
+    const g = 3 + 3 * hash(k, 9); c.globalAlpha = fade * ignition * left * (1 - q) * .8;
+    c.drawImage(GLOW, x + ox + Math.sin(q * 6 + k) * 6 - g, y + oy - q * R * .9 - g, g * 2, g * 2);
   }
   c.restore();
   return true;
@@ -459,7 +506,7 @@ export const fxsAtlasSources = () => materialAtlas?.src ? [...ATLAS_SOURCES, mat
 export const fxsAtlasesReady = () => Promise.all([fxsReady, boomReady, flameReady, materialArtReady]);
 export function fxsWarm(c) {
   if (!c) return 0; let n = 0; const a0 = c.globalAlpha;
-  for (const im of [atlas, BOOM.atlas, FUEL.atlas || FLAME.atlas, materialAtlas]) {
+  for (const im of [atlas, BOOM.atlas, FLAME.atlas, FUEL.atlas, materialAtlas]) {
     if (!im?.naturalWidth) continue;
     c.globalAlpha = .01; c.drawImage(im, 0, 0, im.naturalWidth / 2, im.naturalHeight / 2); n++;
   }
