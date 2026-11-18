@@ -77,7 +77,17 @@ function blastFlame(c,x,y,d,q){
  else if(q<.72)fx(c,'fireGround',x,y,d*.6,d*.6,0,(1-(q-.3)/.42)*.5);
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
- if(f.fxHidden)return true;
+ if(f.fxHidden||f.fxSource==='intrusionWaterContact')return true;
+ if(f.surfaceContact==='torpedoHull'){
+  const t=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),d=(radius||f.radius)*2.55,a=f.direction||0;
+  const painted=drawWaterContact(c,x,y,d,t,a)||fx(c,t<.46?'splashShell':'foamRing',x,y,d,d,a,Math.min(1,(1-t)*2));
+  if(painted){
+   // The strike flares against the plating while the water crown expands
+   // around the swept intersection on the hull's edge.
+   if(t<.20)fx(c,'armorSpark',x,y,d*.48,d*.19,a,1-t/.20);
+   return true;
+  }
+ }
  if(f.capitalRoyal&&drawFlakAirburst(c,x,y,(radius||f.radius)*1.4,combatFxAge(f)/1.2,0,.85))return true;
  if(f.steelPenetration){
   const age=combatFxAge(f),a=f.direction,q=Math.max(0,1-age/f.maxLife);

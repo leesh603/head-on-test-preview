@@ -1,4 +1,5 @@
 import {warmRaster} from './raster-warm.js';
+import {materialArtReady,materialAtlas} from './combat-material-art.js';
 import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
@@ -287,8 +288,10 @@ function legacyFlame() {
 }
 const flameReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(false) : new Promise(resolve => {
   const image = new Image(); image.decoding = 'async';
-  image.onload = () => {
+  image.onload = async () => {
+    if (image.decode) await image.decode().catch(() => {});
     if (image.naturalWidth === 896 && image.naturalHeight === 512) FUEL.atlas = image;
+    if (FUEL.atlas && typeof requestAnimationFrame === 'function') warmRaster(image);
     resolve(!!FUEL.atlas);
   };
   image.onerror = () => resolve(false);
@@ -334,8 +337,9 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
     const phase = rem < 2.4 ? 2 + (1 - rem / 2.4)
       : age < .55 ? age / .55 : 1 + (.5 - .5 * Math.cos((age - .55) * 3.9));
     const frame = Math.min(3, Math.floor(phase)), blend = phase - frame;
-    // A 200px diameter of incandescent fabric corresponds to the damage area.
-    const scale = R * 1.94 / 200;
+    // The airborne wreck fills its hazard; Livens draws the bed inside its
+    // already scaled emplacement, keeping the surviving outer pipework visible.
+    const scale = R * (f.wreck ? 1.94 : 1.46) / 200;
     c.translate(x,y); c.rotate((f.angle || 0) + (seed % 11 - 5) * .065);
     c.imageSmoothingEnabled = true;
     const draw = (index, alpha) => {
@@ -436,11 +440,11 @@ export function fxsFlameDressing(c, h, span, halfAt, frame) {
 // a long stall on the first gunfire / explosion / fire of the sortie. The sortie
 // raises their downloads, waits briefly for them under the launch veil, and draws
 // each once, nearly transparent, into the game canvas, which the first frame clears.
-export const fxsAtlasSources = () => ATLAS_SOURCES.slice();
-export const fxsAtlasesReady = () => Promise.all([fxsReady, boomReady, flameReady]);
+export const fxsAtlasSources = () => materialAtlas?.src ? [...ATLAS_SOURCES, materialAtlas.src] : ATLAS_SOURCES.slice();
+export const fxsAtlasesReady = () => Promise.all([fxsReady, boomReady, flameReady, materialArtReady]);
 export function fxsWarm(c) {
   if (!c) return 0; let n = 0; const a0 = c.globalAlpha;
-  for (const im of [atlas, BOOM.atlas, FUEL.atlas || FLAME.atlas]) {
+  for (const im of [atlas, BOOM.atlas, FUEL.atlas || FLAME.atlas, materialAtlas]) {
     if (!im?.naturalWidth) continue;
     c.globalAlpha = .01; c.drawImage(im, 0, 0, im.naturalWidth / 2, im.naturalHeight / 2); n++;
   }

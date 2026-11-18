@@ -297,7 +297,14 @@ function combat(g,e,dt){
   for(const p of alive(g))if(Math.hypot(p.x-hazard.x,p.y-hazard.y)<hazard.radius+finite(p.r,12)){
    if(g.players)g.hitPlayer?.(p,hazard.damage);else g.hit?.(hazard.damage);
   }
+  const prior=g.combatFX?.at(-1);
   g.combatBlast?.(hazard.x,hazard.y,hazard.radius,'enemy','structure');
+  // The hazard's own renderer already paints the water displacement. Keep the
+  // native blast event and its shake, audio and particles for every impact.
+  if(hazard.kind==='naval-splash'){
+   const burst=g.combatFX?.at(-1);
+   if(burst&&burst!==prior&&burst.kind==='structure'&&burst.x===hazard.x&&burst.y===hazard.y)burst.fxSource='intrusionWaterContact';
+  }
  }
  e.hazards=e.hazards.filter(b=>b.age<b.warning+.35);
  e.attackClock-=dt;if(e.attackClock<=0){const queued=queueAttack(g,e);e.attackClock=!queued?.25:isMaritimeIntrusion(e)?maritimeAttackInterval(e):e.profileId==='armed-svyatogor'?(svyatogorPower(e)===2?4.2:svyatogorPower(e)===1?5.2:6.2):e.profileId==='bastion'?3.6:e.profileId==='twin-fortress'?3.8:e.profileId==='goliath'?3.2:e.profileId==='citadel'?(e.movementPhase==='broadside'?2.8:5):4.2;}signature(g,e,dt);breakIntrusionSilence(g,e);}

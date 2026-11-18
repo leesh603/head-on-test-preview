@@ -132,7 +132,16 @@ export function stepSubmarineTorpedoes(g,e,dt){
    const p=local(old),v=local(q),rx=Math.max(20,ship.hullLength||75),ry=Math.max(10,ship.hullWidth||20);
    const t=entryTime({x:p.x/rx,y:p.y/ry},{x:v.x/rx,y:v.y/ry});if(t<firstT){first=ship;firstT=t;}
   }
-  if(first){q.x=old.x+(q.x-old.x)*firstT;q.y=old.y+(q.y-old.y)*firstT;first.hp=Math.max(0,first.hp-q.damage);q.life=0;g.combatBlast?.(q.x,q.y,26,'enemy','structure');}
+  if(first){
+   q.x=old.x+(q.x-old.x)*firstT;q.y=old.y+(q.y-old.y)*firstT;
+   first.hp=Math.max(0,first.hp-q.damage);q.life=0;
+   const previous=g.combatFX?.at(-1);
+   g.combatBlast?.(q.x,q.y,26,'enemy','structure');
+   const effect=g.combatFX?.at(-1);
+   if(effect&&effect!==previous&&effect.kind==='structure'&&effect.x===q.x&&effect.y===q.y){
+    effect.surfaceContact='torpedoHull';effect.direction=Math.atan2(q.vy,q.vx);
+   }
+  }
  }
  e.naval.torpedoes=shots.filter(q=>q.life>0&&q.age<7);
 }

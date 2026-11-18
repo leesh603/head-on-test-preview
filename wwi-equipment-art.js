@@ -1,5 +1,5 @@
 import {drawEquipmentSupport} from './equipment-support-fx.js';
-import {drawVerySignal,verySignalArtReady} from './very-signal-art.js';
+import {drawVerySignal,prepareVerySignal} from './very-signal-art.js';
 import {fx} from './fx-art.js?v=tame3';
 import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
 import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
@@ -26,7 +26,7 @@ const load=(file,set)=>new Promise(resolve=>{
 export const equipmentArtReady=Promise.all([
  load('./wwi-equipment-atlas.webp',im=>atlas=im),load('./bomb-cooper-readable-q92.webp',im=>bomb=im),
  load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./fiery-grapnel-20261028.webp',im=>grapnelAtlas=im),incendiaryArtReady,equipmentSignatureArtReady,equipmentExtensionArtReady,equipmentDetailArtReady,equipmentMountArtReady,equipmentFinishingArtReady,hytheCameraArtReady
- ,secretWeaponArtReady,verySignalArtReady,load('./secret-leimberger-mount.webp',im=>rotaryMount=im)
+ ,secretWeaponArtReady,load('./secret-leimberger-mount.webp',im=>rotaryMount=im)
 ]).then(results=>results.every(Boolean));
 
 function sprite(c,key,x,y,width,angle=0,alpha=1){
@@ -91,6 +91,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  for(const p of players){
   if(!(p.hp>0)||p.status==='downed'||p.heineckeEscape>0)continue;
   const u=p.upgrades||{},pose=playerPose(p,p.x,p.y),fit=p.bomberTransfer;
+  if (u.veryPistol) prepareVerySignal();
   for(const b of p.synthesisAttachments||[])if(b.life>0&&visible(b.x,b.y)){
    bombSprite(c,'cooper',sx(b.x),sy(b.y),34*z,(b.target?.a??0),Math.min(1,b.life*5));
    sprite(c,'grapnelHead',sx(b.x),sy(b.y),20*z,b.target?.a??0);

@@ -1,6 +1,5 @@
 {
-  "sha": "a2b9d1859eb7861099abc42b043db25accf686b8",
-  "ref": "art/fx-visual-cohesion-1",
-  "source_repo": "leesh603/head-on-aces-source",
-  "method": "tracked static dist, workflow exclusions; preserves preview gallery and stable mobile channel"
+  "sha": "0476982bd7264014cb202b67b48b78605ebd96b2",
+  "ref": "art/fx-cohesion-integration",
+  "source_repo": "leesh603/head-on-aces-source"
 }

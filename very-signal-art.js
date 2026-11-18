@@ -2,19 +2,25 @@
 // Its trailing smoke can change shape without moving the signal off the mark.
 const frames = 4, cellWidth = 320, cellHeight = 224;
 const disabled = new URLSearchParams(globalThis.location?.search).get('fx') === '0';
-const image = !disabled && typeof Image === 'function' ? new Image() : null;
+let image;
 let ready = false;
-export const verySignalArtReady = image ? new Promise(resolve => {
+// Flare paint belongs to the fitted signal pistol. Other loadouts can launch
+// without retaining its bitmap or competing with first-field terrain decodes.
+export function prepareVerySignal() {
+  if (disabled || image || typeof Image !== 'function') return;
+  image = new Image();
   image.decoding = 'async';
-  image.onload = () => {
+  image.onload = async () => {
+    if (image.decode) await image.decode().catch(() => {});
     ready = image.naturalWidth === 2 * cellWidth && image.naturalHeight === 2 * cellHeight;
-    resolve(ready);
+    image.onload = image.onerror = null;
   };
-  image.onerror = () => resolve(false);
+  image.onerror = () => { image.onload = image.onerror = null; };
   image.src = new URL('./fx-very-signal-cohesion.webp', import.meta.url).href;
-}) : Promise.resolve(false);
+}
 
 export function drawVerySignal(c, x, y, bearing, age, remaining, zoom, low) {
+  prepareVerySignal();
   if (!ready || !(remaining > 0) || !(age >= 0) || !(zoom > 0)) return false;
   // Ignition, flight and arrival; most of the six-second burn holds its
   // mature plume. Extinction opens up the smoke only as designation expires.
