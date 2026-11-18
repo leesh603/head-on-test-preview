@@ -6,27 +6,7 @@ import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
 import {drawSecretWarArt} from './secret-impact-signatures.js';
 
 const clamp=n=>Math.max(0,Math.min(1,n));
-const mechanisms=new Map();
 const RIGHT_ANGLE=Math.PI/2;
-const VILLAR='./augmentation-icons-384/secret_villar_perosa.webp';
-const DAVIS='./augmentation-icons-384/secret_davis.webp';
-
-// Align the painted weapon once, then draw individual pieces. The inventory
-// illustration's tripod and grip never appear on the aircraft.
-function alignedMechanism(file,degrees){
- if(mechanisms.has(file))return mechanisms.get(file);
- mechanisms.set(file,null);
- if(typeof Image==='undefined'||typeof document==='undefined')return null;
- const image=new Image();
- image.onload=()=>{
-  const sheet=document.createElement('canvas');sheet.width=384;sheet.height=384;
-  const g=sheet.getContext('2d');if(!g)return;
-  g.translate(192,192);g.rotate(degrees*Math.PI/180);g.drawImage(image,-192,-192,384,384);
-  mechanisms.set(file,sheet);
- };
- image.src=new URL(file,import.meta.url).href;
- return null;
-}
 
 function latestCue(world,p,kind){
  const cues=world.secretWeaponFx,owner=p.id??'p1';
@@ -89,32 +69,6 @@ function siemensEngine(c,state,im,now){
  c.restore();
 }
 
-function davisMount(c,p,shot,now){
- const im=alignedMechanism(DAVIS,27);if(!im)return;
- const t=shot?clamp((now-shot.at)/.45):1;
- const unlock=t<.22?Math.sin(t/.22*RIGHT_ANGLE):Math.pow((1-t)/.78,2);
- c.save();c.rotate(shot?shot.a-p.a:0);
- // The two open tube ends stay aligned; only the breech handle cycles.
- c.drawImage(im,22,162,340,53,-27,-4,64,10);
- c.save();c.translate(4,-2);c.rotate(-unlock*.9);
- c.drawImage(im,181,137,66,26,-2,-4,12,5);c.restore();c.restore();
-}
-
-function villarMount(c,p,shot,now){
- const im=alignedMechanism(VILLAR,18);if(!im)return;
- const age=shot?now-shot.at:1;
- c.save();c.rotate(shot?shot.a-p.a:0);c.translate(9,0);
- // One receiver block, two independent bolts, barrels and stick magazines.
- c.drawImage(im,79,125,139,49,-9,-7,20,14);
- for(let side=-1;side<=1;side+=2){
-  const active=shot&&Math.sign(shot.slot)===side;
-  const slide=active?4*Math.sin(Math.PI*clamp(age/.09)):0;
-  c.drawImage(im,214,side<0?129:148,165,15,7-slide,side*4.7-2.3,21,4.6);
-  c.drawImage(im,side<0?143:175,56,20,62,-6-slide*.5,side<0?-9:2,4,7);
- }
- c.restore();
-}
-
 function puwCradle(c,state,rack,release,now){
  const age=release?now-release.at:1;
  for(let i=0;i<4;i++){
@@ -136,8 +90,6 @@ export function drawOrdnanceMounts(c,p,scale,time,sprites){
  if(hasSecretWeapon(p,'lePrieurSalvo'))lePrieurMounts(c,e.lePrieurSalvo,sprites['le-prieur-mount'],Math.min(1.7,(p.bomberTransfer?.hullWidth??31)/31),now);
  if(hasSecretWeapon(p,'salamanderArmor'))salamanderPlates(c,p,sprites['salamander-mount'],latestCue(world,p,'salamanderImpact'),now);
  if(hasSecretWeapon(p,'siemensHalske'))siemensEngine(c,e.siemensHalske,sprites['siemens-halske-rotor'],now);
- if(hasSecretWeapon(p,'davisRecoilless'))davisMount(c,p,latestCue(world,p,'davisShot'),now);
- if(hasSecretWeapon(p,'villarPerosa'))villarMount(c,p,latestCue(world,p,'villarShot'),now);
  if(hasSecretWeapon(p,'puw50'))puwCradle(c,e.puw50,sprites['le-prieur-mount'],latestCue(world,p,'puwDrop'),now);
  c.restore();
 }
@@ -229,10 +181,9 @@ export function drawOrdnanceCue(c,cue,age,view,low){
  case 'puwImpact': {
   const r=cue.radius||62;
   if(cue.water){
-   fx(c,'waterColumn',x,y-r*.16*t*z,r*(1.25+t*.4)*z,r*(1.45+t*.6)*z,0,Math.min(1,fade*1.5));
+   fx(c,'splashShell',x,y,r*(1.25+t*.4)*z,r*(1.25+t*.4)*z,a,Math.min(1,fade*1.5));
   }else{
-   const lean=cue.slot%2?-1:1;
-   drawSecretWarArt(c,'earthPlume',x+lean*t*r*.19*z,y-t*r*.24*z,r*(1.06+t*.8)*z,lean*.14,Math.min(1,fade*1.8));
+   drawSecretWarArt(c,'earthPlume',x,y,r*(1.06+t*.8)*z,a,Math.min(1,fade*1.8));
   }
   break;
  }

@@ -182,15 +182,13 @@ function impact(c,q,v,a,t,low){
  }
  const dx=Math.cos(a),dy=Math.sin(a);
  if(age<.27)fx(c,'bombfx'+Math.min(3,Math.floor(age/.065)),x,y,(73+age*85)*z,(60+age*53)*z,a,1-age/.31);
- // The deposited plume starts behind the flash, rises from the exact second
- // bomb's own crater, then slumps down. Maritime runs throw water instead.
- const rise=Math.sin(Math.PI*clamp(age/1.2)),height=21*rise,width=(48+rise*40)*z;
+ // A surface blast expands around the impact point; smoke from an airburst
+ // follows the aircraft's heading in the map plane.
+ const spread=Math.sin(Math.PI*clamp(age/1.2)),width=(48+spread*40)*z;
  if(age>.07){
-  const water=q.impactLayer==='water';
-  const px=x-dx*t*7*z,py=q.impactLayer==='air'?y-(height+dy*t*7)*z:y+3*z-width*.45;
-  if(water)fx(c,'waterColumn',px,py,width,width*1.12,0,clamp(fade*1.7));
-  else if(q.impactLayer==='air')fx(c,'smokeDark',px,py,width,width*.73,a,clamp(fade*1.4));
-  else if(!drawSecretWarArt(c,'earthPlume',px,py,width,0,clamp(fade*1.7)))fx(c,'dirtBurst',px,py,width,width*.83,a,fade);
+  if(q.impactLayer==='water')fx(c,'splashShell',x,y,width,width,a,clamp(fade*1.7));
+  else if(q.impactLayer==='air')fx(c,'smokeDark',x-dx*t*12*z,y-dy*t*12*z,width,width*.83,a,clamp(fade*1.4));
+  else if(!drawSecretWarArt(c,'earthPlume',x,y,width,a,clamp(fade*1.7)))fx(c,'dirtMix',x,y,width,width,a,fade);
  }
  if(age>.22&&q.impactLayer!=='air'){
   const slide=clamp((age-.22)/.66);

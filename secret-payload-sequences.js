@@ -6,21 +6,15 @@ import {drawSecretWarArt} from './secret-impact-signatures.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const TAU=Math.PI*2;
 
-// The painted face is cut in its own local space. Moving the pieces never
-// creates an additional projectile or an unregistered strike.
-function steelPetal(c,art,front,side,x,y,width,angle,alpha){
- c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=alpha;
- c.beginPath();c.rect(front<0?-width:0,side<0?-width:0,width,width);c.clip();
- if(!drawSecretWarArt(c,'steelDispenser',0,0,width,0)){
-  bombSprite(c,'cooper',0,0,width/.7,0);
-  art.sprite(c,'flechetteBundle',0,0,width*.76);
+function cassetteLids(c,travel,angle,alpha){
+ for(const side of [-1,1]){
+  drawSecretWarArt(c,side<0?'steelLidLeft':'steelLidRight',side*(18+travel),0,
+   11,side*angle,alpha);
  }
- c.restore();
 }
 function hook(c,art,x,y,width,a,alpha=1){
- // Both the atlas and painted head point right. Register the tip, not its centre.
- const cx=x-Math.cos(a)*width*.45,cy=y-Math.sin(a)*width*.45;
- if(!drawSecretWarArt(c,'hookHead',cx,cy,width,a,alpha))art.sprite(c,'grapnelFire',cx,cy,width,a,alpha);
+ const cx=x-Math.cos(a)*width*.475,cy=y-Math.sin(a)*width*.475;
+ art.sprite(c,'grapnelFire',cx,cy,width,a,alpha);
 }
 function gasFold(c,x,y,width,height,a,alpha){
  if(!(alpha>0))return;
@@ -36,13 +30,9 @@ export function drawPayloadCarrier(c,b,view,art){
  const progress=clamp(1-b.life/(b.maxLife||.55)),opening=clamp((progress-.57)/.43);
  c.save();c.translate(x,y);c.rotate(a);c.scale(size,size);
  if(b.secretSteelRain){
-  // The four-leaf drawing is the opened casing. Keep its valves folded flat
-  // around the closed Cooper body until the last part of the real fall.
   bombSprite(c,'cooper',0,0,62,0,1-.67*opening);
-  c.save();c.scale(1,.28+.72*opening);
-  if(!drawSecretWarArt(c,'steelDispenser',0,0,41+opening*12,0,.70+.30*opening))
-   art.sprite(c,'flechetteBundle',0,0,38+opening*10);
-  c.restore();
+  drawSecretWarArt(c,'steelTray',0,0,25,0,.90);
+  cassetteLids(c,opening*3,opening*.05,.90);
  }else{
   bombSprite(c,'cooper',0,0,57,0);
  }
@@ -81,22 +71,8 @@ export function drawPayloadRound(c,b,world,view,art,low=false){
  if(b.secretWeapon!=='fliegerpfeil'&&b.secretWeapon!=='farnboroughFirechain')return false;
  const {sx,sy,z}=view,x=sx(b.x),y=sy(b.y),a=Math.atan2(b.vy,b.vx),size=z*(b.ammunitionScale||1);
  if(b.secretWeapon==='fliegerpfeil'){
-  // Each visible dart is the authoritative travelling round. The three speed
-  // bands each leave a different length brushed-metal streak behind the shaft.
-  const speed=Math.hypot(b.vx,b.vy),band=clamp((speed-360)/160);
-  const length=(30+band*32)*size,d=length*.56+13*size;
-  fx(c,'vaporTrail',x-Math.cos(a)*d,y-Math.sin(a)*d,length,(3+band*2)*size,a,.77);
-  // A beveled steel spine and forked tail keep the painted dart legible on
-  // a white blast or dark ground, even after the viewport is scaled to mobile.
-  c.save();c.translate(x,y);c.rotate(a);c.scale(size,size);
-  const nose=15+band*5,tail=-13-band*5;
-  c.beginPath();c.moveTo(nose+4,0);c.lineTo(nose-6,-2.8);c.lineTo(tail+6,-2);
-  c.lineTo(tail-4,-4.5);c.lineTo(tail-1,0);c.lineTo(tail-4,4.5);
-  c.lineTo(tail+6,2);c.lineTo(nose-6,2.8);c.closePath();
-  c.fillStyle='#e8e2cd';c.strokeStyle='#201e1a';c.lineWidth=3;
-  c.stroke();c.fill();art.sprite(c,'flechetteDart',0,0,(29+band*8),0,.83);
-  c.beginPath();c.moveTo(tail+4,-.8);c.lineTo(nose+1,-.8);
-  c.strokeStyle='#fff9e0';c.lineWidth=2;c.stroke();c.restore();
+  const speed=Math.hypot(b.vx,b.vy),band=clamp((speed-360)/160),width=(34+band*6)*size;
+  if(!drawSecretWarArt(c,'dartShaft',x,y,width,a))art.sprite(c,'flechetteDart',x,y,width,a);
   return true;
  }
  const origin=b.secretChainOrigin;
@@ -122,32 +98,21 @@ export function drawPayloadRound(c,b,world,view,art,low=false){
 
 function steelRelease(c,cue,age,view,art,low){
  const {sx,sy,z}=view,x=sx(cue.x),y=sy(cue.y),a=cue.a||0,t=clamp(age/.48);
- // Draw behind the case. Each wake ends where its own round actually
- // travelled, including a round that stopped early. Two batched strokes cover
- // all lanes, with widening gaps between the three different speed bands.
- const tracks=cue.steelTracks;
- if(tracks?.length){
-  c.save();c.beginPath();c.lineCap='round';
-  for(const {x:startX,y:startY,dart} of tracks){
-   const dx=dart.x-startX,dy=dart.y-startY,distance=Math.hypot(dx,dy);
-   if(distance<3)continue;
-   const length=Math.min(distance,44+Math.hypot(dart.vx,dart.vy)*.13);
-   const fraction=1-length/distance;
-   c.moveTo(sx(startX+dx*fraction),sy(startY+dy*fraction));c.lineTo(sx(dart.x),sy(dart.y));
-  }
-  c.globalAlpha*=Math.min(1,Math.max(0,(cue.life-age)/.42));
-  c.lineWidth=Math.max(2.8,5.2*z);c.strokeStyle='rgba(42,37,32,.79)';c.stroke();
-  c.lineWidth=Math.max(1.25,2.4*z);c.strokeStyle='rgba(245,237,205,.88)';c.stroke();
-  c.restore();
+ // A short painted slipstream stays on the traversed part of each real lane.
+ const opacity=clamp((cue.life-age)/.4);
+ for(const {x:startX,y:startY,dart} of cue.steelTracks||[]){
+  const dx=dart.x-startX,dy=dart.y-startY,distance=Math.hypot(dx,dy);
+  if(distance<5)continue;
+  const band=clamp((Math.hypot(dart.vx,dart.vy)-360)/160);
+  const length=Math.min(distance,28+26*band),back=.5*length/distance;
+  fx(c,'vaporTrail',sx(dart.x-dx*back),sy(dart.y-dy*back),length*z,(3.8+band)*z,
+   Math.atan2(dy,dx),opacity*.63);
  }
- const opening=clamp(age/.48),throwDistance=1-Math.pow(1-opening,2),fade=Math.min(1,(1-opening)*4);
+ if(age>=.48)return;
+ const opening=1-(1-t)**2,fade=Math.min(1,(1-t)*4);
  c.save();c.translate(x,y);c.rotate(a);c.scale(z,z);
- for(const front of [-1,1])for(const side of [-1,1]){
-  // Each quadrant is an actual hinged petal of the painted four-leaf dispenser.
-  // Start assembled, then tumble each piece along its own ejection direction.
-  steelPetal(c,art,front,side,front*throwDistance*39-t*11,side*throwDistance*46,
-   55+throwDistance*13,front*side*throwDistance*1.7,fade);
- }
+ drawSecretWarArt(c,'steelTray',0,0,25,0,clamp(1-age/.22));
+ cassetteLids(c,opening*28,opening*.44,fade);
  if(age<.23){
   const burst=age/.23;
   art.sprite(c,'flechetteBundle',0,0,36*(1-burst*.45),0,1-burst);
@@ -171,7 +136,8 @@ function embeddedDart(c,cue,age,world,view,art){
   fx(c,'ricochet',x,y,42*z,17*z,a,1-t);
   fx(c,'metalShard1',x-Math.cos(a+.65)*t*24*z,y-Math.sin(a+.65)*t*24*z,13*z,6*z,a-t*4,1-t);
  }
- art.sprite(c,'flechetteDart',x-Math.cos(a+jolt)*9*z,y-Math.sin(a+jolt)*9*z,27*z,a+jolt,fade);
+ const bx=x-Math.cos(a+jolt)*9*z,by=y-Math.sin(a+jolt)*9*z;
+ if(!drawSecretWarArt(c,'dartShaft',bx,by,27*z,a+jolt,fade))art.sprite(c,'flechetteDart',bx,by,27*z,a+jolt,fade);
 }
 
 function gasField(c,cue,age,view,art,low){

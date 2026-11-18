@@ -421,7 +421,7 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    const r=cue.radius||198;
    if(!cue.water&&age>.12){
     const ground=clamp((age-.12)/.34),ext=(.34+.89*ground)*r*z;
-    paint(c,'crater',x,y,ext,ext*.80,a+.24,Math.min(.74,ground)*clamp((life-age)/.52));
+    paint(c,'crater',x,y,ext,ext,a+.24,Math.min(.74,ground)*clamp((life-age)/.52));
    }
    if(age<.18)stamp('fireFlash',0,0,r*1.88,r*1.30,0,.93*(1-age/.18));
    if(age<1.2){
@@ -429,20 +429,14 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
     if(cue.water)stamp('splashShell',0,0,r*(.65+rise),r*(.65+rise),0,flame);
     else {
      const fire=age<.17?'bombfx0':age<.34?'bombfx1':age<.59?'bombfx2':'bombfx3';
-     if(!drawSecretWarArt(c,'earthPlume',x,y-r*.13*rise*z,r*(1.12+rise*.78)*z,0,flame))
+     if(!drawSecretWarArt(c,'earthPlume',x,y,r*(1.12+rise*.78)*z,a,flame))
       stamp(fire,0,0,r*(1.02+rise*.47),r*(1.02+rise*.47),.37,flame);
      if(age<.54)stamp('fireFlash',0,0,r*(.53+rise*.41),r*(.53+rise*.41),.82,flame*.88);
     }
    }
-   // After the flash, a low front of lifted earth or spray races across the blast footprint.
-   if(age>.10&&age<.85){
-    const front=clamp((age-.10)/.75);
-    for(const side of [-1,1])stamp(cue.water?'splashShell':'smokeDust',side*r*(.19+.59*front),r*front*.13,
-     r*(.47+.38*front),r*(.25+.19*front),side*.29,Math.sin(front*Math.PI)*.88);
-   }
    const ground=clamp((age-.11)/1.16);
    if(age>.11)for(let i=0;i<(low?3:5);i++){
-    const h=i*TAU/(low?3:5),radius=ground*r*.90;
+    const h=a+i*TAU/(low?3:5),radius=ground*r*(.72+.09*(i%3));
     const opacity=Math.min(1,(age-.11)*4)*Math.pow(1-t,1.65);
     const dx=Math.cos(h)*radius,dy=Math.sin(h)*radius;
     if(cue.water)stamp('splashShell',dx,dy,r*(.32+.53*ground),r*(.22+.38*ground),h,opacity);
@@ -474,6 +468,8 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    forward('smokeDark',9+age*42,0,36+t*52,22+t*36,a,.66*fade);
    for(let i=0;i<(low?4:8);i++){
     const side=i%2?-1:1,h=a+side*(.62+Math.floor(i/2)*.38),r=(1-Math.pow(fade,2))*(52+i%3*22)*weight;
+    if(i<2&&drawSecretWarArt(c,'wingRibs',x+Math.cos(h)*r*z,y+(Math.sin(h)*r+age*age*43)*z,
+     30*z,h+side*age*(6+i),fade))continue;
     const key=i<2?'debrisShard':i%3?'metalShard'+i%6:'spark';
     stamp(key,Math.cos(h)*r,Math.sin(h)*r+age*age*43,i<2?31:18,i<2?14:8,h+side*age*(6+i),fade);
    }
