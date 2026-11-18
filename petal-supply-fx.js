@@ -4,7 +4,8 @@ const smooth=n=>{const q=clamp(n);return q*q*(3-2*q);};
 const art=new Map();
 export const materialArtReady=Promise.all(['petal-0','petal-1','petal-2','petal-3','petal-4','petal-5','supply-0','mccudden-repair-kit-256'].map(key=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}
- const im=new Image();art.set(key,im);im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=new URL('./pilot-material-art/'+key+'.webp',import.meta.url).href;
+ const path=key.startsWith('petal-')?'./fx-wolff-petal-v2-'+key.slice(6):'./pilot-material-art/'+key;
+ const im=new Image();art.set(key,im);im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=new URL(path+'.webp',import.meta.url).href;
 })));
 function sprite(c,key,x,y,size,a=0,alpha=1,anchor=[.5,.5],fold=1){
  const im=art.get(key);if(!im?.complete||!im.naturalWidth||!(alpha>0))return false;
@@ -33,9 +34,11 @@ export function petalMaterialPose(p,owner){
   const back=sweep*(11+age*21),spread=side*(4+sweep*(14+age*25))+Math.sin(age*7+i*.85)*(2+sweep*3);
   dx=-ca*back-sa*spread;dy=-sa*back+ca*spread;
   angle+=side*sweep*(1.25+age*1.1);
-  fold=.48+.52*Math.abs(Math.cos(seed+age*(5+sweep*4)));
-  size=(p.size||4)*(2.55+sweep*.82);
-  alpha*=smooth((age-i*.018)/.13)*(.47+.47*sweep);
+  // The crease has finite thickness even when the petal turns edge-on.
+  // Bring its painted face up before the aircraft reaches that lane segment.
+  fold=.61+.39*Math.abs(Math.cos(seed+age*(5+sweep*4)));
+  size=(p.size||4)*(3.05+sweep*.58);
+  alpha*=smooth((age-i*.018)/.10)*(.81+.16*sweep);
  }
  return {dx,dy,angle,fold,index:Math.abs(Math.floor(seed*7))%6,size,alpha};
 }
