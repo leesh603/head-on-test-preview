@@ -1,4 +1,5 @@
 import {weaponImpactKind} from './weapon-impact-profile.js';
+import {drawMaterialFrame, materialRows} from './combat-material-art.js';
 // Choreography for the existing combatFX list and approved painted sprites.
 // No damage, timers, simulation RNG, emitted particles, or additional atlas.
 export const EXPLOSION_LIFE=Object.freeze({aircraft:.72,fuelFire:3.2,groundShell:.48,heavyShell:.88,ammoCookoff:2.65,bulletImpact:.27,armorBreak:.85,engineBreak:1.5,navalBreak:1.3});
@@ -92,9 +93,18 @@ function shards(c,fx,x,y,age,d,metal,count,up=false){
   fx(c,(metal?METAL:ROCK)[i%4],x+dx,y+dy,d*(metal?.13:.16),d*(metal?.13:.16),a+age*(i%2?-5:4),fade*.85);
  }
 }
-export function drawFuelFire(c,fx,x,y,age,size=48,angle=0,remaining=3){
+export function drawFuelFire(c,fx,x,y,age,size=48,angle=0,remaining=3,slipstream=false){
  const fade=clamp(remaining/.45),thick=clamp(age/1.3),flicker=.92+Math.sin(age*23)*.06;
  if(age<.12)fx(c,'profileFlash',x,y,size*.95,size*.95,angle,(1-age/.12)*.85*fade);
+ if(slipstream){
+  const aft=angle+Math.PI/2,frame=Math.floor(age*12)%4;
+  if(drawMaterialFrame(c,materialRows.fuel,frame,x,y,size*1.65,size*1.65,aft,fade)){
+   const drift=size*(.30+thick*.48);
+   fx(c,'profileOil',x+Math.cos(aft)*drift,y+Math.sin(aft)*drift,
+    size*(.65+thick*.55),size*(.52+thick*.35),aft,(.15+thick*.27)*fade);
+   return true;
+  }
+ }
  fx(c,'profileEngine',x,y-size*.08,size*flicker,size*1.3,angle,.8*fade);
  fx(c,'profileOil',x+size*.16*thick,y-size*(.4+thick*.3),size*(.65+thick*.55),size*(.85+thick*.65),angle*.15,(.15+thick*.27)*fade);
  if(age>.5)fx(c,'profileWing',x-size*.17,y+size*.08,size*.58,size*.72,angle+.25,.55*fade);
@@ -130,7 +140,11 @@ export function drawExplosionProfile(c,f,x,y,fx){
   // fabric/sparks and directed fragments carry the rest of the impact.
   const flashLife=compact?.085:.12;
   if(!blocked&&age<flashLife)fx(c,'profileFlash',x,y,width*(compact?.58:.78),size*(compact?.48:.68),contactAngle,Math.min(1,(flashLife-age)/(compact?.04:.065))*(decisive?.95:compact?.78:.9));
-  fx(c,(blocked||f.railArmor)?'ricochet':metal?'armorSpark':'debris',x,y,width*(.7+q*.5),size,contactAngle,fade*(blocked?.65:f.material==='fabric'?.76:.9));
+  const frame=q<.16?0:q<.40?1:q<.72?2:3;
+  const painted=!f.railArmor&&drawMaterialFrame(c,metal?materialRows.metal:materialRows.linen,frame,
+   x,y,width*1.75,size*(f.material==='wood'?1.25:1.65),contactAngle,clamp(fade*2.5));
+  if(!painted)fx(c,f.railArmor?'ricochet':metal?'armorSpark':'debris',x,y,width*(.7+q*.5),size,contactAngle,fade*(f.material==='fabric'?.76:.9));
+  if(painted&&compact)return true;
   if(!blocked&&f.incendiary&&age<.12)fx(c,'fireEngine',x,y,18+q*12,13+q*8,a,(1-age/.12)*.65);
   if(!blocked)for(let i=0,count=decisive?5:f.piercing?3:2;i<count;i++){
    const dir=contactAngle+(i-(count-1)/2)*(decisive?.63:.7),travel=(compact?9+i*5:18+i*11)*q*(decisive?1.6:1);
@@ -152,7 +166,9 @@ export function drawExplosionProfile(c,f,x,y,fx){
  if(profile==='aircraft'){
   const d=Math.min(138,Math.max(56,r*2.5));
   if(age<.075)fx(c,'profileFlash',x,y,d*.85,d*.85,0,(1-age/.075)*.95);
-  if(age<.24)fx(c,FRAMES.air[Math.min(3,Math.floor(age/.06))],x,y,d*(.65+clamp(age/.14)*.35),d,0,clamp((.24-age)/.09));
+  const frame=age<.045?0:age<.135?1:age<.235?2:3;
+  const plume=age<.43&&drawMaterialFrame(c,materialRows.air,frame,x,y,d,d,0,clamp((.43-age)/.16));
+  if(!plume&&age<.24)fx(c,FRAMES.air[Math.min(3,Math.floor(age/.06))],x,y,d*(.65+clamp(age/.14)*.35),d,0,clamp((.24-age)/.09));
   if(age>.06)fx(c,'profileTrail',x+d*age*.22,y-d*age*.4,d*(.35+age*.6),d*(.6+age*.45),-.25,clamp((.72-age)/.3)*.38);
   shards(c,fx,x,y,age,d,true,3);
   if(age<.16)fx(c,'spark',x+d*age,y-d*age*.7,14,14,age*4,(1-age/.16)*.9);

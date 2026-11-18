@@ -11,6 +11,7 @@ export const flakAirburstArtReady=!image?Promise.resolve(false):new Promise(reso
  image.onerror=()=>{image.onload=image.onerror=null;resolve(false);};
  image.src=new URL('./fx-flak-airburst-8f-20261104.webp',import.meta.url).href;
 });
+export function flakAirburstLoaded(){return ready&&!off;}
 export function flakAirburstFrame(progress){
  if(!Number.isFinite(progress)||progress<0||progress>=1)return -1;
  let time=progress*duration;

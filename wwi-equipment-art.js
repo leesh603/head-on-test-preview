@@ -1,4 +1,5 @@
 import {drawEquipmentSupport} from './equipment-support-fx.js';
+import {drawVerySignal,verySignalArtReady} from './very-signal-art.js';
 import {fx} from './fx-art.js?v=tame3';
 import {equipmentFinishingArtReady} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
 import {drawHytheFocus,hytheCameraArtReady} from './hythe-camera-fx.js';
@@ -25,7 +26,7 @@ const load=(file,set)=>new Promise(resolve=>{
 export const equipmentArtReady=Promise.all([
  load('./wwi-equipment-atlas.webp',im=>atlas=im),load('./bomb-cooper-readable-q92.webp',im=>bomb=im),
  load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./fiery-grapnel-20261028.webp',im=>grapnelAtlas=im),incendiaryArtReady,equipmentSignatureArtReady,equipmentExtensionArtReady,equipmentDetailArtReady,equipmentMountArtReady,equipmentFinishingArtReady,hytheCameraArtReady
- ,secretWeaponArtReady,load('./secret-leimberger-mount.webp',im=>rotaryMount=im)
+ ,secretWeaponArtReady,verySignalArtReady,load('./secret-leimberger-mount.webp',im=>rotaryMount=im)
 ]).then(results=>results.every(Boolean));
 
 function sprite(c,key,x,y,width,angle=0,alpha=1){
@@ -134,8 +135,9 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   const mark=wwiWingTarget(p),flare=p.wwiVery;
   if(mark&&flare&&visible(mark.x,mark.y)){
    const t=Math.min(1,flare.age/.4),x=flare.x+(mark.x-flare.x)*t,y=flare.y+(mark.y-flare.y)*t,a=Math.atan2(mark.y-flare.y,mark.x-flare.x);
-   sprite(c,t<1?'veryFlare':'verySmoke',sx(x)-Math.cos(a)*20*z,sy(y)-Math.sin(a)*20*z,(t<1?58:72)*z,a,Math.min(1,p.wwiVeryTime));
-   drawVeryDesignation(c,sx(mark.x),sy(mark.y),Math.max(24,Math.min(60,(mark.target.hitRadius||17)+10))*z,flare.age,p.wwiVeryTime,options);
+   const painted=drawVerySignal(c,sx(x),sy(y),a,flare.age,p.wwiVeryTime,z,options.low);
+   if(!painted)sprite(c,t<1?'veryFlare':'verySmoke',sx(x)-Math.cos(a)*20*z,sy(y)-Math.sin(a)*20*z,(t<1?58:72)*z,a,Math.min(1,p.wwiVeryTime));
+   if(!painted||t<1)drawVeryDesignation(c,sx(mark.x),sy(mark.y),Math.max(24,Math.min(60,(mark.target.hitRadius||17)+10))*z,flare.age,p.wwiVeryTime,options);
   }
   const cue=currentCameraCue(p,world);
   if(u.hytheCamera){

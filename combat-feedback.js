@@ -170,7 +170,8 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   };
   const impact=p.specialRoundImpact;
   if(impact)p.specialRoundImpact=function(b,e){
-   const resolved=combatImpactResult(b,e),ordinaryMg=ordinaryMgContact(e,b,resolved),result=impact.call(this,b,e);if(b.patrol)return result;
+   const resolved=combatImpactResult(b,e),ordinaryBefore=ordinaryMgContact(e,b,resolved),result=impact.call(this,b,e);if(b.patrol)return result;
+   const ordinaryMg=ordinaryBefore&&ordinaryMgContact(e,b,resolved);
    const dealt=resolved?.damage>0,heavy=!!(b.rocket||b.cow37||b.motorCannon);
    const splash=b.actualExplosion&&!b.secondaryExplosion&&['bomb','cooper','puw'].includes(b.fxSource);
    if(resolved?.blocked&&!dealt&&!b.actualExplosion&&!b.blast&&!b.fireZone){
@@ -456,7 +457,7 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
  const s=worlds.get(world);if(!s)return;
  const visible=(x,y)=>Math.abs(x-world.x)<(world.viewWidth||960)+160&&Math.abs(y-world.y)<(world.viewHeight||700)+160;
  for(const f of s.plumes){if(!visible(f.x,f.y))continue;const [x,y]=point(f.x,f.y),k=f.age/f.life,size=16+k*(f.heavy?38:24);if(f.key){if(f.streak)fx(c,f.key,x,y,f.w*(1+k*.7),f.h*(1+k*.5),f.a,(1-k)*f.alpha);else{const r=f.size+k*f.grow;fx(c,f.key,x,y,r,r,f.a,(1-k)*f.alpha)}continue}fx(c,f.heavy?'smokeDark':'engineSmoke',x,y,size,size,f.a,(1-k)*(f.heavy?.55:.35))}
- let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&!e.burnAnchorSpace&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const origin=e.criticalFuelOrigin;const [x,y]=origin?point(...localPoint(e,origin.forward,origin.side)):point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime);fuelCount++}
+ let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&!e.burnAnchorSpace&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const origin=e.criticalFuelOrigin;const [x,y]=origin?point(...localPoint(e,origin.forward,origin.side)):point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime,!e.surface);fuelCount++}
  // Wingtip condensation ribbons (was: one fixed sprite glued to the player's wingtips).
  {const small=world.viewWidth<=720,budget=small?AIR_WAKE.compactRibbonDraws:AIR_WAKE.ribbonDraws,limit=small?AIR_WAKE.compactRibbonAircraft:AIR_WAKE.ribbonAircraft;let draws=0,craft=0;
   for(let n=s.ribbonOwners.length-1;n>=0&&draws<budget&&craft<limit;n--){const owner=s.ribbonOwners[n],r=s.ribbons.get(owner);if(!r||r.pts.length<2)continue;craft++;

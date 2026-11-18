@@ -3,6 +3,8 @@ import {drawV1500CollapseFx} from './v1500-destruction-fx.js';
 import {drawBishopBombImpact} from './bishop-sortie-fx.js';
 import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {drawDetonationPresence} from './detonation-presence.js';
+import {drawWaterContact} from './water-contact-art.js';
+import {drawFlakAirburst} from './flak-airburst-art.js';
 import {weaponImpactKind} from './weapon-impact-profile.js';
 import {drawAircraftCritical} from './aircraft-critical-view.js';
 import {roleDraw} from './fx-role3.js?v=tame3&perf=1029&decode=1';
@@ -76,6 +78,7 @@ function blastFlame(c,x,y,d,q){
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
+ if(f.capitalRoyal&&drawFlakAirburst(c,x,y,(radius||f.radius)*1.4,combatFxAge(f)/1.2,0,.85))return true;
  if(f.steelPenetration){
   const age=combatFxAge(f),a=f.direction,q=Math.max(0,1-age/f.maxLife);
   if(age<.12&&fxReady('armorSpark'))fx(c,'armorSpark',x,y,42,21,a,q);
@@ -104,6 +107,13 @@ function drawFxExplosionBase(c,f,x,y,radius=0){
  if(f.fxProfile&&fxReady(f.fxProfile==='groundShell'||f.fxProfile==='heavyShell'?'mortarImpact0':f.fxProfile==='ammoCookoff'?'bossBlast0':'airblast0')&&drawExplosionProfile(c,f,x,y,fx))return true;
  if(f.fxOnly&&!FX3)return true;
  if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
+ // Confirmed shell hits on a pilot use an airborne skin breach. The generic
+ // shell flipbook carries a ground scorch and a second tail after expiry.
+ if(f.presentationContact&&f.impactWeapon==='shell'){
+  const q=Math.min(.999,combatFxAge(f)/f.maxLife),frame=Math.floor(q*4);
+  const size=Math.min(86,Math.max(32,(radius||f.radius||32)*1.7));
+  return fx(c,'airblast'+frame,x,y,size,size,0,Math.min(1,(1-q)*2));
+ }
  // COW's authored four-stage detonation must precede the generic hit flipbook.
  if(f.fxSource==='cow'&&FX3){
   const q=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
@@ -141,13 +151,16 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
   return hit;
  }
  if(source==='navalMG'||source==='navalMedium'){
-  if(!fxReady('navalSplash3'))return false;const medium=source==='navalMedium',d=(medium?64:27)*(.72+q*.45);
+  const medium=source==='navalMedium',size=medium?64:27;
+  if(drawWaterContact(c,x,y,size,q,f.direction||0,medium?.94:.86))return true;
+  if(!fxReady('navalSplash3'))return false;const d=size*(.72+q*.45);
   fx(c,'navalSplash3',x,y,d,d,0,(1-q)*(medium?.72:.62));if(medium&&q>.3)fx(c,'navalFoam3',x,y,d*1.12,d*1.12,0,(1-q)*.24);return true;
  }
  if(source==='mineBlast'||source==='mineSea'||source==='navalShell'){
-  if(!fxReady('navalSplash3')||!fxReady('navalFoam3'))return false;
   const d=Math.min(250,Math.max(54,r*2.2));
   const shell=source==='navalShell';
+  if(drawWaterContact(c,x,y,d,q,f.direction||0))return true;
+  if(!fxReady('navalSplash3')||!fxReady('navalFoam3'))return false;
   if(q<.65)fx(c,'navalSplash3',x,y,d*(.55+q*.7),d*(.55+q*.7),shell?.35:0,fade*(1-q)*(shell?1:.7));
   if(!shell||q>.25)fx(c,'navalFoam3',x,y,d*(.7+q*.65),d*(.7+q*.65),0,fade*(shell?.32:.65));return true;
  }
@@ -198,12 +211,15 @@ export function drawWeaponImpactTexture(c,f,x,y,paint=fx,ready=fxReady){
  if(!weapon||!(f.life>0)||!(f.maxLife>0))return false;
  const age=combatFxAge(f),fade=Math.max(0,Math.min(1,(f.maxLife-age)/.12));
  if(age>=f.maxLife)return false;
+ // The naval base owns the complete spray-to-foam sequence. Land accents
+ // here would leave earth outside a sinking ship's water column.
+ if(f.fxSource==='mineBlast'||f.kind==='mineBlast'||f.fxSource==='mineSea'||f.fxSource==='navalShell')return true;
  if(drawBishopBombImpact(c,f,x,y,age,paint,ready))return true;
  drawDetonationPresence(c,f,x,y,age,weapon,paint,ready);
  if(age>.36)return true;
  const r=Math.min(82,Math.max(24,f.radius||40)),directed=Number.isFinite(f.direction),a=directed?f.direction:0;
  const draw=(key,px,py,w,h,angle,alpha)=>{if(alpha>0&&ready(key==='profileFlash'?'fireFlash':key))paint(c,key,px,py,w,h,angle,alpha*fade);};
- if(weapon==='cannon'){
+ if(weapon==='cannon'||(weapon==='shell'&&f.presentationContact)){
   // A narrow metal strike precedes the slower smoke in the cannon's own art.
   if(age<.09)draw('armorSpark',x,y,46,25,a,(1-age/.09)*.88);
   if(age>.035&&age<.25)for(let i=0;i<2;i++){
@@ -224,6 +240,14 @@ export function drawWeaponImpactTexture(c,f,x,y,paint=fx,ready=fxReady){
  }else if(weapon==='incendiary'){
   if(age<.12)draw('fireFlash',x,y,32,32,a,(1-age/.12)*.6);
   if(age>.04)draw('fireEngine',x,y,24,36,a+Math.PI/2,(1-age/.36)*.7);
+ }else if(weapon==='flak'||weapon==='mine'){
+  if(age>.04&&age<.25){
+   const split=(age-.04)/.21,axis=(f.x||0)*.061+(f.y||0)*.031;
+   for(let i=0;i<2;i++){
+    const h=axis+i*2.71,travel=r*(.14+.66*(1-(1-split)**2));
+    draw('metalShard'+i,x+Math.cos(h)*travel,y+Math.sin(h)*travel,10-i*2,5,h+split*2,(1-split)*.85);
+   }
+  }
  }else{
   const heavy=weapon==='puw',size=heavy?1.2:weapon==='cooper'?.82:1;
   if(age<.075)draw('profileFlash',x,y,r*.65*size,r*.65*size,0,(1-age/.075)*.88);

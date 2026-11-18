@@ -1,3 +1,4 @@
+import {drawMaterialFrame, materialRows} from './combat-material-art.js';
 // Painted pressure front. Geometry only clips the approved textures; it never
 // draws a replacement circle or creates particles, canvases, or simulation RNG.
 const TAU=Math.PI*2;
@@ -61,6 +62,10 @@ export function drawArtilleryMuzzle(c,paint,x,y,angle,age,{heavy=false,scale=1,s
  if(!(age>=0)||age>=duration)return;
  const size=(heavy?1.3:1)*scale,dx=Math.cos(angle),dy=Math.sin(angle);
  if(!smokeOnly&&age<.13)paint(c,'muzzleHeavy',x+dx*9*scale,y+dy*9*scale,88*size,112*size,angle,(1-age/.13)*.95);
+ const progress=age/duration,frame=progress<.075?0:progress<.24?1:progress<.55?2:3;
+ const advance=size*progress*38;
+ if(drawMaterialFrame(c,materialRows.powder,smokeOnly?Math.max(1,frame):frame,
+  x+dx*advance,y+dy*advance,155*size,150*size,angle,clamp((1-progress)*2)))return;
  if(age<.38){const q=age/.38;
   for(const side of [-1,1]){
    const lateral=side*(18+q*58)*size,forward=(8+q*25)*size;

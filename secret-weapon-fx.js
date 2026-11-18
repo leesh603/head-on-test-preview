@@ -6,7 +6,7 @@ import {fx} from './fx-art.js?v=tame3';
 import {secretImpactArtReady,drawSecretImpactSignature,drawSecretWarArt} from './secret-impact-signatures.js';
 import {drawOrdnanceMounts,drawOrdnanceRound,drawOrdnanceCue} from './secret-ordnance-sequences.js';
 import {drawFlakAirburst} from './flak-airburst-art.js';
-import {prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
+import {drawWaterContact} from './water-contact-art.js';
 import {KETTERING_DIVE} from './secret-weapon-combat.js';
 const SELECTED_ART=['le-prieur-mount','salamander-mount','siemens-halske-rotor'];
 
@@ -62,6 +62,7 @@ export function drawSecretGasStencil(c,x,y,width,a,alpha=1){
 // The caller's existing aircraft transform supplies heading and bank.
 export function drawSecretAirframeHardware(c,p,scale,time){
  if(!p.secretWeaponState?.slots)return;
+ if(p.secretWeaponState.slots.badinGauge==='badinBreakthrough')prepareBadinWake();
  drawOrdnanceMounts(c,p,scale,time,sprites);
 }
 
@@ -69,19 +70,28 @@ export function secretBomberAirframe(faction){
  return faction==='central'?'bomber-transfer-gotha':'bomber-transfer-o400';
 }
 
-function drawBadinVortex(c,x,y,a,side,size,phase,opacity){
- if(!badinVortex){
-  const source=prepareSandVortexArt();
-  if(!source?.naturalWidth)return;
-  badinVortex=document.createElement('canvas');
-  badinVortex.width=128;badinVortex.height=128;
-  const g=badinVortex.getContext('2d');
-  g.filter='grayscale(1) brightness(2)';
-  g.drawImage(source,0,0,128,128);
+function prepareBadinWake(){
+ if(!badinVortex&&typeof Image!=='undefined'){
+  badinVortex=new Image();
+  badinVortex.decoding='async';
+  badinVortex.src=new URL('./fx-badin-condensation.webp',import.meta.url).href;
  }
- c.save();c.translate(x,y);c.rotate(a);
- c.scale(1.3,side*.85);c.rotate(phase);c.globalAlpha*=opacity;
- c.drawImage(badinVortex,-size/2,-size/2,size,size);c.restore();
+ return badinVortex;
+}
+
+function drawBadinVortex(c,x,y,a,side,size,progress,opacity){
+ const image=prepareBadinWake();
+ if(!image?.complete||image.naturalWidth!==1024||image.naturalHeight!==120){
+  fx(c,'vaporTrail',x,y,size,size*.24,a,opacity*.67);
+  return;
+ }
+ const frame=progress<.16?0:progress<.43?1:progress<.71?2:3;
+ const width=size*1.55,height=width*120/256;
+ c.save();c.translate(x,y);c.rotate(a);c.scale(1,side);c.globalAlpha*=opacity;
+ // Hold the hooked front at the sampled tip. Successive paintings break up
+ // along the slipstream while the opposite wing rolls in the other direction.
+ c.drawImage(image,frame*256,0,256,120,-width*.78,-height*.53,width,height);
+ c.restore();
 }
 
 function drawStrategicFall(c,b,{sx,sy,z,visible},faction,art){
@@ -293,11 +303,13 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   }
   case 'puwImpact': {
    const r=cue.radius||62;
+   // The cradle renderer owns the four separate water entry points.
+   if(cue.water)break;
    if(age<.18)stamp('fireFlash',0,0,r*1.65,r*1.05,a,1-age/.18);
    if(age<.77)stamp('bombfx'+Math.min(3,Math.floor(age/.14)),0,0,r*(1.32+t*1.05),r*(1.11+t*.74),a,Math.min(1,(.77-age)*2.9));
-   if(!cue.water)stamp('dirtMix',0,3+r*t*.15,r*(1.07+t),r*(.72+t*.72),a,.91*fade);
-   if(!cue.water&&age>.18)stamp('smokeDark',0,-r*t*.45,r*(.78+t*.65),r*(.62+t*.54),a,.64*fade);
-   if(!cue.water)spray(low?3:6,r*2.05,(i,h,dx,dy)=>stamp('rockChunk'+i,dx,dy,14,9,h+t*6));
+   stamp('dirtMix',0,3+r*t*.15,r*(1.07+t),r*(.72+t*.72),a,.91*fade);
+   if(age>.18)stamp('smokeDark',0,-r*t*.45,r*(.78+t*.65),r*(.62+t*.54),a,.64*fade);
+   spray(low?3:6,r*2.05,(i,h,dx,dy)=>stamp('rockChunk'+i,dx,dy,14,9,h+t*6));
    break;
   }
   case 'siemensReversal': {
@@ -328,16 +340,19 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   }
   case 'bugImpact': {
    const r=cue.radius||96;
-   if(age<.17)stamp('fireFlash',0,0,r*1.36,r,a,1-age/.17);
-   if(age<.56)stamp(age<.19?'airblast0':age<.36?'airblast1':'airblast2',0,0,r*(1.06+age),r*(.82+age),a,1-age/.56);
-   if(cue.water&&age<.72)stamp('splashShell',0,0,r*1.25,r*.96,a,1-age/.72);
+   if(cue.water){
+    if(!drawWaterContact(c,x,y,r*1.61*z,t,a))stamp(t<.55?'splashShell':'foamRing',0,0,r*(1.14+t*.43),r*(1.14+t*.43),a,fade);
+   }else{
+    if(age<.17)stamp('fireFlash',0,0,r*1.36,r,a,1-age/.17);
+    if(age<.56)stamp(age<.19?'airblast0':age<.36?'airblast1':'airblast2',0,0,r*(1.06+age),r*(.82+age),a,1-age/.56);
+   }
    // The craft breaks along its incoming heading; the hot fuselage continues beyond the wings.
    if(age<.53)for(const side of [-1,1]){
     const lateral=side*(8+age*81),angle=a+side*(.5+age*5);
     forward('debrisShard',age*62,lateral,30-age*16,13,angle,1-age/.53);
    }
    if(age<.7)spray(low?4:8,135,(i,h,dx,dy)=>stamp(i%2?'debrisShard':'metalShard'+i%6,dx,dy,13,7,h+age*7,1-age/.7));
-   if(age>.16)stamp('smokeDark',t*20,-t*25,r*(.64+.72*t),r*(.56+.54*t),a,.75*fade);
+   if(age>.16&&!cue.water)stamp('smokeDark',t*20,-t*25,r*(.64+.72*t),r*(.56+.54*t),a,.75*fade);
    break;
   }
   case 'rankenLaunch':
@@ -431,28 +446,44 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    break;
   case 'heavyImpact': {
    const r=cue.radius||198;
-   if(!cue.water&&age>.12){
+   if(cue.water){
+    const size=r*2.04;
+    if(!drawWaterContact(c,x,y,size*z,t,a)){
+     const width=size*(.65+t*.35);
+     stamp(t<.48?'splashShell':'foamRing',0,0,width,width,a,Math.min(1,fade*1.8));
+    }
+    // Secondary spray settles around the fixed entry point of this heavy
+    // charge. Its source is the water column rather than the bomb casing.
+    if(age>.11&&age<1.43){
+     const flight=(age-.11)/1.32;
+     const opacity=Math.sin(Math.PI*flight)*.64;
+     const count=low?3:5;
+     for(let i=0;i<count;i++){
+      const h=a+i*TAU/count+.18*Math.sin(i),travel=r*(.25+.68*(1-(1-flight)**2));
+      const width=r*(.21+flight*.23);
+      stamp('mist',Math.cos(h)*travel,Math.sin(h)*travel,width,width*.61,h,opacity);
+     }
+    }
+    break;
+   }
+   if(age>.12){
     const ground=clamp((age-.12)/.34),ext=(.34+.89*ground)*r*z;
     paint(c,'crater',x,y,ext,ext,a+.24,Math.min(.74,ground)*clamp((life-age)/.52));
    }
    if(age<.18)stamp('fireFlash',0,0,r*1.88,r*1.30,0,.93*(1-age/.18));
    if(age<1.2){
     const rise=clamp(age/.63),flame=clamp((1.2-age)/.52);
-    if(cue.water)stamp('splashShell',0,0,r*(.65+rise),r*(.65+rise),0,flame);
-    else {
-     const fire=age<.17?'bombfx0':age<.34?'bombfx1':age<.59?'bombfx2':'bombfx3';
-     if(!drawSecretWarArt(c,'earthPlume',x,y,r*(1.12+rise*.78)*z,a,flame))
-      stamp(fire,0,0,r*(1.02+rise*.47),r*(1.02+rise*.47),.37,flame);
-     if(age<.54)stamp('fireFlash',0,0,r*(.53+rise*.41),r*(.53+rise*.41),.82,flame*.88);
-    }
+    const fire=age<.17?'bombfx0':age<.34?'bombfx1':age<.59?'bombfx2':'bombfx3';
+    if(!drawSecretWarArt(c,'earthPlume',x,y,r*(1.12+rise*.78)*z,a,flame))
+     stamp(fire,0,0,r*(1.02+rise*.47),r*(1.02+rise*.47),.37,flame);
+    if(age<.54)stamp('fireFlash',0,0,r*(.53+rise*.41),r*(.53+rise*.41),.82,flame*.88);
    }
    const ground=clamp((age-.11)/1.16);
    if(age>.11)for(let i=0;i<(low?3:5);i++){
     const h=a+i*TAU/(low?3:5),radius=ground*r*(.72+.09*(i%3));
     const opacity=Math.min(1,(age-.11)*4)*Math.pow(1-t,1.65);
     const dx=Math.cos(h)*radius,dy=Math.sin(h)*radius;
-    if(cue.water)stamp('splashShell',dx,dy,r*(.32+.53*ground),r*(.22+.38*ground),h,opacity);
-    else stamp(i%2?'dirtBurst':'dirtMix',dx,dy,r*(.40+.55*ground),r*(.27+.28*ground),h,opacity);
+    stamp(i%2?'dirtBurst':'dirtMix',dx,dy,r*(.40+.55*ground),r*(.27+.28*ground),h,opacity);
    }
    if(age<1.4)spray(low?5:10,r*.87,(i,h,dx,dy)=>stamp('rockChunk'+i%6,dx,dy,16+i%3*7,14,h+age*5,1-age/1.4));
    if(age>.27)for(let i=0;i<(low?3:5);i++){

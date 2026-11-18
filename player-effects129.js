@@ -10,7 +10,7 @@ import {drawMomentumTrail,momentumTier} from './ace-momentum.js';
 import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=repairparcel20261023';
 import {nungesserCombatStatus} from './nungesser-combat.js';
 import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
+import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&pilotfx=20261117b';
 import {fx,fxTint} from './fx-art.js?v=tame3';
 import {planeSprite,aircraftKey,aircraftTrailPalette} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111&lazy=20261117';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';

@@ -273,17 +273,27 @@ export function fxsBoom(c, f, x, y, radius = 0) {
   return true;
 }
 
-// Burning ground (hydrogen balloon fire, wreck fires): a scatter of looping flame tongues
-// (tools/fx-sample/flame.py) over a scorched, fire-lit patch, with smoke and embers rising.
-// Zone radius / life / damage stay in the engine; this only replaces the single painted blob.
+// Wreck fuel and breached ground emplacements share an overhead combustion bed.
+// The older tongue atlas remains available when the new painted sheet fails.
 const FLAME = { atlas: null, rects: null, n: 12, v: 3 };
-const flameReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(false) :
-  fetch(new URL('./fx-sample/fx-flame.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
+const FUEL = { atlas: null };
+function legacyFlame() {
+  return fetch(new URL('./fx-sample/fx-flame.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
     const im = new Image();
     im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { FLAME.atlas = im; FLAME.rects = m.rects; FLAME.n = m.frames; FLAME.v = m.variants; res(true); });
     im.onerror = () => res(false);
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href; ATLAS_SOURCES.push(im.src);
   })).catch(() => false);
+}
+const flameReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(false) : new Promise(resolve => {
+  const image = new Image(); image.decoding = 'async';
+  image.onload = () => {
+    if (image.naturalWidth === 896 && image.naturalHeight === 512) FUEL.atlas = image;
+    resolve(!!FUEL.atlas);
+  };
+  image.onerror = () => resolve(false);
+  image.src = new URL('./fx-wreck-fuel.webp', import.meta.url).href; ATLAS_SOURCES.push(image.src);
+}).then(ready => ready || legacyFlame());
 let ZONE_T = -1, ZONE_N = 0; // per-frame budget: only the first few fire zones get smoke / cross-fades
 // Layout depends on the zone, not the camera or animation clock. Weak keys
 // release it with the expired zone instead of retaining a battle-long cache.
@@ -301,7 +311,7 @@ function fireZoneLayout(f, R, seed) {
   return points;
 }
 export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
-  if (!FXS || !FLAME.atlas) return false;
+  if (!FXS || (!FUEL.atlas && !FLAME.atlas)) return false;
   boomSprites();
   if (t !== ZONE_T) { ZONE_T = t; ZONE_N = 0; }
   const rich = ZONE_N++ < 3;
@@ -316,6 +326,30 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   c.drawImage(GLOW, x - R * .85, y - R * .75, R * 1.7, R * 1.5);
   c.globalCompositeOperation = 'source-over';
   if (under) { c.save(); under(); c.restore(); }
+  if (FUEL.atlas) {
+    // All four painted fuel beds have a common hot center. The final seconds
+    // keep their footprint while the flame breaks into isolated ember banks.
+    const age = f.maxLife ? Math.max(0, f.maxLife - f.life) : Math.max(0, t);
+    const rem = Math.max(0, f.life);
+    const phase = rem < 2.4 ? 2 + (1 - rem / 2.4)
+      : age < .55 ? age / .55 : 1 + (.5 - .5 * Math.cos((age - .55) * 3.9));
+    const frame = Math.min(3, Math.floor(phase)), blend = phase - frame;
+    // A 200px diameter of incandescent fabric corresponds to the damage area.
+    const scale = R * 1.94 / 200;
+    c.translate(x,y); c.rotate((f.angle || 0) + (seed % 11 - 5) * .065);
+    c.imageSmoothingEnabled = true;
+    const draw = (index, alpha) => {
+      c.globalAlpha = fade * alpha;
+      c.drawImage(FUEL.atlas, (index % 2) * 448, Math.floor(index / 2) * 256, 448, 256,
+        -211 * scale, -128 * scale, 448 * scale, 256 * scale);
+    };
+    if (rich && blend > .015 && frame < 3) {
+      draw(frame, 1 - blend);
+      draw(frame + 1, blend);
+    } else draw(Math.min(3, Math.round(phase)), 1);
+    c.restore();
+    return true;
+  }
   // flames, back to front
   const list = fireZoneLayout(f, R, seed);
   for (const p of list) {
@@ -406,7 +440,7 @@ export const fxsAtlasSources = () => ATLAS_SOURCES.slice();
 export const fxsAtlasesReady = () => Promise.all([fxsReady, boomReady, flameReady]);
 export function fxsWarm(c) {
   if (!c) return 0; let n = 0; const a0 = c.globalAlpha;
-  for (const im of [atlas, BOOM.atlas, FLAME.atlas]) {
+  for (const im of [atlas, BOOM.atlas, FUEL.atlas || FLAME.atlas]) {
     if (!im?.naturalWidth) continue;
     c.globalAlpha = .01; c.drawImage(im, 0, 0, im.naturalWidth / 2, im.naturalHeight / 2); n++;
   }

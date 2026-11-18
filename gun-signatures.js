@@ -77,9 +77,14 @@ function compose(id,enemy,combo){
  // A close dark underpaint follows the authored silhouette, separating its
  // luminous centre from bright terrain without a ring or detached danger mark.
  if(enemy)fxTint(c,'tracerCore','#4b242a',-L*.5,0,L*1.04,wide*1.35,0,.9);
+ // A narrow copper midtone behind the standard round survives pale cloud and
+ // sunlit ground. All three temperatures share the tip's forward anchor.
+ if(id==='standard')fxTint(c,'tracerCore','#875132',-L*.5,wide*.12,L,wide*1.24,0,.78);
  fxTint(c,'tracerCore',p.wake,-L*.5,0,L,wide*(needle?(enemy?.7:.55):drop?(enemy?.85:.8):1),0,.96);
  const tip=needle?L*.55:drop?L*.45:p.shape==='orb'?L*.85:L*.7;
- fxTint(c,'tracerCore',p.core,-tip*.5,0,tip,wide*(needle?.4:drop?.85:p.shape==='orb'?.78:.52),0,.98);c.restore();
+ fxTint(c,'tracerCore',p.core,-tip*.5,0,tip,wide*(needle?.4:drop?.85:p.shape==='orb'?.78:.52),0,.98);
+ if(id==='standard')fxTint(c,'tracerCore','#fff0c9',-L*.13,0,L*.26,wide*.44,0,.95);
+ c.restore();
  if(combo)accent(c,null,combo);
  if(cache.size>=96)cache.delete(cache.keys().next().value);cache.set(key,cv);return cv;
 }

@@ -2,6 +2,8 @@
 // painted gun smoke/fire artwork. No simulation RNG or generated placeholders.
 import {capitalPilotsState,CAPITAL_PILOT_BALANCE} from './capital-pilots-combat.js';
 import {partMark,MARK} from './tactical-marks.js?v=tame3';
+import {drawFlakAirburst,flakAirburstLoaded} from './flak-airburst-art.js';
+import {drawIncendiaryFire} from './incendiary-fire.js';
 
 const IDS=new Set(['friedrich_karl','robinson']);
 const KINDS=new Set(['observe','order','flak','watch','magazine','ignition','ignitionHit','redeploy']);
@@ -55,13 +57,23 @@ export function drawCapitalPilots(c,p,{point=(x,y)=>[x,y],fx=null,tint=null,loca
   const age=t-e.at;if(age<0||age>=1.3)continue;const[x,y]=point(e.x,e.y);if(!visible(x,y,e.size*2+45))continue;
   const fade=clamp(1-age/1.2,0,1),a=e.a,dx=Math.cos(a),dy=Math.sin(a);
   if(e.kind==='flak'){
+   // The three individual airbursts share the fleet's painted detonation.
+   // Their expanding soot stays inside the corresponding numbered strike.
+   const progress=age/1.2;
+   const drawnByWorld=flakAirburstLoaded()&&(p.world||p).combatFX?.some(f=>f.capitalRoyal&&!f.fxHidden&&f.life>0&&Math.abs(f.x-e.x)<.1&&Math.abs(f.y-e.y)<.1);
+   if(progress>=1||drawnByWorld||drawFlakAirburst(c,x,y,e.size*1.4/1.1,progress,0,.85))continue;
    if(age<.18)fx(c,'fireFlash',x,y,e.size*.7,e.size*.62,a,(1-age/.18)*.85);
    for(const i of [-1,0,1]){const off=i*(12+age*13);fx(c,'gunSmoke',x+off,y-off*.45,e.size*(.6+age*.8),e.size*(.5+age*.5),a+i*.9,.5*fade);}
    if(age<.22)fx(c,'armorSpark',x,y,42,38,a,(1-age/.22)*.65);
   }else if(e.kind==='ignition'||e.kind==='ignitionHit'){
-   if(age<.35)fx(c,'fireFlash',x,y,e.size*(.4+age),e.size*(.5+age),a,(1-age/.35)*.9);
-   if(age<.75)fx(c,'fireEngine',x-dx*age*24,y-dy*age*24,e.size*.65,e.size*(.8+age*.55),a,(1-age/.75)*.8);
-   fx(c,'gunSmoke',x-dx*age*36,y-dy*age*36,e.size*(.6+age),e.size*(.45+age*.6),a,.3*fade);
+   // Magazine ignition and successive accepted hits occupy different moments.
+   // Leave a compact tongue at each contact rather than laying three broad
+   // engine fires and three smoke stamps over the same aircraft.
+   if(e.kind==='ignition'){
+    if(age<.18)fx(c,'fireFlash',x,y,e.size*(.42+age),e.size*(.35+age),a,(1-age/.18)*.9);
+   }else if(age<.55){
+    drawIncendiaryFire(c,x,y,a+Math.PI,e.size*(1.15-age*.5),age,(1-age/.55)*.96);
+   }
   }else if(e.kind==='magazine'||e.kind==='order'){
    const life=e.kind==='order'?.3:.23;if(age<life){fx(c,e.kind==='order'?'muzzleHeavy':'muzzleTwin',x+dx*27,y+dy*27,e.kind==='order'?36:30,20,a,(1-age/life)*.75);fx(c,'gunSmoke',x+dx*34,y+dy*34,28+age*30,16+age*15,a,(1-age/life)*.35);}
   }else if(e.kind==='redeploy'){

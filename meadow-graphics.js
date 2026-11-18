@@ -1,4 +1,5 @@
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
+import {drawMaterialFrame, materialRows} from './combat-material-art.js';
 
 let mineShadow;
 function bakedMineShadow(){
@@ -75,6 +76,8 @@ export function drawMeadowGunFlash(c,fx,x,y,angle,remaining){
  const dx=Math.cos(angle),dy=Math.sin(angle),heat=Math.min(1,remaining/.055);
  const shown=fx(c,'muzzle',x+dx*7,y+dy*7,22,13,angle,.43+.57*heat);
  if(shown&&heat<.58){
+  const frame=heat>.32?1:heat>.15?2:3;
+  if(drawMaterialFrame(c,materialRows.powder,frame,x,y,30,22,angle,.48*(1-heat)))return true;
   const trail=6+(1-heat)*9;
   fx(c,'gunSmoke',x-dx*trail,y-dy*trail,23,10,angle,.22*(1-heat));
  }

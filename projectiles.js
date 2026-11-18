@@ -64,7 +64,7 @@ export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0,meadow=false){
  const scale=b?.ammunitionScale||1;
  if(scale===1)return drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus,meadow);
  c.save();c.translate(x,y);c.scale(scale,scale);
- const result=drawFriendlyGunTracerBody(c,b,0,0,gunUpgradeBonus);
+ const result=drawFriendlyGunTracerBody(c,b,0,0,gunUpgradeBonus,meadow);
  c.restore();return result;
 }
 function drawFriendlyGunTracerBody(c,b,x,y,gunUpgradeBonus,meadow=false){

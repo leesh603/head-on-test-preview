@@ -7,6 +7,7 @@ import {isMaritimeIntrusion,isSubmarine,maritimeOpacity,maritimeTactic,maritimeW
 import {drawShipWater,drawTorpedo} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
 import {drawSinkingShip} from './ship-sinking.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
+import {drawWaterContact} from './water-contact-art.js';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export {intrusionArtReady};
@@ -232,7 +233,14 @@ export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
  for(const h of e.hazards||[]){let p=point(h.x,h.y);const r=h.radius*z,q=Math.min(1,h.age/Math.max(.01,h.warning));
   if(h.kind==='naval-splash'){
    c.strokeStyle='#b8e8f4';c.fillStyle='#80bbcc';
-    if(h.done){const fade=Math.max(0,1-(h.age-h.warning)/.35),heavy=h.fireAt!=null?1.3:1;fx(c,'splashShell',p.x,p.y,r*3*heavy,r*3*heavy,0,fade);fx(c,'waterColumn',p.x,p.y-r*.5,r*1.7*heavy,r*3*heavy,0,fade);continue;}
+    if(h.done){
+     const progress=Math.min(1,Math.max(0,(h.age-h.warning)/.35)),diameter=r*(h.fireAt!=null?3.9:3);
+     if(!drawWaterContact(c,p.x,p.y,diameter,progress)){
+      fx(c,'splashShell',p.x,p.y,diameter,diameter,0,1-progress);
+      fx(c,'waterColumn',p.x,p.y-r*.5,diameter*.57,diameter,0,1-progress);
+     }
+     continue;
+    }
     if(h.fired&&h.fireAt!=null){
      const t=Math.min(1,(h.age-h.fireAt)/(h.warning-h.fireAt));
      const shell=point(h.fireX+(h.x-h.fireX)*t,h.fireY+(h.y-h.fireY)*t);
@@ -267,7 +275,11 @@ function drawOperationWater(c,naval,point,z,layer){
  if(layer==='bodies')return;
  for(const h of naval.pressure){
   const target=point(h.x,h.y),r=h.radius*z,t=Math.min(1,h.age/h.warning);
-  if(h.done){fx(c,'splashShell',target.x,target.y,r*3,r*3,0,Math.max(0,1-(h.age-h.warning)/.35));continue;}
+  if(h.done){
+   const progress=Math.min(1,Math.max(0,(h.age-h.warning)/.35));
+   if(!drawWaterContact(c,target.x,target.y,r*3,progress))fx(c,'splashShell',target.x,target.y,r*3,r*3,0,1-progress);
+   continue;
+  }
   const shot=point(h.fireX+(h.x-h.fireX)*t,h.fireY+(h.y-h.fireY)*t);
   fx(c,h.bomb?'bomb':'shell',shot.x,shot.y-Math.sin(t*Math.PI)*32*z,20*z,9*z,Math.atan2(h.y-h.fireY,h.x-h.fireX),.9);
   fx(c,'foamRing',target.x,target.y,r*2,r*2,0,.55+.35*t);

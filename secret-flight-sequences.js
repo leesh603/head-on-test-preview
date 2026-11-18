@@ -1,5 +1,6 @@
 import {fx} from './fx-art.js?v=tame3';
 import {drawSecretWarArt} from './secret-impact-signatures.js';
+import {drawWaterContact} from './water-contact-art.js';
 import {hasSecretWeapon} from './secret-weapons.js';
 import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
 
@@ -137,7 +138,7 @@ export function drawSecretWingRound(c,b,view){
  else if(b.secretWeapon==='eliteAirWing'||b.pierce)strip(c,view,'bulletBrass',x-dx*(b.pierce?17:8),y-dy*(b.pierce?17:8),b.x,b.y,b.pierce?3:4,.94);
 }
 
-function wakeCue(c,world,q,v,age,t,art,low){
+function wakeCue(c,world,q,v,t,art,low){
  const path=q.path;
  if(path?.length){
   // Segments contain the exact leading and trailing points sampled by the
@@ -158,7 +159,7 @@ function wakeCue(c,world,q,v,age,t,art,low){
  const side=q.side??(Math.floor(q.at*9)%2?1:-1),ca=Math.cos(q.a),sa=Math.sin(q.a);
  const separation=side*(22+t*18),back=4+t*12;
  art.drawBadinVortex(c,v.sx(q.x-ca*back-sa*separation),v.sy(q.y-sa*back+ca*separation),
-  q.a,side,(27+38*t)*v.z,age*(9+4*t),(1-t)*.88);
+  q.a,side,(27+38*t)*v.z,t,(1-t)*.88);
 }
 
 function liveWing(world,q){
@@ -181,11 +182,15 @@ function impact(c,q,v,a,t,low){
   return;
  }
  const dx=Math.cos(a),dy=Math.sin(a);
- if(age<.27)fx(c,'bombfx'+Math.min(3,Math.floor(age/.065)),x,y,(73+age*85)*z,(60+age*53)*z,a,1-age/.31);
+ if(q.impactLayer==='water'&&drawWaterContact(c,x,y,96*z,t,a))return;
+ if(age<.27&&q.impactLayer!=='water'){
+  const family=q.impactLayer==='air'?'airblast':'bombfx';
+  fx(c,family+Math.min(3,Math.floor(age/.065)),x,y,(73+age*85)*z,(60+age*53)*z,a,1-age/.31);
+ }
  // A surface blast expands around the impact point; smoke from an airburst
  // follows the aircraft's heading in the map plane.
  const spread=Math.sin(Math.PI*clamp(age/1.2)),width=(48+spread*40)*z;
- if(age>.07){
+ if(age>.07||q.impactLayer==='water'){
   if(q.impactLayer==='water')fx(c,'splashShell',x,y,width,width,a,clamp(fade*1.7));
   else if(q.impactLayer==='air')fx(c,'smokeDark',x-dx*t*12*z,y-dy*t*12*z,width,width*.83,a,clamp(fade*1.4));
   else if(!drawSecretWarArt(c,'earthPlume',x,y,width,a,clamp(fade*1.7)))fx(c,'dirtMix',x,y,width,width,a,fade);
@@ -204,14 +209,14 @@ export function drawSecretFlightCue(c,world,q,v,art,low=false){
  if(age<0||age>=life)return false;
  const a=q.a||0,dx=Math.cos(a),dy=Math.sin(a),z=v.z,x=v.sx(q.x),y=v.sy(q.y);
  switch(q.kind){
- case 'badinWake':wakeCue(c,world,q,v,age,t,art,low);return true;
+ case 'badinWake':wakeCue(c,world,q,v,t,art,low);return true;
  case 'wake':{
   const target=q.targetId!=null&&(world.enemies||[]).find(e=>e.hp>0&&(e.id===q.targetId||e.tailId===q.targetId));
   const ex=v.sx(target?.x??q.x),ey=v.sy(target?.y??q.y);
   // Both rolls meet the struck fuselage, then slip off opposite tips.
   for(const side of [-1,1]){
    const across=side*(7+31*Math.sin(t*Math.PI/2));
-   art.drawBadinVortex(c,ex-dy*across*z-dx*t*19*z,ey+dx*across*z-dy*t*19*z,a,side,(28+33*t)*z,age*17,fade);
+   art.drawBadinVortex(c,ex-dy*across*z-dx*t*19*z,ey+dx*across*z-dy*t*19*z,a,side,(28+33*t)*z,t,fade);
   }
   return true;
  }

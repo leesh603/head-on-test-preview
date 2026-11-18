@@ -4,6 +4,7 @@ import {hasSecretWeapon} from './secret-weapons.js';
 import {fx} from './fx-art.js?v=tame3';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
 import {drawSecretWarArt} from './secret-impact-signatures.js';
+import {drawWaterContact} from './water-contact-art.js';
 
 const clamp=n=>Math.max(0,Math.min(1,n));
 const RIGHT_ANGLE=Math.PI/2;
@@ -181,7 +182,10 @@ export function drawOrdnanceCue(c,cue,age,view,low){
  case 'puwImpact': {
   const r=cue.radius||62;
   if(cue.water){
-   fx(c,'splashShell',x,y,r*(1.25+t*.4)*z,r*(1.25+t*.4)*z,a,Math.min(1,fade*1.5));
+   if(!drawWaterContact(c,x,y,r*1.87*z,t,a)){
+    const size=r*(1.25+t*.4)*z;
+    fx(c,t<.57?'splashShell':'foamRing',x,y,size,size,a,Math.min(1,fade*1.5));
+   }
   }else{
    drawSecretWarArt(c,'earthPlume',x,y,r*(1.06+t*.8)*z,a,Math.min(1,fade*1.8));
   }

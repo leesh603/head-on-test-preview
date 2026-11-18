@@ -4,6 +4,7 @@ import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=tame
 import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=tame3&perf=1029&shipperf=20261112';
 import {drawSinkingShip} from './ship-sinking.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
+import {drawWaterContact} from './water-contact-art.js';
 import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {jutlandMuzzle,jutlandRotate} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
@@ -122,6 +123,8 @@ export function drawJutlandHazard(c,h,view=null){
   if(!impactVisible&&!flightVisible)return true;
   c.save();if(impactVisible)impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});if(flightVisible)drawShellFlight(c,h,q);c.restore();
  }else if(hazardPointVisible(view,h.x,h.y,h.radius*1.4+36)){
+  const progress=Math.max(0,Math.min(1,(h.age-h.delay-h.warning)/Math.max(.01,h.duration)));
+  if(progress>=1||drawWaterContact(c,h.x,h.y,h.radius*2.8,progress))return true;
   c.save();fx(c,'foamRing',h.x,h.y,h.radius*2.5,h.radius*2.5,0,.85);fx(c,'waterColumn',h.x,h.y-28,h.radius*1.4,h.radius*2.8,0,.75);c.restore();
  }
  return true;
