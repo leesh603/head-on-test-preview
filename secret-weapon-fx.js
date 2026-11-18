@@ -351,22 +351,34 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    break;
   case 'rankenEmbed': {
    const fuse=clamp((t-.17)/.83);
-   paint(c,'ranken',x-ca*8*z,y-sa*8*z,26*z,6*z,a);
+   paint(c,'ranken',x-ca*12*z,y-sa*12*z,34*z,8*z,a);
    if(age<.13)stamp('armorSpark',0,0,28,21,a,1-age/.13);
    if(fuse>0){
-    const glow=13+fuse*18;
-    forward('fireSmall',-10,0,glow,glow*.8,a,fuse*(.78+.22*Math.sin(age*67)**2));
+    const tail=-26+fuse*23,glow=10+fuse*10;
+    forward('fireSmall',tail,0,glow,glow*.76,a,.78+.22*fuse);
    }
    break;
   }
   case 'rankenBurst': {
    const r=cue.radius||48;
-   if(age<.14)stamp('fireFlash',0,0,r*1.26,r*.94,a,1-age/.14);
-   if(age<.39)stamp('shellBurst'+Math.min(2,Math.floor(age/.13)),0,0,r*(1.02+t*1.10),r*(.76+t*.83),a,Math.min(1,(1-age/.39)*1.7));
-   if(age<.23)forward('flameJet',-10-age*59,0,39+age*90,16+age*25,a+Math.PI,1-age/.23);
-   if(age<.33)spray(low?3:6,116,(i,h,dx,dy)=>stamp(i%2?'fireSmall':'metalShard'+i%6,dx,dy,12,8,h+age*12,1-age/.33));
-   forward('fireSmall',-9-t*14,0,31+t*8,23,a,.88*fade);
-   if(age>.08)forward('smokeDark',-11-t*27,3,29+t*25,21+t*21,a,.78*fade);
+   if(age<.48){
+    const burst=age/.48,width=r*(1.55+.53*burst);
+    stamp('airblast'+Math.min(3,Math.floor(4*burst)),0,0,width,width,a,clamp((1-burst)*3));
+   }
+   if(age<.30){
+    const jet=age/.30,length=r*(.66+.57*Math.sin(Math.PI*jet));
+    forward('muzzleRear',-length*.45,0,length,r*(.49-.12*jet),a+Math.PI,clamp((1-jet)*2.4));
+   }
+   if(age<.55){
+    const flight=age/.55;
+    for(let i=0;i<(low?2:3);i++){
+     const side=i===0?-1:i===1?1:0,h=a+Math.PI+side*(.42+((cue.slot||0)%3)*.10);
+     const travel=r*(.87+.12*i)*(1-(1-flight)**2);
+     stamp('metalShard'+i,Math.cos(h)*travel,Math.sin(h)*travel,19-i,8,h+age*(i+5),clamp((1-flight)*2));
+    }
+   }
+   if(age>.08)forward('smokeHeavy',-r*(.26+t*.63),0,r*(.53+t*.62),r*(.34+t*.33),
+    a+Math.PI,clamp((age-.08)/.12)*fade*.79);
    break;
   }
   case 'rotary': {
