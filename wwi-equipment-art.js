@@ -1,3 +1,4 @@
+import {drawRobinsonContacts} from './capital-pilots-view.js';
 import {drawEquipmentSupport} from './equipment-support-fx.js';
 import {drawVerySignal,prepareVerySignal} from './very-signal-art.js';
 import {fx} from './fx-art.js?v=tame3';
@@ -170,6 +171,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
   const direction=Math.hypot(e.vx||0,e.vy||0)>10?Math.atan2(e.vy,e.vx):a;
   drawIncendiaryFire(c,sx(point.x),sy(point.y),direction+Math.PI,width,e.fuelFxAge||0,Math.min(1,e.burnTime*4));
  }
+ for(const p of players)if(p.pilot==='robinson')drawRobinsonContacts(c,p,view,fx);
  for(const b of world.friendlyBombs||[]){
   if(b.wimperisAimed&&b.life>0&&b.life>(b.maxLife||.85)-.35){
    const px=b.x+(b.cooperBomb?b.vx*b.life:0),py=b.y+(b.cooperBomb?b.vy*b.life:0);
@@ -202,4 +204,3 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  }
  c.restore();
 }
-

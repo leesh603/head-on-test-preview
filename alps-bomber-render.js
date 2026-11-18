@@ -59,18 +59,27 @@ export function arrivalBombardmentImpactLayers(h){
  if(age<.32)layers.push({key:'profileFlash',x:h.x,y:h.y,size:r*4.4,alpha:Math.min(1,(.32-age)/.14)});
  return layers;
 }
-export function drawAlpsHazard(c,h,ring){
+export function drawAlpsHazard(c,h,ring,owner){
  if(!['alps-cannon','alps-mg'].includes(h.visual)&&h.visual!=='carpet-bomb')return false;
  const warning=h.phase==='warning',progress=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));
  if(h.kind==='projectile'){
   if(warning)return true;
   const a=Math.atan2(h.vy,h.vx),big=h.visual==='alps-cannon';c.save();c.translate(h.x,h.y);c.rotate(a);c.strokeStyle=big?'#e9b472b0':'#f6d19fa0';c.lineWidth=big?3:1.5;c.beginPath();c.moveTo(big?-34:-14,0);c.lineTo(-4,0);c.stroke();if(big)fx(c,'shellHeavy',0,0,30,10,0,1);else drawTracerBolt(c,0,0,0,'#f2cf9e',18,5,1);c.restore();return true;
  }
- if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});
+ const carpet=owner==='ca4'&&h.visual==='carpet-bomb';
+ if(warning){impactMark(c,h.x,h.y,h.radius,progress,carpet?{heavy:h.raidHeavy,exact:true,fill:false,cross:false}:{heavy:h.raidHeavy});
   const sx=Number.isFinite(h.sourceX)?h.sourceX:h.x,sy=Number.isFinite(h.sourceY)?h.sourceY:h.y-560;
   fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,h.sprite||'puw',X,Y,52*k,a,.95,pitch)||fx(c,'bomb',X,Y,36*k*pitch,16*k,a,.95),sx,sy,h.x,h.y,progress,h.releaseAngle);
  }else if(h.encounterId&&h.tag===h.encounterId+':arrival-salvo'){
   for(const layer of arrivalBombardmentImpactLayers(h))fx(c,layer.key,layer.x,layer.y,layer.size,layer.size,0,layer.alpha);
+ }else if(carpet){
+  const t=Math.max(0,Math.min(.999,(h.age-h.delay-h.warning)/h.duration));
+  const a=Number.isFinite(h.sourceX)&&Number.isFinite(h.sourceY)?Math.atan2(h.y-h.sourceY,h.x-h.sourceX):h.releaseAngle||0;
+  const d=h.radius*(1.70+.26*t),frame=Math.floor(t*4);
+  // Keep each delayed impact inside its own line. Smoke loses density before
+  // the next strip lands, so the traversable gap stays open over the mountains.
+  fx(c,'mortarImpact'+frame,h.x,h.y,d,d*.85,a,Math.min(1,(1-t)*2));
+  if(t>.22)fx(c,'dustPuff',h.x+Math.cos(a)*h.radius*t*.24,h.y+Math.sin(a)*h.radius*t*.24,d*.73,d*.43,a,(1-t)*.46);
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }

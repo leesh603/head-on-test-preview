@@ -278,6 +278,8 @@ const railWreckSources={
 const bugGroup=createLazyImageGroup({folded:'./boss-cambrai-bug-20261021.webp',flight:'./boss-cambrai-bug-20261021.webp'}),bugArt=bugGroup.images;
 const cambraiGroup=createLazyImageGroup({atlas:'./boss-cambrai-train-atlas.webp?v=gal1',wreck:'./boss-cambrai-train-wreck-atlas.webp?v=gal1'}),cambraiArt=cambraiGroup.images;
 const treffasGroup=createLazyImageGroup({body:'./boss-cambrai-treffas-connected.webp?v=gal1',wreck:'./boss-cambrai-treffas-connected-wreck.webp?v=gal1'}),treffasArt=treffasGroup.images;
+// Three isolated stones in the existing painted 116×128 earth-burst sprite.
+const treffasStones=[[13,8,22,23],[17,82,23,19],[88,20,18,16]];
 // Wreck sprites drawn over destroyed boss parts (wheels, turrets, gun pits...).
 const partWreckGroup=createLazyImageGroup({wheel:'./boss-part-wreck-wheel.webp?v=gal1',turret:'./boss-part-wreck-turret.webp?v=gal1',tail:'./boss-part-wreck-tail.webp?v=gal1',light:'./boss-part-wreck-light.webp?v=gal1',gun:'./boss-part-wreck-gun.webp?v=gal1',pit:'./boss-part-wreck-pit.webp?v=gal1'}),partWreckArt=partWreckGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
@@ -922,7 +924,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const warning=h.phase==='warning';c.save();
     if(drawRuralRailHazard(c,h,{mobile:W<=560})){c.restore();return;}
     if(drawSommeHazard(c,h)){c.restore();return;}
-    if(drawAlpsHazard(c,h,ring)){c.restore();return;}
+    if(drawAlpsHazard(c,h,ring,addon.stages.encounter?.bossId)){c.restore();return;}
    if(h.visual==='harbor-swing'){impactMark(c,h.x,h.y,h.radius,warning?clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1):1,{alpha:warning?1:.55,cross:false});c.restore();return;}
     if(drawRegionalHazard(c,h,addon.stages.encounter?.bodies.get(h.bossId)?.kind)){c.restore();return;}
     if(h.bossKind==='final-leviathan'&&h.kind==='circle'&&h.visual==='black-flak'&&warning){
@@ -1008,7 +1010,24 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    }
    else if(h.kind==='projectile'){
     if(h.visual==='building-debris')bossSprite(c,10,h.x,h.y,h.radius*3.4,h.radius*3.4,Math.atan2(h.vy,h.vx)+Math.PI/2);
-    else if(h.visual==='treffas-debris'){const idx=[...(h.id||'x')].reduce((n,ch)=>n+ch.charCodeAt(0),0)%6;if(!fx(c,'rockChunk'+idx,h.x,h.y,h.radius*2.6,h.radius*2.6,Math.atan2(h.vy,h.vx),.95))drawEnemyProjectile(c,{enemy:true,life:1,visualType:'fighter',vx:h.vx,vy:h.vy},h.x,h.y,0,z);}
+    else if(h.visual==='treffas-debris'){
+     const speed=Math.hypot(h.vx,h.vy),a=Math.atan2(h.vy,h.vx),age=Math.max(0,h.age-h.delay-h.warning);
+     const r=h.radius,distance=Math.min(r*2.6,speed*age*.65);
+     // Loose soil leaves the wheel with each thrown stone. Its short, pale
+     // wake follows the actual velocity and breaks up behind the dark face.
+     c.save();c.translate(h.x,h.y);c.rotate(a);
+     if(distance>1){
+      c.save();c.translate(-distance,0);c.scale(2.7,.7);
+      fx(c,'dustPuff',0,0,r*2.4,r*2.4,0,.82);c.restore();
+     }
+     const stone=fxImage('rockChunk3');
+     if(stone?.naturalWidth===116){
+      const cell=treffasStones[Math.abs(Math.round(h.vx+h.vy))%treffasStones.length];
+      c.rotate(age*3);c.drawImage(stone,...cell,-r*1.35,-r*1.1,r*2.7,r*2.2);
+     }else if(!fx(c,'rockChunk3',0,0,r*2.8,r*2.5,age*3,.98))
+      drawEnemyProjectile(c,{enemy:true,life:1,visualType:'fighter',vx:speed,vy:0},0,0,0,z);
+     c.restore();
+    }
      else if(h.visual==='livens-ember'){const a=Math.atan2(h.vy,h.vx);if(!fx(c,'flameJet',h.x-6*Math.cos(a),h.y-6*Math.sin(a),28,13,a,.95))drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);}
      else if(h.visual==='city-mg')drawEnemyProjectile(c,{enemy:true,life:1,visualType:'fighter',vx:h.vx,vy:h.vy},h.x,h.y,0,z);
      else drawEnemyProjectile(c,{enemy:true,life:1,visualType:'fighter',vx:h.vx,vy:h.vy},h.x,h.y,0,z);

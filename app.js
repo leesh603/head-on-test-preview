@@ -537,7 +537,7 @@ function draw(t){let cx=game?game.x:Math.sin(t*.03)*45,cy=game?game.y:-t*12;ctx.
  if(game){
  drawDoverConvoy(ctx,game,{point,drawFieldArt,fieldArtImg,fx,en:getLocale()==='en'});
  drawNavarreFrommherz(ctx,game,{point,fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>x>=-r&&y>=-r&&x<=W+r&&y<=H+r});
- drawCapitalPilots(ctx,game,{point,fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>x>=-r&&y>=-r&&x<=W+r&&y<=H+r});
+ drawCapitalPilots(ctx,game,{deferContacts:true,point,fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>x>=-r&&y>=-r&&x<=W+r&&y<=H+r});
  // Voss reverse-turn afterimages: player and ace boss use the same pale ghost trail.
  for(const ghost of game.vossAfterimages||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.34*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,game.bomberTransfer?.sprite||aircraftKey(plane,false,'voss'),game.bomberTransfer?.scale??1,false,false);ctx.restore()}
  for(const e of game.enemies||[])for(const ghost of e.vossTrails||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.42*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,enemyAircraftKey(e,'fokker_voss'),enemyAircraftScale(e),true,false);ctx.restore()}

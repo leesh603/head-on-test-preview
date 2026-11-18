@@ -166,6 +166,14 @@ export function drawVerdunHazard(c,h){
  if(warning){
   // Functional landing telegraph uses the same circle as the native hit area.
   if(h.damage>0)impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy||h.visual==='verdun-field-heavy'});
+  if(h.visual==='verdun-offscreen-shell'&&Number.isFinite(h.sourceX)&&Number.isFinite(h.sourceY)){
+   // The normal descending shell starts off-camera. Register its projected
+   // incoming track to the source-facing lip of the true impact circle.
+   const a=Math.atan2(h.y-h.sourceY,h.x-h.sourceX),r=h.radius,lead=r*(2.25-1.16*q);
+   const x=h.x-Math.cos(a)*lead,y=h.y-Math.sin(a)*lead;
+   fx(c,'smokeTrail',x+1.5,y+2,r*(1.35+.45*q),r*.43,a,.64);
+   fx(c,'vaporTrail',x,y,r*(1.65+.55*q),r*.37,a,.87);
+  }
   drawShellFlight(c,h,q,{arc:h.visual==='verdun-field-heavy'?150:90});
  }else{const age=h.age-h.delay-h.warning,frame=Math.min(3,Math.floor(age/Math.max(.01,h.duration)*4));fx(c,'mortarImpact'+frame,h.x,h.y,h.radius*2.5,h.radius*2.5,0,Math.min(1,(h.duration-age)/.14));}
  c.restore();return true;

@@ -76,9 +76,11 @@ function nearest(p){
   else if(d<ordinaryDistance){ordinary=e;ordinaryDistance=d;}
  }return important||ordinary;
 }
-function cue(p,s,kind,pos=p,size=36,stage=0){
+function cue(p,s,kind,pos=p,size=36,stage=0,pulseIndex){
  const at=now(p),point=position(pos);if(!point)return;
- s.effects.push({...point,a:Number.isFinite(p.a)?p.a:0,at,kind,size,stage});
+ const effect={...point,a:Number.isFinite(p.a)?p.a:0,at,kind,size,stage};
+ if(pulseIndex!==undefined)effect.pulseIndex=pulseIndex;
+ s.effects.push(effect);
  if(s.effects.length>CAPITAL_PILOT_BALANCE.fxLimit)s.effects.splice(0,s.effects.length-CAPITAL_PILOT_BALANCE.fxLimit);
 }
 function volleyCredit(p,b){
@@ -180,7 +182,7 @@ function flush(p,s,t){
    // remain restricted to this exact aircraft/part, so it is never area damage.
    const packet={...pos,previousX:pos.x,previousY:pos.y,vx:0,vy:0,life:.12,damage:q.damage,ownerId:owner(p),enemy:false,hit,identityDotTarget:q.target,actualExplosion:true,explosionRadius:32,collisionRadius:2,pierce:false,capitalSecondary:true,capitalKind:'watchIgnition',capitalIgnite:q.index===0,capitalEnhanced:q.enhanced};
    packetTargets.set(packet,q.enemy);w.bullets.push(packet);
-   cue(p,s,'ignitionHit',pos,40+q.index*7,3);
+   cue(p,s,'ignitionHit',pos,40+q.index*7,3,q.index);
   }
  }
 }

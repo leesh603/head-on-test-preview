@@ -455,7 +455,20 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
    c.globalCompositeOperation='screen';
    c.globalAlpha*=Math.min(.88,flash/.16);
    c.drawImage(sprite,-72,-76,144,160);
-  }else if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+  }else if(flash>0){
+   // Reflect warm light off the painted wing and fuselage. The markings and
+   // damage remain legible through the existing player damage pulse.
+   const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;
+   if(!flashes.has(fk)){
+    const f=document.createElement('canvas');f.width=144;f.height=160;
+    const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';
+    fc.drawImage(sprite,0,0,144,160);
+    fc.globalCompositeOperation='source-atop';fc.fillStyle='rgba(255,231,181,.12)';
+    fc.fillRect(0,0,144,160);flashes.set(fk,f);
+   }
+   c.globalCompositeOperation='screen';
+   c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76);
+  }}
  c.restore();
 }
 

@@ -64,7 +64,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  renderLegacySquadrons(c,g,(x,y)=>[x,y]);
  if(!dover)groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
  for(const p of g.players)drawNavarreFrommherz(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
- for(const p of g.players)drawCapitalPilots(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
+ for(const p of g.players)drawCapitalPilots(c,p,{deferContacts:true,fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
  const cl=(x,y,m)=>x<g.x-W/(2*z)-m||x>g.x+W/(2*z)+m||y<g.y-H/(2*z)-m||y>g.y+H/(2*z)+m;
  const visible=(x,y,m)=>!cl(x,y,m);
  for(const e of g.enemyAirshipPasses||[])if(!cl(e.x,e.y,320))drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');

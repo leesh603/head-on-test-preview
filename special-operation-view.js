@@ -119,6 +119,19 @@ export function drawOperationTargets(ctx, game, width, height, en = false, guide
  ctx.lineWidth = 3;
  ctx.strokeStyle = 'rgba(20,17,13,.85)';
  const guidePositions=[];
+ const encounter=mission?.status==='active'?game.stageBoss?.stages?.encounter:null;
+ let hardware;
+ if(encounter?.bossId==='hms-zubian'){
+  hardware=[];
+  for(const b of encounter.bodies?.values?.()||[])for(const p of b.parts?.values?.()||[]){
+   if(!p.destroyed&&/gun|mortar|engine/i.test(p.kind+' '+p.id))
+    hardware.push({x:width/2+(b.x+p.x-game.x)*zoom,y:height/2+(b.y+p.y-game.y)*zoom,r:24*zoom});
+  }
+  }else if(encounter?.bossId==='naval10-black-flight'){
+  hardware=[];
+  for(const e of game.enemies||[])if(e.encounterId===encounter.id&&e.bossMinion&&e.hp>0)
+   hardware.push({x:width/2+(e.x-game.x)*zoom,y:height/2+(e.y-game.y)*zoom,r:24*zoom});
+ }
  function label(entity, text, color, guide = false, missionGuide = false) {
   let x = width / 2 + (entity.x - game.x) * zoom, y = height / 2 + (entity.y - game.y) * zoom;
   const exit = missionGuide && entity.kind === 'exit';
@@ -131,7 +144,24 @@ export function drawOperationTargets(ctx, game, width, height, en = false, guide
    x = Math.max(side, Math.min(width - side, x));
    y = Math.max(top, Math.min(bottom, y));
   } else if (exit) y = Math.max(top, y - Math.max(25, 66*zoom));
-  if(missionGuide){const direction=y>height/2?-1:1;for(let i=0;i<6&&guidePositions.some(p=>Math.abs(p.x-x)<side*2&&Math.abs(p.y-y)<18);i++)y=Math.max(top,Math.min(bottom,y+direction*20));guidePositions.push({x,y});}
+  if(missionGuide){
+   const direction=y>height/2?-1:1;
+   if(hardware?.length){
+    const half=ctx.measureText(text).width*.5+3;
+    const clearText=row=>!guidePositions.some(p=>Math.abs(p.x-x)<half+p.half&&Math.abs(p.y-row)<19);
+    const clearMount=row=>!hardware.some(p=>Math.abs(x-p.x)<half+p.r&&Math.abs(row-p.y)<p.r+9);
+    const anchor=y,steps=Math.ceil((bottom-top)/21);
+    let fallback;
+    for(let i=0;i<=steps*2;i++){
+     const row=anchor+Math.ceil(i/2)*21*(i%2?direction:-direction);
+     if(row<top||row>bottom||!clearText(row))continue;
+     fallback??=row;
+     if(clearMount(row)){fallback=row;break;}
+    }
+    y=fallback??anchor;
+   }else for(let i=0;i<6&&guidePositions.some(p=>Math.abs(p.x-x)<side*2&&Math.abs(p.y-y)<18);i++)y=Math.max(top,Math.min(bottom,y+direction*20));
+   guidePositions.push({x,y,half:side-12});
+  }
   opLabelBlit(ctx, text, x, y, color);
  }
  const friendly = '#dbecc2', danger = '#ffc19d';
