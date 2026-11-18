@@ -301,6 +301,16 @@ let ZONE_T = -1, ZONE_N = 0; // per-frame budget: only the first few fire zones 
 // Layout depends on the zone, not the camera or animation clock. Weak keys
 // release it with the expired zone instead of retaining a battle-long cache.
 const fireZoneLayouts = new WeakMap();
+// Fixed fuel pockets on a breaking deck use one of the already decoded cells.
+// No full hazard bed, scorch mask or new texture is needed for these sockets.
+export function drawFuelPocket(c,x,y,width,progress,angle,alpha){
+ if(!FUEL.atlas)return false;
+ const frame=progress<.13?0:progress<.48?1:progress<.77?2:3,scale=width/448;
+ c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=alpha;
+ c.drawImage(FUEL.atlas,(frame%2)*448,Math.floor(frame/2)*256,448,256,
+  -211*scale,-128*scale,width,256*scale);
+ c.restore();return true;
+}
 function fireZoneLayout(f, R, seed) {
   let layout = fireZoneLayouts.get(f);
   if (layout && layout.radius === R && layout.seed === seed && layout.variants === FLAME.v) return layout.points;

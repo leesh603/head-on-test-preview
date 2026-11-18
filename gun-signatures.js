@@ -1,6 +1,6 @@
 // Small cached compositions of approved painted artwork, never collision geometry.
 // Ordinary rounds remain one continuous luminous tracer, never physical ordnance.
-import {fxReady,fxTint} from './fx-art.js?v=tame3';
+import {fx,fxReady,fxTint} from './fx-art.js?v=tame3';
 const P=(core,wake,shape,length=26,width=4)=>Object.freeze({core,wake,shape,length,width});
 export const GUN_SIGNATURES=Object.freeze({
  standard:P('#e8c981','#d6a551','capsule',20,2.8),
@@ -65,6 +65,7 @@ export function gunSignatureCacheStats(){return{entries:cache.size,accentEntries
 function compose(id,enemy,combo){
  const p=GUN_SIGNATURES[id],key=id+'/'+Number(enemy)+'/'+(combo||'');if(cache.has(key))return cache.get(key);
  if(!fxReady('tracerCore')||typeof document==='undefined')return null;
+ if(id==='mauser'&&!fxReady('shellBody'))return null;
  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');if(!c)return null;c.scale(SCALE,SCALE);c.translate(54,10);
  const L=p.length,wide=p.width,needle=p.shape==='needle'||p.shape==='lance',drop=p.shape==='teardrop'||p.shape==='comet';
  // Same approved tracer core/glow as the original renderer, always on one axis.
@@ -85,6 +86,10 @@ function compose(id,enemy,combo){
  fxTint(c,'tracerCore',p.core,-tip*.5,0,tip,wide*(needle?.4:drop?.85:p.shape==='orb'?.78:.52),0,.98);
  if(id==='standard')fxTint(c,'tracerCore','#fff0c9',-L*.13,0,L*.26,wide*.44,0,.95);
  c.restore();
+ // The mounted Mauser keeps its brass jacket and blackened base at the
+ // leading contact point. The painted tail stays behind a single metal tip.
+ if(id==='mauser'&&fx(c,'shellBody',-6,0,15,5.6,0))
+  fxTint(c,'tracerCore','#f7d19a',-1.4,-.45,5.6,1.8,0,.94);
  if(combo)accent(c,null,combo);
  if(cache.size>=96)cache.delete(cache.keys().next().value);cache.set(key,cv);return cv;
 }

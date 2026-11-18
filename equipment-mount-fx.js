@@ -9,7 +9,7 @@ const alive=p=>p?.hp>0&&p.status!=='downed'&&!(p.heineckeEscape>0);
 const images=Object.create(null);
 export const equipmentMountArtReady=Promise.all([
  ['mount','wwi-equipment-atlas.webp',1280,1024],
- ['wind','fx-wind-streak.webp',256,144]
+ ['wind','fx-badin-condensation.webp',1024,120]
 ].map(([key,file,w,h])=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}
  const im=new Image();im.decoding='async';im.onload=()=>{const valid=im.naturalWidth===w&&im.naturalHeight===h;if(valid)images[key]=im;im.onload=im.onerror=null;resolve(valid);};im.onerror=()=>{im.onload=im.onerror=null;resolve(false);};im.src=new URL('./'+file,import.meta.url).href;
@@ -35,10 +35,11 @@ export function drawCompassPickupWisps(c,p,x,y,{low=false}={}){
   if(living){let owner=null,best=Infinity;for(const q of living){const qd=(d.x-q.x)**2+(d.y-q.y)**2;if(qd<best){best=qd;owner=q;}}if(owner!==p)continue;}
   if(count++>=(low?3:6))break;
   const ux=dx/dist,uy=dy/dist,a=Math.atan2(dy,dx),offset=d.heal?30:12;
-  // The existing painted wisp is dense at its left; its light tail extends
- // outward behind the inward-moving non-supply pickup, not around the plane.
- // Heal art is46px wide: keep the same short wisp just beyond its23px edge.
-  c.save();c.translate(x+dx+ux*offset,y+dy+uy*offset);c.rotate(a);c.globalAlpha*=.48+.32*(1-dist/p.magnet);c.imageSmoothingEnabled=true;
-  c.drawImage(images.wind,0,0,256,144,-7,-1.5,14,3);c.restore();
+  // The hooked front turns toward the collector. The remainder trails
+  // outside the pickup, including the larger medical-drop artwork.
+  const phase=Math.floor((finite(p.t)*4+dist*.012)%3),width=32,height=15;
+  c.save();c.translate(x+dx+ux*offset,y+dy+uy*offset);c.rotate(a+Math.PI);
+  c.globalAlpha*=.76+.18*(1-dist/p.magnet);c.imageSmoothingEnabled=true;
+  c.drawImage(images.wind,phase*256,0,256,120,-width*.78,-height*.53,width,height);c.restore();
  }
 }

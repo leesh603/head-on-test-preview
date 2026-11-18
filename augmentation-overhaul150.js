@@ -420,6 +420,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  Game.prototype.emitUpgradeOrdnance=function(type,start,count,total){
   const world=this.combatWorld(),stagger=!!(this.upgrades?.combinedProjectiles||this.projectileDistributorLevel),profile=ordnanceProfile(this,{stagger,second:start>0,single:total===1});
+  if(this.upgrades?.combinedProjectiles&&total>1)profile.salvoRelease=start>0?2:1;
   for(let i=start;i<start+count;i++){
    const {angle:a,distance}=ordnancePattern(this,type,i,total);
    if(type==='rocket'){const speed=520,damage=this.payloadPower(78+(total-1)*4)*profile.packet;world.bullets.push({x:this.x+Math.cos(a)*(this.bomberTransfer?.front??30),y:this.y+Math.sin(a)*(this.bomberTransfer?.front??30),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:this.longRange?this.shotLifetime(speed):2.4,enemy:false,ownerId:this.id,damage,rocket:true,upgradeRocket:true,explosionDamage:damage,explosionBaseRadius:84*profile.radius,ordnanceProfile:profile,collisionRadius:12,hit:new Set()});}

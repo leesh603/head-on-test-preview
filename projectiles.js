@@ -3,7 +3,7 @@ import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
 import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
 import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
 import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
+import {FXS,fxsDraw,fxsHas,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1&warm=20261106&early=20261115&mem=20261117';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
@@ -158,6 +158,16 @@ function enemyBolt(len,wid){
 export function drawFlightRocket(c,b,x,y,{length=52,hostile=!!b.enemy,scale=1}={}){
  const a=Math.atan2(b.vy,b.vx),w=length*scale*(b.ammunitionScale||1);
  if(!fxReady('rocket'))return false;
+ const salvo=b.ordnanceProfile?.salvoRelease;
+ if(salvo&&fxsHas('rocket')&&fxsHas('rocketTrail')&&fxsHas('rocketFlame')){
+  // Seat the short burn at the actual nozzle. The leading salvo clears the
+  // launcher quickly, leaving the delayed charge visible in its own lane.
+  const dx=Math.cos(a),dy=Math.sin(a),lead=salvo===1;
+  const smoke=w*(lead?.79:1.08),flame=w*(lead?.41:.63),tail=w*.45;
+  fxsDraw(c,'rocketTrail',x-dx*(tail+smoke*.46),y-dy*(tail+smoke*.46),smoke,w*(lead?.22:.26),a,lead?.63:.78);
+  fxsDraw(c,'rocketFlame',x-dx*(tail+flame*.37),y-dy*(tail+flame*.37),flame,w*(lead?.16:.22),a,1);
+  fxsDraw(c,'rocket',x,y,w,w*.3,a);drawProjectileTactic(c,b,x,y,a);return true;
+ }
  if(hostile)fxTint(c,'tracerGlow','#b63c2e',x,y,w*.7,9*scale,a,.28);
  const drawn=fx(c,'rocket',x,y,w,w*.3,a);drawProjectileTactic(c,b,x,y,a);return drawn;
 }

@@ -50,6 +50,7 @@ export function queueCombatImpact(world,round,target,details){
  if(!details.finisher&&!details.breakup&&now-previous<(world.viewWidth<=720?.065:.045))return null;
  impactTimes.set(target,now);
  const f={x:round.x,y:round.y,radius:18,life:.27,maxLife:.27,fxProfile:'bulletImpact',feedbackId:'hit:'+(world.combatFeedbackSerial=(world.combatFeedbackSerial||0)+1),direction:Math.atan2(round.vy||0,round.vx||0),...details};
+ if(round.mauserRound&&!details.blocked)f.mauserContact=true;
  if(!reserveCombatFxSlot(world,f,bulletImpact,world.viewWidth<=720?8:14))return null;
  world.combatFX.push(f);return f;
 }
@@ -139,7 +140,11 @@ export function drawExplosionProfile(c,f,x,y,fx){
   // A compact painted contact flash makes the first frames legible; the torn
   // fabric/sparks and directed fragments carry the rest of the impact.
   const flashLife=compact?.085:.12;
-  if(!blocked&&age<flashLife)fx(c,'profileFlash',x,y,width*(compact?.58:.78),size*(compact?.48:.68),contactAngle,Math.min(1,(flashLife-age)/(compact?.04:.065))*(decisive?.95:compact?.78:.9));
+  if(!blocked&&age<flashLife){
+   const alpha=Math.min(1,(flashLife-age)/(compact?.04:.065))*(decisive?.95:compact?.78:.9);
+   if(f.mauserContact)fx(c,'armorSpark',x,y,width*1.12,size*.31,a,alpha);
+   else fx(c,'profileFlash',x,y,width*(compact?.58:.78),size*(compact?.48:.68),contactAngle,alpha);
+  }
   const frame=q<.16?0:q<.40?1:q<.72?2:3;
   const painted=!f.railArmor&&drawMaterialFrame(c,metal?materialRows.metal:materialRows.linen,frame,
    x,y,width*1.75,size*(f.material==='wood'?1.25:1.65),contactAngle,clamp(fade*2.5));

@@ -738,6 +738,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  for(const body of addon.stages.encounter?.bodies.values()||[]){if(body.rail129&&layer!=='hazards'&&(!body.ruralRailBoss||rural)){const r=body.rail129;c.save();if(!body.ruralRailBoss||!ground)drawRailTrack(c,r,bossArt.parisGun);drawRailDamage(c,r,bossArt.parisGun);if(r.phase==='aim'&&r.target&&body.kind!=='fliegerzug'&&!body.ruralRailBoss){const radius=body.kind==='lincomparable'?165:108;impactMark(c,r.target.x,r.target.y,radius,Math.min(1,r.time/Math.max(.01,r.c.aimSeconds)),{heavy:true});}c.restore();}if(body.support129?.projectiles&&layer!=='bodies')drawSupportEffects(c,body.support129,{screenScale:z});}
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
  const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
+ const flagship=addon.stages.encounter?.bossId==='jutland-grand-fleet'?bodyOf(b=>b.jutlandBoss):null;
  if(layer!=='hazards'){drawBossArrivalShadows(c,addon.stages.encounter);drawBossEntryWorld(c,addon.stages.encounter,fx);}
  const arrivalDraw=draw=>spec=>{c.save();clipBossEntry(c,spec.entryReveal);c.globalAlpha*=spec.arrivalAlpha??1;try{return draw(spec);}finally{c.restore();}};
  renderStageBossLayer(addon,{layer,view,bodyBounds:bossEntryBounds,
@@ -917,7 +918,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     // Every ordinary boss round shares one renderer (special bodies excepted).
     if(h.kind==='projectile'&&h.phase==='active'&&!['treffas-debris','building-debris','livens-ember','jutland-torpedo'].includes(h.visual)){drawBossRound(c,h,z);return;}
 
-    if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h,view)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
+    if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h,view,flagship)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
     const warning=h.phase==='warning';c.save();
     if(drawRuralRailHazard(c,h,{mobile:W<=560})){c.restore();return;}
     if(drawSommeHazard(c,h)){c.restore();return;}

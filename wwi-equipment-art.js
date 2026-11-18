@@ -72,7 +72,12 @@ function drawLeicaShutter(c,p,front,now){
  if(count>record.count)record.at=now;
  record.count=count;
  const age=now-record.at;
- if(age>=0&&age<.34)sprite(c,'hytheShutter',front,8,32-12*age/.34,0,1-age/.34);
+ if(age>=0&&age<.34){
+  // Seat the compact lens just outboard of the cockpit. The aperture
+  // catches the light once and closes on the same aircraft-local pivot.
+  const opacity=age<.065?1:Math.max(0,(.34-age)/.275);
+  sprite(c,age<.115?'hytheShutter':'hytheLens',front-3,9,13,0,opacity);
+ }
 }
 
 const payloadArt={sprite,cable:drawGrapnelCable,stencil:drawSecretGasStencil};

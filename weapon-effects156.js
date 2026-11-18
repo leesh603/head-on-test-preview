@@ -4,6 +4,7 @@ import {drawBishopBombImpact} from './bishop-sortie-fx.js';
 import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {drawDetonationPresence} from './detonation-presence.js';
 import {drawWaterContact} from './water-contact-art.js';
+import {drawIntrusionBreak} from './boss-destruction-art.js';
 import {drawFlakAirburst} from './flak-airburst-art.js';
 import {weaponImpactKind} from './weapon-impact-profile.js';
 import {drawAircraftCritical} from './aircraft-critical-view.js';
@@ -27,7 +28,8 @@ export function drawGrenade(c,g,x,y){
  const pose=grenadeVisualPose(g,grenadePose),flight=g.phase==='flight';
  c.save();c.translate(x,y-g.height);
  if(g.ammunitionScale>1)c.scale(g.ammunitionScale,g.ammunitionScale);
- const separate=flight&&fxReady('grenadeFlight')&&drawOrdnanceFlightTrail(c,'grenadeFlight',0,0,18,18,pose.bearing);
+ const release=g.ordnanceProfile?.salvoRelease,trailScale=release===1?.58:release===2?.87:1;
+ const separate=flight&&fxReady('grenadeFlight')&&drawOrdnanceFlightTrail(c,'grenadeFlight',0,0,18,18,pose.bearing,1,trailScale);
  drawProjectileTactic(c,g,0,0,pose.bearing);
  c.rotate(pose.spin);
  if(!fx(c,flight&&!separate&&fxReady('grenadeFlight')?'grenadeFlight':'grenade',0,0,18,18))drawGameIcon(c,'mines',0,0,15);
@@ -78,6 +80,16 @@ function blastFlame(c,x,y,d,q){
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden||f.fxSource==='intrusionWaterContact')return true;
+ if(f.wreckMaterial)return drawIntrusionBreak(c,f,x,y,radius,combatFxAge(f));
+ if(f.salvoRelease&&f.fxSource==='lePrieur'){
+  const q=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),lead=f.salvoRelease===1;
+  const span=Math.min(152,Math.max(44,(radius||f.radius)*(lead?1.13:1.48))),a=f.direction||0;
+  // The first flash breaks into fine fragments before the second charge
+  // rolls. Both impacts stay centred on their own swept contact.
+  const frame='lePrieurImpact'+Math.min(3,Math.floor(q*4)),alpha=Math.min(1,(1-q)*(lead?1.35:2.2));
+  const visible=roleDraw(c,frame,x,y,span,span*(lead?.72:.87),a,alpha);
+  if(visible){drawOrdnanceCharge(c,f,x,y);return true;}
+ }
  if(f.surfaceContact==='torpedoHull'){
   const t=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),d=(radius||f.radius)*2.55,a=f.direction||0;
   const painted=drawWaterContact(c,x,y,d,t,a)||fx(c,t<.46?'splashShell':'foamRing',x,y,d,d,a,Math.min(1,(1-t)*2));

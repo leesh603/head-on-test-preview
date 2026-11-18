@@ -59,6 +59,25 @@ function cancelDisabledOrders(e){
  e.shotCues=e.shotCues.filter(q=>canFire(q.partId));
  if(e.firingCourse&&!e.shotCues.some(q=>(q.attempted||0)<(q.rounds||1)))e.firingCourse.remaining=0;
 }
+function wreckBurst(g,x,y,radius,material,angle,beat=-1){
+ // Preserve the live explosion, sound, shake, debris and sequence clock. Only
+ // annotate the exact accepted record, including when the FX queue is full.
+ const previous=g.combatFX?.at(-1);
+ g.combatBlast(x,y,radius,'enemy','structure');
+ const f=g.combatFX?.at(-1);
+ if(f&&f!==previous&&f.kind==='structure'&&f.x===x&&f.y===y){
+  f.wreckMaterial=material;f.wreckBeat=beat;f.wreckAngle=angle;
+ }
+}
+function finishWreckBursts(g,e){
+ const {L,S}=hull(e),sea=isMaritimeIntrusion(e);
+ for(let i=0;i<5;i++){
+  const along=L*(i/4-.5)*.8,across=S*.18*(i%2?1:-1),side=e.a+Math.PI/2;
+  const x=e.x+Math.cos(e.a)*along+Math.cos(side)*across,y=e.y+Math.sin(e.a)*along+Math.sin(side)*across;
+  const angle=e.a+(sea?(i%2?.7:-.65):i%2?2.52:-2.71);
+  wreckBurst(g,x,y,70+i*8,sea?'sea':'airframe',angle,i);
+ }
+}
 function breakPart(g,e,id,broken,dependent=false){
  const p=e.parts[id];if(!p||p.state==='destroyed')return;
  (e.destroyedTurretAngles||={})[id]=finite(e.turretAngles?.[id]);
@@ -71,7 +90,8 @@ function breakPart(g,e,id,broken,dependent=false){
   const w=intrusionWorldPoint(e,shape),extent=Math.max(shape.rx,shape.ry)*e.scale;
   const radius=legacyAir?clamp(extent*(p.kind==='wing'?.65:1.05),12,62):clamp(extent*1.2,34,90);
   const profile=legacyAir?(detachable?'engineBreak':'armorBreak'):null;
-  g.combatBlast(w.x,w.y,radius,'enemy','structure',profile);
+  if(isMaritimeIntrusion(e))wreckBurst(g,w.x,w.y,radius,'plate',e.a+(shape.x<0?-1.1:1.1));
+  else g.combatBlast(w.x,w.y,radius,'enemy','structure',profile);
  }
  reward(g,e,id,p.reward||0);
  for(const t of targets)if(t.dependencies?.includes(id))breakPart(g,e,t.id,broken,true);
@@ -79,7 +99,7 @@ function breakPart(g,e,id,broken,dependent=false){
  if(e.profileId==='bastion'&&p.kind==='armor'){e.damage||={};e.damage.envelope='damaged';}
  emit(g,{type:'intrusionPartDestroyed',encounterId:e.encounterId,partId:id});
 }
-export function hitIntrusionAt(g,hit){const e=g.intrusionBoss,located=hit.partId&&e&&maritimeAttackable(e)&&['entering','active'].includes(e.phase)&&e.parts[hit.partId]?.hp>0&&intrusionPartExposed(e,hit.partId)?{partId:hit.partId,encounterId:e.encounterId}:locateIntrusionHit(g,hit);if(!located)return{damage:0,actualDamage:0,broken:[]};if(hit.hitKey!=null&&e.hitKeys.includes(String(hit.hitKey)))return{damage:0,actualDamage:0,broken:[]};const exposed=e.profileId==='twin-fortress'&&located.partId==='core'&&Object.values(e.parts).filter(p=>p.kind==='turret_body'&&p.hp<=0).length>=2;const damage=Math.max(0,finite(hit.damage))*(exposed?1.3:1)*(e.profileId==='bastion'&&located.partId==='core'?bastionArmorMultiplier(e):1)*maritimeDamageMultiplier(e,located.partId);if(!damage)return{damage:0,actualDamage:0,broken:[]};revealMaritimeDecoy(e);if(hit.hitKey!=null)e.hitKeys.push(String(hit.hitKey));const p=e.parts[located.partId],actual=Math.min(p.hp,damage),broken=[];p.hp-=actual;(e.flash||={})[located.partId]=.12;p.state=p.hp<=0?'damaged':p.hp<=p.maxHp*.5?'damaged':'intact';if(located.partId==='core')e.hp=p.hp;else e.hp=Math.max(0,e.hp-actual*.2);if(p.hp<=0)breakPart(g,e,located.partId,broken);if(!intrusionPartCanFire(e,located.partId))cancelDisabledOrders(e);if(isNewSubmarine(e)&&Object.entries(e.parts).filter(([id])=>id!=='core').every(([,part])=>part.hp<=0))e.hp=0;e.parts.core.hp=e.hp;if(e.hp<=0){e.phase='destroyed';e.phaseAge=0;clean(g,e);if(e.profileId==='handley-page-v1500')beginV1500Destruction(g,e);if(e.profileId==='linke-hofmann-r-ii')beginRIIDestruction(g,e);if(!giant(e)&&!isNewSubmarine(e)&&g.combatBlast){const{L,S}=hull(e);for(let i=0;i<5;i++){const k=i/4-.5;g.combatBlast(e.x+Math.cos(e.a)*L*k*.8+Math.cos(e.a+Math.PI/2)*S*.18*(i%2?1:-1),e.y+Math.sin(e.a)*L*k*.8+Math.sin(e.a+Math.PI/2)*S*.18*(i%2?1:-1),70+i*8,'enemy','structure');}}if(!e.rewarded.final){e.rewarded.final=true;if(giant(e))e.pendingFinalEquipment=true;else if(!e.operationOwned)enqueueIntrusionEquipmentReward(g,e.encounterId);g.kills=finite(g.kills)+1;const owner=g.players?.find(p=>p.id===hit.ownerId);if(owner)owner.kills=finite(owner.kills)+1;emit(g,{type:'intrusionDestroyed',bossId:e.profileId,encounterId:e.encounterId});}}return{...located,damage:actual,actualDamage:actual,broken};}
+export function hitIntrusionAt(g,hit){const e=g.intrusionBoss,located=hit.partId&&e&&maritimeAttackable(e)&&['entering','active'].includes(e.phase)&&e.parts[hit.partId]?.hp>0&&intrusionPartExposed(e,hit.partId)?{partId:hit.partId,encounterId:e.encounterId}:locateIntrusionHit(g,hit);if(!located)return{damage:0,actualDamage:0,broken:[]};if(hit.hitKey!=null&&e.hitKeys.includes(String(hit.hitKey)))return{damage:0,actualDamage:0,broken:[]};const exposed=e.profileId==='twin-fortress'&&located.partId==='core'&&Object.values(e.parts).filter(p=>p.kind==='turret_body'&&p.hp<=0).length>=2;const damage=Math.max(0,finite(hit.damage))*(exposed?1.3:1)*(e.profileId==='bastion'&&located.partId==='core'?bastionArmorMultiplier(e):1)*maritimeDamageMultiplier(e,located.partId);if(!damage)return{damage:0,actualDamage:0,broken:[]};revealMaritimeDecoy(e);if(hit.hitKey!=null)e.hitKeys.push(String(hit.hitKey));const p=e.parts[located.partId],actual=Math.min(p.hp,damage),broken=[];p.hp-=actual;(e.flash||={})[located.partId]=.12;p.state=p.hp<=0?'damaged':p.hp<=p.maxHp*.5?'damaged':'intact';if(located.partId==='core')e.hp=p.hp;else e.hp=Math.max(0,e.hp-actual*.2);if(p.hp<=0)breakPart(g,e,located.partId,broken);if(!intrusionPartCanFire(e,located.partId))cancelDisabledOrders(e);if(isNewSubmarine(e)&&Object.entries(e.parts).filter(([id])=>id!=='core').every(([,part])=>part.hp<=0))e.hp=0;e.parts.core.hp=e.hp;if(e.hp<=0){e.phase='destroyed';e.phaseAge=0;clean(g,e);if(e.profileId==='handley-page-v1500')beginV1500Destruction(g,e);if(e.profileId==='linke-hofmann-r-ii')beginRIIDestruction(g,e);if(!giant(e)&&!isNewSubmarine(e)&&g.combatBlast)finishWreckBursts(g,e);if(!e.rewarded.final){e.rewarded.final=true;if(giant(e))e.pendingFinalEquipment=true;else if(!e.operationOwned)enqueueIntrusionEquipmentReward(g,e.encounterId);g.kills=finite(g.kills)+1;const owner=g.players?.find(p=>p.id===hit.ownerId);if(owner)owner.kills=finite(owner.kills)+1;emit(g,{type:'intrusionDestroyed',bossId:e.profileId,encounterId:e.encounterId});}}return{...located,damage:actual,actualDamage:actual,broken};}
 function blocked(g,c){return c.blocked||g.pendingLevelUps?.length||g._aceCombatActive?.size||g.eliteEnemies?.active||g.battlefieldMission?.status==='active'||g.ruralFronts?.active||g.stageBoss?.encounter?.active;}
 function legacyAirScale(layout,mode,w,h){
  const span=Math.max(layout.width,layout.height),margin=clamp(w*.2,64,128);

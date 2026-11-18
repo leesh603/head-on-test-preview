@@ -5,14 +5,16 @@ import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=tame
 import {drawSinkingShip} from './ship-sinking.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawWaterContact} from './water-contact-art.js';
+import {drawMaterialFrame,materialRows} from './combat-material-art.js';
 import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {jutlandMuzzle,jutlandRotate} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {JUTLAND_RECTS} from './jutland-atlas.js?v=tame3';
+import {FLAGSHIP_WATERLINE,JUTLAND_RECTS} from './jutland-atlas.js?v=tame3';
 import {drawJutlandGun} from './jutland-gun-art.js?v=20261023';
 import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',flagship:'jutland-flagship.webp',parts:'jutland-parts.webp'});
 const images=new Map(),pending=new Map();
+const hullTransforms=new WeakMap();
 let water=null,regionReady=null;
 function load(key){
  if(images.has(key))return images.get(key);
@@ -72,6 +74,7 @@ export function drawJutlandBody(c,b,deathAge=0,view=null){
  if(!jutlandBodyVisible(b,view))return;
  if(b.dead&&!b.sinkRendered)return drawSinkingShip(c,{key:b,x:b.x,y:b.y,yaw:b.hullYaw||0,width:b.width,height:b.height,age:deathAge,duration:4.4},k=>drawJutlandBody(k,{...b,sinkRendered:true},deathAge));
  const yaw=b.hullYaw||0,damaged=b.hp<b.maxHp*.45;
+ if(!b.dead&&c.getTransform)hullTransforms.set(b,c.getTransform());
  c.save();
  drawShipWater(c,b,b.width,b.height);
  if(!sprite(c,'flagship',0,b.x,b.y,b.height,yaw))drawFactionHull(c,b.faction,b.role,b.dead?2:damaged?1:0,b.x,b.y,b.width,b.height,yaw);
@@ -108,7 +111,66 @@ export function drawJutlandBody(c,b,deathAge=0,view=null){
  c.restore();
 }
 function hazardPointVisible(view,x,y,padding){return !view||Math.abs(x-view.x)<=view.width/2+padding&&Math.abs(y-view.y)<=view.height/2+padding;}
-export function drawJutlandHazard(c,h,view=null){
+export function jutlandDeckAt(b,x,y){
+ if(!b||b.dead||b.hidden)return false;
+ const dx=x-b.x,dy=y-b.y;
+ if(Math.abs(dx)>b.height*.53||Math.abs(dy)>b.height*.53)return false;
+ const yaw=b.hullYaw||0,cs=Math.cos(yaw),sn=Math.sin(yaw),scale=1150/b.height;
+ const row=Math.floor((dy*cs-dx*sn)*scale+575);
+ if(row<0||row>=1150)return false;
+ const col=Math.floor((dx*cs+dy*sn)*scale+165.5);
+ // Narrow gaps between the rail fittings and the hull in the painted alpha.
+ if(row===443&&(col>=24&&col<=31||col>=300&&col<=306)||
+    row===444&&(col>=26&&col<=30||col>=301&&col<=303)||
+    row===557&&col===18)return false;
+ return col>=FLAGSHIP_WATERLINE[2*row]&&col<331-FLAGSHIP_WATERLINE[2*row+1];
+}
+// A pool slot is reused. Choose the material once per activation so a moving
+// ship cannot turn an existing splash into sparks halfway through its decay.
+const shellContacts=new WeakMap();
+function hitsDeck(h,body){
+ let contact=shellContacts.get(h);
+ if(!contact||contact.generation!==h.generation){
+  contact={generation:h.generation,deck:jutlandDeckAt(body,h.x,h.y)};
+  shellContacts.set(h,contact);
+ }
+ return contact.deck;
+}
+function paintSeaImpact(c,h,progress){
+ if(drawWaterContact(c,h.x,h.y,h.radius*2.8,progress))return;
+ c.save();fx(c,'foamRing',h.x,h.y,h.radius*2.5,h.radius*2.5,0,.85);fx(c,'waterColumn',h.x,h.y-28,h.radius*1.4,h.radius*2.8,0,.75);c.restore();
+}
+function impactProgress(h){return Math.max(0,Math.min(1,(h.age-h.delay-h.warning)/Math.max(.01,h.duration)));}
+let exterior;
+function seaOutsideFlagship(){
+ if(exterior)return exterior;
+ const path=new Path2D();
+ path.rect(-4096,-4096,8192,8192);
+ // Maximal runs of identical left/right insets keep this reusable clip small.
+ for(let start=0;start<1150;){
+  const left=FLAGSHIP_WATERLINE[start*2],right=FLAGSHIP_WATERLINE[start*2+1];
+  let end=start+1;
+  while(end<1150&&FLAGSHIP_WATERLINE[end*2]===left&&FLAGSHIP_WATERLINE[end*2+1]===right)end++;
+  if(left+right<331)path.rect(left,start,331-left-right,end-start);
+  start=end;
+ }
+ for(const [x,y,w] of [[24,443,8],[300,443,7],[26,444,5],[301,444,3],[18,557,1]])path.rect(x,y,w,1);
+ exterior=path;return path;
+}
+function paintSeaBesideHull(c,b,h,progress){
+ const scale=b.height/1150,dx=h.x-b.x,dy=h.y-b.y,yaw=b.hullYaw||0;
+ const cs=Math.cos(yaw),sn=Math.sin(yaw),reach=h.radius*1.4+36;
+ if(b.dead||b.hidden||Math.abs(dx*cs+dy*sn)>165.5*scale+reach||Math.abs(dy*cs-dx*sn)>b.height/2+reach)
+  return paintSeaImpact(c,h,progress);
+ const overlay=c.getTransform();
+ c.save();
+ // The hull and HUD hazard passes can carry different camera shake. Place the
+ // clip at the pose used for this actual hull, then paint at the warned point.
+ c.setTransform(hullTransforms.get(b)||overlay);c.translate(b.x,b.y);c.rotate(yaw);
+ c.scale(scale,scale);c.translate(-165.5,-575);c.clip(seaOutsideFlagship(),'evenodd');c.setTransform(overlay);
+ paintSeaImpact(c,h,progress);c.restore();
+}
+export function drawJutlandHazard(c,h,view=null,body=null){
  if(!h.visual.startsWith('jutland-'))return false;
  const warning=h.phase==='warning';
  // Tracks and torpedoes keep their existing long, rotated water dressing.
@@ -123,9 +185,15 @@ export function drawJutlandHazard(c,h,view=null){
   if(!impactVisible&&!flightVisible)return true;
   c.save();if(impactVisible)impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});if(flightVisible)drawShellFlight(c,h,q);c.restore();
  }else if(hazardPointVisible(view,h.x,h.y,h.radius*1.4+36)){
-  const progress=Math.max(0,Math.min(1,(h.age-h.delay-h.warning)/Math.max(.01,h.duration)));
-  if(progress>=1||drawWaterContact(c,h.x,h.y,h.radius*2.8,progress))return true;
-  c.save();fx(c,'foamRing',h.x,h.y,h.radius*2.5,h.radius*2.5,0,.85);fx(c,'waterColumn',h.x,h.y-28,h.radius*1.4,h.radius*2.8,0,.75);c.restore();
+  const progress=impactProgress(h);
+  if(progress>=1)return true;
+  if(body&&h.visual==='jutland-shell'){
+   if(!hitsDeck(h,body)){paintSeaBesideHull(c,body,h,progress);return true;}
+   const frame=Math.min(3,Math.floor(progress*4)),angle=Math.atan2(h.y-h.sourceY,h.x-h.sourceX);
+   const alpha=Math.min(1,(1-progress)*2.4),size=h.radius*(h.raidHeavy?1.38:1.2);
+   if(!drawMaterialFrame(c,materialRows.metal,frame,h.x,h.y,size*1.6,size,angle,alpha))
+    fx(c,'armorSpark',h.x,h.y,size,size*.8,angle,alpha);
+  }else paintSeaImpact(c,h,progress);
  }
  return true;
 }

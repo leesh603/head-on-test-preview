@@ -1,4 +1,5 @@
 import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
+import {drawFinalCollapse} from './boss-destruction-art.js';
 import {factoryMuzzleLocal} from './pandemonium-factory-mechanics.js';
 // Only authored sprites: no geometry stand-ins for missing factory artwork.
 export const profile=Object.freeze({variant:'factory',label:'공장형 · 이동 군수공장',worldScale:1,width:512,height:768,pivot:{x:256,y:384},assetRoot:'./asset-bank/pandemonium-factory/'});
@@ -38,7 +39,7 @@ export function drawBoss(c,s,assets,{camera={x:0,y:0},width=1280,height=900,scal
   if(p.role==='boiler'&&p.active)for(let i=0;i<2;i++)fx(c,assets,8,p.x-20+i*35,p.y-65-((s.time*10+i*15)%30),30+((s.time*10+i*15)%30),.28*s.pressure);
   if(p.hitFlash>0&&!destroyed)fx(c,assets,12,p.x,p.y,Math.min(46,p.r),p.hitFlash/.16*.8);
   if(p.hp>0&&p.hp<p.maxHp*.35&&!s.defeat)fx(c,assets,8,p.x+6,p.y-8,Math.min(55,p.r*1.2),.22);
-  if(destroyed){fx(c,assets,9,p.x,p.y,p.r*2,.8);if(!s.defeat)fx(c,assets,4+Math.floor(s.time*5)%4,p.x,p.y,p.r,.7);}
+  if(destroyed&&!s.defeat){fx(c,assets,9,p.x,p.y,p.r*2,.8);fx(c,assets,4+Math.floor(s.time*5)%4,p.x,p.y,p.r,.7);}
  }
  c.restore();}
  if(layer!=='body'){
@@ -49,7 +50,10 @@ export function drawBoss(c,s,assets,{camera={x:0,y:0},width=1280,height=900,scal
   else fx(c,assets,13,h.x,h.y,14,1,h.angle);
  }
  for(const e of s.effects||[]){if(e.kind==='supply'&&assets.supply){c.save();c.globalAlpha*=Math.max(0,1-e.age/e.life);c.drawImage(assets.supply,e.x-12,e.y-9-e.age*10,24,18);c.restore();}else fx(c,assets,e.kind==='muzzle'?12:13,e.x,e.y,e.kind==='muzzle'?28:22,Math.max(0,1-e.age/e.life),e.angle||0);}
- if(s.defeat&&s.defeat.elapsed<7){for(let i=0;i<4;i++){const p=s.parts[(Math.floor(s.defeat.elapsed*2)+i*2)%s.parts.length],x=s.x+p.x*Math.cos(s.a)-p.y*Math.sin(s.a),y=s.y+p.x*Math.sin(s.a)+p.y*Math.cos(s.a);fx(c,assets,Math.floor(s.defeat.elapsed*7+i)%4,x,y,100,Math.min(1,7-s.defeat.elapsed));}}
+ drawFinalCollapse(c,s,factoryWreckPoint);
  }
  c.restore();
+}
+function factoryWreckPoint(s,x,y){
+ return {x:s.x+x*Math.cos(s.a)-y*Math.sin(s.a),y:s.y+x*Math.sin(s.a)+y*Math.cos(s.a)};
 }
