@@ -162,13 +162,18 @@ function gasField(c,cue,age,view,art,low){
   const opacity=Math.sin(Math.PI*pulse)*fade*.66;
   fx(c,'gasSmall',cx+Math.cos(h)*d,cy+Math.sin(h)*d,r*(.30+pulse*.24),r*(.15+pulse*.14),h,opacity);
  }
- // Three asymmetric painterly banks turn into the prevailing drift at
- // different times. Their outer faces track the physical cloud radius.
+ // A low, continuous bank joins the painted folds. They share a downwind
+ // direction while their root positions and sizes vary across the cloud.
+ fx(c,'gas',x,y,r*(.55+1.19*growth),r*(.47+1.12*growth),a+.2,fade*.60);
  const banks=low?2:3;
  for(let i=0;i<banks;i++){
-  const h=a+.38+i*TAU/banks+.12*Math.sin(age*.95+i);
-  const d=r*.54*growth,w=r*(.48+.65*growth+.045*Math.sin(age*2.2+i));
-  gasFold(c,x+Math.cos(h)*d,y+Math.sin(h)*d,w,w*(.72+.05*Math.cos(age+i)),h+Math.PI/2,fade*(.77+.12*Math.sin(age*1.5+i)));
+  const advance=(i===0?-.29:i===1?.12:.46)*r*growth;
+  const lateral=(i===0?-.22:i===1?.32:-.19)*r*growth;
+  const drift=.05*r*Math.sin(age*.9+i)*growth;
+  const px=x+Math.cos(a)*(advance+drift)-Math.sin(a)*lateral;
+  const py=y+Math.sin(a)*(advance+drift)+Math.cos(a)*lateral;
+  const w=r*(.46+growth*(i===1?.73:.62));
+  gasFold(c,px,py,w,w*(i===1?.83:.66),a+(i-1)*.77+.13*Math.sin(age*1.2+i),fade*(.70+.14*Math.sin(age*1.5+i)));
  }
  const bodyAlpha=clamp(remaining/.72);
  bombSprite(c,'cooper',cx,cy,49*z,bearing,bodyAlpha);
@@ -200,7 +205,10 @@ function firechain(c,cue,age,world,view,art,low){
   const bite=clamp(age/.14),release=clamp((age-.55)/.29);
   const sag=(3+17*(1-bite)+12*release+3*Math.sin(age*21)*(1-release))*z;
   c.save();c.globalAlpha*=fade;
-  if(span>9*z)art.cable(c,x0,y0,x1,y1,z,sag);
+  if(span>9*z){
+   art.cable(c,x0,y0,x1,y1,z,sag);
+   art.sprite(c,'grapnelHead',x0,y0,25*z,h+Math.PI,.94);
+  }
   // Two differently timed fronts heat actual adjacent links. The first runs
   // into the captured aircraft, the second recoils back toward the first hook.
   for(let pass=0;pass<2;pass++){

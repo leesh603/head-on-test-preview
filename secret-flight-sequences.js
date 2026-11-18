@@ -187,7 +187,7 @@ function impact(c,q,v,a,t,low){
  const rise=Math.sin(Math.PI*clamp(age/1.2)),height=21*rise,width=(48+rise*40)*z;
  if(age>.07){
   const water=q.impactLayer==='water';
-  const px=x-dx*t*7*z,py=y-(height+dy*t*7)*z;
+  const px=x-dx*t*7*z,py=q.impactLayer==='air'?y-(height+dy*t*7)*z:y+3*z-width*.45;
   if(water)fx(c,'waterColumn',px,py,width,width*1.12,0,clamp(fade*1.7));
   else if(q.impactLayer==='air')fx(c,'smokeDark',px,py,width,width*.73,a,clamp(fade*1.4));
   else if(!drawSecretWarArt(c,'earthPlume',px,py,width,0,clamp(fade*1.7)))fx(c,'dirtBurst',px,py,width,width*.83,a,fade);
