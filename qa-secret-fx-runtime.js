@@ -35,7 +35,7 @@ const plans={
 };
 const expected={fokkerLeimberger:'rotary',vickersPomPom:'pomImpact',eliteAirWing:'wingAttack',longRangeBombers:'bomberImpact',sn1650:'heavyImpact',fliegerpfeil:'steelRain',grunkreuzBarrage:'gasBarrage',farnboroughFirechain:'firechain',badinBreakthrough:'badinWake',nesterovRam:'ram',explosiveArmor:'armorLaunch',villarPerosa:'villarShot',ketteringBug:'bugImpact',rankenExplosiveDarts:'rankenBurst',lePrieurSalvo:'lePrieurImpact',davisRecoilless:'davisShot',salamanderArmor:'salamanderImpact',puw50:'puwImpact',siemensHalske:'siemensReversal'};
 const api=window.__HEADON_TEST__,out=parent.document.querySelector('#out');
-async function sample(id){
+async function sample(id,realtime=false){
  const r=SECRET_WEAPONS.find(q=>q.id===id);
  if(!api.start({region:0,pilot:'boelcke',invincible:false}))throw Error('출격 실패');
  const g=api.debug();g.level=30;g.events.length=0;
@@ -57,11 +57,11 @@ async function sample(id){
  if(id==='grunkreuzBarrage')detonateSynthesisPayload(g,{x:e.x,y:e.y,synthesisPayload:{gas:true}});
  if(id==='ketteringBug')g._updFriendlyBomber(.02,{angle:g.a});
  if(id==='villarPerosa')e.ace=true;
- const kinds=new Set(),dt=.02,start=g.t,held={fireHeld:true,inputMode:'gamepad'};let hit;
+ const kinds=new Set(),dt=.02,start=g.t,held={fireHeld:true,inputMode:'gamepad'};let hit;const limit=performance.now()+18000;
  for(let i=0;i<320;i++){
   for(const q of g.secretWeaponFx||[])if(q.at+q.life>=g.t){kinds.add(q.kind);if(!hit&&q.kind===expected[id])hit=q;}
-  if(hit)break;
-  g.state='playing';g.update(dt,held);
+  if(hit&&(!realtime||g.t-hit.at>=.10))break;
+  if(realtime){if(performance.now()>limit)break;await new Promise(requestAnimationFrame);}else {g.state='playing';g.update(dt,held);}
  }
  g.state='paused';
  if(!hit)throw Error('미발동 '+[...kinds].join(',')+' / '+(g.t-start).toFixed(2)+'s');
