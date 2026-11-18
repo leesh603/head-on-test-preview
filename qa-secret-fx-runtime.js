@@ -42,8 +42,8 @@ async function sample(id,realtime=false){
  for(const [card,rarity] of plans[id]){g.state='upgrade';if(!g.upgrade(card,rarity))throw Error('장착 실패 '+card);g.pendingTacticalChoice=null;}
  if(!Object.values(g.secretWeaponState?.slots||{}).includes(id))throw Error('진화 실패');
  g.state='playing';g.enemies.length=0;g.bullets.length=0;g.events.length=0;g.spawn=Infinity;g.need=Infinity;g.invuln=0;g.fire=0;
- if(realtime==='sequence'){g.state='paused';await new Promise(resolve=>setTimeout(resolve,2100));g.state='playing';}
- const heading=g.a,dx=Math.cos(heading),dy=Math.sin(heading),dist=id==='sn1650'&&realtime==='sequence'?400:id==='nesterovRam'?7:id==='rankenExplosiveDarts'?-90:id==='farnboroughFirechain'?28:100;
+ if(realtime==='sequence'||realtime==='battle'){g.state='paused';await new Promise(resolve=>setTimeout(resolve,2100));g.state='playing';}
+ const heading=g.a,dx=Math.cos(heading),dy=Math.sin(heading),dist=id==='sn1650'&&(realtime==='sequence'||realtime==='battle')?400:id==='nesterovRam'?7:id==='rankenExplosiveDarts'?-90:id==='farnboroughFirechain'?28:100;
  function enemy(d,s){const e=g.spawnEnemy('scout')||g.enemies.at(-1);Object.assign(e,{id:'qa'+d+','+s,x:g.x+dx*d-dy*s,y:g.y+dy*d+dx*s,a:g.a,fire:999,hp:9000,maxHp:9000,speed:0,spawnTime:0,invuln:0});return e;}
  const e=enemy(dist,0);if(id==='sn1650'&&realtime==='sequence')e.static=true;if(id==='farnboroughFirechain'){enemy(75,19);enemy(94,-23);}
  Object.assign(g,{rankinShrapnelTimer:0,airframeSpeed:1,cow37Timer:0,wwiGrapnelCooldown:0,motorCannonTimer:0,bomberTimer:0,mauserTimer:0});
@@ -72,11 +72,18 @@ async function sample(id,realtime=false){
  const kinds=new Set(),dt=.02,start=g.t,held={fireHeld:true,inputMode:'gamepad'};let hit;const limit=performance.now()+18000;
  for(let i=0;i<320;i++){
   for(const q of g.secretWeaponFx||[])if(q.at+q.life>=g.t){kinds.add(q.kind);if(!hit&&q.kind===expected[id])hit=q;}
-  if(hit&&(!realtime||g.t-hit.at>=.10))break;
-  if(realtime){if(performance.now()>limit)break;await new Promise(requestAnimationFrame);}else {g.state='playing';g.update(dt,held);}
+  if(hit&&(realtime==='battle'?g.t-hit.at>=({steelRain:.10,heavyImpact:.17,gasBarrage:.24,bomberImpact:.17,ram:.14,rankenBurst:.13}[hit.kind]||.06):!realtime||g.t-hit.at>=.10))break;
+  if(realtime&&realtime!=='battle'){if(performance.now()>limit)break;await new Promise(requestAnimationFrame);}else {g.state='playing';g.update(dt,held);}
  }
  g.state='paused';
  if(!hit)throw Error('미발동 '+[...kinds].join(',')+' / '+(g.t-start).toFixed(2)+'s');
+ if(realtime==='battle'){
+   const canvas=document.getElementById('game'), w=canvas.width,h=canvas.height,copy=document.createElement('canvas');copy.width=w;copy.height=h;
+   const realUpdate=g.update;g.update=()=>{};g.state='playing';g.combatBenchmarkRunning=true;g.combatBenchmarkMeta={scene:'secretWeapon'};g.combatBenchmarkScript=false;
+   try{await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('프레임 중단')),6500);let n=0;api.startCombatCaptureClock('timer-30hz',()=>{if(++n<3)return;copy.getContext('2d').drawImage(canvas,0,0);clearTimeout(timeout);resolve();},parent);});}
+   finally{api.stopCombatCaptureClock();g.combatBenchmarkRunning=false;g.update=realUpdate;g.state='paused';}
+   return {img:copy,name:r.ko,at:hit.at-start,age:g.t-hit.at,k:hit.kind};
+ }
  const sampleAge=Math.min(hit.life*.32,hit.kind==='gasBarrage'?.36:.10),displayT=hit.at+sampleAge;
  g.t=displayT;g.state='paused';
  const w=260,h=170,low=parent.document.querySelector('#screen').value==='390x844';
