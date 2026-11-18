@@ -274,8 +274,8 @@ export function fxsBoom(c, f, x, y, radius = 0) {
   return true;
 }
 
-// Wreck fuel and breached ground emplacements share an overhead combustion bed.
-// The older tongue atlas remains available when the new painted sheet fails.
+// Airship wrecks use the looping flame atlas. Ground emplacements and deck
+// pockets use the painted fuel sheet.
 const FLAME = { atlas: null, rects: null, n: 12, v: 3 };
 const FUEL = { atlas: null };
 function legacyFlame() {
@@ -286,7 +286,8 @@ function legacyFlame() {
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href; ATLAS_SOURCES.push(im.src);
   })).catch(() => false);
 }
-const flameReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(false) : new Promise(resolve => {
+function loadFuel() {
+ return new Promise(resolve => {
   const image = new Image(); image.decoding = 'async';
   image.onload = async () => {
     if (image.decode) await image.decode().catch(() => {});
@@ -296,7 +297,11 @@ const flameReady = !(FXS && typeof Image !== 'undefined') ? Promise.resolve(fals
   };
   image.onerror = () => resolve(false);
   image.src = new URL('./fx-wreck-fuel.webp', import.meta.url).href; ATLAS_SOURCES.push(image.src);
-}).then(ready => ready || legacyFlame());
+ });
+}
+const flameReady = FXS && typeof Image !== 'undefined'
+  ? Promise.all([legacyFlame(), loadFuel()]).then(([flame, fuel]) => flame || fuel)
+  : Promise.resolve(false);
 let ZONE_T = -1, ZONE_N = 0; // per-frame budget: only the first few fire zones get smoke / cross-fades
 // Layout depends on the zone, not the camera or animation clock. Weak keys
 // release it with the expired zone instead of retaining a battle-long cache.
@@ -324,7 +329,8 @@ function fireZoneLayout(f, R, seed) {
   return points;
 }
 export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
-  if (!FXS || (!FUEL.atlas && !FLAME.atlas)) return false;
+  const fuel = !f.wreck && FUEL.atlas;
+  if (!FXS || (!fuel && !FLAME.atlas)) return false;
   boomSprites();
   if (t !== ZONE_T) { ZONE_T = t; ZONE_N = 0; }
   const rich = ZONE_N++ < 3;
@@ -339,7 +345,7 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   c.drawImage(GLOW, x - R * .85, y - R * .75, R * 1.7, R * 1.5);
   c.globalCompositeOperation = 'source-over';
   if (under) { c.save(); under(); c.restore(); }
-  if (FUEL.atlas) {
+  if (fuel) {
     // All four painted fuel beds have a common hot center. The final seconds
     // keep their footprint while the flame breaks into isolated ember banks.
     const age = f.maxLife ? Math.max(0, f.maxLife - f.life) : Math.max(0, t);
@@ -347,14 +353,13 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
     const phase = rem < 2.4 ? 2 + (1 - rem / 2.4)
       : age < .55 ? age / .55 : 1 + (.5 - .5 * Math.cos((age - .55) * 3.9));
     const frame = Math.min(3, Math.floor(phase)), blend = phase - frame;
-    // The airborne wreck fills its hazard; Livens draws the bed inside its
-    // already scaled emplacement, keeping the surviving outer pipework visible.
-    const scale = R * (f.wreck ? 1.94 : 1.46) / 200;
+    // Keep the surviving outer pipework of the emplacement visible.
+    const scale = R * 1.46 / 200;
     c.translate(x,y); c.rotate((f.angle || 0) + (seed % 11 - 5) * .065);
     c.imageSmoothingEnabled = true;
     const draw = (index, alpha) => {
       c.globalAlpha = fade * alpha;
-      c.drawImage(FUEL.atlas, (index % 2) * 448, Math.floor(index / 2) * 256, 448, 256,
+      c.drawImage(fuel, (index % 2) * 448, Math.floor(index / 2) * 256, 448, 256,
         -211 * scale, -128 * scale, 448 * scale, 256 * scale);
     };
     if (rich && blend > .015 && frame < 3) {

@@ -61,17 +61,17 @@ export function paintSecretBadge(rb,p,g,en,faction){
  const scale=c.canvas.width/48;
  c.setTransform(scale,0,0,scale,0,0);
  c.clearRect(0,0,48,48);
- c.beginPath();
- c.moveTo(24,2);c.lineTo(36,2);c.lineTo(46,12);c.lineTo(46,36);
- c.lineTo(36,46);c.lineTo(12,46);c.lineTo(2,36);c.lineTo(2,12);c.lineTo(12,2);c.closePath();
+ c.beginPath();c.arc(24,24,22.5,0,Math.PI*2);
  c.fillStyle='#291c22';c.fill();
- c.lineWidth=2.5;c.strokeStyle='#85694f';c.stroke();
- if(progress>0||glint>0){
-  const perimeter=96+40*Math.SQRT2;
-  if(glint<=0&&progress<1)c.setLineDash([perimeter*progress,perimeter]);
-  c.strokeStyle=glint>0?'#fff0c2':'#e5bb78';c.stroke();
+ c.lineWidth=1;c.strokeStyle='#c7a16a';c.stroke();
+ c.save();
+ c.beginPath();c.arc(24,24,21,0,Math.PI*2);c.clip();
+ c.globalAlpha=progress<1?.66:1;drawGameIcon(c,icon,24,24,42);
+ c.restore();
+ if(glint>0||(progress>0&&progress<1)){
+  const start=-Math.PI/2;
+  c.beginPath();c.arc(24,24,20,start,start+Math.PI*2*(glint>0?1:progress));
+  c.lineWidth=1.5;c.strokeStyle=glint>0?'#fff0c2':'#e5bb78';c.stroke();
  }
- c.beginPath();c.arc(24,24,19.5,0,Math.PI*2);c.clip();
- c.globalAlpha=progress<1?.66:1;drawGameIcon(c,icon,24,24,39);
  c.restore();
 }
