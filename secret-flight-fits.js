@@ -78,7 +78,7 @@ export function tickSiemensFeedback(p,dt,cue,sound){
  state.soundDelay=Math.max(0,(state.soundDelay||0)-dt);
  if(state.reversalCue){
   delete state.reversalCue;
-  cue(p,'siemensReversal',p,{life:.38});
+  cue(p,'siemensReversal',p,{turnSide:state.direction||1,life:.38});
   sound(p,'secretSiemensReverse');
   state.soundDelay=.4;
  }else if(state.load>=.46&&state.coast===0&&state.soundDelay<=0){

@@ -186,6 +186,7 @@ export function tickSecretPuwBomb(world,bomb,dt,detonate){
 }
 
 export function secretPuwImpact(p,b,{cue,sound}){
- cue(p,'puwImpact',b,{a:b.releaseAngle,slot:b.puwIndex,radius:p.explosionRadius?.(b.radius)??b.radius,life:1.15});
+ const water=[1,7,16,17].includes(worldOf(p).worldRegion?.());
+ cue(p,'puwImpact',b,{a:b.releaseAngle,slot:b.puwIndex,radius:p.explosionRadius?.(b.radius)??b.radius,water,life:1.15});
  sound(p,'secretPuwImpact');
 }

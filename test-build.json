@@ -438,6 +438,52 @@
           "gitBlob": "999268e1d85a356ac0a0218e3621bdcdb75e6695"
         }
       ]
+    },
+    {
+      "sha": "b428704d50730a6c2e9121a6d85d234f39f6d0a6",
+      "pr": 729,
+      "files": [
+        {
+          "path": "secret-final-patterns.webp",
+          "gitBlob": "464ece8491e4b093c98ef2b2acc416ac156bf411"
+        },
+        {
+          "path": "secret-impact-signatures.js",
+          "gitBlob": "69ca564c0685bd65eec3b20cad4e6395a8303b54"
+        },
+        {
+          "path": "secret-flight-sequences.js",
+          "gitBlob": "74b06fe3d50f2a1d0244f42138904ad3bc18f14c"
+        },
+        {
+          "path": "secret-ordnance-sequences.js",
+          "gitBlob": "4c39cceec653554b28a6b0111e6a83376e5d3449"
+        },
+        {
+          "path": "secret-payload-sequences.js",
+          "gitBlob": "bcf9c70433fda93a6612da0e6874299c7a53a7ef"
+        },
+        {
+          "path": "secret-weapon-combat.js",
+          "gitBlob": "11aa1393c7530c32407a547ee89da5219abec3f8"
+        },
+        {
+          "path": "secret-weapon-fx.js",
+          "gitBlob": "857d2256f707adff60ec00d961e13acbc2ca1f36"
+        },
+        {
+          "path": "secret-flight-fits.js",
+          "gitBlob": "ef3305bff9e022128c68086694874370c75a817b"
+        },
+        {
+          "path": "secret-ordnance.js",
+          "gitBlob": "72bcbb7eda16bd404013466a4694159f443c6ddd"
+        },
+        {
+          "path": "wwi-equipment-art.js",
+          "gitBlob": "86ab5344160b5524cee17000887ae54ad2615c8b"
+        }
+      ]
     }
   ],
   "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5",

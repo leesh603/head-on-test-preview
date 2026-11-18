@@ -57,6 +57,17 @@ async function sample(id,realtime=false){
  if(id==='grunkreuzBarrage')detonateSynthesisPayload(g,{x:e.x,y:e.y,synthesisPayload:{gas:true}});
  if(id==='ketteringBug')g._updFriendlyBomber(.02,{angle:g.a});
  if(id==='villarPerosa')e.ace=true;
+ if(realtime==='sequence'){
+   const sheet=parent.document.createElement('canvas'),canvas=document.getElementById('game');
+   sheet.width=5*260;sheet.height=563;const ctx=sheet.getContext('2d'),out=parent.document.getElementById('tiles');out.replaceChildren(sheet);sheet.style.maxWidth='100%';
+   g.combatBenchmarkRunning=true;g.combatBenchmarkMeta={scene:'secretWeapon'};g.combatBenchmarkScript=false;
+   const stream=canvas.captureStream(30),chunks=[],rec=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9',videoBitsPerSecond:3600000});rec.ondataavailable=ev=>chunks.push(ev.data);const ended=new Promise(resolve=>rec.onstop=resolve);rec.start();
+   const times=[.04,.35,.81,1.5,2.8],startT=g.t,signals=new Set();let frame=0;
+   const orig=g.update;g.update=function(dt,input){orig.call(this,dt,{inputMode:'gamepad',fireHeld:true});for(const q of this.secretWeaponFx||[])signals.add(q.kind);};
+   try{await new Promise((resolve,reject)=>{const guard=setTimeout(()=>reject(Error('시계 시간 초과')),10000);api.startCombatCaptureClock('timer-30hz',()=>{if(frame<5 && g.t-startT>=times[frame]){ctx.drawImage(canvas,frame*260,0,260,563);frame++;}if(frame===5){clearTimeout(guard);resolve();}},parent);});}finally{api.stopCombatCaptureClock();g.update=orig;g.combatBenchmarkRunning=false;g.state='paused';}
+   rec.stop();await ended;stream.getTracks().forEach(t=>t.stop());const a=parent.document.getElementById('download');a.href=URL.createObjectURL(new Blob(chunks,{type:rec.mimeType}));a.download=id+'.webm';a.hidden=false;
+   return {seq:[...signals].join('→')};
+ }
  const kinds=new Set(),dt=.02,start=g.t,held={fireHeld:true,inputMode:'gamepad'};let hit;const limit=performance.now()+18000;
  for(let i=0;i<320;i++){
   for(const q of g.secretWeaponFx||[])if(q.at+q.life>=g.t){kinds.add(q.kind);if(!hit&&q.kind===expected[id])hit=q;}

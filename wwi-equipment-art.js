@@ -11,8 +11,9 @@ import {WWI_FRAMES} from './wwi-equipment-art-data.js';
 import {GRAPNEL_FRAMES} from './fiery-grapnel-art-data.js';
 import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
 import {wwiBurnPoint,wwiWingTarget,currentCameraCue,cameraTargetPoint,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
-import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
-import {drawSecretWeaponFx,secretWeaponArtReady} from './secret-weapon-fx.js';
+import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027&pilotfx=20261117b';
+import {drawPayloadCarrier,drawPayloadRound} from './secret-payload-sequences.js';
+import {drawSecretWeaponFx,secretWeaponArtReady,drawSecretGasStencil} from './secret-weapon-fx.js';
 import {hasSecretWeapon} from './secret-weapons.js';
 import {secretRotaryMountSide} from './secret-weapon-combat.js';
 
@@ -73,6 +74,8 @@ function drawLeicaShutter(c,p,front,now){
  if(age>=0&&age<.34)sprite(c,'hytheShutter',front,8,32-12*age/.34,0,1-age/.34);
 }
 
+const payloadArt={sprite,cable:drawGrapnelCable,stencil:drawSecretGasStencil};
+
 // Equipment stays inside the aircraft silhouette; show deployed ordnance
 // instead of inventory boxes pasted over the tail and wings.
 export function drawWWIEquipment(c,world,W,H,options={}){
@@ -82,7 +85,8 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  const visible=(x,y,pad=90)=>Math.abs((x-cx)*z)<W/2+pad&&Math.abs((y-cy)*z)<H/2+pad;
  const players=world.players||[world];c.save();
  drawEquipmentSupport(c,world,sx,sy,z,visible,options);
- drawSecretWeaponFx(c,world,{sx,sy,z,visible},{sprite,cable:drawGrapnelCable},options);
+ const view={sx,sy,z,visible};
+ drawSecretWeaponFx(c,world,view,payloadArt,options);
  for(const p of players){
   if(!(p.hp>0)||p.status==='downed'||p.heineckeEscape>0)continue;
   const u=p.upgrades||{},pose=playerPose(p,p.x,p.y),fit=p.bomberTransfer;
@@ -164,6 +168,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    if(visible(px,py))drawWimperisSight(c,sx(px),sy(py),.4-((b.maxLife||.85)-b.life),options);
   }
   if(!b.cooperBomb||!(b.life>0)||!bomb?.naturalWidth||!visible(b.x,b.y))continue;
+  if(drawPayloadCarrier(c,b,view,payloadArt))continue;
   const bearing=Math.atan2(b.vy,b.vx),size=z*(b.ammunitionScale||1);
   // Show the displacement immediately behind the tumbling bomb, then a short fuse at impact.
   fx(c,'vaporTrail',sx(b.x)-Math.cos(bearing)*22*size,sy(b.y)-Math.sin(bearing)*22*size,32*size,7*size,bearing,.56);
@@ -173,19 +178,9 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  for(const b of world.bullets||[]){
   if(!(b.life>0)||!visible(b.x,b.y))continue;
   const projectileScale=z*(b.ammunitionScale||1);
-  if(b.secretWeapon==='farnboroughFirechain'){
-   const start=b.secretChainOrigin,a=Math.atan2(b.vy,b.vx);
-   if(start)drawGrapnelCable(c,sx(start.x),sy(start.y),sx(b.x)-Math.cos(a)*19*z,sy(b.y)-Math.sin(a)*19*z,z,4*z);
-   grapnelSprite(c,'grapnelFire',sx(b.x),sy(b.y),35*projectileScale,Math.atan2(b.vy,b.vx));
-   continue;
-  }
+  if(drawPayloadRound(c,b,world,view,payloadArt,options.low))continue;
   if(b.wwiIncendiary&&b.secretWeapon!=='fokkerLeimberger'){sprite(c,'burn0',sx(b.x),sy(b.y),15*projectileScale,Math.atan2(b.vy,b.vx),.95);if(!b.flechette)continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
-  if(b.secretWeapon==='fliegerpfeil'){
-   const a=Math.atan2(b.vy,b.vx),x=sx(b.x),y=sy(b.y),trail=28*projectileScale;
-   fx(c,'vaporTrail',x-Math.cos(a)*trail*.7,y-Math.sin(a)*trail*.7,trail,5*projectileScale,a,.7);
-   sprite(c,'flechetteDart',x,y,35*projectileScale,a);continue;
-  }
   if(b.flechette)drawFlechetteTrail(c,b,sx(b.x),sy(b.y),{...options,scale:projectileScale});
   if(b.fieryGrapnel){
    const p=players.find(p=>(p.id??'p1')===(b.ownerId??'p1'));
