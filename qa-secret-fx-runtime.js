@@ -54,7 +54,7 @@ async function sample(id,realtime=false){
  if(id==='badinBreakthrough'){const v=g.baseSpeed*1.25;g.equipmentStraight=.64;g.equipmentCruiseSpeed=v;combat.tickSecretWeapons(g,.04,{x:g.x-dx*v*.04,y:g.y-dy*v*.04});}
  if(id==='explosiveArmor'||id==='salamanderArmor'){const hp=g.hp;g.damageSource={bullet:{vx:dx*400,vy:dy*400},impactX:g.x+8,impactY:g.y+2};g.hp-=8;combat.secretArmorHit(g,hp,prepareSynthesisBomb);}
  if(id==='sn1650'){for(let i=0;i<3;i++)combat.secretVerySignal(g,e,prepareSynthesisBomb);}
- if(id==='fliegerpfeil'){for(let i=0;i<3;i++){const b=prepareSynthesisBomb(g,{x:e.x,y:e.y,life:.5,damage:70,radius:66,cooperBomb:true});combat.secretCooperRelease(g,b);if(i===2 && realtime==='sequence'){Object.assign(b,{x:g.x,y:g.y,sx:g.x,sy:g.y,vx:dx*180,vy:dy*180,life:.65,maxLife:.65,age:0});g.friendlyBombs.push(b);enemy(95,44);enemy(95,-48);g.fire=999;}else if(i===2)detonateFriendlyBomb(g,b);}}
+ if(id==='fliegerpfeil'){for(let i=0;i<3;i++){const b=prepareSynthesisBomb(g,{x:e.x,y:e.y,life:.5,damage:70,radius:66,cooperBomb:true});combat.secretCooperRelease(g,b);if(i===2 && realtime==='sequence'){Object.assign(b,{x:g.x,y:g.y,sx:g.x,sy:g.y,vx:dx*180,vy:dy*180,life:.65,maxLife:.65,age:0});(g.friendlyBombs??=[]).push(b);enemy(95,44);enemy(95,-48);g.fire=999;}else if(i===2)detonateFriendlyBomb(g,b);}}
  if(id==='grunkreuzBarrage')detonateSynthesisPayload(g,{x:e.x,y:e.y,synthesisPayload:{gas:true}});
  if(id==='ketteringBug')g._updFriendlyBomber(.02,{angle:g.a});
  if(id==='villarPerosa')e.ace=true;
