@@ -308,14 +308,19 @@ export function secretSteelRainImpact(p,b,f){
  if(!hasSecretWeapon(p,'fliegerpfeil'))return false;
  const state=secretWeaponEffect(p,'fliegerpfeil'),now=time(p),heading=b.releaseAngle??p.a??0;
  const group={attempts:new Set(),explosions:3,explodedTargets:new Set()};
+ const tracks=[];
  const gun=1+Math.max(0,p.gunUpgradeBonus||0),u=p.upgrades;
  for(let i=0;i<24;i++){
   const band=i%3,angle=heading+i*Math.PI/12,speed=360+band*80,dx=Math.cos(angle),dy=Math.sin(angle);
   const x=b.x+dx*(14+band*6),y=b.y+dy*(14+band*6);
-  emit(p,{x,y,previousX:x,previousY:y,vx:dx*speed,vy:dy*speed,life:.36,damage:(f.minDamage+(f.maxDamage-f.minDamage)*band/2)*gun,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:f.collisionRadius,heavyTargetMultiplier:f.heavyMultiplier,synthesisPayloadDart:true,synthesisGroup:group,synthesisPayload:{incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,burnScale:gun},secretWeapon:'fliegerpfeil'});
+  const dart=emit(p,{x,y,previousX:x,previousY:y,vx:dx*speed,vy:dy*speed,life:.36,damage:(f.minDamage+(f.maxDamage-f.minDamage)*band/2)*gun,pierce:true,flechette:true,sweptProjectile:true,collisionRadius:f.collisionRadius,heavyTargetMultiplier:f.heavyMultiplier,synthesisPayloadDart:true,synthesisGroup:group,synthesisPayload:{incendiary:!!u.buckinghamBelt,explosive:!!u.amatolCharge,burnScale:gun},secretWeapon:'fliegerpfeil'});
+  tracks.push({x,y,dart});
  }
  state.activeUntil=now+.48;
- cue(p,'steelRain',b,{a:heading,life:.48});sound(p,'secretSteelRain');
+ const release=cue(p,'steelRain',b,{a:heading,life:.82});
+ // Retain actual round endpoints for the fading wake, outside network snapshots.
+ Object.defineProperty(release,'steelTracks',{value:tracks});
+ sound(p,'secretSteelRain');
  return true;
 }
 export function secretGasProfile(p,b,radius,life){

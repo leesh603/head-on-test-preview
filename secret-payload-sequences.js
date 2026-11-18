@@ -84,9 +84,19 @@ export function drawPayloadRound(c,b,world,view,art,low=false){
   // Each visible dart is the authoritative travelling round. The three speed
   // bands each leave a different length brushed-metal streak behind the shaft.
   const speed=Math.hypot(b.vx,b.vy),band=clamp((speed-360)/160);
-  const length=(25+band*24)*size,d=length*.60+10*size;
+  const length=(30+band*32)*size,d=length*.56+13*size;
   fx(c,'vaporTrail',x-Math.cos(a)*d,y-Math.sin(a)*d,length,(3+band*2)*size,a,.77);
-  art.sprite(c,'flechetteDart',x,y,(29+band*8)*size,a);
+  // A beveled steel spine and forked tail keep the painted dart legible on
+  // a white blast or dark ground, even after the viewport is scaled to mobile.
+  c.save();c.translate(x,y);c.rotate(a);c.scale(size,size);
+  const nose=15+band*5,tail=-13-band*5;
+  c.beginPath();c.moveTo(nose+4,0);c.lineTo(nose-6,-2.8);c.lineTo(tail+6,-2);
+  c.lineTo(tail-4,-4.5);c.lineTo(tail-1,0);c.lineTo(tail-4,4.5);
+  c.lineTo(tail+6,2);c.lineTo(nose-6,2.8);c.closePath();
+  c.fillStyle='#e8e2cd';c.strokeStyle='#201e1a';c.lineWidth=3;
+  c.stroke();c.fill();art.sprite(c,'flechetteDart',0,0,(29+band*8),0,.83);
+  c.beginPath();c.moveTo(tail+4,-.8);c.lineTo(nose+1,-.8);
+  c.strokeStyle='#fff9e0';c.lineWidth=2;c.stroke();c.restore();
   return true;
  }
  const origin=b.secretChainOrigin;
@@ -111,8 +121,26 @@ export function drawPayloadRound(c,b,world,view,art,low=false){
 }
 
 function steelRelease(c,cue,age,view,art,low){
- const {sx,sy,z}=view,x=sx(cue.x),y=sy(cue.y),a=cue.a||0,t=clamp(age/cue.life);
- const throwDistance=1-Math.pow(1-t,2),fade=Math.min(1,(1-t)*4);
+ const {sx,sy,z}=view,x=sx(cue.x),y=sy(cue.y),a=cue.a||0,t=clamp(age/.48);
+ // Draw behind the case. Each wake ends where its own round actually
+ // travelled, including a round that stopped early. Two batched strokes cover
+ // all lanes, with widening gaps between the three different speed bands.
+ const tracks=cue.steelTracks;
+ if(tracks?.length){
+  c.save();c.beginPath();c.lineCap='round';
+  for(const {x:startX,y:startY,dart} of tracks){
+   const dx=dart.x-startX,dy=dart.y-startY,distance=Math.hypot(dx,dy);
+   if(distance<3)continue;
+   const length=Math.min(distance,44+Math.hypot(dart.vx,dart.vy)*.13);
+   const fraction=1-length/distance;
+   c.moveTo(sx(startX+dx*fraction),sy(startY+dy*fraction));c.lineTo(sx(dart.x),sy(dart.y));
+  }
+  c.globalAlpha*=Math.min(1,Math.max(0,(cue.life-age)/.42));
+  c.lineWidth=Math.max(2.8,5.2*z);c.strokeStyle='rgba(42,37,32,.79)';c.stroke();
+  c.lineWidth=Math.max(1.25,2.4*z);c.strokeStyle='rgba(245,237,205,.88)';c.stroke();
+  c.restore();
+ }
+ const opening=clamp(age/.48),throwDistance=1-Math.pow(1-opening,2),fade=Math.min(1,(1-opening)*4);
  c.save();c.translate(x,y);c.rotate(a);c.scale(z,z);
  for(const front of [-1,1])for(const side of [-1,1]){
   // Each quadrant is an actual hinged petal of the painted four-leaf dispenser.

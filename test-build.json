@@ -498,6 +498,19 @@
           "gitBlob": "a88eaa41d65999fb79b4e05b4768a5a64bfcc063"
         }
       ]
+    },
+    {
+      "sha": "b50f1417e3b62314c664dca249767e8c750b8e06",
+      "files": [
+        {
+          "path": "secret-payload-sequences.js",
+          "gitBlob": "caa57b3e93fec5a06f89352e087d8684eee75684"
+        },
+        {
+          "path": "secret-weapon-combat.js",
+          "gitBlob": "b2f3a5992b3891d88bb3b225e3e0fe25816e393d"
+        }
+      ]
     }
   ],
   "main_sha": "9118f6112f776c85fdcbe2d18bfe2193bef506a5",
