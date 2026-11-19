@@ -1,4 +1,4 @@
-import {CITY_BOMBER_GUN_REACH,cityBomberTurn,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
+import {CITY_BOMBER_GUN_REACH,cityBomberReentry,cityBomberTurn,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
 import {tickBomberWings} from './bomber-wing-damage.js';
 import {reserveArrivalFlight} from './boss-arrival-flight.js';
 import {arcLead,trackPilotTurn} from './bomber-turn-lead.js';
@@ -14,15 +14,16 @@ export const GOTHA_GUN_ARC=Object.freeze({front:.35,rear:.8,interval:2.2,tailRea
 export function gothaOnScreen(b,bounds,margin=12){return !bounds||(b.x>=bounds.left+margin&&b.x<=bounds.right-margin&&b.y>=bounds.top+margin&&b.y<=bounds.bottom-margin);}
 function partPoint(b,id,angle){const q=b.parts.get(id),reach=id.endsWith('-gun')?CITY_BOMBER_GUN_REACH*(b.regionalScale||1):0,a=angle??q?.aimAngle??b.a;return {x:b.x+(q?.x||0)+Math.cos(a)*reach,y:b.y+(q?.y||0)+Math.sin(a)*reach};}
 function cue(b,v){const q=partPoint(b,v.partId,v.angle),reach=460;b.command('charge-warning',{...q,partId:v.partId,targetX:q.x+Math.cos(v.angle)*reach,targetY:q.y+Math.sin(v.angle)*reach,lockedAngle:v.angle,followSource:true,muzzleReach:CITY_BOMBER_GUN_REACH*(b.regionalScale||1),seconds:v.left});}
-function steer(b,dt,p,phase,radius){
+function steer(b,dt,p,phase,radius,bounds){
  const pvx=p.vx||0,pvy=p.vy||0;
  b.gothaRadius??=radius;b.gothaRadius+=clamp(radius-b.gothaRadius,-90*dt,90*dt);
  const r=b.gothaRadius,omega=.45,angle=phase;
  const tx=p.x+Math.cos(angle)*r,ty=p.y+Math.sin(angle)*r;
  let vx=pvx-Math.sin(angle)*r*omega+(tx-b.x)*1.15;
  let vy=pvy+Math.cos(angle)*r*omega+(ty-b.y)*1.15;
+ const returning=cityBomberReentry(b,p,bounds,b.gothaSpeed||170)&&Math.hypot(p.x-b.x,p.y-b.y)>425;
+ if(returning){vx=(p.x-b.x)*1.65+pvx;vy=(p.y-b.y)*1.65+pvy;}
  // Separation changes the desired heading, never an aircraft's coordinates.
- // Firmer since the waiting orbit moved in from 620 px to 470 px.
  const separation=230*(b.regionalScale||1);
  for(const q of b.encounter?.bodies.values()||[]){if(q===b||q.dead||q.kind!=='gotha-raider')continue;const dx=b.x-q.x,dy=b.y-q.y,d=Math.hypot(dx,dy);if(d>1&&d<separation){const n=(separation-d)*5;vx+=dx/d*n;vy+=dy/d*n;}}
  const desired=Math.atan2(vy,vx),engines=b.engines(),limit=GOTHA_TURN_RATE*(engines===2?1:.8);
@@ -36,9 +37,10 @@ function steer(b,dt,p,phase,radius){
  // than the screen, so a flight whose orbit point swung behind it looped a
  // thousand pixels away before coming back. Slower, it turns in on the spot.
  const off=Math.abs(wrap(desired-b.a));if(off>.45)goal=Math.max(engines===2?80:65,Math.min(goal,goal*(1.2-off*.45)));
- if(!b.gothaVolley)b.a+=cityBomberTurn(b,dt,desired,limit,b.gothaSpeed||170,goal,90,70)*dt;
+ const decel=returning?205:70;
+ if(!b.gothaVolley)b.a+=cityBomberTurn(b,dt,desired,limit,b.gothaSpeed||170,goal,90,decel)*dt;
  else {b.cityTurn=0;reserveArrivalFlight(b,0);}
- b.gothaSpeed??=goal;b.gothaSpeed+=clamp(goal-b.gothaSpeed,-70*dt,90*dt);
+ b.gothaSpeed??=goal;b.gothaSpeed+=clamp(goal-b.gothaSpeed,-decel*dt,90*dt);
  b.x+=Math.cos(b.a)*b.gothaSpeed*dt;b.y+=Math.sin(b.a)*b.gothaSpeed*dt;
  b.rotateMounts();
 }
@@ -75,8 +77,7 @@ function gun(b,p,bounds,dt,allowed,startAllowed){
  if(partId==='rear-gun'&&Math.abs(wrap(angle-b.a))<GOTHA_GUN_ARC.rear-.05)return;
  b.gothaVolley={partId,left:warning,angle,speed};part.aimAngle=angle;cue(b,b.gothaVolley);
 }
-// early: a single ranging bomb while the flight covers its pass, so the pilot is
-// pressed between the gun lanes instead of only once per eight-second cycle.
+// Ranging drops bridge the gun lanes and the main bomb run.
 function bomb(b,p,bounds,cycle,allowed,early=false){
  if(!allowed||b.parts.get('bomb-bay')?.destroyed||!b.engines())return;
  const visible=gothaOnScreen(b,bounds);
@@ -86,10 +87,10 @@ function bomb(b,p,bounds,cycle,allowed,early=false){
  const speed=Math.hypot(p.vx||0,p.vy||0),warning=.95;
  const {x:tx,y:ty}=arcLead(p,b.pilotTurn||0,warning);
  const a=speed>1?Math.atan2(p.vy,p.vx)+(b.pilotTurn||0)*warning:b.a;
- const q=partPoint(b,'bomb-bay'),count=early?1:b.engines()===2?2:1;
+ const q=partPoint(b,'bomb-bay'),count=(early?1:2)*b.engines();
  // Lock once at release: turning after this tell wins, not an endless chase.
- for(let i=0;visible&&i<count;i++){const x=tx+Math.cos(a)*i*70,y=ty+Math.sin(a)*i*70;
-  b.hazard('circle',{x,y,radius:42,warning:warning+i*.2,duration:.22,once:true,damage:b.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:b.id+'-payload',lockedAim:true});}
+ for(let i=0;visible&&i<count;i++){const x=tx+Math.cos(a)*i*82,y=ty+Math.sin(a)*i*82;
+  b.hazard('circle',{x,y,radius:42,warning:warning+i*.075,duration:.22,once:true,damage:b.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:b.id+'-payload',lockedAim:true});}
  if(!early)releaseCityBomb(b,q);
 }
 export function releaseCityBomb(b,q){
@@ -126,11 +127,7 @@ export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
  const active=groups[Math.floor(time/8)%groups.length],next=groups[(Math.floor(time/8)+1)%groups.length],beat=time%8;
  const group=Math.floor(b.slot/3),engines=b.engines();
  const isActive=group===active,preentry=group===next&&beat>=3;
- // The waiting flights orbit at 470 px (was 620): near the screen edge, not
- // far outside it where they read as having flown off. The next flight closes
- // to 260 px from beat 3 so it is on screen, guns bearing, when its pass opens
- // (from 340 px at beat 4 it spent most of its gun window still off screen).
- const radius=isActive?220:preentry?260:470;
+ const radius=isActive?220:preentry?250:375;
  const angle=time*.45+(b.slot%3)*TAU/3+group*TAU/9;
  if(!b.gothaStarted){b.gothaStarted=true;b.gothaRadius=radius;b.x=p.x+Math.cos(angle)*radius;b.y=p.y+Math.sin(angle)*radius;b.a=angle+Math.PI/2;b.gothaSpeed=170;b.command('gotha-approach');}
  for(const part of b.parts.values()){part.gunFlash=Math.max(0,(part.gunFlash||0)-dt);part.hitFlash=Math.max(0,(part.hitFlash||0)-dt);}
@@ -140,7 +137,7 @@ export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
   return;
  }
  // No camera displacement, lateral trim, snap-to-slot or return teleport.
- steer(b,dt,p,angle,radius);
+ steer(b,dt,p,angle,radius,bounds);
  const front=b.parts.get('front-gun');if(front)front.aimAngle=b.a;
  // A trailing flight can cover a missed pass without firing offscreen or
  // advancing the attack clock of the flight assigned to this pass.

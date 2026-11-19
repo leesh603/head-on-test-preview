@@ -29,6 +29,13 @@ export function handleLondonCue(g,e){
  if(e.type==='boss-enter'&&stages?.stageIndex===4&&e.bossId==='o400-squadron')g.cityDefenseRaid??={role:'defend',districts:[],warnings:[],bombs:[],cityRaidOwner:true};
  const b=(stages?.stageIndex===4&&g.cityDefenseRaid)||ensureLondonBattle(g);if(!b)return;
  const city=b.cityGotha||b.cityRaidOwner;
+ if(city&&e.type==='hazard-activated'&&e.kind==='circle'&&e.visual==='carpet-bomb'&&
+    ['gotha-raider','o400-raider'].includes(stages.encounter?.bodies.get(e.bossId)?.kind)){
+  // Record actual impacts only. The city keeps its original terrain art.
+  const impacts=b.bombImpactMarks??=[];
+  if(impacts.length>=16)impacts.shift();
+  impacts.push({x:e.x,y:e.y,at:g.t});
+ }
  if(e.type==='boss-enter'){
   if(b.role==='defend'&&!b.districts.length){const bs=[...g.stageBoss.stages.encounter.bodies.values()],x=bs.reduce((n,q)=>n+(q.anchorX??q.x),0)/bs.length,y=bs.reduce((n,q)=>n+(q.anchorY??q.y),0)/bs.length+210,s=Math.min(230,(g.viewWidth||800)*.5);
    b.districts=city?createCityDistricts(x,y,-Math.PI/2):[['west','서부 구역','West district',x-s,y],['docks','강변 보급지','River depot',x,y+125],['east','동부 구역','East district',x+s,y]].map(([id,name,en,x,y])=>({id,name,en,x,y,hp:120,maxHp:120}));

@@ -13,6 +13,14 @@ export function cityBomberFormation(body,p,phase,radius,omega,live){
   vx:(p.vx||0)+(-si*r+co*trail)*omega,vy:(p.vy||0)+(co*r+si*trail)*omega};
 }
 
+export function cityBomberReentry(body,p,bounds,speed){
+ if(!bounds)return false;
+ const margin=body.cityReturning?38:90;
+ const x=body.x+(Math.cos(body.a)*speed-(p.vx||0))*.65;
+ const y=body.y+(Math.sin(body.a)*speed-(p.vy||0))*.65;
+ return body.cityReturning=x<bounds.left-margin||x>bounds.right+margin||y<bounds.top-margin||y>bounds.bottom+margin;
+}
+
 // Feed a gradual rudder command INTO the existing avoidance predictor. Never
 // smooth its result afterwards, which would invalidate its collision forecast.
 export function cityBomberTurn(body,dt,desired,limit,speed,goal,accel,decel){

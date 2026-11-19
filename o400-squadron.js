@@ -2,7 +2,7 @@ import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wi
 import {arcLead,trackPilotTurn} from './bomber-turn-lead.js';
 import {abortCityBomb,planCityBomb,releaseCityBomb} from './gotha-squadron-combat.js?v=natural-flight20261031&orbit=20261107&bomber=20261113';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {CITY_BOMBER_GUN_REACH,cityBomberScale,cityBomberFormation,cityBomberTurn,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
+import {CITY_BOMBER_GUN_REACH,cityBomberScale,cityBomberFormation,cityBomberReentry,cityBomberTurn,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
 import {O400_LAYOUT} from './o400-layout.js';
 import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=tame3';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -83,7 +83,7 @@ export class O400Raider extends BaseBoss {
   const beat=time%10,cycle=Math.floor(time/10),group=Math.floor(this.slot/3),groups=[...new Set(live.map(b=>Math.floor(b.slot/3)))];
   const activeGroup=groups[cycle%groups.length],active=group===activeGroup,flight=live.filter(b=>Math.floor(b.slot/3)===activeGroup);
   const rank=flight.indexOf(this),count=flight.length,multiple=groups.length>1,waiting=multiple&&!active;
-  const wantedRadius=waiting?(group===groups[(cycle+1)%groups.length]&&beat>=5.8?360:500):multiple?220:135;
+  const wantedRadius=waiting?(group===groups[(cycle+1)%groups.length]&&beat>=4.8?250:335):multiple?220:135;
   this.orbitRadius??=wantedRadius;
   this.orbitRadius+=clamp(wantedRadius-this.orbitRadius,-65*dt,65*dt);
   const radius=this.orbitRadius,omega=multiple?.45:.65,angle=time*omega+group*Math.PI*2/3;
@@ -98,10 +98,11 @@ export class O400Raider extends BaseBoss {
   const dx=p.x-this.x,dy=p.y-this.y;
   const reachX=bounds?Math.max(90,(bounds.right-bounds.left)*.42):210;
   const reachY=bounds?Math.max(90,(bounds.bottom-bounds.top)*.42):210;
-  const returning=!multiple&&engines&&Math.hypot(dx/reachX,dy/reachY)>(count===1?1:2);
+  const returning=multiple?cityBomberReentry(this,p,bounds,this.speed):Math.hypot(dx/reachX,dy/reachY)>(count===1?1:2);
   if(returning){
-   vx=dx*1.65+(p.vx||0)*1.8;
-   vy=dy*1.65+(p.vy||0)*1.8;
+   const lead=multiple?1:1.8;
+   vx=dx*1.65+(p.vx||0)*lead;
+   vy=dy*1.65+(p.vy||0)*lead;
   }
   const heading=Math.atan2(vy,vx),headingError=Math.abs(wrap(heading-this.a));
   const speedLimit=engines===2?350:300;
@@ -138,15 +139,19 @@ export class O400Raider extends BaseBoss {
   }
   const canDrop=active&&visible&&!this.parts.get('bomb-bay').destroyed&&(count!==2||rank!==cycle%2);
   planCityBomb(this,londonTargets,time,active,10,5.8);
-  moveCityBomberBay(this,dt,(canDrop||!!this.runTarget)&&beat>=5.12&&beat<5.8);
+  moveCityBomberBay(this,dt,canDrop&&beat>=1.91&&beat<2.55||(canDrop||!!this.runTarget)&&beat>=5.12&&beat<5.8);
   if(this.runTarget&&beat>=5.8){this.bayOpen=1;releaseCityBomb(this,this.point('bomb-bay'));}
-  if(canDrop&&beat>=5.8&&beat<7.2&&this.bombCycle!==cycle){
-   this.bombCycle=cycle;this.bayOpen=1;const q=this.point('bomb-bay'),turn=this.pilotTurn||0,a=Math.hypot(p.vx||0,p.vy||0)>1?Math.atan2(p.vy,p.vx)+turn*1.1:Math.PI/2,at=arcLead(p,turn,1.1),side=count===3?rank-1:rank%2?1:-1;
-   // The central aircraft covers; wingmen leave a real 100px-wide escape lane.
-   // It then closes the lane: one slower-warned bomb where the pilot's current
-   // turn carries them along it, so the lane is a way out, not a place to stay.
-   if(count===3&&side===0){const end=arcLead(p,turn,1.8);this.hazard('circle',{x:end.x,y:end.y,radius:43,warning:1.8,duration:.25,once:true,visual:'carpet-bomb',airborneBomb:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:this.id+'-bomb-bay',lockedAim:true});return;}
-   for(let i=0;i<(engines===2?2:1);i++){const lateral=(side||1)*100,along=i*74;this.hazard('circle',{x:at.x-Math.sin(a)*lateral+Math.cos(a)*along,y:at.y+Math.cos(a)*lateral+Math.sin(a)*along,radius:43,warning:1.1+i*.25,duration:.25,once:true,visual:'carpet-bomb',airborneBomb:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:this.id+'-bomb-bay',lockedAim:true});}
+  const early=beat>=2.55&&beat<3.05,main=beat>=5.8&&beat<7.2;
+  const field=early?'earlyBombCycle':'bombCycle';
+  if(canDrop&&(early||main)&&this[field]!==cycle){
+   this[field]=cycle;this.bayOpen=1;
+   const q=this.point('bomb-bay'),turn=this.pilotTurn||0,side=count===3?rank-1:rank%2?1:-1;
+   // The wingmen leave a lane. The centre bomber threatens its far end with
+   // a longer tell, giving the player time to turn out of the line.
+   const warning=side===0?1.8:1.1,at=arcLead(p,turn,warning),lateral=side*100;
+   const a=Math.hypot(p.vx||0,p.vy||0)>1?Math.atan2(p.vy,p.vx)+turn*warning:Math.PI/2;
+   const bombs=engines*(early||side===0?1:2);
+   for(let i=0;i<bombs;i++){const along=i*86;this.hazard('circle',{x:at.x-Math.sin(a)*lateral+Math.cos(a)*along,y:at.y+Math.cos(a)*lateral+Math.sin(a)*along,radius:43,warning:warning+i*.14,duration:.25,once:true,visual:'carpet-bomb',airborneBomb:true,sourceX:q.x,sourceY:q.y,sourcePartId:'bomb-bay',tag:this.id+'-bomb-bay',lockedAim:true});}
   }
  }
 }

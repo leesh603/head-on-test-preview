@@ -72,8 +72,44 @@ function drawCityFacilityFires(c,d,time){
  }
 }
 
+function drawCityBombing(c,battle,stages,view,time){
+ const encounter=stages?.encounter;
+ if(!view||stages?.phase!=='boss'||!['gotha-squadron','o400-squadron'].includes(encounter?.bossId))return;
+ const {x,y,width,height}=view;
+ const impacts=battle.bombImpactMarks||[];
+ const fade=Math.min(1,(encounter.clock??1.5)/1.5);
+ const recent=impacts.at(-1);
+ const flash=recent?Math.max(0,1-(time-recent.at)*1.8)*.06:0;
+ // Warm light over the city, underneath aircraft and bombing warnings.
+ const light=c.createLinearGradient(x-width/2,y-height/2,x+width/2,y+height/2);
+ light.addColorStop(0,`rgba(163,63,23,${fade*(.21+flash)})`);
+ light.addColorStop(.55,`rgba(205,101,38,${fade*(.12+flash)})`);
+ light.addColorStop(1,`rgba(88,47,34,${fade*.15})`);
+ c.fillStyle=light;
+ c.fillRect(x-width/2,y-height/2,width,height);
+ for(const hit of impacts){
+  const age=time-hit.at;
+  if(age<0||age>18||Math.abs(hit.x-x)>width/2+220||Math.abs(hit.y-y)>height/2+155)continue;
+  const strength=Math.min(1,age*2)*Math.min(1,(18-age)/7);
+  // Painted soot lies flat on existing roofs and streets. Smoke drifts away
+  // from the impact, with the shorter, heavier plume staying near the fire.
+  fx(c,'smokeHeavy',hit.x,hit.y,53,35,.18,.44*strength);
+  if(age<7)fx(c,'fireGround',hit.x+4,hit.y-3,25,21,0,.62*strength*(1-age/7));
+  if(age<13){
+   const drift=Math.min(145,age*12),size=43+age*12,alpha=strength*(1-age/13);
+   fx(c,'smokeDark',hit.x+drift*.44,hit.y-13-age*4,size*.66,size*.66,.3,.56*alpha);
+   fx(c,'smokeDust',hit.x+drift,hit.y-22-age*6,size,size,.24,.58*alpha);
+  }
+ }
+}
+
 export function drawLondonWorld(c,g,locale='ko',view){const battle=g.londonBattle||g.cityDefenseRaid;if(!battle)return;// cityDefenseRaid: Central city raid districts (city-air-raid.js)
 const en=locale==='en',daylightCity=battle===g.cityDefenseRaid||battle.cityGotha;
+ if(daylightCity){
+  c.save();
+  drawCityBombing(c,battle,g.stageBoss?.stages,view,g.t||0);
+  c.restore();
+ }
  for(const e of g.enemies||[]){if(!e.londonInstallation||e.hp<=0)continue;const target=(g.players||[g]).find(p=>(p.londonLitUntil||0)>g.t)||(g.players||[g])[0];drawGroundEnemy(c,target&&e.londonInstallation==='gun'?{...e,gunAim:Math.atan2(target.y-e.y,target.x-e.x)}:e,e.x,e.y,74);if(e.londonInstallation==='light'){c.save();c.translate(e.x,e.y);c.rotate(e.scanA);const gradient=c.createLinearGradient(0,0,570,0);gradient.addColorStop(0,'#dfdc9a33');gradient.addColorStop(1,'#dfdc9a00');c.fillStyle=gradient;c.beginPath();c.moveTo(0,0);c.lineTo(570,-96);c.lineTo(570,96);c.closePath();c.fill();c.restore();}}
  for(const d of battle.districts){
   if(daylightCity){
