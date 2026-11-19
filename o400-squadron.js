@@ -1,9 +1,8 @@
 import {bomberWingContact,recordBomberWingHit,tickBomberWings} from './bomber-wing-damage.js';
-import {arrivalFlightTurn} from './boss-arrival-flight.js';
 import {arcLead,trackPilotTurn} from './bomber-turn-lead.js';
 import {abortCityBomb,planCityBomb,releaseCityBomb} from './gotha-squadron-combat.js?v=natural-flight20261031&orbit=20261107&bomber=20261113';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {CITY_BOMBER_GUN_REACH,cityBomberScale,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
+import {CITY_BOMBER_GUN_REACH,cityBomberScale,cityBomberFormation,cityBomberTurn,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
 import {O400_LAYOUT} from './o400-layout.js';
 import {segmentDistance,sweptPolygon} from './alps-geometry117.js?v=tame3';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -87,10 +86,11 @@ export class O400Raider extends BaseBoss {
   const wantedRadius=waiting?(group===groups[(cycle+1)%groups.length]&&beat>=5.8?360:500):multiple?220:135;
   this.orbitRadius??=wantedRadius;
   this.orbitRadius+=clamp(wantedRadius-this.orbitRadius,-65*dt,65*dt);
-  const radius=this.orbitRadius,omega=multiple?.45:.65,angle=time*omega+(this.slot%3)*Math.PI*2/3+group*Math.PI*2/9;
+  const radius=this.orbitRadius,omega=multiple?.45:.65,angle=time*omega+group*Math.PI*2/3;
+  const target=cityBomberFormation(this,p,angle,radius,omega,live);
   // Initial spawn only. Subsequent tracking changes heading and airspeed, never position.
-  if(!this.started){this.started=true;this.x=p.x+Math.cos(angle)*radius;this.y=p.y+Math.sin(angle)*radius;this.a=angle+Math.PI/2;}
-  let vx=(p.vx||0)-Math.sin(angle)*radius*omega+(p.x+Math.cos(angle)*radius-this.x)*1.35,vy=(p.vy||0)+Math.cos(angle)*radius*omega+(p.y+Math.sin(angle)*radius-this.y)*1.35;
+  if(!this.started){this.started=true;this.x=target.x;this.y=target.y;this.a=angle+Math.PI/2;}
+  let vx=target.vx+(target.x-this.x)*1.35,vy=target.vy+(target.y-this.y)*1.35;
   const separation=(multiple?255:135)*this.regionalScale,avoidance=multiple?5:1;
   for(const b of live){if(b===this)continue;const dx=this.x-b.x,dy=this.y-b.y,d=Math.hypot(dx,dy);if(d>1&&d<separation){vx+=dx/d*(separation-d)*avoidance;vy+=dy/d*(separation-d)*avoidance;}}
   const turn=O400_TURN_RATE*(engines===2?1:.75);
@@ -111,7 +111,7 @@ export class O400Raider extends BaseBoss {
   const goal=returning?clamp(Math.hypot(vx,vy),cornerSpeed,cornerSpeed+(speedLimit-cornerSpeed)*aligned):multiple?Math.max(cornerSpeed,Math.min(cruise,cruise*(1.2-headingError*.45))):cruise;
   const decel=returning?205:85;
   const anticipate=returning||multiple;
-  this.a+=arrivalFlightTurn(this,dt,heading,turn,this.speed,anticipate?goal:this.speed,anticipate?105:0,anticipate?decel:0)*dt;
+  this.a+=cityBomberTurn(this,dt,heading,turn,this.speed,anticipate?goal:this.speed,anticipate?105:0,anticipate?decel:0)*dt;
   this.speed+=clamp(goal-this.speed,-decel*dt,105*dt);
   this.x+=Math.cos(this.a)*this.speed*dt;this.y+=Math.sin(this.a)*this.speed*dt;this.rotateMounts();
   const visible=inView(this,bounds,12);

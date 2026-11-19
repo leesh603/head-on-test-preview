@@ -1,6 +1,6 @@
-import {CITY_BOMBER_GUN_REACH,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
+import {CITY_BOMBER_GUN_REACH,cityBomberTurn,glideCityBomber,moveCityBomberBay} from './city-bomber-flight.js';
 import {tickBomberWings} from './bomber-wing-damage.js';
-import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js';
+import {reserveArrivalFlight} from './boss-arrival-flight.js';
 import {arcLead,trackPilotTurn} from './bomber-turn-lead.js';
 // City Gotha flights: guided forward flight, never slot-position interpolation.
 const TAU=Math.PI*2;
@@ -36,8 +36,8 @@ function steer(b,dt,p,phase,radius){
  // than the screen, so a flight whose orbit point swung behind it looped a
  // thousand pixels away before coming back. Slower, it turns in on the spot.
  const off=Math.abs(wrap(desired-b.a));if(off>.45)goal=Math.max(engines===2?80:65,Math.min(goal,goal*(1.2-off*.45)));
- if(!b.gothaVolley)b.a+=arrivalFlightTurn(b,dt,desired,limit,b.gothaSpeed||170,goal,90,70)*dt;
- else reserveArrivalFlight(b,0);
+ if(!b.gothaVolley)b.a+=cityBomberTurn(b,dt,desired,limit,b.gothaSpeed||170,goal,90,70)*dt;
+ else {b.cityTurn=0;reserveArrivalFlight(b,0);}
  b.gothaSpeed??=goal;b.gothaSpeed+=clamp(goal-b.gothaSpeed,-70*dt,90*dt);
  b.x+=Math.cos(b.a)*b.gothaSpeed*dt;b.y+=Math.sin(b.a)*b.gothaSpeed*dt;
  b.rotateMounts();

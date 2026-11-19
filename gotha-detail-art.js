@@ -30,12 +30,27 @@ function tile(c,index,x,y,size,pivot=[96,96],atlas=images.parts){
  const k=size/192;
  c.drawImage(atlas,index%3*192,Math.floor(index/3)*192,192,192,x-pivot[0]*k,y-pivot[1]*k,size,size);
 }
+export function drawCityBomberPropeller(c,atlas,x,y,time,phase,span=32,stopped=false,bladePairs=1){
+ const k=span/192,flat=.58,alpha=c.globalAlpha,angle=stopped?phase+.65:time*41+phase;
+ c.save();
+ // A vertical propeller projects onto the wing axis from overhead; its hub stays fixed.
+ for(let i=0;i<bladePairs;i++){
+  const theta=angle+i*Math.PI/bladePairs;
+  if(!stopped){
+   const q=Math.max(.045,Math.abs(Math.cos(theta-.46)));
+   c.globalAlpha=alpha*.16;c.drawImage(atlas,384,768,192,192,x-88*k*q,y-87*k*flat,span*q,span*flat);
+  }
+  const q=Math.max(.045,Math.abs(Math.cos(theta)));
+  c.globalAlpha=alpha*(stopped?1:.88);c.drawImage(atlas,384,768,192,192,x-88*k*q,y-87*k*flat,span*q,span*flat);
+ }
+ c.globalAlpha=alpha;
+ c.drawImage(atlas,456,838,33,35,x-16*k,y-17*k*flat,33*k,35*k*flat);
+ c.restore();
+}
 function engine(c,p,x,y,time,phase,dead=false){
  const state=gothaPartState(p,dead),pivot=[[114,100],[97,100],[80,100]][state];
- c.save();c.translate(x,y+17);
- // The pusher disc is edge-on from above. A destroyed engine holds its blade.
- if(state===2)c.rotate(.2+phase*.1);else c.scale(.2+.8*Math.abs(Math.cos(time*41+phase)),1);
- tile(c,14,0,0,32,[88,87]);c.restore();tile(c,state,x,y,38.4,pivot);
+ drawCityBomberPropeller(c,images.parts,x,y+17,time,phase,32,state===2);
+ tile(c,state,x,y,38.4,pivot);
  if(state===2){fx(c,'smokeTrail',x,y+30,25,62,Math.PI/2,.58);fx(c,'fireEngine',x,y,22,28,0,.72);}
  else if(state===1)fx(c,'smokeTrail',x,y+22,18,38,Math.PI/2,.45);
 }

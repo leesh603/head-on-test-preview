@@ -102,7 +102,7 @@ export const BOSS_NAMES_EN=Object.freeze({'paris-geschuetz':'Paris Gun · Paris-
  'fliegerzug':'Fliegerzug aerial torpedo carrier','treffas-wagen':'Treffas-Wagen landship',
  'jasta11-circus':'JASTA 11 · FLYING CIRCUS','naval10-black-flight':'NAVAL 10 · BLACK FLIGHT',
  'mark4-wedge':'Mark I landship breakthrough','morser-battery':'Schwaben underground fortress',
- 'o400-squadron':'Handley Page O/400 squadron','gotha-squadron':'Gotha bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
+ 'o400-squadron':'No. 207 Squadron RAF','gotha-squadron':'Bogohl 3 · Englandgeschwader','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
 });
 const TACTIC_RAIL_ONLY=new Set(['bruno-railway-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen']);
 const COUNTER_PHASES=new Set(['l70-gun-reload','hma23-rearm','hma-deck-recovery','bomber-gunner-reload','gondola-reload','flak-resupply','schwaben-reload','staaken-gunner-reload','sinai-reload','fleet-reload','jutland-reload','jutland-director-lost','jutland-disarmed','gotha-regroup','carrier-rearm','a7v-recovery','markv-recovery','verdun-recovery','flieger-recovery','treffas-recovery','gallipoli-recovery','minenwerfer-reload','formation-recovery','lincomparable-counter','livens-depressurized','mark1-counter']);

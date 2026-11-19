@@ -1,11 +1,12 @@
 import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {CITY_BOMBER_GUN_REACH} from './city-bomber-flight.js';
-import {drawCityBomberBay} from './gotha-detail-art.js?v=20261022';
+import {drawCityBomberBay,drawCityBomberPropeller} from './gotha-detail-art.js?v=20261022';
 import {O400_LAYOUT} from './o400-layout.js';
 import {gothaCrashPose} from './aircraft-crash.js?v=descent20261022';
 const assets={
  hull:O400_LAYOUT.hull,gun:'./boss-mark1-guns-r3.webp',hardware:'./boss-alps-hardware-20261020.webp?v=muted1',
+ propellerClear:'./o400-propeller-clear-20261119.webp',
  wingModerate:'./o400-wing-damage-moderate-20261103.webp',wingSevere:'./o400-wing-damage-severe-20261103.webp',
  engineModerate:'./o400-engine-damage-moderate-20261115.webp',engineSevere:'./o400-engine-damage-severe-20261115.webp'
 };
@@ -31,10 +32,10 @@ function engineDamage(b,side){
 function engineArt(state){
  return state===2?images.engineSevere:state===1?images.engineModerate:null;
 }
-function drawFallbackEngine(c,side,state){
+function drawFallbackEngine(c,side,state,clearPropeller=false){
  const pos=side==='left'?-27:27,im=images.hardware,scale=.2,pivot=state===1?97:80;
  c.drawImage(im,state*192,0,192,192,pos-pivot*scale,-23-100*scale,38.4,38.4);
- if(state===1){
+ if(state===1&&!clearPropeller){
   const hull=images.hull,sx=hull.naturalWidth/O400_LAYOUT.width,sy=hull.naturalHeight/O400_LAYOUT.height;
   c.drawImage(hull,(pos-12+O400_LAYOUT.width/2)*sx,(-55+O400_LAYOUT.height/2)*sy,24*sx,21*sy,pos-12,-55,24,21);
  }
@@ -42,7 +43,7 @@ function drawFallbackEngine(c,side,state){
 function cutHullComponent(c,x,y,w,h){c.beginPath();c.rect(-O400_LAYOUT.width/2,-O400_LAYOUT.height/2,O400_LAYOUT.width,O400_LAYOUT.height);c.rect(x,y,w,h);c.clip('evenodd');}
 function wingRect(c,side){c.rect(side==='left'?-92:40,-40,52,40);}
 function drawHull(c,b){
- const {hull,wingModerate,wingSevere}=images;
+ const {hull,wingModerate,wingSevere,propellerClear,hardware}=images,clearPropellers=propellerClear?.naturalWidth>0&&hardware?.naturalWidth>0,propHeight=180*O400_LAYOUT.width/1536;
  c.save();
  for(const side of ['left','right']){
   const stage=b.wingDamage?.[side]?.stage,im=stage===2?wingSevere:wingModerate;
@@ -54,13 +55,17 @@ function drawHull(c,b){
    cutHullComponent(c,x-6,-41,12,34);
    if(damage===2)cutHullComponent(c,x-12,-55,24,21);
   }
+  if(clearPropellers&&damage<2){const q=enginePatch(side);cutHullComponent(c,q.x,q.y,q.w,propHeight);}
  }
  c.drawImage(hull,-O400_LAYOUT.width/2,-O400_LAYOUT.height/2,O400_LAYOUT.width,O400_LAYOUT.height);c.restore();
  for(const side of ['left','right']){
   const damage=engineDamage(b,side),engine=engineArt(damage),w=b.wingDamage?.[side],im=w?.stage===2?wingSevere:wingModerate;
+  const clearPropeller=clearPropellers&&damage<2;
+  if(clearPropeller){const q=enginePatch(side),sw=propellerClear.naturalWidth/2;c.drawImage(propellerClear,side==='left'?0:sw,0,sw,propellerClear.naturalHeight,q.x,q.y,q.w,propHeight);}
   if(w?.stage>0&&im?.naturalWidth){c.save();c.beginPath();wingRect(c,side);c.clip();c.drawImage(im,-92,-O400_LAYOUT.height/2,184,O400_LAYOUT.height);c.restore();}
-  if(engine?.naturalWidth){const q=enginePatch(side),sw=engine.naturalWidth/2;c.drawImage(engine,side==='left'?0:sw,0,sw,engine.naturalHeight,q.x,q.y,q.w,q.h);}
-  else if(damage&&images.hardware?.naturalWidth)drawFallbackEngine(c,side,damage);
+  if(engine?.naturalWidth){const q=enginePatch(side),sw=engine.naturalWidth/2;c.save();if(clearPropeller)cutHullComponent(c,q.x,q.y,q.w,propHeight);c.drawImage(engine,side==='left'?0:sw,0,sw,engine.naturalHeight,q.x,q.y,q.w,q.h);c.restore();}
+  else if(damage&&hardware?.naturalWidth)drawFallbackEngine(c,side,damage,clearPropeller);
+  if(clearPropeller)drawCityBomberPropeller(c,hardware,side==='left'?-26.8:26.8,-44.6,b.motionTime||0,side==='left'?0:1.7,28,false,2);
   if(w?.hitFlash>0)fx(c,'armorSpark',side==='left'?-66:66,-24,18,18,0,Math.min(1,w.hitFlash/.12));
  }
 }

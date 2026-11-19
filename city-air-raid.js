@@ -11,7 +11,7 @@ const region=g=>g.stageBoss?.stages.stageIndex??g.worldRegion?.();
 const faction=g=>g.stageBoss?.stages.teamFaction||g.teamFaction||'entente';
 const live=e=>e?.hp>0&&!e.expired&&!e.crashing&&!e.crashed;
 const alive=b=>b.districts.filter(d=>d.hp>0);
-const BOSS_NAME={entente:['고타 폭격전대','Gotha squadron'],central:['핸들리 페이지 O/400 편대','O/400 squadron']};
+const BOSS_NAME={entente:['제3폭격전대 · 잉글란트','Bogohl 3 · Englandgeschwader'],central:['제207폭격전대','No. 207 Squadron RAF']};
 
 // The battle record that holds the districts for this side of the city.
 function battle(g,create=false){

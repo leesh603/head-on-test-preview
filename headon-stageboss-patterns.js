@@ -55,7 +55,7 @@ export const BOSS_CATALOG = Object.freeze({
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:11},
   'london-apron-raid': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
-  'o400-squadron': {name:'핸들리 페이지 O/400 편대', faction:'entente', stage:4},
+  'o400-squadron': {name:'제207폭격전대', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
   hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
@@ -67,7 +67,7 @@ export const BOSS_CATALOG = Object.freeze({
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
   ,'mark4-wedge': {name:'마크 I 최초 랜드십 돌파대', faction:'entente', stage:10}
   ,'morser-battery': {name:'슈바벤 보루 · 지하 방어요새', faction:'central', stage:10}
-  ,'gotha-squadron': {name:'고타 폭격전대', faction:'central', stage:4}
+  ,'gotha-squadron': {name:'제3폭격전대 · 잉글란트', faction:'central', stage:4}
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
   ,'fort-vaux': {name:'보 요새 · Fort de Vaux', faction:'entente', stage:12}
   ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12, reserve:true}
