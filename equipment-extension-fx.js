@@ -46,7 +46,7 @@ export function drawTelescopeAcquisition(c,p,x,y,{low=false}={}){
 export function drawMaximReload(c,p,x,y,{low=false,local=false}={}){
  if(!alive(p)||!p.upgrades?.maximBelt||!(p.reloadTime>0)||p.bomberTransfer)return;
  const a=local?0:finite(p.a),t=Math.max(0,finite(p.t,finite(p.world?.t))),phase=Math.floor(t*(low?10:14))%3;
- // The top feed point stays fixed at the receiver across all painted phases.
+ // Anchor the short exposed belt at the receiver as the airframe banks.
  // Actual fired brass remains in the established weapon FX, not duplicated here.
- authored(c,'belt'+phase,x+12*Math.cos(a)-3*Math.sin(a),y+12*Math.sin(a)+3*Math.cos(a),24,a,Math.min(1,p.reloadTime/.08)*.95,true);
+ authored(c,'belt'+phase,x+11*Math.cos(a)+2*Math.sin(a),y+11*Math.sin(a)-2*Math.cos(a),8.5,a,Math.min(1,p.reloadTime/.08)*.87,true);
 }
