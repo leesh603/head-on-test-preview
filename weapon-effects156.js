@@ -208,7 +208,10 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=r5';
+if(amatolEffect)amatolEffect.src=new URL('./amatol_explosion_effects.webp?v=r5',import.meta.url).href;
+// These rectangles were authored on the 1672×941 sheet. The production WebP
+// preserves its layout at 768×432, so scale the source edges before drawing.
+const AMATOL_SHEET_WIDTH=1672,AMATOL_SHEET_HEIGHT=941;
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  drawAmatolBlastBase(c,f,x,y);
@@ -220,13 +223,20 @@ function drawAmatolBlastBase(c,f,x,y){
  const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.67+.33*Math.min(1,q*3));
  // The dedicated sheet carries its own flash, fireball and soot. Fall back
  // to the shared atlas only while the painted Amatol sheet is loading.
- if(!amatolEffect?.complete||!amatolEffect.naturalWidth){
+ const iw=amatolEffect?.naturalWidth,ih=amatolEffect?.naturalHeight;
+ const knownSheet=(iw===768&&ih===432)||(iw===AMATOL_SHEET_WIDTH&&ih===AMATOL_SHEET_HEIGHT);
+ if(!amatolEffect?.complete||!knownSheet){
   const key=(f.secondaryExplosion?'structure':'bossBlast')+stage;
   if(FX3&&fxReady(key))fx(c,key,x,y,diameter,diameter,0,Math.min(1,(1-q)*3));
   return;
  }
  const [sx,sy,sw,sh]=AMATOL_FRAMES[stage],width=diameter*sw/Math.max(sw,sh),height=diameter*sh/Math.max(sw,sh);
- c.save();c.globalAlpha*=Math.min(1,(1-q)*3);c.drawImage(amatolEffect,sx,sy,sw,sh,x-width/2,y-height/2,width,height);c.restore();
+ const scaleX=iw/AMATOL_SHEET_WIDTH,scaleY=ih/AMATOL_SHEET_HEIGHT;
+ const left=Math.round(sx*scaleX),top=Math.round(sy*scaleY);
+ const right=Math.round((sx+sw)*scaleX),bottom=Math.round((sy+sh)*scaleY);
+ c.save();c.globalAlpha*=Math.min(1,(1-q)*3);
+ c.drawImage(amatolEffect,left,top,right-left,bottom-top,x-width/2,y-height/2,width,height);
+ c.restore();
 }
 
 // Short contact choreography over the existing dedicated explosion artwork.
