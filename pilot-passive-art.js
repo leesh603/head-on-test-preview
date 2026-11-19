@@ -1,4 +1,5 @@
 // Dedicated raster identities. Reads combat state; visual phases live in WeakMaps.
+import {hawkerLinkedPoint,hawkerLinkedDistance} from './hawker-linked-view.js';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const smooth=n=>{const q=clamp(n);return q*q*(3-2*q)};
 const live=p=>p?.hp>0&&p.status!=='downed'&&(p.state===undefined||p.state==='playing');
@@ -52,13 +53,14 @@ export function immelmannPassivePose(p){
 }
 export function drawImmelmannPassive(c,p){const q=immelmannPassivePose(p);return q?sprite(c,'immelmann',0,q.x,q.y,q.width,q.height,q.angle,q.alpha,[0,.73],-1,-q.direction):false;}
 export function hawkerPassivePose(w,e,scale=1){
- if(!(e?.hp>0)||e.crashing||e.crashed||e.expired||e.rivalEscaped||e.surface||e.fieldUnit||e.stageBossBody||e.navalVessel)return null;
- let remaining=0;for(const p of w.players||[w])if(live(p)&&p.pilot==='hawker'&&p.hawkerNext===e&&p.hawkerLinkTime>0&&Math.hypot(e.x-p.x,e.y-p.y)<=500)remaining=Math.max(remaining,p.hawkerLinkTime);
- if(!remaining)return null;const age=Math.max(0,.85-remaining),entry=smooth(age/.14),exit=clamp(remaining/.18);
- return {diameter:130*scale*(1+.25*(1-entry)+.08*(1-exit)),alpha:.92*clamp(age/.045)*exit,angle:-.21*(1-entry)};
+ if(!(e?.hp>0)||e.crashing||e.crashed||e.expired||e.rivalEscaped||e.combatLayer!=='air'&&(e.surface||e.fieldUnit||e.stageBossBody||e.navalVessel))return null;
+ let remaining=0,duration=1.2,selected=null;for(const p of w.players||[w])if(live(p)&&p.pilot==='hawker'&&p.hawkerNext===e&&p.hawkerLinkTime>remaining&&hawkerLinkedDistance(p,e)<=500){selected=p;remaining=p.hawkerLinkTime;duration=p.hawkerLinkDuration||Math.max(remaining,p.skillTime>0?(p.skillEnhanced?2.2:1.8):1.2);}
+ if(!remaining)return null;const age=Math.max(0,duration-remaining),entry=smooth(age/.14),exit=clamp(remaining/.18);
+ const point=hawkerLinkedPoint(selected,e);
+ return {x:(point.x-e.x)*scale,y:(point.y-e.y)*scale,diameter:130*scale*(1+.25*(1-entry)+.08*(1-exit)),alpha:.92*clamp(age/.045)*exit,angle:-.21*(1-entry)};
 }
 // Call in screen/world coordinates OUTSIDE the enemy's bank/rotation transform.
-export function drawHawkerPassive(c,w,e,x,y,scale=1){const q=hawkerPassivePose(w,e,scale);return q?sprite(c,'hawker',0,x,y,q.diameter,q.diameter,q.angle,q.alpha):false;}
+export function drawHawkerPassive(c,w,e,x,y,scale=1){const q=hawkerPassivePose(w,e,scale);return q?sprite(c,'hawker',0,x+q.x,y+q.y,q.diameter,q.diameter,q.angle,q.alpha):false;}
 export function bishopPassivePose(p,e){
  if(!live(p)||p.pilot!=='bishop'||e.kind!=='ordnanceCloseHit'||!(e.age>=0)||e.age>=.24)return null;
  for(const other of p.pilotSignatureState?.effects||[])if(other!==e&&other.kind===e.kind&&other.life>0&&other.age<e.age&&Math.hypot(other.x-e.x,other.y-e.y)<30)return null;
@@ -92,3 +94,4 @@ export function gontermannPassivePose(p){
 }
 // The source sheet's wet root sits at .23/.16; keep it on the actual target.
 export function drawGontermannPassive(c,p,shift={x:0,y:0}){const q=gontermannPassivePose(p);return q?sprite(c,'gontermann',q.frame,q.x+shift.x,q.y+shift.y,q.width,q.width,q.angle,q.alpha,[.23,.16]):false;}
+

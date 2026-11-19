@@ -642,7 +642,7 @@ PILOTS.baron.cooldown=15;
 Game.prototype._durBase=function(){if(this.isRedHunter())return 4*(this.skillEnhanced?1.35:1);const d=({baron:4,fonck:4,voss:1,boelcke:PILOT_BALANCE.boelckeDuration,collishaw:5.2,baracca:.9,immelmann:2.8,udet:.55,guynemer:3,bishop:2.4,goering:GOERING_WING_BOOST.duration,mannock:7.2,mckeever:5,huffzky:5})[this.pilot]||3;return this.skillEnhanced&&['mckeever','huffzky'].includes(this.pilot)?d*1.35:d};
 Game.prototype.skillRecovery=function(){return PILOT_BALANCE.recovery[this.isRedHunter()?'baron_albatros':this.pilot]??6};
 Game.prototype.blackFlightAim=function(wing,heading){const target=pilotWingTarget(this,wing);if(target)return Math.atan2(target.y-wing.y,target.x-wing.x);let aim=heading,best=650*650;for(const e of this.enemies){if(e.hp<=0)continue;const dx=e.x-wing.x,dy=e.y-wing.y,d=dx*dx+dy*dy,a=Math.atan2(dy,dx);if(d<best&&Math.abs(angleDiff(a,heading))<=.8){best=d;aim=a}}return aim};
-Game.prototype.normalGunMultiplier=function(){const single=['baracca','immelmann'].includes(this.pilot)&&this.weapon.guns===1?PILOT_BALANCE.singleGunMultiplier:1;let m=single*(this.pilot==='boelcke'&&this.skillTime>0?PILOT_BALANCE.boelckeDamage:1);if(this.pilot==='ball'){const w=this.combatWorld();const alone=![...(w.allies||[]),...(w.patrols||[])].some(a=>a.life>0&&(a.hp===undefined||a.hp>0)&&Math.hypot(a.x-this.x,a.y-this.y)<320)&&!(w.players||[]).some(p=>p!==this&&p.hp>0&&p.status!=='downed'&&Math.hypot(p.x-this.x,p.y-this.y)<320);if(alone)m*=1.15}else if(this.pilot==='barker')m*=1+(this.barkerStacks||0)*.13;else if(this.pilot==='brumowski'){const world=this.combatWorld();const n=(world.allies||[]).filter(a=>a.life>0&&(a.hp===undefined||a.hp>0)).length;m*=1+Math.min(3,n)*.08}return m};
+Game.prototype.normalGunMultiplier=function(){const single=['baracca','immelmann'].includes(this.pilot)&&this.weapon.guns===1?PILOT_BALANCE.singleGunMultiplier:1;let m=single*(this.pilot==='boelcke'&&this.skillTime>0?PILOT_BALANCE.boelckeDamage:1);if(this.pilot==='ball'){const w=this.combatWorld();const alone=![...(w.allies||[]),...(w.patrols||[])].some(a=>a.life>0&&(a.hp===undefined||a.hp>0)&&Math.hypot(a.x-this.x,a.y-this.y)<320)&&!(w.players||[]).some(p=>p!==this&&p.hp>0&&p.status!=='downed'&&Math.hypot(p.x-this.x,p.y-this.y)<320);if(alone)m*=1.15}else if(this.pilot==='barker')m*=1+(this.barkerStacks||0)*.13;else if(this.pilot==='brumowski'){const world=this.combatWorld();const n=(world.allies||[]).filter(a=>a.ownerId===(this.id||'p1')&&a.life>0&&(a.hp===undefined||a.hp>0)&&Math.hypot(a.x-this.x,a.y-this.y)<180).length;m*=1+Math.min(3,n)*.08}return m};
 Game.prototype.shotLifetime=function(speed){return Math.hypot(this.viewWidth||960,this.viewHeight||900)/speed+1};
 Game.prototype._sklCore51=function(){return this._sklNewPilot()};
 Game.prototype._updCore51=function(dt,input={}){
@@ -1562,7 +1562,7 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
   if(pl.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-pl.x,e.y-pl.y)<700)n++;pl.rickCount=n}
   pl.rickActive=pl.pilot==='rickenbacker'?pl.skillTime:0
   if(pl.pilot==='ball')pl.ballAlone=![...(world.allies||[]),...(world.patrols||[])].some(a=>a.life>0&&(a.hp===undefined||a.hp>0)&&Math.hypot(a.x-pl.x,a.y-pl.y)<320)&&!(this.players||[]).some(p2=>p2!==pl&&p2.hp>0&&Math.hypot(p2.x-pl.x,p2.y-pl.y)<320);
-  if(pl.pilot==='brumowski')pl.brumAllyCount=(world.allies||[]).filter(a=>a.life>0&&(a.hp===undefined||a.hp>0)).length;
+  if(pl.pilot==='brumowski')pl.brumAllyCount=(world.allies||[]).filter(a=>a.ownerId===(pl.id||'p1')&&a.life>0&&(a.hp===undefined||a.hp>0)&&Math.hypot(a.x-pl.x,a.y-pl.y)<180).length;
   if(pl.pilot==='jacobs')pl.jacobsStacks=0
   if(pl.immelmannGhosts){for(const gh of pl.immelmannGhosts)gh.life-=dt;pl.immelmannGhosts=pl.immelmannGhosts.filter(gh=>gh.life>0)}
   if(pl.pilot==='immelmann'&&pl.evadeTime>0){pl._immGhost=(pl._immGhost||0)-dt;if(pl._immGhost<=0){pl._immGhost=.055;(pl.immelmannGhosts??=[]).push({x:pl.x,y:pl.y,a:pl.a,life:1.15,maxLife:1.15})}}
@@ -2076,3 +2076,4 @@ installWeaponSynthesis(Game);
 // Capital rewards own only their accepted-hit sequences and owner-local FX.
 import {installCapitalPilotsCombat} from './capital-pilots-combat.js';
 installCapitalPilotsCombat(Game,PILOTS);
+

@@ -1,6 +1,7 @@
 // Ball's cloud deception and Barker's battle damage: presentation only.
 // Observe the completed combat layers; use their real shots, impacts and states.
 import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 
 export const SORTIE_PILOTS=new Set(['ball','barker']);
 export const SORTIE_FX_LIMITS=Object.freeze({wake:12,wakeLife:.48,sampleInterval:.045,shotInterval:.045});
@@ -52,7 +53,7 @@ export function installCloudSurvivalFx(Game){
  };
  const impact=q.identityImpact;
  q.identityImpact=function(b,e,target,position){const result=impact.call(this,b,e,target,position);
-  if(this.pilot==='ball'&&alive(this)&&personal(this,b)&&b.identityGun&&this.ballAmbush>0&&this.pilotIdentity?.alone&&e){
+  if(this.pilot==='ball'&&alive(this)&&(personal(this,b)||isReplacementPrimary(this,b))&&b.identityGun&&this.ballAmbush>0&&this.pilotIdentity?.alone&&e){
    // Ambush damage uses the firing origin and the authoritative identity state.
    // Its historical alone rule differs from the normal gun passive's patrol rule.
    const origin=b.identityOrigin||this,rear=Math.atan2(origin.y-e.y,origin.x-e.x)-(e.a||0);
@@ -161,3 +162,4 @@ export function drawSortieCue(c,p,e,tex,front){
  // Ball's actual rear/alone bonus. Never paint a muzzle merely on activation.
  return ball?['shotAccent','ambushShot'].includes(e.kind):['shotAccent','battleDamage','escape','survivalBreak'].includes(e.kind);
 }
+

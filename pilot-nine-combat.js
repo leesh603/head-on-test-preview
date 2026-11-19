@@ -1,5 +1,6 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
 import {signatureCue,activatePilotSignature} from './pilot-signature-state.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -7,15 +8,20 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const world=p=>p.combatWorld?.()||p;
 const clock=p=>world(p).t||0;
 const live=e=>e&&e.hp>0&&!e.crashed&&!e.rivalEscaped&&!e.expired;
-const aerial=e=>live(e)&&!e.surface&&!e.fieldUnit&&!e.stageBossBody;
-const bearing=(p,e)=>Math.atan2(e.y-p.y,e.x-p.x);
-const dist=(p,e)=>Math.hypot(e.x-p.x,e.y-p.y);
+// Some legacy boss proxies retain surface=true even though their canonical
+// combat layer is air. Target the existing hittable proxy, never the boss body
+// directly, so ordinary projectile/part protection still decides the hit.
+const aerial=e=>live(e)&&!e.arrivalPending&&!e.airArrival&&!e.stageBossBody?.arrivalPending&&(e.combatLayer==='air'||!e.surface&&!e.fieldUnit&&!e.stageBossBody);
+const aimPoint=(p,e)=>e.stageBossBody?(p.tacticalWingAim?.(p,e)||e):e;
+const bearing=(p,e)=>{const q=aimPoint(p,e);return Math.atan2(q.y-p.y,q.x-p.x);};
+const dist=(p,e)=>{const q=aimPoint(p,e);return Math.hypot(q.x-p.x,q.y-p.y);};
 const gunRound=b=>!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&b.gun!==undefined;
-function pick(p,heading,arc,range,exclude){let best=range,target=null;for(const e of world(p).enemies||[]){if(!aerial(e)||e===exclude)continue;const d=dist(p,e);if(d<best&&Math.abs(wrap(bearing(p,e)-heading))<arc){best=d;target=e}}return target;}
+function pick(p,heading,arc,range,exclude){let best=range,target=null;for(const e of world(p).enemies||[]){if(!aerial(e)||e===exclude||p.canHitTarget?.(e)===false)continue;const d=dist(p,e);if(d<best&&Math.abs(wrap(bearing(p,e)-heading))<arc){best=d;target=e}}return target;}
+const commandTarget=p=>pick(p,p.a,.7,760)||pick(p,p.a,Math.PI,760);
 function cue(p,kind,data={}){return signatureCue(p,kind,data)}
-function suppress(p,e,seconds){if(!aerial(e))return;e.pilotSuppressedUntil=Math.max(e.pilotSuppressedUntil||0,clock(p)+seconds);e.pilotSuppressOwner=p.id;e.pilotSuppressKind=p.pilot;cue(p,'suppressed',{x:e.x,y:e.y,a:e.a||0,life:.45});}
+function suppress(p,e,seconds){if(!aerial(e)||e.stageBossBody)return;e.pilotSuppressedUntil=Math.max(e.pilotSuppressedUntil||0,clock(p)+seconds);e.pilotSuppressOwner=p.id;e.pilotSuppressKind=p.pilot;cue(p,'suppressed',{x:e.x,y:e.y,a:e.a||0,life:.45});}
 function rearBurst(p,target,strong=false){
- if(!aerial(target)||p.reloadTime>0||!(p.ammo?.[1]>0)||Math.abs(wrap(bearing(p,target)-p.a-Math.PI))>Math.PI*.49)return false;
+ if(!aerial(target)||p.canHitTarget?.(target)===false||p.reloadTime>0||!(p.ammo?.[1]>0)||Math.abs(wrap(bearing(p,target)-p.a-Math.PI))>Math.PI*.49)return false;
  const a=p.nineRearAim??bearing(p,target),mount=p.bomberTransfer?.rear??23,x=p.x-Math.cos(p.a)*mount,y=p.y-Math.sin(p.a)*mount;
  if(Math.abs(wrap(a-p.a-Math.PI))>Math.PI*.49||Math.abs(wrap(a-bearing(p,target)))>.18)return false;
  const count=Math.min(Math.max(strong?3:2,p.shots||1),p.ammo[1]);if(!p.unlimitedAmmo)p.ammo[1]-=Math.max(1,count-(p.freeVolleyShots||0));p.roundsFired+=count;
@@ -74,10 +80,17 @@ function advance(p,dt){
   }
  }
  // Jacobs' old aim-only suppression passive is replaced by accepted-hit angles.
+ if(p.pilot==='jacobs'){
+  if(!p.cow37||!(p.skillTime>0)||!p.nineFiring||p.reloadTime>0||p.mission?.unarmed)p.jacobsCannonPending=[];
+  else if(p.jacobsCannonPending?.length){const pending=p.jacobsCannonPending;p.jacobsCannonPending=[];for(const shot of pending){if(now<shot.at){p.jacobsCannonPending.push(shot);continue;}p.emitPilotPrimarySalvo?.({heading:p.a,power:.25,kind:shot.side<0?'jacobs-fan-left':'jacobs-fan-right'});}}
+ }
  if(p.pilot==='hawker'){
-  if((p.kills||0)>(p.hawkerSeenKills??0)){p.hawkerNext=pick(p,p.a,Math.PI,460);p.hawkerLinkTime=p.skillEnhanced&&p.skillTime>0?1.25:.85;if(p.hawkerNext)cue(p,'hawkerLink',{x:p.hawkerNext.x,y:p.hawkerNext.y,a:bearing(p,p.hawkerNext),life:.75});}
+  if((p.kills||0)>(p.hawkerSeenKills??0)){p.hawkerNext=pick(p,p.a,Math.PI,460);p.hawkerLinkTime=p.skillTime>0?(p.skillEnhanced?2.2:1.8):1.2;p.hawkerLinkDuration=p.hawkerLinkTime;if(p.hawkerNext)cue(p,'hawkerLink',{x:p.hawkerNext.x,y:p.hawkerNext.y,a:bearing(p,p.hawkerNext),life:p.hawkerLinkTime});}
   p.hawkerSeenKills=p.kills;p.hawkerLinkTime=Math.max(0,(p.hawkerLinkTime||0)-dt);
   if(!aerial(p.hawkerNext)||dist(p,p.hawkerNext)>500)p.hawkerNext=null;
+  // A kill creates a short manoeuvre-and-fire opportunity. This is not an
+  // ammo refund or a duration extension: Hawker must turn into the next pass.
+  if(p.hawkerNext&&p.hawkerLinkTime>0){p.turn*=p.skillTime>0?1.5:1.25;p.rate/=p.skillTime>0?1.45:1.2;}
  }
  if(p.pilot==='berthold'&&p.skillTime>0){
   p.gustDisorient=0;p.cannonRecoil129=(p.cannonRecoil129||0)*.2;w.shake=Math.min(w.shake||0,2);
@@ -88,7 +101,7 @@ function advance(p,dt){
   }
  }
  p.wingBoost=Math.max(0,(p.wingBoost||0)-dt);if(p.pilot==='goering'&&p.skillTime>0){
-  if(!aerial(p.whiteFocus)||dist(p,p.whiteFocus)>800)p.whiteFocus=pick(p,p.a,Math.PI,760);
+  if(!aerial(p.whiteFocus)||dist(p,p.whiteFocus)>800||p.canHitTarget?.(p.whiteFocus)===false)p.whiteFocus=commandTarget(p);
  }
  if(p.pilot==='barker'){
   if(p.nineWasActive&&!(p.skillTime>0))p.barkerScarStage=Math.max(p.barkerScarStage||0,p.barkerDamageStage||0);
@@ -116,9 +129,10 @@ export function installNinePilots(Game,PILOTS){
   if(this.pilot==='huffzky'){this.reverseBursts=0;this.crossfireTimer=.08;}
   if(this.pilot==='mckeever')this.crossfireTimer=.08;
   if(this.pilot==='udet'){this.udetBoost=0;this.nineTurnSide=1;}
-  if(this.pilot==='berthold'){this.ironActiveDamage=0;this.ironSalvoDone=false;}
+  if(this.pilot==='jacobs'){this.jacobsCannonPending=[];this.jacobsCannonVolley=null;this.jacobsCannonReadyAt=0;}
+  if(this.pilot==='berthold'){this.ironActiveDamage=Math.max(0,this.heldDamage||0);this.ironSalvoDone=false;}
   if(this.pilot==='goering'){
-   this.wingBoost=this.skillTime;this.whiteFocus=pick(this,this.a,Math.PI,760);
+   this.wingBoost=this.skillTime;this.whiteFocus=commandTarget(this);
    const w=world(this),owned=(w.allies||[]).filter(a=>a.life>0&&(a.ownerId===undefined||a.ownerId===this.id));
    if(owned.length<2)w.allies.push({x:this.x,y:this.y,a:this.a,plane:'fokkerd7',slot:1,ownerId:this.id,life:this.skillTime+.8,fire:.6,whiteTemporary:true});
    for(let i=0;i<owned.length;i++)owned[i].whiteSide=i%2?-1:1;
@@ -151,6 +165,19 @@ export function installNinePilots(Game,PILOTS){
   if(this.pilot==='barker'){const stage=Math.min(5,this.barkerStacks||0),a=Math.atan2(b.vy,b.vx)+Math.sin(clock(this)*29+b.gun*1.3)*.008*stage,s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;b.barkerRough=stage;}
   return r;
  };
+ const primary=q.preparePilotPrimaryRound;q.preparePilotPrimaryRound=function(b,volley){
+  const shot=primary.call(this,b,volley);
+  if(this.pilot!=='jacobs'||!(this.skillTime>0)||!isReplacementPrimary(this,shot))return shot;
+  const side=volley?.kind==='jacobs-fan-left'?-1:volley?.kind==='jacobs-fan-right'?1:0;
+  if(side){const close=pick(this,this.a,.25,100),fan=close?(this.skillEnhanced?.009:.018):.14,a=Math.atan2(shot.vy,shot.vx)+side*fan,speed=Math.hypot(shot.vx,shot.vy);shot.vx=Math.cos(a)*speed;shot.vy=Math.sin(a)*speed;shot.jacobsCannonFan=true;}
+  else if(volley?.source!=='active'){
+   // COW keeps its real shell, non-piercing collision and per-shell ammo cost.
+   // Three paid shells carry 100% + 25% + 25% payload, not three full shells.
+   // The original shot keeps its damage if ammo or manoeuvring cancels the fan.
+   if(this.jacobsCannonVolley!==volley&&clock(this)>=(this.jacobsCannonReadyAt||0)){this.jacobsCannonVolley=volley;this.jacobsCannonReadyAt=clock(this)+.2;this.jacobsCannonPending=[{at:clock(this)+.08,side:-1},{at:clock(this)+.16,side:1}];}
+  }
+  return shot;
+ };
  const impact=q.specialRoundImpact;q.specialRoundImpact=function(b,e){const r=impact.call(this,b,e);if(b.pilotRear&&b.ownerId===this.id&&this.pilot==='huffzky')suppress(this,e,this.skillEnhanced&&b.pilotRearActive?.9:.65);if(this.pilot==='jacobs'&&b.jacobsSuppress&&gunRound(b)&&dist(this,e)<300)suppress(this,e,.75);return r;};
  const hit=q.hit;q.hit=function(n){recordNineDamage(this,n);return hit.call(this,n)};
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
@@ -164,13 +191,14 @@ export function installNinePilots(Game,PILOTS){
   const onFlank=side*(-(a.x-this.x)*Math.sin(heading)+(a.y-this.y)*Math.cos(heading))>120;
   return{x,y,a:focus&&age>=splitUntil&&onFlank?bearing({x,y},focus):heading};
  };
- const focus=q.goeringFocusTarget;q.goeringFocusTarget=function(){if(this.pilot==='goering'&&this.skillTime>0){if(!aerial(this.whiteFocus))this.whiteFocus=pick(this,this.a,Math.PI,760);return this.whiteFocus;}return focus.call(this)};
+ const focus=q.goeringFocusTarget;q.goeringFocusTarget=function(){if(this.pilot==='goering'&&this.skillTime>0){if(!aerial(this.whiteFocus)||this.canHitTarget?.(this.whiteFocus)===false)this.whiteFocus=commandTarget(this);return this.whiteFocus;}return focus.call(this)};
 }
 export function installNineCoop(CoopGame){
  const q=CoopGame.prototype,hit=q.hitPlayer;
  q.hitPlayer=function(p,n,...args){recordNineDamage(p,n);return hit.call(this,p,n,...args)};
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
- const revive=q.revive;q.revive=function(p,...args){const result=revive.call(this,p,...args);if(NINE_PILOTS.has(p.pilot)&&p.status==='alive'){for(const k of ['nineRearTarget','nineFrontTarget','whiteFocus','hawkerNext','jacobsPressureTarget'])p[k]=null;for(const k of ['heldDamage','ironActiveDamage','barkerDamageStage','barkerScarStage','fxOverheat','rearAcquire','nineRearFlash','hawkerLinkTime','jacobsPressure'])p[k]=0;p.nineRearAim=p.a+Math.PI;p.nineFrontAim=p.a;p.nineWasActive=false;p.udetRunStart=p.roundsFired;}return result;};
+ const revive=q.revive;q.revive=function(p,...args){const result=revive.call(this,p,...args);if(NINE_PILOTS.has(p.pilot)&&p.status==='alive'){for(const k of ['nineRearTarget','nineFrontTarget','whiteFocus','hawkerNext','jacobsPressureTarget','jacobsCannonVolley'])p[k]=null;for(const k of ['heldDamage','ironActiveDamage','barkerDamageStage','barkerScarStage','fxOverheat','rearAcquire','nineRearFlash','hawkerLinkTime','jacobsPressure','jacobsCannonReadyAt'])p[k]=0;p.jacobsCannonPending=[];p.nineRearAim=p.a+Math.PI;p.nineFrontAim=p.a;p.nineWasActive=false;p.udetRunStart=p.roundsFired;}return result;};
 }
 
 export function bertholdCounterThreshold(p){return p.maxHp*(p.skillEnhanced?.09:.12);}
+

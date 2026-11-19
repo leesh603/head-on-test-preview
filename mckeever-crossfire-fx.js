@@ -71,3 +71,16 @@ export function drawMckeeverGuns(c,p,tex){
  }
  drawBurstPowder(c,p,tex);
 }
+
+// A rear hit is confirmed by the shared accepted-impact observer. The broad
+// crossfire contact belongs to the target, while powder stays at Powell's gun.
+export function drawMckeeverCue(c,p,e,tex,front){
+ if(p.pilot!=='mckeever'||e.kind!=='mckeeverRearHit')return false;
+ if(!front||e.ownerId!==owner(p))return true;
+ const q=clamp(e.age/e.maxLife),fade=1-q,a=e.a-p.a;
+ tex(c,'ricochet',0,0,e.strong?33:23,e.strong?15:9,a,.94*fade);
+ for(const side of [-1,1])tex(c,'metalShard1',-q*12,side*(3+q*(e.strong?19:11)),e.strong?9:7,3,a+side*q,.8*fade);
+ if(e.strong)tex(c,'gunSmoke',-Math.cos(a)*q*12,-Math.sin(a)*q*12,26+q*16,13+q*7,a,.36*fade);
+ return true;
+}
+

@@ -1,6 +1,7 @@
 // Boelcke and Collishaw: observe real owned wingmen, guns and confirmed damage.
 // Render-only air wakes observe real positions; never create a projectile or target.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 import {drawCollishawAssault,clearCollishawAssault} from './collishaw-assault-fx.js';
 export const COMMAND_PILOTS=new Set(['boelcke','collishaw']);
 export const COMMAND_PALETTES=Object.freeze({
@@ -28,7 +29,7 @@ export function installCommandFlightFx(Game){
  Object.defineProperty(q,INSTALLED,{value:true});const prior=q.identityImpact;
  q.identityImpact=function(b,e,target,position){
   const result=prior.call(this,b,e,target,position);
-  if(!COMMAND_PILOTS.has(this.pilot)||!living(this)||this.state!=='playing'||!b||!mine(this,b)||blocked(b))return result;
+  if(!COMMAND_PILOTS.has(this.pilot)||!living(this)||this.state!=='playing'||!b||!mine(this,b)||(blocked(b)&&!isReplacementPrimary(this,b)))return result;
   const flank=this.pilot==='boelcke'&&!b.ally&&!b.formation&&boelckeFlank(this,e);
   const cross=this.pilot==='collishaw'&&(b.blackFlight||b.ally||b.formation);
   if((flank||cross)&&signatureInterval(this,'commandImpact',.09)){
@@ -164,4 +165,5 @@ export function drawCommandCue(c,p,e,tex,front){
  }
  return true;
 }
+
 

@@ -5,6 +5,7 @@ import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 import {isReplacementPrimary} from './pilot-primary.js';
 import {secretWingGun} from './secret-weapon-combat.js';
 import {prepareSynthesisBomb} from './weapon-synthesis.js';
+import {combatImpactResult} from './combat-impact-result.js';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -14,11 +15,11 @@ const world=p=>p.combatWorld?.()||p;
 const owner=p=>p.id||'p1';
 const ordinary=e=>live(e)&&!e.surface&&!e.fieldUnit&&!e.stageBossBody&&!e.bossPilot&&!e.heavyBomber&&e.type!=='boss'&&e.type!=='zeppelin';
 const gun=(p,b)=>isReplacementPrimary(p,b)||b&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound&&!b.actualExplosion&&!b.blast&&!b.identityDot&&!b.synthesisChild&&!b.synthesisSupport&&b.gun!==undefined;
-const duration={fonck:.6,gontermann:1.05,luke:1.05,proctor:2.4,lufbery:6};
-const beats={fonck:[.18,.23,.28],gontermann:[.12,.19,.46,.53],luke:[.1,.17,.24,.6,.67,.74],proctor:[.12,.17,.22,.72,.77,.82,1.32,1.37,1.42,1.92,1.97,2.02]};
-export const FIVE_ACE_BALANCE=Object.freeze({airshipBonus:.2,chainRadius:145,chainLimit:6,chainDelay:.12,proctorDelay:.4,proctorRepeat:5,orbitRadius:155,duration:Object.freeze(duration)});
+const duration={fonck:.6,gontermann:1.05,luke:1.8,proctor:2.4,lufbery:6};
+const beats={fonck:[.18,.23,.28],gontermann:[.12,.19,.46,.53],luke:[.1,.2,.3,1.15,1.25,1.35],proctor:[.12,.17,.22,.72,.77,.82,1.32,1.37,1.42,1.92,1.97,2.02]};
+export const FIVE_ACE_BALANCE=Object.freeze({airshipBonus:.2,chainRadius:145,chainLimit:6,chainDelay:.12,proctorDelay:.4,proctorActiveDelay:.65,proctorRepeat:5,orbitRadius:155,duration:Object.freeze(duration)});
 // Body kinds are real BOSS_CATALOG keys. Zeppelin-Staaken is an aeroplane.
-export function isFiveAceAirship(e){return !!e&&(e.type==='zeppelin'||['zeppelin-l70','hma23'].includes(e.stageBossBody?.kind||e.kind));}
+export function isFiveAceAirship(e){return !!e&&(e.type==='zeppelin'||e.fieldUnit==='balloon'||['zeppelin-l70','hma23'].includes(e.stageBossBody?.kind||e.kind));}
 export function fiveAceState(p){const s=p.identityState();return s.five??=({age:0,next:0,active:false,prepared:null,hits:0,lastHit:-Infinity,proctorSeen:new WeakMap(),chain:[],detonated:new Set(),chainCount:0});}
 function bearing(p,e){return Math.atan2(e.y-p.y,e.x-p.x);}
 function distance(p,e){return Math.hypot(e.x-p.x,e.y-p.y);}
@@ -200,7 +201,7 @@ export function installFivePilots(Game,PILOTS){
   if(this.pilot==='gontermann'){
    if(!b.fiveAceRound){
     const heavy=isReplacementPrimary(this,b);
-    if(s.prepared!==target||now-s.lastHit>(heavy?2.4:.8)){s.prepared=target;s.hits=0;s.lastCounted=-Infinity;s.lastPrimaryVolley=null;}
+    if(s.prepared!==target||now-s.lastHit>2.4){s.prepared=target;s.hits=0;s.lastCounted=-Infinity;s.lastPrimaryVolley=null;}
     if(heavy?s.lastPrimaryVolley!==b.pilotPrimaryVolley:now-(s.lastCounted??-Infinity)>=.08){s.hits=Math.min(3,s.hits+1);s.lastCounted=now;s.lastPrimaryVolley=heavy?b.pilotPrimaryVolley:null;}
     s.lastHit=now;
     if(s.hits>=3&&now-(s.leakFxAt??-Infinity)>.25){s.leakFxAt=now;this.identityFx('gunSmoke',pos.x,pos.y,e.a||0,29,.55,{height:18,alpha:.4});}
@@ -212,6 +213,10 @@ export function installFivePilots(Game,PILOTS){
     if(!s.detonated.has(target)){if(lukeBurn(this,target,e))scheduleDetonation(this,target,e);else ignite(this,e,target,pos);}
    }else if(b.fiveAcePhase==='ignite')ignite(this,e,target,pos);
   }
-  if(this.pilot==='proctor'&&ordinary(e)&&now-(s.proctorSeen.get(e)??-Infinity)>=FIVE_ACE_BALANCE.proctorRepeat){s.proctorSeen.set(e,now);e.fire=Math.max(e.fire||0,FIVE_ACE_BALANCE.proctorDelay);impact(this,pos);}
+  if(this.pilot==='proctor'&&ordinary(e)&&Number.isFinite(e.fire)&&combatImpactResult(b,e)?.damage>0&&!combatImpactResult(b,e)?.blocked&&now-(s.proctorSeen.get(e)??-Infinity)>=FIVE_ACE_BALANCE.proctorRepeat){
+   const delay=b.fiveAcePhase==='suppress'?FIVE_ACE_BALANCE.proctorActiveDelay:FIVE_ACE_BALANCE.proctorDelay;
+   s.proctorSeen.set(e,now);e.fire=Math.max(0,e.fire)+delay;e.proctorSuppressedUntil=(world(this).t||0)+delay;e.proctorSuppressOwner=owner(this);impact(this,pos);
+  }
  };
 }
+

@@ -7,10 +7,10 @@ export function drawProctorGunRecord(c,p,f,tex,x=0,y=0){
  const px=x+f.x-p.x,py=y+f.y-p.y;
  if(f.key==='proctorSuppression'){
   if(f.ownerId!==(p.id??'p1'))return true;
-  const q=clamp(age/.38),flash=1-clamp(age/.09);
+  const q=clamp(age/.55),flash=1-clamp(age/.12);
   if(flash>0)tex(c,'ricochet',px,py,27,17,f.a,.9*flash,'#efcf92');
   for(const side of [-1,1]){const a=f.a+side*.75,d=5+age*48;tex(c,'debris',px+Math.cos(a)*d,py+Math.sin(a)*d,15-q*5,9-q*3,a+side*q,.88*fade,side<0?'#c8b18c':'#8b7860');}
-  tex(c,'gunSmoke',px-ca*age*19,py-sa*age*19,25+q*13,18+q*7,f.a,.38*fade,'#b6afa1');
+  tex(c,'gunSmoke',px-ca*age*19,py-sa*age*19,25+q*13,18+q*7,f.a,.48*fade,'#b6afa1');
   return true;
  }
  if(f.key==='muzzleTwin'){
@@ -28,3 +28,4 @@ export function drawProctorGunRecord(c,p,f,tex,x=0,y=0){
  }
  return true;
 }
+

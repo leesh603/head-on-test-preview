@@ -17,19 +17,24 @@ export function warmHawkerLinkedArt(){
  return pending;
 }
 export const hawkerLinkedArtReady=warmHawkerLinkedArt();
+// Match the combat link's range against the exposed native part of large bosses.
+export const hawkerLinkedPoint=(p,e)=>e.stageBossBody?(p.tacticalWingAim?.(p,e)||e):e;
+export function hawkerLinkedDistance(p,e){const q=hawkerLinkedPoint(p,e);return Math.hypot(q.x-p.x,q.y-p.y);}
 export function hawkerLinkedTargetPose(w,e,scale=1){
- if(!live(e)||e.crashing||e.crashed||e.expired||e.rivalEscaped||e.surface||e.fieldUnit||e.stageBossBody||e.navalVessel)return null;
+ if(!live(e)||e.crashing||e.crashed||e.expired||e.rivalEscaped||e.combatLayer!=='air'&&(e.surface||e.fieldUnit||e.stageBossBody||e.navalVessel))return null;
  let selected=null;
  for(const p of w.players||[w]){
-  if(!live(p)||p.pilot!=='hawker'||p.hawkerNext!==e||!(p.hawkerLinkTime>0)||Math.hypot(e.x-p.x,e.y-p.y)>500)continue;
+  if(!live(p)||p.pilot!=='hawker'||p.hawkerNext!==e||!(p.hawkerLinkTime>0)||hawkerLinkedDistance(p,e)>500)continue;
   if(!selected||(p.skillTime>0&&!(selected.skillTime>0))||((p.skillTime>0)===(selected.skillTime>0)&&p.hawkerLinkTime>selected.hawkerLinkTime))selected=p;
  }
  if(!selected)return null;
- const active=selected.skillTime>0,age=Math.max(0,.85-selected.hawkerLinkTime),settle=1-clamp(age/.16),fade=clamp(age/.035)*clamp(selected.hawkerLinkTime/.16);
- return {ownerId:selected.id??'p1',active,width:(active?90+settle*8:90)*scale,height:(active?90+settle*8:90)*scale,alpha:(active?.95:.46)*fade,angle:0};
+ const active=selected.skillTime>0,duration=selected.hawkerLinkDuration||Math.max(selected.hawkerLinkTime,active?(selected.skillEnhanced?2.2:1.8):1.2),age=Math.max(0,duration-selected.hawkerLinkTime),settle=1-clamp(age/.16),fade=clamp(age/.035)*clamp(selected.hawkerLinkTime/.16);
+ const point=hawkerLinkedPoint(selected,e);
+ return {x:(point.x-e.x)*scale,y:(point.y-e.y)*scale,ownerId:selected.id??'p1',active,width:(active?90+settle*8:90)*scale,height:(active?90+settle*8:90)*scale,alpha:(active?.95:.46)*fade,angle:0};
 }
 export function drawHawkerLinkedTarget(c,w,e,scale=1){
  const q=hawkerLinkedTargetPose(w,e,scale);if(!q)return false;
  if(!image?.complete||!image.naturalWidth){warmHawkerLinkedArt();return false;}
- c.save();try{c.globalAlpha*=q.alpha;c.drawImage(image,-q.width/2,-q.height/2,q.width,q.height);}finally{c.restore();}return true;
+ c.save();try{c.globalAlpha*=q.alpha;c.drawImage(image,q.x-q.width/2,q.y-q.height/2,q.width,q.height);}finally{c.restore();}return true;
 }
+

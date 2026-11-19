@@ -1,5 +1,7 @@
 // Fonck: presentation follows the existing steady lead and finite piercing volley.
 import {signatureState,signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {isReplacementPrimary} from './pilot-primary.js';
+import {combatImpactResult} from './combat-impact-result.js';
 export const FONCK_FX_PALETTE=Object.freeze({blue:'#9bbbc9',red:'#cf806b',ivory:'#f4e9cd',brass:'#c5a268',smoke:'#84928f'});
 const clamp=n=>Math.max(0,Math.min(1,n));
 const live=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed';
@@ -23,9 +25,11 @@ export function installFonckPrecisionFx(Game){
    }
   }return result;
  };
- const hit=q.identityImpact;q.identityImpact=function(b,e,target,pos){const result=hit.call(this,b,e,target,pos);
-  if(this.pilot==='fonck'&&live(this)&&gun(this,b)&&(b.ownerId??'p1')===(this.id??'p1')&&signatureInterval(this,'fonckImpact',.045)){
-   const point=e?.stageBossBody?(pos||b):b;signatureCue(this,'fonckImpact',{x:point.x,y:point.y,a:Math.atan2(b.vy,b.vx),life:.30,precise:b.fiveAcePhase==='precision'});
+ const hit=q.identityImpact;q.identityImpact=function(b,e,target,pos){const result=hit.call(this,b,e,target,pos),accepted=combatImpactResult(b,e);
+  if(this.pilot==='fonck'&&live(this)&&accepted?.damage>0&&!accepted.blocked&&(gun(this,b)||isReplacementPrimary(this,b))&&(b.ownerId??'p1')===(this.id??'p1')&&signatureInterval(this,'fonckImpact',.075)){
+   const point=e?.stageBossBody?(pos||b):b,precise=b.fiveAcePhase==='precision';
+   state(this).lastImpact={at:signatureState(this).clock,target:e,precise};
+   signatureCue(this,'fonckImpact',{x:point.x,y:point.y,a:Math.atan2(b.vy,b.vx),life:precise?.42:.30,precise});
   }return result;
  };
  const legacy=q.identityFx;q.identityFx=function(key,x,y,a,size,life,style={}){return legacy.call(this,key,x,y,a,size,life,this.pilot==='fonck'&&['muzzle','muzzleTwin','gunSmoke','armorSpark'].includes(key)?{...style,fonckLegacy:true}:style);};
@@ -41,12 +45,12 @@ export function drawFonckLocal(c,p,tex,front=false){
  for(let g=0;g<count;g++){
   const offset=p.weapon?.bidirectional?0:(g-(count-1)/2)*8,ga=p.gunDirection?.(g)??p.a,m=p.bomberGunMount(g,ga,offset),dx=m.x-p.x,dy=m.y-p.y,x=dx*ca+dy*sa,y=-dx*sa+dy*ca;
   if(prepare)tex(c,'metalShard0',x+Math.cos(ga-p.a)*5,y+Math.sin(ga-p.a)*5,12,2.5,ga-p.a,.35+.35*clamp(five.age/.18),FONCK_FX_PALETTE.brass);
-  const shot=f.muzzles[g],age=shot?s.clock-shot.at:Infinity;if(age<0||age>(shot?.precise ? .16 : .085))continue;
+  const shot=f.muzzles[g],age=shot?s.clock-shot.at:Infinity;if(age<0||age>(shot?.precise ? .22 : .085))continue;
   const a=shot.a-p.a,fade=1-age/.085;
   if(shot.precise){
    // A crisp flash for each accepted beat, followed by drifting powder smoke.
    // Keep the existing gun mount and recorded shot heading; no thicker tracer.
-   const ca=Math.cos(a),sa=Math.sin(a),flash=clamp(1-age/.045),smoke=clamp(1-age/.16);
+   const ca=Math.cos(a),sa=Math.sin(a),flash=clamp(1-age/.085),smoke=clamp(1-age/.22);
    if(flash>0)tex(c,'muzzle',x+ca*9,y+sa*9,31,10,a,.96*flash,FONCK_FX_PALETTE.ivory);
    tex(c,'gunSmoke',x+ca*(12-age*70),y+sa*(12-age*70),25+age*90,10+age*35,a,.34*smoke,FONCK_FX_PALETTE.smoke);
    continue;
@@ -61,7 +65,7 @@ export function drawFonckCue(c,p,e,tex,front){const q=clamp(e.age/e.maxLife),fad
  if(e.kind==='fonckImpact'){
   if(e.precise){
    if(front){
-    const flash=clamp(1-e.age/.055),spread=1-Math.exp(-e.age*12),ca=Math.cos(a),sa=Math.sin(a);
+    const flash=clamp(1-e.age/.11),spread=1-Math.exp(-e.age*12),ca=Math.cos(a),sa=Math.sin(a);
     if(flash>0)tex(c,'ricochet',0,0,39,15,a,.94*flash,FONCK_FX_PALETTE.ivory);
     tex(c,'gunSmoke',-ca*spread*16,-sa*spread*16,27+spread*17,14+spread*7,a,.34*fade,FONCK_FX_PALETTE.smoke);
     for(const side of [-1,1]){const d=spread*18;tex(c,'metalShard'+(side>0?0:1),-ca*d-sa*side*d,-sa*d+ca*side*d,7,3,a+side*spread*2,.75*fade,FONCK_FX_PALETTE.brass);}
@@ -73,3 +77,4 @@ export function drawFonckCue(c,p,e,tex,front){const q=clamp(e.age/e.maxLife),fad
  }
  return false;
 }
+

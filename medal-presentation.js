@@ -14,5 +14,10 @@ export function ownedMedalPassivePresentation(owner,base,locale='ko',planes={}){
  if(!owner?.upgrades?.[PASSIVE_MEDAL_ID])return {description:base||'',appliedLabel:'',enhanced:false};
  const medal=passiveMedalName(passiveMedalFaction(owner,planes),locale);
  const appliedLabel=locale==='en'?`${medal} enhancement applied`:`${medal} 강화 적용됨`;
- return {description:passiveMedalDescription(owner,locale),appliedLabel,enhanced:true};
+ const enhanced=passiveMedalDescription(owner,locale);
+ // Capital passives replace their base percentages. Other medals add a trigger
+ // to the unchanged passive, so its original condition must remain visible.
+ const replacesBase=owner.pilot==='friedrich_karl'||owner.pilot==='robinson';
+ const detail=replacesBase||!base?enhanced:base.includes(enhanced)?base:`${base} ${enhanced}`;
+ return {description:detail,appliedLabel,enhanced:true};
 }

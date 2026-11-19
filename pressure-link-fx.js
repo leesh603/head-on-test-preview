@@ -1,6 +1,9 @@
 // Real suppression, firing and kill-link observations. No combat fields are written.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {drawHawkerLinkedTarget} from './hawker-linked-view.js';
+import {isReplacementPrimary} from './pilot-primary.js';
+import {combatImpactResult} from './combat-impact-result.js';
+import {drawHawkerLinkedTarget,hawkerLinkedDistance} from './hawker-linked-view.js';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
 import {drawJacobsGunGas,drawJacobsHitDust,drawJacobsSuppressedFlow} from './jacobs-close-fire-fx.js';
 export const PRESSURE_LINK_PILOTS=new Set(['jacobs','hawker']);
 const INSTALLED=Symbol.for('headon.pressure-link-fx.v1');
@@ -25,8 +28,9 @@ export function installPressureLinkFx(Game){
   }return r;
  };
  const impact=q.identityImpact;q.identityImpact=function(b,e,target=e,pos=e){const r=impact.call(this,b,e,target,pos);
-  if(PRESSURE_LINK_PILOTS.has(this.pilot)&&live(this)&&this.state==='playing'&&personal(this,b)&&signatureInterval(this,'pressureHit',.085)){
-   const point=e?.stageBossBody?(pos||b):b;signatureCue(this,'pressureHit',{life:.24,x:point.x,y:point.y,a:Math.atan2(b.vy,b.vx),ownerId:owner(this)});
+  if(PRESSURE_LINK_PILOTS.has(this.pilot)&&live(this)&&this.state==='playing'&&(personal(this,b)||isReplacementPrimary(this,b))&&signatureInterval(this,'pressureHit',.085)){
+   const accepted=combatImpactResult(b,e),linked=this.pilot==='hawker'&&this.hawkerNext===e&&this.hawkerLinkTime>0&&accepted?.damage>0&&!accepted.blocked;
+   const point=e?.stageBossBody?(pos||b):b;signatureCue(this,'pressureHit',{life:linked?.38:.24,x:point.x,y:point.y,a:Math.atan2(b.vy,b.vx),ownerId:owner(this),linked});
   }return r;
  };
 }
@@ -36,8 +40,8 @@ export function pressureAirframePose(e,base,time){
  return {...base,x:base.x-Math.sin(e.a)*beat*1.8*strength,y:base.y+Math.cos(e.a)*beat*1.8*strength,roll:base.roll+beat*.16*strength,bank:base.bank*(1-strength+bank*strength)};
 }
 export function hawkerLinkStrength(w,e){
- if(!aircraft(e))return 0;let strength=0;
- for(const p of w.players||[w])if(live(p)&&p.pilot==='hawker'&&p.hawkerNext===e&&p.hawkerLinkTime>0&&Math.hypot(e.x-p.x,e.y-p.y)<=500)strength=Math.max(strength,clamp(p.hawkerLinkTime/.25));
+ if(!aircraft(e)&&!(e?.combatLayer==='air'&&live(e)&&!e.crashing&&!e.crashed&&!e.expired&&!e.rivalEscaped))return 0;let strength=0;
+ for(const p of w.players||[w])if(live(p)&&p.pilot==='hawker'&&p.hawkerNext===e&&p.hawkerLinkTime>0&&hawkerLinkedDistance(p,e)<=500)strength=Math.max(strength,clamp(p.hawkerLinkTime/.25));
  return strength;
 }
 export function drawPressureEnemyFront(c,w,e,tex,scale=1,paintTint=null){
@@ -70,6 +74,15 @@ export function jacobsFanAngles(p,gun=0){
 }
 export function drawPressureLocal(c,p,tex){
  if(!PRESSURE_LINK_PILOTS.has(p.pilot)||!live(p))return false;
+ // Boss bodies skip the ordinary enemy draw lane. Paint the same earned link
+ // from the owner's existing front layer, aligned with its exposed part.
+ if(p.pilot==='hawker'&&p.hawkerNext?.stageBossBody&&p.hawkerLinkTime>0){
+  const e=p.hawkerNext,shift=ordnanceGroundShift(p),dx=e.x-p.x+shift.x,dy=e.y-p.y+shift.y,ca=Math.cos(p.a),sa=Math.sin(p.a);
+  c.save();try{c.translate(dx*ca+dy*sa,-dx*sa+dy*ca);c.rotate(-p.a);drawHawkerLinkedTarget(c,{players:[p]},e);}finally{c.restore();}
+ }
+ // The replacement cannon already owns its gun art. Its accepted linked hit
+ // still uses pressureHit, without a floating Lewis or a second muzzle.
+ if(p.cow37)return true;
  if(p.pilot==='hawker'){
   const pose=hawkerGunPose(p);
   if(lewisImage?.complete&&lewisImage.naturalWidth){const h=20*pose.scale,w=h*lewisImage.naturalWidth/lewisImage.naturalHeight;c.save();try{c.translate(pose.x,pose.y);c.rotate(pose.a+Math.PI/2);c.drawImage(lewisImage,-w/2,-pose.reach,w,h);}finally{c.restore();}}
@@ -94,9 +107,13 @@ export function drawPressureCue(c,p,e,tex,front){
   }return true;
  }
  if(!front||e.kind!=='pressureHit')return true;
- const q=clamp(e.age/.24),a=e.a-p.a;
+ const q=clamp(e.age/e.maxLife),a=e.a-p.a;
  if(p.pilot==='jacobs')for(const side of [-1,1])tex(c,'debris',-q*5,side*(2+q*8),9-q*4,4,a+side*q*.5,.8*(1-q));
- else tex(c,'ricochet',q*3,0,15-q*5,6,a,.75*(1-q));
+ else{
+  tex(c,'ricochet',q*3,0,(e.linked?32:15)-q*5,e.linked?13:6,a,(e.linked?.96:.75)*(1-q));
+  if(e.linked)for(const side of [-1,1])tex(c,'metalShard1',-q*11,side*(3+q*13),9-q*2,3,a+side*q,.84*(1-q));
+ }
  drawJacobsHitDust(c,p,e,tex,front);
  return true;
 }
+

@@ -17,7 +17,7 @@ import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
 import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
 import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
 import {drawImmelmannEnergy} from './immelmann-energy-fx.js';
-import {drawMckeeverGuns} from './mckeever-crossfire-fx.js?pilotfx=20261117b';
+import {drawMckeeverGuns,drawMckeeverCue} from './mckeever-crossfire-fx.js?pilotfx=20261117b';
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
@@ -94,6 +94,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
  function start(c,p,e,foreground=false){
   if(drawHuffzkyRearCue(c,p,e,texture,foreground))return;
   if(drawGontermannPhaseCue(c,p,e,texture,foreground))return;
+  if(drawMckeeverCue(c,p,e,texture,foreground))return;
   if(p.pilot==='mckeever'&&['gunnerHandoff','rearBurst','rearAcquire','handoff','shotAccent'].includes(e.kind))return;
   if(drawDeathDefianceCue(c,p,e,texture,foreground,insignia))return;
   if(drawPressureCue(c,p,e,texture,foreground))return;
@@ -104,7 +105,9 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
   if(CAVALRY_RACER_PILOTS.has(p.pilot)&&drawCavalryRacerCue(c,p,e,lotharTexture,foreground))return;
   if(isAlbatrosHunter(p)&&['redHunt','huntConfirmation','hunt','shotAccent'].includes(e.kind))return;
   if(ORDNANCE_PILOTS.has(p.pilot)&&drawOrdnanceCue(c,p,e,lotharTexture,foreground))return;
-  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;if(['proctor','schleich','lufbery','huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
+  // Dedicated cues own their attack/settle timing. A second generic fade used
+  // to hide their shortest confirmed-hit flashes, especially at mobile FPS.
+  if(['proctor','schleich','lufbery','huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
   if(COMMAND_PILOTS.has(p.pilot)&&drawCommandCue(c,p,e,lotharTexture,foreground))return;
   if(METAL_PILOTS.has(p.pilot)&&drawMetalCue(c,p,e,lotharTexture,foreground))return;
   if(SORTIE_PILOTS.has(p.pilot)&&drawSortieCue(c,p,e,lotharTexture,foreground))return;
@@ -112,6 +115,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
   if(p.pilot==='fonck'&&drawFonckCue(c,p,e,lotharTexture,foreground))return;
   if(p.pilot==='loewenhardt'&&drawLoewCue(c,p,e,lotharTexture,foreground))return;
   if(p.pilot==='lothar'&&drawLotharCue(c,p,e,lotharTexture,foreground))return;
+  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;
   switch(e.kind){   case 'rearBurst':{const a=e.a-p.a;muzzleAt(c,0,0,a,'muzzleRear',e.strong?1.2:.85);for(let i=0;i<3;i++)texture(c,'metalShard'+i,time*(18+i*9),10+time*(25+i*10),6,3,time*9+i,.7);break;}
    case 'rearAcquire':{c.rotate(e.a-p.a);for(const side of [-1,1])tracer(c,-8,side*(1-q)*12,14,4,side*.25,.42*(1-q));break;}
    case 'hawkerLink':texture(c,'armorSpark',0,0,24,14,e.a-p.a,.5*(1-q));texture(c,'gunSmoke',-8,0,23,13,0,.16);break;
@@ -361,8 +365,9 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
      c.save();c.rotate(Math.PI/2);c.globalAlpha*=.82;insignia(c,'baraccaHorse',0,5,16,s.clock);c.restore();
     }
    }
-   for(const e of s.effects){if(layer==='front'&&!(p.pilot==='huffzky'&&['huffSpent','huffRearHit'].includes(e.kind))&&!(p.pilot==='gontermann'&&['gonterPhaseShot','gonterPhaseHit'].includes(e.kind))&&!(DEFIANCE_PILOTS.has(p.pilot)&&['deathDeflect','smokeTear','survivalHit','nungesserReprisal','nungesserCounterShot','nungesserIntercept'].includes(e.kind))&&!(PRESSURE_LINK_PILOTS.has(p.pilot)&&['pressureHit','jacobsAngle'].includes(e.kind))&&!(p.pilot==='luke'&&['lukeBeat','lukeFabricHit'].includes(e.kind))&&!(ESCORT_PILOTS.has(p.pilot)&&['escortGun','escortSupportHit','escortGuard'].includes(e.kind))&&!(CAVALRY_RACER_PILOTS.has(p.pilot)&&['cavalryRacerGun','cavalryHeadOn','racerSwitch','racerPierce'].includes(e.kind))&&!(ORDNANCE_PILOTS.has(p.pilot)&&['ordnanceGun','ordnanceCloseHit','ordnanceCannonHit'].includes(e.kind))&&!(COMMAND_PILOTS.has(p.pilot)&&['commandFlank','commandCrossHit'].includes(e.kind))&&!(p.pilot==='fonck'&&['fonckBrass','fonckImpact'].includes(e.kind))&&!(p.pilot==='loewenhardt'&&['loewBrass','loewFrontHit'].includes(e.kind))&&!(p.pilot==='udet'&&['udetGraze','udetBrass','udetCounter'].includes(e.kind))&&!(SORTIE_PILOTS.has(p.pilot)&&['sortieBrass','cloudStrike','survivalHit'].includes(e.kind))&&!(METAL_PILOTS.has(p.pilot)&&['metalBrass','metalArmor','metalDeflect'].includes(e.kind))&&!(p.pilot==='lothar'&&['lotharBrass','lotharTransfer','lotharLinkHit'].includes(e.kind))&&!(p.pilot==='nungesser'&&['deathKnight','deathKnightEnd','smokeTear'].includes(e.kind))&&e.kind!=='ringPass'&&e.kind!=='ringVolley'&&e.kind!=='counterRoll')continue;const shift=DEFIANCE_PILOTS.has(p.pilot)||PRESSURE_LINK_PILOTS.has(p.pilot)||FIRE_DIVE_PILOTS.has(p.pilot)||ESCORT_PILOTS.has(p.pilot)||ORDNANCE_PILOTS.has(p.pilot)||CAVALRY_RACER_PILOTS.has(p.pilot)?ordnanceGroundShift(p):{x:0,y:0},dx=e.x-p.x+shift.x,dy=e.y-p.y+shift.y;c.save();try{if((!e.signatureStart||e.kind==='whiteCommand')&&e.kind!=='shotAccent')c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));start(c,p,e,layer==='front')}finally{c.restore()}}
+   for(const e of s.effects){if(layer==='front'&&!(p.pilot==='mckeever'&&e.kind==='mckeeverRearHit')&&!(p.pilot==='huffzky'&&['huffSpent','huffRearHit'].includes(e.kind))&&!(p.pilot==='gontermann'&&['gonterPhaseShot','gonterPhaseHit'].includes(e.kind))&&!(DEFIANCE_PILOTS.has(p.pilot)&&['deathDeflect','smokeTear','survivalHit','nungesserReprisal','nungesserCounterShot','nungesserIntercept'].includes(e.kind))&&!(PRESSURE_LINK_PILOTS.has(p.pilot)&&['pressureHit','jacobsAngle'].includes(e.kind))&&!(p.pilot==='luke'&&['lukeBeat','lukeFabricHit'].includes(e.kind))&&!(ESCORT_PILOTS.has(p.pilot)&&['escortGun','escortSupportHit','escortGuard'].includes(e.kind))&&!(CAVALRY_RACER_PILOTS.has(p.pilot)&&['cavalryRacerGun','cavalryHeadOn','racerSwitch','racerPierce'].includes(e.kind))&&!(ORDNANCE_PILOTS.has(p.pilot)&&['ordnanceGun','ordnanceCloseHit','ordnanceCannonHit'].includes(e.kind))&&!(COMMAND_PILOTS.has(p.pilot)&&['commandFlank','commandCrossHit'].includes(e.kind))&&!(p.pilot==='fonck'&&['fonckBrass','fonckImpact'].includes(e.kind))&&!(p.pilot==='loewenhardt'&&['loewBrass','loewFrontHit'].includes(e.kind))&&!(p.pilot==='udet'&&['udetGraze','udetBrass','udetCounter'].includes(e.kind))&&!(SORTIE_PILOTS.has(p.pilot)&&['sortieBrass','cloudStrike','survivalHit'].includes(e.kind))&&!(METAL_PILOTS.has(p.pilot)&&['metalBrass','metalArmor','metalDeflect'].includes(e.kind))&&!(p.pilot==='lothar'&&['lotharBrass','lotharTransfer','lotharLinkHit'].includes(e.kind))&&!(p.pilot==='nungesser'&&['deathKnight','deathKnightEnd','smokeTear'].includes(e.kind))&&e.kind!=='ringPass'&&e.kind!=='ringVolley'&&e.kind!=='counterRoll')continue;const shift=DEFIANCE_PILOTS.has(p.pilot)||PRESSURE_LINK_PILOTS.has(p.pilot)||FIRE_DIVE_PILOTS.has(p.pilot)||ESCORT_PILOTS.has(p.pilot)||ORDNANCE_PILOTS.has(p.pilot)||CAVALRY_RACER_PILOTS.has(p.pilot)?ordnanceGroundShift(p):{x:0,y:0},dx=e.x-p.x+shift.x,dy=e.y-p.y+shift.y;c.save();try{if((!e.signatureStart||e.kind==='whiteCommand')&&e.kind!=='shotAccent')c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));start(c,p,e,layer==='front')}finally{c.restore()}}
   }finally{c.restore()}
   return true;
  };
 }
+

@@ -4,6 +4,7 @@ import {roleImage} from './fx-role3.js?v=tame3&perf=1029&decode=1';
 // Guynemer's actual ordnance and Bishop's existing altitude/bombing run.
 // All observations use the existing bounded signature queue; no new projectiles.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 import {drawBishopPassive} from './pilot-passive-art.js';
 import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
 import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022&bd=20261110&wake=20261111&trait=20261111&shipperf=20261112&gc=20261117';
@@ -33,7 +34,7 @@ export function installOrdnancePilotFx(Game){
  };
  const impact=q.identityImpact;q.identityImpact=function(b,e,target,pos){const r=impact.call(this,b,e,target,pos);
   if(!ORDNANCE_PILOTS.has(this.pilot)||!alive(this)||this.state!=='playing'||b.enemy||(b.ownerId??'p1')!==own(this)||b.ally||b.formation||b.patrol||b.actualExplosion||b.blast||b.identityDot||b.identityChain)return r;
-  const close=this.pilot==='bishop'&&personal(b)?bishopClosePower(this,b,e):0,cannon=this.pilot==='guynemer'&&b.motorCannon;
+  const close=this.pilot==='bishop'&&(personal(b)||isReplacementPrimary(this,b))?bishopClosePower(this,b,e):0,cannon=this.pilot==='guynemer'&&b.motorCannon;
   if((close>0||cannon)&&signatureInterval(this,'ordnanceImpact',.075)){
    const point=e?.stageBossBody?(pos||b):b;signatureCue(this,cannon?'ordnanceCannonHit':'ordnanceCloseHit',{x:point.x,y:point.y,a:Math.atan2(b.vy,b.vx),power:close,life:.3});
   }return r;
@@ -128,3 +129,4 @@ export function drawOrdnanceCue(c,p,e,tex,front){
   }else{tex(c,'armorSpark',0,0,40,24,a,.9*fade,'#e8d1a6');tex(c,'gunSmoke',-e.age*18,0,35,23,a,.38*fade,'#989b94');}
  }return true;
 }
+

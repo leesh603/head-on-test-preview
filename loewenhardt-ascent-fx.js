@@ -1,5 +1,6 @@
 // Loewenhardt: presentation observes the existing frontal bonus and ascent.
 import {signatureCue,signatureInterval,activatePilotSignature} from './pilot-signature-state.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 export const LOEW_FX_PALETTE=Object.freeze({gold:'#e9bb48',ivory:'#fff1ba',ochre:'#b48236',smoke:'#c2b18f'});
 export const LOEW_FX_LIMITS=Object.freeze({wake:10,wakeLife:.42,sampleInterval:.045,shotInterval:.045});
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -27,7 +28,7 @@ export function installLoewenhardtFx(Game){
   }return result;
  };
  const impact=q.identityImpact;q.identityImpact=function(b,e,target,position){const result=impact.call(this,b,e,target,position);
-  if(this.pilot==='loewenhardt'&&alive(this)&&personal(this,b)&&(b.ownerId??'p1')===(this.id??'p1')&&loewFrontalFx(this,e)&&signatureInterval(this,'loewFrontHit',.09)){
+  if(this.pilot==='loewenhardt'&&alive(this)&&(personal(this,b)||isReplacementPrimary(this,b))&&(b.ownerId??'p1')===(this.id??'p1')&&loewFrontalFx(this,e)&&signatureInterval(this,'loewFrontHit',.09)){
    const pos=e.stageBossBody?(position||b):b;signatureCue(this,'loewFrontHit',{x:pos.x,y:pos.y,a:Math.atan2(b.vy,b.vx),life:.32});
   }return result;
  };
@@ -73,3 +74,4 @@ export function drawLoewCue(c,p,e,tex,front){const q=clamp(e.age/e.maxLife),fade
  }
  return false;
 }
+

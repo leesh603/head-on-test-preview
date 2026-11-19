@@ -3,7 +3,7 @@ import {pilotUnlockDirectHit} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {combatImpactResult} from './combat-impact-result.js';
 import {isReplacementPrimary} from './pilot-primary.js';
 
-export const NAVARRE_FROMMHERZ_BALANCE=Object.freeze({zoneSeconds:6,zoneRadius:250,slowSeconds:2.2,slowMultiplier:.65,aceSlowMultiplier:.85,outnumberRadius:420,suppressionSeconds:5,suppressionRate:1.4,landingHpFraction:.2,instructorRadius:400,instructorTargetSeconds:2,instructorLeadSeconds:.4,instructorFocus:.65});
+export const NAVARRE_FROMMHERZ_BALANCE=Object.freeze({zoneSeconds:6,zoneRadius:250,slowSeconds:2.2,slowMultiplier:.65,aceSlowMultiplier:.85,outnumberRadius:420,pressureDamage:.2,suppressionSeconds:5,suppressionRate:1.4,landingHpFraction:.2,instructorRadius:400,instructorTargetSeconds:2,instructorLeadSeconds:.4,instructorFocus:.65,instructorVolleyInterval:.7});
 const states=new WeakMap(),rounds=new WeakMap(),slows=new WeakMap();
 const live=p=>p?.state==='playing'&&p.hp>0&&p.status!=='downed';
 const world=p=>p.combatWorld?.()||p.world||p;
@@ -12,10 +12,11 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const selected=p=>p.pilot==='navarre'||p.pilot==='frommherz';
 const aircraft=e=>e&&!['stageBossBody','surface','stationary','fieldUnit','navalVessel','missionGround','bugDrone','groundEscort','londonInstallation','cityUnit','expired'].some(k=>e[k])&&['scout','hunter','bomber','boss','zeppelin'].includes(e.type);
 const ordinary=e=>aircraft(e)&&!['bossPilot','bossPlane','ace','elite','heavyBomber','bossMinion','missionTarget'].some(k=>e[k])&&['scout','hunter','bomber'].includes(e.type);
+const instructorTarget=e=>!!e&&(aircraft(e)||e.combatLayer==='air'&&!e.expired&&!e.arrivalPending&&!e.stageBossBody?.arrivalPending);
 const personal=(p,b)=>isReplacementPrimary(p,b)||b&&Number.isInteger(b.gun)&&(b.ownerId===(p.id??'p1')||(b.ownerId===undefined&&!world(p).players))&&!['enemy','ally','patrol','formation','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','identityDot','identityChain','transferGun','tacticalRound','nungesserCounter','synthesisChild','synthesisSupport'].some(k=>b[k]);
-function state(p){let s=states.get(p);const t=now(p);if(!s||s.pilot!==p.pilot||t<s.time){s={pilot:p.pilot,time:t,zone:null,suppressUntil:0,target:null,targetUntil:0};states.set(p,s);}s.time=t;return s;}
+function state(p){let s=states.get(p);const t=now(p);if(!s||s.pilot!==p.pilot||t<s.time){s={pilot:p.pilot,time:t,zone:null,suppressUntil:0,target:null,targetUntil:0,instructorReadyAt:0,instructorVolley:null};states.set(p,s);}s.time=t;return s;}
 function active(p,s){return live(p)&&states.get(p)===s&&s.pilot===p.pilot;}
-export function navarreFrommherzState(p){if(!selected(p)||!live(p))return null;const s=state(p),t=now(p);return {zone:s.zone&&s.zone.until>t?{...s.zone}:null,suppressing:s.suppressUntil>t,focusedTarget:s.targetUntil>t&&s.target?.hp>0?s.target:null};}
+export function navarreFrommherzState(p){if(!selected(p)||!live(p))return null;const s=state(p),t=now(p);return {zone:s.zone&&s.zone.until>t?{...s.zone}:null,suppressing:s.suppressUntil>t,focusedTarget:s.targetUntil>t&&s.target?.hp>0?s.target:null,instructorVolley:s.instructorVolley?.until>t?{...s.instructorVolley}:null};}
 export function navarreEnemySpeedMultiplier(w,e){const entries=slows.get(e);if(!entries||!(e.hp>0))return 1;let factor=1;for(const [p,hit] of entries){if(world(p)!==w)continue;if(p.hp<=0||p.status==='downed'||p.pilot!==hit.state.pilot||states.get(p)!==hit.state||now(p)<hit.state.time||now(p)>=hit.until){entries.delete(p);continue;}factor=Math.min(factor,hit.factor);}return factor;}
 // Read-only presentation snapshot of the already-authoritative slow entries.
 export function navarreSuppressionVisual(w,e){
@@ -29,6 +30,7 @@ export function navarreOutnumbered(p){if(p.pilot!=='navarre'||!live(p))return fa
 
 export function installNavarreFrommherzCombat(Game,PILOTS){
  const q=Game.prototype,B=NAVARRE_FROMMHERZ_BALANCE;
+ const ensure=q.ensureRevisionPilot;q.ensureRevisionPilot=function(){ensure?.call(this);if(this.pilot==='frommherz'&&!this.frommherzInstructorReady){this.frommherzInstructorReady=true;this.permanentWingman=(this.permanentWingman||0)+1;}};
  const duration=q.skillDuration;q.skillDuration=function(){return selected(this)?(this.pilot==='navarre'?B.zoneSeconds:B.suppressionSeconds)*(this.skillEnhanced?1.25:1):duration.call(this);};
  const skill=q.skill;q.skill=function(){
   if(!selected(this))return skill.call(this);
@@ -45,8 +47,8 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
  const apply=q.applySpecialRound;q.applySpecialRound=function(b,type){
   const result=apply.call(this,b,type),round=result||b;
   if(!selected(this)||!live(this)||!personal(this,round))return result;
-  const s=state(this),boost=this.pilot==='navarre'&&navarreOutnumbered(this)&&!round.pierce;
-  rounds.set(round,{owner:this,state:s,extra:boost?1:0,contacts:new WeakSet(),suppression:this.pilot==='frommherz'&&s.suppressUntil>now(this)});
+  const s=state(this),outnumbered=this.pilot==='navarre'&&navarreOutnumbered(this),boost=outnumbered&&!round.pierce;
+  rounds.set(round,{owner:this,state:s,extra:boost?1:0,pressure:outnumbered&&!boost,contacts:new WeakSet(),suppression:this.pilot==='frommherz'&&s.suppressUntil>now(this)});
   if(boost)round.pierce=true;
   return result;
  };
@@ -54,13 +56,23 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
   const round=primary.call(this,b,volley);if(!selected(this)||!live(this)||!isReplacementPrimary(this,round))return round;
   // The cannon can mark, suppress and slow through real direct hits. Navarre's
   // extra penetration remains a gun-only rule; no shell may pass through a hit.
-  const s=state(this);rounds.set(round,{owner:this,state:s,extra:0,contacts:new WeakSet(),suppression:this.pilot==='frommherz'&&s.suppressUntil>now(this)});return round;
+  const s=state(this);rounds.set(round,{owner:this,state:s,extra:0,pressure:this.pilot==='navarre'&&navarreOutnumbered(this),contacts:new WeakSet(),suppression:this.pilot==='frommherz'&&s.suppressUntil>now(this)});return round;
  };
+ const damage=q.roundDamageMultiplier;q.roundDamageMultiplier=function(b,e){const base=damage.call(this,b,e),shot=rounds.get(b);return shot?.owner===this&&shot.pressure&&personal(this,b)?base*(1+B.pressureDamage):base;};
  const impact=q.identityImpact;q.identityImpact=function(b,e,...args){
   const result=impact?.call(this,b,e,...args);pilotUnlockDirectHit(this,b,e);
-  if(!selected(this)||!live(this)||!personal(this,b)||!(combatImpactResult(b,e)?.damage>0)||!aircraft(e))return result;
-  const s=state(this);if(this.pilot==='frommherz'){s.target=e;s.targetUntil=now(this)+B.instructorTargetSeconds;}
-  if(this.pilot==='navarre'&&s.zone?.until>now(this)&&distance(s.zone,e)<=s.zone.radius){
+  if(!selected(this)||!live(this)||!personal(this,b)||!(combatImpactResult(b,e)?.damage>0)||combatImpactResult(b,e)?.blocked)return result;
+  const s=state(this);if(this.pilot==='frommherz'&&instructorTarget(e)&&e.hp>0&&this.canHitTarget?.(e)!==false){
+   s.target=e;s.targetUntil=now(this)+B.instructorTargetSeconds;
+   // Accepted suppression shots give nearby owned students an early firing
+   // opportunity, including against airborne bosses. Normal aim, ammunition,
+   // wing ownership and target protection still govern the actual volley.
+   if(s.suppressUntil>now(this)&&now(this)>=s.instructorReadyAt){let supported=false;
+    for(const a of world(this).allies||[])if(a.life>0&&(a.hp==null||a.hp>0)&&a.ownerId===(this.id??'p1')&&distance(this,a)<=B.instructorRadius&&distance(a,e)<=650&&a.fire>.12){a.fire=.12;supported=true;}
+    if(supported){s.instructorReadyAt=now(this)+B.instructorVolleyInterval;s.instructorVolley={x:e.x,y:e.y,a:e.a||0,until:now(this)+.45};}
+   }
+  }
+  if(this.pilot==='navarre'&&aircraft(e)&&s.zone?.until>now(this)&&distance(s.zone,e)<=s.zone.radius){
    let entries=slows.get(e);if(!entries){entries=new Map();slows.set(e,entries);}const prior=entries.get(this),at=now(this),fxStarted=prior?.state===s&&prior.until>at&&Number.isFinite(prior.fxStarted)&&prior.fxStarted<=at?prior.fxStarted:at;entries.set(this,{state:s,until:at+(this.skillEnhanced?2.6:B.slowSeconds),fxStarted,factor:e.bossPilot||e.type==='boss'||e.heavyBomber||e.type==='zeppelin'?B.aceSlowMultiplier:B.slowMultiplier});
    this.identityFx?.('armorSpark',e.x,e.y,e.a||0,15,.18);
   }return result;
@@ -88,4 +100,5 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
  };
  q.resetNavarreFrommherzCombat=function(){states.delete(this);};
 }
+
 

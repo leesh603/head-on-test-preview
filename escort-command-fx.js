@@ -16,16 +16,17 @@ export function escortWings(p){
  return (world(p).allies||[]).filter(w=>owned(w)&&w.life>0&&(w.hp===undefined||w.hp>0)&&!w.crashing&&!w.crashed&&[w.x,w.y,w.a].every(Number.isFinite)).slice(0,10);
 }
 export function escortGuardCount(p){
- return (world(p).allies||[]).filter(w=>w.ownerId===owner(p)&&w.life>0&&Math.hypot(w.x-p.x,w.y-p.y)<180).length;
+ return (world(p).allies||[]).filter(w=>w.ownerId===owner(p)&&w.life>0&&(w.hp===undefined||w.hp>0)&&Math.hypot(w.x-p.x,w.y-p.y)<180).length;
 }
 export function escortStrength(p){
- let n=0;for(const w of world(p).allies||[])if(w.life>0&&(w.hp===undefined||w.hp>0)&&++n===3)break;return n/3;
+ let n=0;for(const w of world(p).allies||[])if(w.ownerId===owner(p)&&w.life>0&&(w.hp===undefined||w.hp>0)&&!w.crashing&&!w.crashed&&Math.hypot(w.x-p.x,w.y-p.y)<180&&++n===3)break;return n/3;
 }
 function guardAfter(p,before,count,source){
  if(ESCORT_PILOTS.has(p.pilot)&&!(p.hp>0)){delete p.pilotSignatureState;return;}
  if(p.pilot!=='brumowski'||!alive(p)||!(p.hp<before)||!(p.skillTime>0)||!count||!source?.bullet||!signatureInterval(p,'escortGuard',.09))return;
  const x=source.impactX??p.x,y=source.impactY??p.y,a=Math.atan2(source.bullet.vy,source.bullet.vx);
- signatureCue(p,'escortGuard',{x,y,a,life:.3,power:Math.min(2,count)/2});
+ const wing=escortWings(p).filter(w=>Math.hypot(w.x-p.x,w.y-p.y)<180).sort((u,v)=>Math.hypot(u.x-x,u.y-y)-Math.hypot(v.x-x,v.y-y))[0];
+ signatureCue(p,'escortGuard',{x,y,a,life:.42,power:Math.min(2,count)/2,guardX:wing?.x,guardY:wing?.y});
 }
 export function installEscortCommandFx(Game){
  const q=Game.prototype;if(Object.hasOwn(q,INSTALLED))return;Object.defineProperty(q,INSTALLED,{value:true});
@@ -57,7 +58,7 @@ export function drawEscortWorld(c,p,tex,front=false){
    if(w.muzzleFlash>0){if(white&&drawWhiteFlightMuzzle(c,p,w,x,y,tex))continue;const a=w.fireHeading??w.muzzleAngle??w.a,fade=clamp(w.muzzleFlash/.055);
     tex(c,white?'muzzle':'muzzleTwin',x+Math.cos(a)*31,y+Math.sin(a)*31,white?25:29,white?9:13,a,.96*fade,white?'#e9e4c9':'#e1bb85');
    }
-  }else if(active&&!white){
+  }else if(active&&!white&&Math.hypot(w.x-p.x,w.y-p.y)<180){
    at('windStreak',-31,side*23,24,3,0,.13,white?'#e1e4d6':'#d9bb95');
   }
  }
@@ -71,8 +72,15 @@ export function drawEscortCue(c,p,e,tex,front){
   else if(e.kind==='escortGuard'){
    tex(c,'ricochet',0,0,36+e.power*8,18,a,.94*fade,'#ddbd8b');
    for(const side of [-1,1])tex(c,'metalShard1',-q*13,side*q*14,12,4,a+side*q,.85*fade,'#c88e68');
+   // A brief painted propwash response at the actual close escort ties the
+   // accepted guard hit to its formation; no barrier or connecting beam.
+   if(e.age<.26&&Number.isFinite(e.guardX)&&Number.isFinite(e.guardY)){
+    const dx=e.guardX-e.x,dy=e.guardY-e.y,ca=Math.cos(p.a),sa=Math.sin(p.a);
+    tex(c,'mistPuff',dx*ca+dy*sa,-dx*sa+dy*ca,29,15,a+Math.PI,.54*clamp(1-e.age/.26),'#ddd3bc');
+   }
   }else if(white){tex(c,'armorSpark',0,0,25,12,a,.9*fade,'#e1e5d7');tex(c,'metalShard2',-q*12,0,13,4,a,.8*fade,'#aabcc5');}
   else{tex(c,'ricochet',0,0,29,13,a,.9*fade,'#d5a071');tex(c,'metalShard0',-q*11,q*9,11,5,a+q,.8*fade,'#b17e62');}
  }return true;
 }
+
 

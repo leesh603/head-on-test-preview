@@ -149,9 +149,10 @@ function noteRobinson(p,s,e,target,group,pos){
   s.pursuit={key:targetKey,target:e,until:t+(p.upgrades?.passiveMedal?B.medalPursuitSeconds:B.pursuitSeconds)};cue(p,s,'watch',pos,32);
  }
  const run=s.run;if(!run||run.until<=t||run.burst||group.at<run.started)return;
- if(run.targetKey!==targetKey||t-run.lastHit>B.hitGap){run.targetKey=targetKey;run.credit=0;run.stage=1;}
- run.lastHit=t;run.credit+=group.credit;
  const threshold=run.enhanced?B.enhancedStageCredit:B.stageCredit;
+ if(run.targetKey!==targetKey){run.targetKey=targetKey;run.credit=0;run.stage=1;}
+ else if(t-run.lastHit>B.hitGap)run.credit=Math.floor((run.credit+1e-8)/threshold)*threshold;
+ run.lastHit=t;run.credit+=group.credit;
  const stage=Math.min(3,1+Math.floor((run.credit+1e-8)/threshold));
  if(stage>run.stage){run.stage=stage;cue(p,s,'magazine',p,32,stage);}
  if(run.credit+1e-8>=threshold*3&&alive(e)&&!target?.destroyed&&target?.hp>0)scheduleIgnition(p,s,e,target,pos);
@@ -196,7 +197,7 @@ function advance(p,s){
   s.watch=s.pursuit?.target||nearest(p);
   const B=CAPITAL_PILOT_BALANCE.robinson,e=s.watch,d=e?distance(p,e):0;
   s.approaching=!!e&&d>B.approachDistance&&d<=B.range&&Math.abs(delta(Math.atan2(e.y-p.y,e.x-p.x)-p.a))<B.approachCone;
-  if(s.run&&!s.run.burst&&t-s.run.lastHit>B.hitGap){s.run.credit=0;s.run.stage=1;s.run.targetKey=null;}
+  if(s.run&&!s.run.burst&&t-s.run.lastHit>B.hitGap){const threshold=s.run.enhanced?B.enhancedStageCredit:B.stageCredit;s.run.credit=Math.floor((s.run.credit+1e-8)/threshold)*threshold;s.run.stage=Math.min(3,1+Math.floor((s.run.credit+1e-8)/threshold));}
  }
  flush(p,s,t);
 }
@@ -283,3 +284,4 @@ export function installCapitalPilotsCombat(Game,PILOTS){
  };
  return Game;
 }
+

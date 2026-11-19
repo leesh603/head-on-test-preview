@@ -18,13 +18,20 @@ export function drawFonckFocusScope(c,p,point,t,sizeOf){
   const age=clock-shot?.at;
   if(shot?.precise&&age>=0&&age<.09)recoil=Math.max(recoil,Math.sin(Math.PI*age/.09)*1.8);
  }
+ const hit=p.fonckPrecisionFx?.lastImpact,hitAge=clock-hit?.at;
+ // The sight answers a confirmed precision hit, including a real replacement
+ // primary shell. It never predicts damage or paints a machine-gun muzzle.
+ const confirmed=hit?.target===e&&hit.precise&&hitAge>=0&&hitAge<.30;
+ const confirmation=confirmed?Math.sin(Math.PI*hitAge/.30):0;
+ recoil+=confirmation*2.6;
  const separation=(1-settle)*7+recoil,half=diameter/2;
  // Four bitmap quadrants slide inward along the etched sight axes. At 80%
  // their crosshair becomes one aligned reticle; fire does not consume it.
- c.save();c.globalAlpha*=ready?.85:.30+.40*settle;
+ c.save();c.globalAlpha*=ready?Math.min(1,.85+confirmation*.15):.30+.40*settle;
  for(let row=0;row<2;row++)for(let col=0;col<2;col++){
   const dx=x+(col?separation:-half-separation),dy=y+(row?separation:-half-separation);
   c.drawImage(scope,col*627,row*627,627,627,dx,dy,half,half);
  }
  c.restore();return true;
 }
+

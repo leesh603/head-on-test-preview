@@ -9,13 +9,15 @@ export function cleanNavarreFrommherzVisual(value){
  if(!value||typeof value!=='object')return null;
  const pos=position(value.zone),until=value.zone?.until;
  const zone=pos&&Number.isFinite(until)&&until>=0&&until<=1e9&&value.zone.radius===NAVARRE_FROMMHERZ_BALANCE.zoneRadius?{...pos,radius:NAVARRE_FROMMHERZ_BALANCE.zoneRadius,until}:null;
- const out={zone,suppressing:value.suppressing===true,focus:position(value.focus)};
+ const volley=position(value.instructorVolley),volleyUntil=value.instructorVolley?.until,volleyAngle=value.instructorVolley?.a;
+ const instructorVolley=volley&&Number.isFinite(volleyUntil)&&volleyUntil>=0&&volleyUntil<=1e9&&Number.isFinite(volleyAngle)&&Math.abs(volleyAngle)<Math.PI*4?{...volley,a:volleyAngle,until:volleyUntil}:null;
+ const out={zone,suppressing:value.suppressing===true,focus:position(value.focus),instructorVolley};
  const landing=cleanFrommherzLandingEvents(value.landing);if(landing.length)out.landing=landing;return out;
 }
 // The combat accessor exposes an enemy reference locally; never copy it into
 // snapshots. Only these bounded numeric coordinates cross the network.
 export function captureNavarreFrommherzVisual(p){
- const s=navarreFrommherzState(p);return s?cleanNavarreFrommherzVisual({zone:s.zone,suppressing:s.suppressing,focus:position(s.focusedTarget),landing:frommherzLandingEvents(p)}):null;
+ const s=navarreFrommherzState(p);return s?cleanNavarreFrommherzVisual({zone:s.zone,suppressing:s.suppressing,focus:position(s.focusedTarget),landing:frommherzLandingEvents(p),instructorVolley:s.instructorVolley}):null;
 }
 export function navarreFrommherzVisual(p){
  if(!p||!['navarre','frommherz'].includes(p.pilot)||p.hp<=0||p.status==='downed')return null;
@@ -37,7 +39,16 @@ export function drawNavarreFrommherz(c,p,{point=(x,y)=>[x,y],fx=null,tint=null,l
   const label=locale==='en'?'VERDUN BLOCKADE':'베르됭 봉쇄';c.strokeText(label,x,y-r-12);c.fillText(label,x,y-r-12);c.restore();
  }
  if(p.pilot==='frommherz'&&s.focus){const [x,y]=point(s.focus.x,s.focus.y);if(visible(x,y,35))partMark(c,x,y,24,20,{color:MARK.warn,alpha:.5});}
+ if(p.pilot==='frommherz'&&s.instructorVolley&&fx){
+  const v=s.instructorVolley,left=v.until-t;
+  if(left>0&&left<=.45){const[x,y]=point(v.x,v.y);if(visible(x,y,50)){
+   const age=.45-left,fade=left/.45;
+   partMark(c,x,y,28+age*9,22+age*6,{color:MARK.warn,alpha:.9*fade});
+   fx(c,'ricochet',x,y,31,12,v.a,.85*fade);
+  }}
+ }
  // Active firing uses the normal muzzle/round sprites. Only a compact caption
  // is added, avoiding a second fake muzzle or a generic skill ring.
  if(p.pilot==='frommherz'&&s.suppressing&&p.skillTime>0){const[x,y]=point(p.x,p.y);if(!visible(x,y,70))return;c.save();c.font='600 10px sans-serif';c.textAlign='center';c.fillStyle=MARK.warn;c.strokeStyle=MARK.ink;c.lineWidth=3;const text=locale==='en'?'FORCED LANDING':'강제 착륙';c.strokeText(text,x,y+46);c.fillText(text,x,y+46);c.restore();}
 }
+

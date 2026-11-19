@@ -3,13 +3,14 @@ import {signatureCue,signatureInterval} from './pilot-signature-state.js';
 import {combatImpactResult} from './combat-impact-result.js';
 const INSTALLED=Symbol.for('headon.huffzky-rear-fx.v1');
 const owner=p=>p.id??'p1',live=p=>p.pilot==='huffzky'&&p.state==='playing'&&p.hp>0&&p.status!=='downed';
+const liveDuo=p=>['huffzky','mckeever'].includes(p.pilot)&&p.state==='playing'&&p.hp>0&&p.status!=='downed';
 const rear=(p,b)=>b?.pilotRear&&b.gun===1&&(b.ownerId??'p1')===owner(p)&&!['enemy','ally','formation','patrol','rocket','motorCannon','cow37','mauserRound','blast','actualExplosion','identityDot','identityChain'].some(k=>b[k]);
 export function installHuffzkyRearFx(Game){const q=Game.prototype;if(Object.hasOwn(q,INSTALLED))return;Object.defineProperty(q,INSTALLED,{value:true});
  const shot=q.applySpecialRound;q.applySpecialRound=function(b,...args){const r=shot.call(this,b,...args);
   if(live(this)&&this.reloadTime<=0&&rear(this,b)&&signatureInterval(this,'huffSpent',.025))signatureCue(this,'huffSpent',{x:b.x,y:b.y,a:Math.atan2(b.vy,b.vx),strong:!!b.pilotRearActive,life:b.pilotRearActive?.42:.32});return r;
  };
  const impact=q.specialRoundImpact;q.specialRoundImpact=function(b,e,...args){const r=impact.call(this,b,e,...args),hit=combatImpactResult(b,e);
-  if(live(this)&&rear(this,b)&&hit?.damage>0&&!hit.blocked&&signatureInterval(this,'huffRearHit',.045))signatureCue(this,'huffRearHit',{x:b.x,y:b.y,a:Math.atan2(b.vy,b.vx),strong:!!b.pilotRearActive,life:.24});return r;
+  if(liveDuo(this)&&rear(this,b)&&hit?.damage>0&&!hit.blocked&&signatureInterval(this,'duoRearHit',.065))signatureCue(this,this.pilot==='mckeever'?'mckeeverRearHit':'huffRearHit',{x:b.x,y:b.y,a:Math.atan2(b.vy,b.vx),strong:!!b.pilotRearActive,life:b.pilotRearActive?.38:.28});return r;
  };
 }
 export function drawHuffzkyRearCue(c,p,e,tex,front){
@@ -32,3 +33,4 @@ export function drawHuffzkyRearCue(c,p,e,tex,front){
  }
  return true;
 }
+

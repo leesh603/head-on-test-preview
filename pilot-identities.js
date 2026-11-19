@@ -53,10 +53,11 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='goering')s.commandTarget=this.identityTarget();
   if(this.pilot==='mannock'){
    const w=this.viewWidth||960,h=this.viewHeight||900;
+   const threat=this.identityThreat(),anchor=threat&&distance(this,threat)<=700?threat:this;s.mannockAnchor={x:anchor.x,y:anchor.y};
    s.mannockPass=1;s.mannockPassTimer=this.skillEnhanced?2.65:Math.min(2.35,this.skillTime*.33);
    const count=this.skillEnhanced?8:7;this.divingSquadron=Array.from({length:count},(_,i)=>{
     const slot=i-(count-1)/2;
-    return {ownerId:own(this),x:this.x+slot*w*.12,y:this.y-h*.65-Math.abs(slot)*h*.12,a:Math.PI/2,age:0,speed:h*.58,fire:Math.abs(slot)*.04,muzzleFlash:0,pass:'vertical',hit:new Set()};
+    return {ownerId:own(this),x:s.mannockAnchor.x+slot*w*.12,y:s.mannockAnchor.y-h*.65-Math.abs(slot)*h*.12,a:Math.PI/2,age:0,speed:h*.58,fire:Math.abs(slot)*.04,muzzleFlash:0,pass:'vertical',hit:new Set()};
    });
   }
   if(this.pilot==='huffzky')s.bombTimer=0;
@@ -99,7 +100,7 @@ export function installPilotIdentities(Game,PILOTS){
   return n;
  };
  const oldIncoming=Game.prototype.incomingDamageMultiplier;
- Game.prototype.incomingDamageMultiplier=function(source){if(this.payingPilotDebt)return 1;let m=oldIncoming.call(this,source);if(this.pilot==='brumowski'&&this.skillTime>0){const n=this.combatWorld().allies.filter(a=>a.ownerId===own(this)&&a.life>0&&distance(a,this)<180).length;m*=1-Math.min(2,n)*.1}return m};
+ Game.prototype.incomingDamageMultiplier=function(source){if(this.payingPilotDebt)return 1;let m=oldIncoming.call(this,source);if(this.pilot==='brumowski'&&this.skillTime>0){const n=this.combatWorld().allies.filter(a=>a.ownerId===own(this)&&a.life>0&&(a.hp==null||a.hp>0)&&distance(a,this)<180).length;m*=1-Math.min(2,n)*.1}return m};
 
 
  const oldBegin=Game.prototype.beginRevisionFrame;
@@ -125,10 +126,10 @@ export function installPilotIdentities(Game,PILOTS){
    const squadron=this.divingSquadron||[];
    if(s.mannockPass===1&&s.mannockPassTimer<=0){
     s.mannockPass=2;
-    const w=this.viewWidth||960,h=this.viewHeight||900;
+    const w=this.viewWidth||960,h=this.viewHeight||900,anchor=s.mannockAnchor||this;
     const count=this.skillEnhanced?8:7;for(let i=0;i<count;i++){
      const slot=i-(count-1)/2;
-     squadron.push({ownerId:own(this),x:this.x+w*.68+Math.abs(slot)*w*.08,y:this.y+slot*h*.11,a:Math.PI,age:0,speed:w*.58,fire:Math.abs(slot)*.04,muzzleFlash:0,pass:'horizontal',hit:new Set()});
+     squadron.push({ownerId:own(this),x:anchor.x+w*.68+Math.abs(slot)*w*.08,y:anchor.y+slot*h*.11,a:Math.PI,age:0,speed:w*.58,fire:Math.abs(slot)*.04,muzzleFlash:0,pass:'horizontal',hit:new Set()});
     }
    }
    for(let i=squadron.length-1;i>=0;i--){
@@ -203,3 +204,4 @@ export function installPilotIdentities(Game,PILOTS){
  Game.prototype.tickRevisionWorld=function(dt){oldTickWorld.call(this,dt);for(const d of this.revisionDecoys||[])if(d.identityDecoy)advanceVossDecoyFlight(d,dt)};
  installPilotFeedback(Game,PILOTS);
 }
+

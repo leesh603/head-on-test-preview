@@ -4,12 +4,13 @@ import {signatureCue,signatureInterval} from './pilot-signature-state.js';
 import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
 import {drawGontermannPassive} from './pilot-passive-art.js';
 import {drawLafayetteWing} from './lufbery-circle-fx.js';
+import {isReplacementPrimary} from './pilot-primary.js';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const owner=p=>p.id??'p1';
 const living=p=>p?.hp>0&&p.status!=='downed'&&p.state==='playing';
 const privateGun=(p,b)=>b&&(b.ownerId??'p1')===owner(p)&&Number.isInteger(b.gun)&&!['enemy','ally','formation','patrol','rocket','motorCannon','cow37','mauserRound','blast','actualExplosion','identityDot','identityChain'].some(k=>b[k]);
 export const FIRE_DIVE_PILOTS=new Set(['luke','mannock']);
-export const lukeAirship=e=>!!e&&(e.type==='zeppelin'||['zeppelin-l70','hma23'].includes(e.stageBossBody?.kind||e.kind));
+export const lukeAirship=e=>!!e&&(e.type==='zeppelin'||e.fieldUnit==='balloon'||['zeppelin-l70','hma23'].includes(e.stageBossBody?.kind||e.kind));
 const INSTALLED=Symbol.for('headon.fire-dive-fx.v1');
 const burnAnchors=new WeakMap();
 export const fireDiveArtReady=incendiaryArtReady.then(ready=>[ready]);
@@ -17,7 +18,7 @@ export function installFireDiveFx(Game){
  const q=Game.prototype;if(Object.hasOwn(q,INSTALLED))return;Object.defineProperty(q,INSTALLED,{value:true});
  const impact=q.identityImpact;q.identityImpact=function(b,e,target=e,pos=e){
   const before=this.pilotIdentity?.burns?.get(target),r=impact.call(this,b,e,target,pos);
-  if(!['luke','gontermann'].includes(this.pilot)||!living(this)||!privateGun(this,b))return r;
+  if(!['luke','gontermann'].includes(this.pilot)||!living(this)||!(privateGun(this,b)||isReplacementPrimary(this,b)))return r;
   const burn=this.pilotIdentity?.burns?.get(target);
   if(burn&&burn!==before){
    const point=e.stageBossBody?(pos||b):b,a=e.a||0,dx=point.x-e.x,dy=point.y-e.y;
@@ -122,3 +123,4 @@ export function drawFireDiveCue(c,p,e,tex,front=false){
  }
  return true;
 }
+
