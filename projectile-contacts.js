@@ -8,10 +8,19 @@ export function projectileContactTime(round,target,radiusFor){
  // Per round x target pair: checks are inlined (no temporary array or closure per call).
  if(!(Number.isFinite(x0)&&Number.isFinite(y0)&&Number.isFinite(x1)&&Number.isFinite(y1)&&Number.isFinite(target.x)&&Number.isFinite(target.y)))return Infinity;
  const moving=!!round.sweptProjectile,tx0=moving?(target.wwiPreviousX??target.previousX??target.x):target.x,ty0=moving?(target.wwiPreviousY??target.previousY??target.y):target.y;
- let ox=x0-tx0,oy=y0-ty0,dx=x1-target.x-ox,dy=y1-target.y-oy;
+ const endX=x1-target.x,endY=y1-target.y;
+ let ox=x0-tx0,oy=y0-ty0,dx=endX-ox,dy=endY-oy;
  const pad=Math.max(0,round.collisionRadius||0),scale=round.ammunitionHitScale||1;
  if(target.hullLength){const a=target.a||0,c=Math.cos(a),s=Math.sin(a),l=Math.abs(target.hullLength)*scale+pad,w=Math.abs(target.hullWidth)*scale+pad;if(!(l>0&&w>0))return Infinity;const rox=(ox*c+oy*s)/l,roy=(-ox*s+oy*c)/w,rdx=(dx*c+dy*s)/l,rdy=(-dx*s+dy*c)/w;ox=rox;oy=roy;dx=rdx;dy=rdy;}
- else{const r=projectileTargetRadius(target,radiusFor)*scale+pad;if(!(r>0))return Infinity;ox/=r;oy/=r;dx/=r;dy/=r;}
+ else{
+  const r=projectileTargetRadius(target,radiusFor)*scale+pad;if(!(r>0))return Infinity;
+  // Relative motion stays outside the circle when both ends are beyond the same edge.
+  // Leave a rounding margin at the boundary and run the original test for near misses.
+  const edge=r*1.000000000001;
+  if((ox>edge&&endX>edge)||(ox<-edge&&endX<-edge)||
+     (oy>edge&&endY>edge)||(oy<-edge&&endY<-edge))return Infinity;
+  ox/=r;oy/=r;dx/=r;dy/=r;
+ }
  const c=ox*ox+oy*oy-1;if(c<=0)return 0;const a=dx*dx+dy*dy;if(!a)return Infinity;
  const dot=ox*dx+oy*dy,d=dot*dot-a*c;if(d<0)return Infinity;const t=(-dot-Math.sqrt(d))/a;return t>=0&&t<=1?t:Infinity;
 }
@@ -32,5 +41,7 @@ export function orderedProjectileCandidates(world,round,radiusFor){
  if(round?.actualExplosion)return candidates;
  const out=world._orderedProjectileTargets??=[],air=world._projectileContactScratch??=[];out.length=air.length=0;const pool=world._projectileContactPool??=[];
  for(const e of candidates){if(e.stageBossBody){out.push(e);continue;}const t=projectileContactTime(round,e,radiusFor);if(Number.isFinite(t)){const contact=pool[air.length]??={};contact.e=e;contact.t=t;air.push(contact);out.push(null);}}
- air.sort(byTime);let index=0;for(let i=0;i<out.length;i++)if(!out[i])out[i]=air[index++].e;return out;
+ if(!air.length)return out;
+ if(air.length>1)air.sort(byTime);
+ let index=0;for(let i=0;i<out.length;i++)if(!out[i])out[i]=air[index++].e;return out;
 }
