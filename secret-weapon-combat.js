@@ -69,22 +69,20 @@ function tickVillar(p,dt){
  s.delay=Math.max(0,(s.delay||0)-dt);
  if(s.delay>0)return;
  const g=worldOf(p);
- let target=null,best=Infinity;
+ let target=null,best=Infinity,airBoss=false;
  for(const e of equipmentTargets(g)){
-  if(!airTarget(e)||e.stageBossBody||p.canHitTarget?.(e)===false)continue;
+  if(!airTarget(e)||p.canHitTarget?.(e)===false)continue;
+  if(e.stageBossBody){airBoss=true;continue;}
   const d=Math.hypot(e.x-p.x,e.y-p.y);
   if(d>VILLAR_RANGE)continue;
   const score=d-(aceTarget(e)?400:e.eliteKind?200:0);
   if(score<best){best=score;target=e;}
  }
  const speed=760,maxLife=(VILLAR_RANGE+36)/speed;
- const point=target||wimperisTarget(p,{range:VILLAR_RANGE,cone:Math.PI,speed,front:18,filter:e=>airTarget(e)&&!!e.stageBossBody});
+ const point=target||(airBoss&&wimperisTarget(p,{range:VILLAR_RANGE,cone:Math.PI,speed,front:18,filter:e=>airTarget(e)&&!!e.stageBossBody}));
  if(!point){s.remaining=0;return;}
  const gloves=p.upgrades.flightGloves&&p.bishopGlovesTime>0&&!(p.invuln>0);
- if(!s.remaining){
-  s.remaining=6;
-  sound(p,'secretVillar');
- }
+ if(!s.remaining)s.remaining=6;
  const a=Math.atan2(point.y-p.y,point.x-p.x),side=s.remaining%2?6:-6;
  const x=p.x+Math.cos(a)*18-Math.sin(a)*side,y=p.y+Math.sin(a)*18+Math.cos(a)*side;
  const distance=Math.hypot(point.x-x,point.y-y);
@@ -92,6 +90,7 @@ function tickVillar(p,dt){
  const heading=target?fighterAim(g,{x,y},target,speed,life):Math.atan2(point.y-y,point.x-x);
  const damage=mgDamage(p)*.72*(aceTarget(target||point.entity)?1.4:1);
  emit(p,newAirRound('villarPerosa',x,y,heading,speed,life,damage,2));
+ sound(p,side>0?'secretVillarRight':'secretVillar');
  cue(p,'villarShot',{x,y,a:heading},{life:.13,slot:side});
  s.remaining--;
  s.delay=s.remaining?(gloves?.043:.062):(gloves?.47:.73);

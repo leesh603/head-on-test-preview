@@ -349,7 +349,8 @@ const VOICES={
     tone(101,167,.35,.050,'sawtooth',640,0,.045);
     hiss(1120,410,.27,.027,'bandpass',.65,.027,.052);
   },
-  secretVillar(){for(let i=0;i<6;i++){const at=i*.055;hiss(i%2?3650:4600,1450,.026,.047,'bandpass',.8,at);tone(i%2?246:301,97,.029,.029,'triangle',980,at)}},
+  secretVillar(){hiss(4600,1450,.026,.047);tone(301,97,.029,.029,'triangle',980)},
+  secretVillarRight(){hiss(3650,1450,.026,.047);tone(246,97,.029,.029,'triangle',980)},
   secretVillarHit(){tone(2330,390,.05,.025,'triangle',2900);hiss(5250,1750,.046,.029,'bandpass',.8)},
   secretBugEngine(){tone(138,151,.36,.036,'sawtooth',420,0,.08);tone(69,75,.33,.026,'triangle',330,.015,.08)},
   secretBugCut(){tone(151,42,.13,.046,'sawtooth',480);hiss(2700,510,.39,.043,'bandpass',.74,.08)},
