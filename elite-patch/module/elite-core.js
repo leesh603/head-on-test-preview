@@ -27,6 +27,7 @@ function requireHost(host) {
   }
 }
 
+const AVOID_RAMP=7;
 export class EliteEnemySystem {
   constructor(host, options = {}) {
     requireHost(host);
@@ -443,7 +444,15 @@ export class EliteEnemySystem {
     return true;
   }
 
-  safeHeading(s,m,heading){m.formationAvoid=false;if(!this.host.isManaged?.())return heading;for(const other of s.members){if(other===m||!other.alive)continue;const rx=m.x-other.x,ry=m.y-other.y,d=Math.hypot(rx,ry),mv=m.flightSpeed||m.speed,ov=other.flightSpeed||other.speed,vx=Math.cos(m.a)*mv-Math.cos(other.a)*ov,vy=Math.sin(m.a)*mv-Math.sin(other.a)*ov,t=clamp(-(rx*vx+ry*vy)/(vx*vx+vy*vy||1),0,1.6);if(d<320&&Math.hypot(rx+vx*t,ry+vy*t)<(s.members.length>4?55:s.members.length<=3?100:85)){const side=Math.sign(-Math.sin(m.a)*rx+Math.cos(m.a)*ry)||Math.sign(m.slot-other.slot)||1;m.formationAvoid=true;return m.a+side*1.05;}}return heading;}
+  // The dodge decision feeds the speed it depends on, so a binary switch flipped
+  // every frame (60 <-> 200+ px/s): visible stutter. The dodge weight now ramps,
+  // settling at the boundary instead of alternating.
+  safeHeading(s,m,heading){m.formationAvoid=false;if(!this.host.isManaged?.()){m.avoidMix=0;return heading;}
+    const side=this.avoidSide(s,m),now=this.host.getTime(),step=clamp(now-(m.avoidAt??now),0,.05);m.avoidAt=now;
+    const mix=m.avoidMix??0;m.avoidMix=side?Math.min(1,mix+AVOID_RAMP*step||1):Math.max(0,mix-AVOID_RAMP*step);
+    m.formationAvoid=m.avoidMix>=.5;
+    return side?m.a+side*1.05:heading;}
+  avoidSide(s,m){for(const other of s.members){if(other===m||!other.alive)continue;const rx=m.x-other.x,ry=m.y-other.y,d=Math.hypot(rx,ry),mv=m.flightSpeed||m.speed,ov=other.flightSpeed||other.speed,vx=Math.cos(m.a)*mv-Math.cos(other.a)*ov,vy=Math.sin(m.a)*mv-Math.sin(other.a)*ov,t=clamp(-(rx*vx+ry*vy)/(vx*vx+vy*vy||1),0,1.6);if(d<320&&Math.hypot(rx+vx*t,ry+vy*t)<(s.members.length>4?55:s.members.length<=3?100:85)){return Math.sign(-Math.sin(m.a)*rx+Math.cos(m.a)*ry)||Math.sign(m.slot-other.slot)||1;}}return 0;}
   memberVisible(m){if(!this.host.isManaged?.())return true;const v=this.host.getViewport?.();return !v||Math.abs(m.x-v.x)<v.w-45&&Math.abs(m.y-v.y)<v.h-45;}
   formationHeading(s,m,p,aim){
     if(!s.leader?.alive)return this.safeHeading(s,m,aim);
@@ -464,7 +473,7 @@ export class EliteEnemySystem {
     m.stationSpeed=clamp(Math.hypot(vx,vy),60,440);m.stationHeading=Math.atan2(vy,vx);m.reinforcedStation=s.members.length>4;
     return this.safeHeading(s,m,m.stationHeading);
   }
-  flightSpeed(m,p){if(!this.host.isManaged?.())return m.speed;const pace=Math.max(60,Math.min(320,(p.speed||150)*(p.airframeSpeed??1))),range=Math.hypot(m.x-p.x,m.y-p.y);const cruise=m.formationAvoid?(m.reinforcedStation&&m.tacticalRole==='rear-gun-sweep'&&pace>200?Math.max(90,pace*.65):60):m.formationCollapseUntil>this.host.getTime()?m.speed:m.stationSpeed??(range>400?Math.max(m.speed,pace+90):Math.max(m.speed,pace));return m.flightSpeed=m.reinforcedStation&&Math.abs(angleDiff(m.stationHeading??m.a,m.a))>.55?Math.min(cruise,Math.max(80,pace*.72)):cruise;}
+  flightSpeed(m,p){if(!this.host.isManaged?.())return m.speed;const pace=Math.max(60,Math.min(320,(p.speed||150)*(p.airframeSpeed??1))),range=Math.hypot(m.x-p.x,m.y-p.y);const dodge=m.reinforcedStation&&m.tacticalRole==='rear-gun-sweep'&&pace>200?Math.max(90,pace*.65):60,normal=m.formationCollapseUntil>this.host.getTime()?m.speed:m.stationSpeed??(range>400?Math.max(m.speed,pace+90):Math.max(m.speed,pace)),mix=m.avoidMix??(m.formationAvoid?1:0),cruise=normal+(dodge-normal)*mix;return m.flightSpeed=m.reinforcedStation&&Math.abs(angleDiff(m.stationHeading??m.a,m.a))>.55?Math.min(cruise,Math.max(80,pace*.72)):cruise;}
   updateDeparture(s,dt){const p=this.host.getPlayer(),pace=Math.max(60,Math.min(320,(p.speed||150)*(p.airframeSpeed??1)))+120;for(const m of s.members)if(m.alive){m.a+=clamp(angleDiff(this.safeHeading(s,m,m.departureHeading??m.a),m.a),-.9*dt,.9*dt);m.x+=Math.cos(m.a)*pace*dt;m.y+=Math.sin(m.a)*pace*dt;m.telegraph=0;}}
   // Separation is authored into steering targets; never push aircraft sideways.
   separateMembers(squadron) {}

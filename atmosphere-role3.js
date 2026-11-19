@@ -1,5 +1,4 @@
 import {roleReady,roleDraw} from './fx-role3.js?v=tame3&perf=1029&decode=1';
-import {drawGrunkreuzPlume} from './grunkreuz-plume.js';
 const clamp=n=>Math.max(0,Math.min(1,n));
 // Rendering only: weather movement, exposure and collision remain in the engine.
 export function drawGust3(c,g,x,y,time=0){
@@ -21,13 +20,11 @@ export function drawGasVeil3(c,z,x,y,time=0,boundary=true){
  // Grünkreuz releases overlapping puffs. Spread each from a tight discharge
  // into two rolling eddies and leave the true contact radius visible.
  if(boundary&&Number.isFinite(z.dmg)){
-  if(!drawGrunkreuzPlume(c,z,x,y,q,fade)){
-   const age=q*duration,open=Math.min(1,age/.48),drift=(z.seed||0)+q*.72;
-   const spread=z.r*(.10+.30*q),dx=Math.cos(drift)*spread,dy=Math.sin(drift)*spread;
-   const span=z.r*(.48+1.27*open+.23*q),opacity=fade*(.56-.20*q);
-   roleDraw(c,'gasCloud'+frame,x+dx,y+dy,span,span*.76,drift,opacity);
-   roleDraw(c,'gasCloud'+Math.min(3,frame+1),x-dx,y-dy,span*.82,span*.7,-drift,opacity*.85);
-  }
+  const age=q*duration,open=Math.min(1,age/.48),drift=(z.seed||0)+q*.72;
+  const spread=z.r*(.10+.30*q),dx=Math.cos(drift)*spread,dy=Math.sin(drift)*spread;
+  const span=z.r*(.48+1.27*open+.23*q),opacity=fade*(.56-.20*q);
+  roleDraw(c,'gasCloud'+frame,x+dx,y+dy,span,span*.76,drift,opacity);
+  roleDraw(c,'gasCloud'+Math.min(3,frame+1),x-dx,y-dy,span*.82,span*.7,-drift,opacity*.85);
   c.save();c.globalAlpha*=fade*.35;c.strokeStyle='#a2a36c';c.lineWidth=1.2;c.setLineDash([5,9]);c.beginPath();c.arc(x,y,z.r,0,Math.PI*2);c.stroke();c.restore();
   return true;
  }

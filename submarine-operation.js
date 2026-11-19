@@ -34,7 +34,7 @@ function startContact(game,battle,player){
  const displayName=naval.escort?'Q-Ship':contacts[naval.contactIndex];
  const e=startOperationIntrusion(game,naval.escort?'qship':'uboat',{
   stageIndex:stage.stageIndex,loopIndex:stage.loopIndex,width:(game.viewWidth||960)/(game.camera?.zoom||1),
-  height:(game.viewHeight||700)/(game.camera?.zoom||1),regularBossHp:naval.escort?1190:flagship?1170:610,
+  height:(game.viewHeight||700)/(game.camera?.zoom||1),regularBossHp:naval.escort?1750:flagship?1170:610,
   displayName
  });
  if(naval.escort)e.disguiseDuration=8;

@@ -23,7 +23,7 @@ export function capitalPartPose(body,p){
  }
  if(p.kind==='propeller')scaleX=.18+.82*Math.abs(Math.cos(p.propellerAngle||0));
  const c=Math.cos(body.hullYaw||0),s=Math.sin(body.hullYaw||0),k=body.capitalScale||1;
- const unavailable=p.hp<=0||parent?.hp<=0&&(p.inheritDamage!==false||p.kind==='propeller'||p.kind==='barrel');
+ const unavailable=p.hp<=0||p.kind==='propeller'&&parent?.disabled||parent?.hp<=0&&(p.inheritDamage!==false||p.kind==='propeller'||p.kind==='barrel');
  return {x:body.x+(x*c-y*s)*k,y:body.y+(x*s+y*c)*k,angle:(body.hullYaw||0)+angle,scaleX,alpha:p.kind==='fighter'&&(p.launchAge??3)<1.5?0:1,state:unavailable?2:p.hp/p.maxHp<=.5?1:0};
 }
 export function capitalMuzzle(body,p,angle,barrelOffset=0){
@@ -99,7 +99,8 @@ export class CapitalBoss extends BaseBoss{
   const r=super.hit({partId,damage});if(r.damage>0&&!this.dead)super.hit({damage:r.damage*.32});this.syncParts();return r;
  }
  onPartDestroyed(p){
-  this.emit({type:'capital-part-break',bossId:this.id,partId:p.id,...capitalPartPose(this,p)});
+  const d=source(this,p),pose=p.kind==='structure'&&d?.sourceHalf?halfRectangle(this,p):capitalPartPose(this,p);
+  this.emit({type:'capital-part-break',bossId:this.id,partId:p.id,x:pose.x,y:pose.y,angle:pose.angle});
   this.recoveryLeft=Math.max(this.recoveryLeft,p.kind==='structure'?1.5:.65);
   this.syncParts();
  }

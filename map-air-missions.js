@@ -1,8 +1,9 @@
 // The map objective owns the route and result; existing aircraft movement,
 // targeting, bullets and patrol damage own every combat interaction.
 import {registerMaanReconFacility} from './ground-facility-missions.js';
+import {BOSS_ENGAGE_SECONDS} from './boss-engagement-gate.js';
 export const AIR_MAP_MISSION_BALANCE=Object.freeze({
- arrasTotal:9,arrasWave:3,arrasGoal:6,arrasGap:22,arrasLimit:105,
+ arrasTotal:9,arrasWave:3,arrasGoal:6,arrasGap:22,arrasLimit:105,arrasEngage:BOSS_ENGAGE_SECONDS,
  reconHp:240,reconSpeed:132,reconPhotoRadius:180,reconPhotoSeconds:3,reconExitRadius:170,reconLimit:110,reconThreatCap:4
 });
 const B=AIR_MAP_MISSION_BALANCE;
@@ -33,8 +34,12 @@ function tickArras(g,m){
  const formation=encounter?.bodies?.values().next().value;
  const contact=encounter&&!encounter.arrivalPending&&(!formation?.sortieMission||formation.entryComplete||formation.dead);
  // A completed quota needs no ceremonial final launch. The native ace's
- // arrival still gates completion, and surviving flights remain physical.
- if((protect?s.home:s.down)>=B.arrasGoal&&contact)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
+ // arrival gates completion, and the formation then gets one full attack
+ // cycle (or is shot down) before it withdraws: a quota met before the aces
+ // arrive must not end the sortie the moment they appear.
+ if(contact&&s.contactAt==null)s.contactAt=m.age;
+ const engaged=!!contact&&(!!formation?.dead||!!encounter?.completed||m.age-s.contactAt>=B.arrasEngage);
+ if((protect?s.home:s.down)>=B.arrasGoal&&engaged)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
  if((protect?s.home:s.down)<B.arrasGoal&&s.launched<B.arrasTotal&&m.age>=s.nextAt){
   const lane=(s.launched%B.arrasWave-1)*155;
   if(!protect&&s.launched%B.arrasWave===0){
@@ -70,6 +75,11 @@ function tickArras(g,m){
  if(!active.length&&s.launched%B.arrasWave===0&&s.launched<B.arrasTotal)s.nextAt=Math.min(s.nextAt,m.age+4);
  m.task=protect?['임무기 안전 귀환 '+progress+'/'+B.arrasGoal,'Mission aircraft returned '+progress+'/'+B.arrasGoal]:
   ['적 임무기 격추 '+progress+'/'+B.arrasGoal,'Mission aircraft intercepted '+progress+'/'+B.arrasGoal];
+ if(progress>=B.arrasGoal&&contact&&!engaged){
+  const left=Math.max(1,Math.ceil(B.arrasEngage-(m.age-s.contactAt)));
+  m.task=['적 편대 교전 · 퇴각까지 '+left+'초','Engage the formation · withdraws in '+left+'s'];
+  m.limit=Math.max(m.limit,s.contactAt+B.arrasEngage+5);
+ }
  m.detail=['임무기 출격 '+s.launched+'/'+B.arrasTotal,'Mission aircraft launched '+s.launched+'/'+B.arrasTotal];
  m.guides=active.map(({e})=>({x:e.x,y:e.y,kind:protect?'ally':'target',label:['임무기','MISSION AIRCRAFT']}));
  if(protect&&active.length&&m.age>=s.nextSweep){
@@ -84,7 +94,7 @@ function tickArras(g,m){
   e.operationEscortTarget=next?.e||null;
   if(!next)e.arrasInterceptor=false;
  }
- if(progress>=B.arrasGoal&&contact)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
+ if(progress>=B.arrasGoal&&engaged)return finish(m,true,'아라스 제공 임무 성공','Arras air mission complete');
  if(progress+active.length+B.arrasTotal-s.launched<B.arrasGoal)return finish(m,false,'아라스 제공 임무 실패','Arras air mission failed');
  return null;
 }

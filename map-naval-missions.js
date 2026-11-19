@@ -2,6 +2,7 @@
 // The host owns stage completion, rewards and pause; there is no second fleet update.
 import {SHIP_TYPES} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029&zb=20261103';
 import {vacantShipPose} from './naval-spacing.js?v=pandemonium394r2';
+import {bossEngagement,BOSS_ENGAGE_SECONDS} from './boss-engagement-gate.js';
 
 const regions=new Set([1,16]);
 export const NAVAL_MISSION_BALANCE=Object.freeze({
@@ -220,9 +221,13 @@ function jutlandObjective(g,m){
    ...active.filter(e=>!threatened.includes(e)).map(e=>guide(e,[e.name,'Withdrawing ship'],'ally'))].slice(0,6);
   if(inbound.length)m.detail=[`폭격기 ${inbound.length}대 접근 · 손상함과 선두함을 엄호하세요`,`${inbound.length} bombers inbound · protect damaged and leading ships`];
  }
- const encounter=g.stageBoss?.stages.encounter;
- if(progress>=goal&&encounter&&!encounter.arrivalPending){
+ const encounter=g.stageBoss?.stages.encounter,boss=bossEngagement(n,encounter,m.age);
+ if(progress>=goal&&boss.engaged){
   return n.protect?result(true,'주력 함대 철수 완료','Fleet withdrawal complete'):result(true,'적 함대의 퇴각 저지','Enemy withdrawal stopped');
+ }
+ if(progress>=goal&&boss.contact){
+  m.task=['적 함대 교전 · 퇴각까지 '+boss.left+'초','Engage the fleet · withdraws in '+boss.left+'s'];
+  m.limit=Math.max(m.limit??0,n.bossContactAt+BOSS_ENGAGE_SECONDS+5);
  }
  if(progress+active.length<goal)return result(false,'함대 작전 실패','Fleet operation failed');
  return null;

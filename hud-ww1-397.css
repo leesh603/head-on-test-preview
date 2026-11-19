@@ -1610,3 +1610,21 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #kills.ho-kill-
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-levelup.xp-levelup-alt>.bar{animation-name:ho-xp-levelup-alt}
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-levelup.xp-levelup-alt>span{animation-name:ho-beat-alt}
 body.astra-ui.playing #viewport #comboHud.pop.pop-alt .combo-n{animation-name:ho-combo-pop-alt}
+
+/* Ammo numbers (and optional special-round text) must stay within the fixed flight pill. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{
+ min-width:0!important;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoCount{
+ display:block;
+ flex:0 1 auto;
+ min-width:0;
+ max-width:100%;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+/* Boss plate title split (stageboss-view.js setBossTitle): the name takes the ellipsis, the
+   state suffix (본체 보호 / 붕괴 중 / 진입 중) always stays visible. Same box on PC and phone. */
+html body.astra-ui.playing #stageBossHud #stageBossTitle:has(>.sb-name){display:flex!important;min-width:0;overflow:hidden;white-space:nowrap}
+html body.astra-ui.playing #stageBossHud #stageBossTitle>.sb-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body.astra-ui.playing #stageBossHud #stageBossTitle>.sb-state{flex:none;white-space:pre}

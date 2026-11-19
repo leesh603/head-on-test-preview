@@ -40,6 +40,12 @@ export function maritimeDamageMultiplier(e,id){
  const aa=Object.values(e.parts||{}).filter(p=>p.kind==='anti_air');
  return e.profileId==='dreadnought'&&aa.length&&aa.every(p=>p.hp<=0)?1.25:1;
 }
+export function operationQShipHullDamage(e,damage){
+ // Toughen only the escort target. Its opening gun covers absorb repeated
+ // hull strikes, while exposed mounts remain vulnerable to precision hits.
+ const floor=maritimeWeaponsReady(e)?0:Math.ceil(e.maxHp*.55);
+ return Math.min(damage,e.maxHp*.25,Math.max(0,e.hp-floor));
+}
 function changePhase(e,phase){e.naval.phase=phase;e.naval.phaseAge=0;e.shotCues=[];e.hazards=[];e.attackClock=Math.max(finite(e.attackClock),phase==='surfaced'?.8:1);}
 /** Movement state is host-owned plain JSON. The bow follows actual world velocity,
  * never a camera-relative offset or a normalized interpolation to a destination. */

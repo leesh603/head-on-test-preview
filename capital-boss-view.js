@@ -21,8 +21,24 @@ export function capitalBossExtents(body){
  const x=art.width*scale/2,y=art.height*scale/2,c=Math.abs(Math.cos(body.hullYaw||0)),s=Math.abs(Math.sin(body.hullYaw||0));
  return {halfWidth:x*c+y*s,halfHeight:x*s+y*c};
 }
-// Art, collision and muzzles consume the same live part pose. No canvas copies,
-// filters, replacement shapes or per-frame image decoding are used.
+// A propeller turns around the engine's fore-aft axis. Its blades project onto
+// that engine's cross-axis in top view, while the painted hub stays fixed.
+function drawAxialPropeller(c,image,sx,sy,sw,sh,width,height,pivot,phase,direction){
+ const hubX=sw*pivot[0],hubHalf=Math.round(Math.min(sh*.27,sw*.16));
+ const left=Math.round(hubX)-hubHalf,right=Math.round(hubX)+hubHalf,scale=width/sw,dy=-height*pivot[1];
+ const alpha=c.globalAlpha;
+ for(let sample=1;sample>=0;sample--){
+  const projected=Math.cos(phase-sample*direction*.58);
+  const span=Math.sign(projected||1)*Math.max(.045,Math.abs(projected));
+  c.save();c.globalAlpha=alpha*(sample?.23:.94);c.scale(span,1);
+  // Extend each blade under the hub so it never separates at zero projected span.
+  c.drawImage(image,sx,sy,left+2,sh,-hubX*scale,dy,(left+2)*scale,height);
+  c.drawImage(image,sx+right-2,sy,sw-right+2,sh,(right-2-hubX)*scale,dy,(sw-right+2)*scale,height);
+  c.restore();
+ }
+ c.drawImage(image,sx+left,sy,right-left,sh,(left-hubX)*scale,dy,(right-left)*scale,height);
+}
+// Art, collision and muzzles consume the same live part pose.
 export function drawCapitalBoss(context,body,{effect=()=>false,defeat}={}){
  const art=CAPITAL_BOSS_ART[body.kind||body.assetKey];if(!art)return false;
  const scale=body.capitalScale||.6,parts=body.parts instanceof Map?body.parts:new Map((body.parts||[]).map(p=>[p.id||p.partId,p]));
@@ -42,13 +58,20 @@ export function drawCapitalBoss(context,body,{effect=()=>false,defeat}={}){
   if(source.sourceHalf){if(source.sourceHalf==='right'){sx+=sw/2;dx+=width/2;}sw/=2;drawWidth/=2;}
   const fall=destroying?Math.min(1,Math.max(0,age-1.4)/4.6):0;
   context.save();context.globalAlpha*=pose.alpha??1;context.translate(pose.x,pose.y+fall*(source.kind==='structure'?38:22));context.rotate(pose.angle);
-  context.scale((pose.scaleX??1)*(1-fall*.09),1-fall*.09);
-  for(const offset of source.barrelOffsets||[0])context.drawImage(image,sx,sy,sw,sh,dx+offset*scale,dy,drawWidth,height);
+  context.scale(1-fall*.09,1-fall*.09);
+  if(source.kind==='propeller'&&state<2&&!body.dead){
+   const direction=source.x<0?1:-1;
+   drawAxialPropeller(context,image,sx,sy,sw,sh,width,height,pivot,(part.propellerAngle||0)*direction,direction);
+  }else for(const offset of source.barrelOffsets||[0])context.drawImage(image,sx,sy,sw,sh,dx+offset*scale,dy,drawWidth,height);
   context.restore();
-  if(part.hitFlash>0)effect(context,'metalShard0',pose.x,pose.y,32,32,pose.angle,Math.min(.8,part.hitFlash*4));
+  if(part.hitFlash>0){
+   const wingOffset=source.kind==='structure'&&source.sourceHalf?width*(source.sourceHalf==='left'?-.25:.25):0;
+   effect(context,'metalShard0',pose.x+Math.cos(pose.angle)*wingOffset,pose.y+Math.sin(pose.angle)*wingOffset,32,32,pose.angle,Math.min(.8,part.hitFlash*4));
+  }
   if(source.kind==='engine'&&state>0){
    const drift=((body.motionTime||0)*.65+index*.17)%1;
-   effect(context,state===2?'smokeDark':'smokeOil',pose.x,pose.y-drift*65,24+drift*35,30+drift*50,0,(1-drift)*.44);
+   const aft=drift*(state===2?92:65);
+   effect(context,state===2?'smokeDark':'smokeOil',pose.x-Math.sin(pose.angle)*aft,pose.y+Math.cos(pose.angle)*aft,24+drift*35,30+drift*50,pose.angle,(1-drift)*.44);
   }
   const recoil=source.kind==='barrel'?(parts.get(source.parent)?.recoil||0):0;
   if(source.kind==='barrel'&&recoil>0&&!part.destroyed&&!part.disabled){

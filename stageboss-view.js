@@ -56,6 +56,8 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=pandemonium394r2&rail=42&skyart=20261020&alpsart=20261020&cambrai=20261021&adriaticart=20261022&skymechanics=20261022&cityart=20261022';
 import {bossHudModel,bossHudDetail} from './headon-stageboss-hud.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&zb=20261103';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
+// The boss tactic sentence stays briefly after arrival; the cut-in already explained it.
+const BOSS_TACTIC_HUD_SECONDS=8;
 import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1&depth=20261111&lazy=20261117';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {londonStatus} from './london-battle.js?v=pandemonium394r2';
@@ -565,6 +567,17 @@ function drawBossPart(c,p,ring,t=0){
  if(p.hittable&&!p.destroyed){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}
 }
 // The defense objective owns the boss slot throughout the city battle.
+// Boss name and state are separate spans: on a phone the one-line plate shortens the name with an
+// ellipsis while the state (본체 보호 / 붕괴 중 / 진입 중) stays readable. Writes only on change;
+// other plates that set textContent directly simply replace the spans.
+function setBossTitle(name,state){
+ const el=document.getElementById('stageBossTitle');if(!el)return;
+ const key=name+'\u0000'+state;
+ if(el.dataset.split===key&&el.childElementCount===2)return;
+ el.dataset.split=key;
+ const a=document.createElement('span'),b=document.createElement('span');a.className='sb-name';b.className='sb-state';
+ a.textContent=name;b.textContent=state;el.replaceChildren(a,b);
+}
 function updateCityRaidHud(g){
  const slot=document.getElementById('stageBossHud');if(!slot)return false;
  const locale=getLocale(),model=g&&g.state!=='lost'?cityRaidHudModel(g,locale==='en'):null;
@@ -613,7 +626,7 @@ export function updateStageBossHud(g){
   const slot=document.getElementById('stageBossHud'),en=getLocale()==='en';slot.classList.remove('hidden','gate-armored');
   clearSlotStrip(slot);
   slot.querySelectorAll('.gate-tick').forEach(n=>n.remove());
-  document.getElementById('stageBossTitle').textContent=intrusion.name+' · '+(intrusion.phaseLabel||(en?'INTRUSION':'난입'));
+  setBossTitle(intrusion.name,' · '+(intrusion.phaseLabel||(en?'INTRUSION':'난입')));
   document.getElementById('stageBossParts').textContent=(en?'Broken ':'파괴 ')+intrusion.broken+'/'+intrusion.total+' · '+intrusion.remaining+(en?'s':'초');
   let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}hint.textContent=intrusion.tactic;
   document.getElementById('stageBossHp').style.width=Math.max(0,Math.min(100,intrusion.hp/intrusion.maxHp*100))+'%';
@@ -637,7 +650,7 @@ export function updateStageBossHud(g){
  const model=sbHudModel;
  document.body.classList.toggle('stageboss-playing',active);
  slot.classList.toggle('hidden',!model);
- if(model&&tick){const en=getLocale()==='en';document.getElementById('stageBossTitle').textContent=(en?(model.nameEn||BOSS_NAMES_EN[model.bossId]||model.name):koreanBossTitle(model.name))+(g.stageBoss.defeatSequence?(en?' · BREAKING UP':' · 붕괴 중'):model.shielded?(en?' · ARMORED':' · 본체 보호'):'');document.getElementById('stageBossParts').textContent=model.fleetTotal?bossHudDetail(model,getLocale()):(model.formationTotal?(en?'Formation ':'편대 생존 ')+model.formationAlive+'/'+model.formationTotal:(en?'Parts ':'부위 ')+model.aliveParts+'/'+model.totalParts)+' · '+Math.ceil(Math.min(model.hp,model.maxHp))+' / '+Math.ceil(model.maxHp);let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}const tactic=bossTactic(g.stageBoss.stages.encounter,getLocale())+(g.londonBattle?'\n'+londonStatus(g,getLocale()):'')+(g.parisBattle?'\n'+parisStatus(g,getLocale()):'');if(hint.textContent!==tactic)hint.textContent=tactic;const bar=document.getElementById('stageBossHp');bar.style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));}
+ if(model&&tick){const en=getLocale()==='en';setBossTitle(en?(model.nameEn||BOSS_NAMES_EN[model.bossId]||model.name):koreanBossTitle(model.name),g.stageBoss.defeatSequence?(en?' · BREAKING UP':' · 붕괴 중'):model.shielded?(en?' · ARMORED':' · 본체 보호'):'');document.getElementById('stageBossParts').textContent=model.fleetTotal?bossHudDetail(model,getLocale()):(model.formationTotal?(en?'Formation ':'편대 생존 ')+model.formationAlive+'/'+model.formationTotal:(en?'Parts ':'부위 ')+model.aliveParts+'/'+model.totalParts)+' · '+Math.ceil(Math.min(model.hp,model.maxHp))+' / '+Math.ceil(model.maxHp);let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}if(hint.dataset.boss!==String(model.bossId)){hint.dataset.boss=String(model.bossId);hint.dataset.since=String(g.t||0)}const brief=(g.t||0)-(+hint.dataset.since||0)<BOSS_TACTIC_HUD_SECONDS,status=[g.londonBattle?londonStatus(g,getLocale()):'',g.parisBattle?parisStatus(g,getLocale()):''].filter(Boolean).join('\n'),tactic=[brief?bossTactic(g.stageBoss.stages.encounter,getLocale()):'',status].filter(Boolean).join('\n');if(hint.textContent!==tactic)hint.textContent=tactic;const bar=document.getElementById('stageBossHp');bar.style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));}
  // Phase gates: tick marks on the bar; the held line locks while the boss is braced.
  if(model){const bar=document.getElementById('stageBossHp')?.parentElement;
   if(bar){if(bar.dataset.gateEnc!==encounter.id){bar.querySelectorAll('.gate-tick').forEach(x=>x.remove());for(const f of encounter.gateLines?.()||[]){const t=document.createElement('b');t.className='gate-tick';t.dataset.frac=f;t.style.left=(f*100).toFixed(1)+'%';bar.append(t);}bar.dataset.gateEnc=encounter.id;}

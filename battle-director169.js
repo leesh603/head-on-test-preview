@@ -260,7 +260,7 @@ function place(game,e,layout,index,count){
  joinSquadron(game,e,layout,index);
  // The covering pair arrives ahead of its leader. A direct nose-on dive
  // meets the escorts first; clearing one opens an actual approach lane.
- if(layout==='headOn'&&e.directorRole==='cover'){
+ if(ROLE_TACTICS.has(layout)&&e.directorRole==='cover'){
   const leader=e.directorSquad.leader,lateral=-(e.x-leader.x)*Math.sin(leader.a)+(e.y-leader.y)*Math.cos(leader.a);
   e.directorFormationSlot={back:-65,lateral};e.formationBack=-65;e.formationOffset=lateral;
   e.x=leader.x+Math.cos(leader.a)*65-Math.sin(leader.a)*lateral;
@@ -340,7 +340,7 @@ function joinSquadron(game,e,layout,index){
  squad.members.push(e);e.directorSquad=squad;e.directorSlot=squad.members.length-1;e.directorTarget=squad.target;
  if(e.type==='bomber')e.directorFormation=true;
  e.isFormationCommander=squad.leader===e;e.formationCommand=e.isFormationCommander;
- if(tactic==='headOn')e.directorRole=e.isFormationCommander?'leader':e.directorSlot<=2?'cover':'flank';
+ if(ROLE_TACTICS.has(tactic))e.directorRole=e.isFormationCommander?'leader':e.directorSlot<=2?'cover':'flank';
  if(!e.isFormationCommander){const slot=e.directorFormationSlot||directorFormationSlot('vic',e.directorSlot);e.formationLeader=squad.leader;e.formationBack=slot.back;e.formationOffset=slot.lateral}
  if(tactic==='veteran'){
   const paint=DIRECTOR_LIVERIES[e.faction],key=paint[e.directorSlot%paint.length],base=key==='checker_se5a'?'se5a':key==='dazzle_camel'?'camel':'fokkerd7';
@@ -409,7 +409,7 @@ function tickSquadrons(game,dt){
   if(!(squad.target?.hp>0)||squad.target.status==='downed')squad.target=playerFor(game);
   for(const w of living)w.directorTarget=squad.target;
   tickBaitAmbush(game,squad,living,now);
-  if(squad.tactic==='headOn'&&!squad.circle)updateFighterRoles(game,squad,living,now);
+  if(ROLE_TACTICS.has(squad.tactic)&&!squad.circle)updateFighterRoles(game,squad,living,now);
   updateCircleDefense(game,squad,living,now);
   reassembleSquad(game,squad,living,now);
   if(squad.attackSignalAt&&now>=squad.attackSignalAt){
@@ -449,7 +449,7 @@ function updateFighterRoles(game,squad,living,now){
 
 function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
  const squad=e.directorSquad,now=game.t||0;
- if(e.battleCoverContact&&e.battleCoverUntil>now||squad?.tactic!=='headOn'||squad.circle&&!squad.passActive||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
+ if(e.battleCoverContact&&e.battleCoverUntil>now||!ROLE_TACTICS.has(squad?.tactic)||squad.circle&&!squad.passActive||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
  if(e.directorBeat!=='attack'&&(!e.directorChoreographyDone||![S.APPROACH,S.REPOSITION].includes(e.combatPassState)))return result;
  // After the first real shot, retain the pass direction. Turning out of its nose
  // creates the existing Break/re-entry opening instead of a homing attack.
@@ -467,6 +467,9 @@ function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
  return{delta:angleDiff(heading,e.a),turn:result.turn};
 }
 
+// Squads whose wings fly leader / cover / flank roles. Veterans are the
+// skilled tier: they screen their leader and send a flanker like a head-on flight.
+const ROLE_TACTICS=new Set(['headOn','veteran']);
 const visibleContact=p=>p&&p.hp>0&&p.status!=='downed'&&!p.fogHidden&&!(p.ballCloak>0)&&!(p.kaiserFogTime>0)&&!(p.cloudConceal>0);
 const tacticalRest=(e,now)=>e.directorLayout==='recovery'&&e.directorIntentUntil>now||e.directorBreakUntil>now||e.formationCollapseUntil>now;
 

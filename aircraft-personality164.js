@@ -57,6 +57,9 @@ export const SPECIAL_AIRCRAFT_PERSONALITIES=freeze({
 
 export const AIRCRAFT_PERSONALITY_ALIASES=freeze({
  fokker_red:'fokker',fokker_voss:'fokker',fokker_standard:'fokker','white-fokkerdv55':'fokkerd7',
+ // Director veteran liveries (battle-director169 DIRECTOR_LIVERIES) fly their base airframes;
+ // without these the per-frame re-resolve wiped their personality, so veterans never broke or defended.
+ dazzle_camel:'camel',checker_se5a:'se5a',jasta11_fokkerd7:'fokkerd7',jasta18_fokkerd7:'fokkerd7',jasta27_fokkerd7:'fokkerd7',jasta43_fokkerd7:'fokkerd7',
  collishaw_sopwith:'sopwith',goering_fokkerd7:'fokkerd7',guynemer_spad:'spad12',udet_fokkerdv:'fokkerdv',baracca_nieuport:'nieuport_italian',berthold_pfalz:'pfalz_d3a',boelcke_albatros:'albatros_d2'
 });
 

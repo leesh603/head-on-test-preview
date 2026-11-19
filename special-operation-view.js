@@ -107,7 +107,11 @@ function opLabelBlit(ctx, text, x, y, color) {
 }
 
 // guideTop: lowest edge of the top HUD (canvas px), so mission guides never slide under the cards.
-export function drawOperationTargets(ctx, game, width, height, en = false, guideTop = 0) {
+// guideBottom: height of the bottom control zone (canvas px); on touch screens it clears the
+// action/maneuver buttons, matching drawEdgePointer in app.js.
+// guideAvoid: DOM boxes over the field (canvas px, e.g. the kill-streak counter); a mission
+// guide that would print over one drops below it.
+export function drawOperationTargets(ctx, game, width, height, en = false, guideTop = 0, guideBottom = 105, guideAvoid = null) {
  const battle = game?.operationBattle || game?.operationSnapshot?.battle;
  const mission=missionView(game);
  if (!battle&&!mission) return;
@@ -136,7 +140,7 @@ export function drawOperationTargets(ctx, game, width, height, en = false, guide
   let x = width / 2 + (entity.x - game.x) * zoom, y = height / 2 + (entity.y - game.y) * zoom;
   const exit = missionGuide && entity.kind === 'exit';
   if (!exit) y -= 25;
-  const side=missionGuide?Math.min(width/2,Math.max(68,ctx.measureText(text).width/2+16)):50,top=missionGuide?Math.max(Math.min(155,height*.22),guideTop):42,bottom=height-(missionGuide?105:42);
+  const side=missionGuide?Math.min(width/2,Math.max(68,ctx.measureText(text).width/2+16)):50,top=missionGuide?Math.max(Math.min(155,height*.22),guideTop):42,bottom=height-(missionGuide?guideBottom:42);
   if (x < side || x > width - side || y < top || y > bottom) {
    if (!guide) return;
    const horizontal = x < side ? '‹ ' : x > width - side ? ' ›' : '';
@@ -144,6 +148,10 @@ export function drawOperationTargets(ctx, game, width, height, en = false, guide
    x = Math.max(side, Math.min(width - side, x));
    y = Math.max(top, Math.min(bottom, y));
   } else if (exit) y = Math.max(top, y - Math.max(25, 66*zoom));
+  if(missionGuide&&guideAvoid?.length){
+   const half=ctx.measureText(text).width*.5+3;
+   for(const a of guideAvoid)if(x+half>a.l&&x-half<a.r&&y+11>a.t&&y-11<a.b)y=Math.min(bottom,a.b+12);
+  }
   if(missionGuide){
    const direction=y>height/2?-1:1;
    if(hardware?.length){

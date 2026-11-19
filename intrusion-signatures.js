@@ -18,6 +18,7 @@ const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 
 export const INTRUSION_SIGNATURE=Object.freeze({
  first:2.4,interval:5.2,enraged:3.9,enrageAt:.5,retry:.6,
+ sea:Object.freeze({first:.8,interval:4.6,enraged:3.5,retry:.35}),
  // Bosses whose own attacks already land often get their signatures less often.
  pace:Object.freeze({'handley-page-v1500':2,goliath:1.5,leviathan:1.4}),
  fan:Object.freeze({rays:Object.freeze([-.26,-.13,0,.13,.26]),reach:.34,rounds:2,enragedRounds:3,warning:1.05,damage:11,speed:300,guns:2}),
@@ -34,7 +35,7 @@ export const INTRUSION_SIGNATURE=Object.freeze({
 
 // Air turrets are complete artworks with a fixed bearing (+-5-18 degrees), so a
 // gun signature is opportunistic: it fires only when the pilot actually sits in
-// a battery's lane, and takes priority over the bomb rotation when it does.
+// a battery's lane, and alternates with the bomb rotation when it does.
 // The bomb rotation always has at least two shapes, so a pilot who keeps out of
 // the lanes still meets more than one attack. V/1500 and R.II run their own
 // gunnery, so their signatures are bomb-only.
@@ -51,9 +52,9 @@ export const INTRUSION_SIGNATURE_SETS=Object.freeze({
  // At sea the shapes are shell splashes from a live deck gun; only the
  // Dreadnought carries anti-aircraft mounts for a bullet curtain.
  dreadnought:S(['curtain'],['straddle','walk','cross']),
- qship:S([],['straddle','walk']),
- seeadler:S([],['walk','straddle']),
- nachtwal:S([],['straddle','walk']),
+ qship:S([],['cross','straddle','walk']),
+ seeadler:S([],['walk','cross','straddle']),
+ nachtwal:S([],['cross','walk','straddle']),
  uboat:S([],['straddle','walk']),
  m1:S([],['straddle','walk'])
 });
@@ -117,14 +118,25 @@ function gunPattern(g,e,p,api,name){
 
 function seaGun(g,e,p,api){
  const sub=api.newSubmarine(e);
- return mounts(e,api,'heavy').filter(x=>api.visible(g,e,x.world)&&(sub||api.clear(e,x.gun.id,x.muzzle,x.a)))
-  .sort((a,b)=>Math.hypot(a.world.x-p.x,a.world.y-p.y)-Math.hypot(b.world.x-p.x,b.world.y-p.y))[0]||null;
+ const guns=mounts(e,api,'heavy').filter(x=>sub||api.clear(e,x.gun.id,x.muzzle,x.a))
+  .sort((a,b)=>Math.hypot(a.world.x-p.x,a.world.y-p.y)-Math.hypot(b.world.x-p.x,b.world.y-p.y));
+ return guns.find(x=>api.visible(g,e,x.world))||(!e.operationOwned&&api.visible(g,e,e)?guns[0]:null);
+}
+function warningPoint(g,e,p,api,point){
+ if(api.visible(g,e,point))return point;
+ if(e.operationOwned||!api.visible(g,e,p)||!api.visible(g,e,e))return null;
+ // The edge ring appears immediately, followed by the fixed world-space ring
+ // as the aircraft closes. Discard impacts that would never come into view.
+ const view=signatureLead(p,finite(e.signatureTurn),Math.max(0,point.w-.4),api);
+ if(!api.visible(g,e,{x:point.x-view.x+p.x,y:point.y-view.y+p.y}))return null;
+ return {...point,edgeWarning:true};
 }
 function bombPattern(g,e,p,api,name){
  const sea=api.sea(e),gun=sea?seaGun(g,e,p,api):null;
  const sources=sea?(gun?[{sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,side:0}]:[]):api.bombSources(e);
  if(!sources.length)return 0;
- const enraged=intrusionEnraged(e),turn=finite(e.signatureTurn),lead=t=>signatureLead(p,turn,t,api),points=[];
+ const enraged=intrusionEnraged(e),turn=finite(e.signatureTurn),splash=INTRUSION_SIGNATURE.splash;
+ const lead=t=>signatureLead(p,turn,sea?splash.warning:t,api),points=[];
  if(name==='walk'){
   // A chain that starts toward the boss and walks onto the pilot's track.
   const k=INTRUSION_SIGNATURE.walk,n=enraged?k.enragedCount:k.count,last=k.first+(n-1)*k.step;
@@ -152,11 +164,13 @@ function bombPattern(g,e,p,api,name){
   const source=broad[serial%Math.max(1,broad.length)]||(Math.abs(across)<1?sources[(serial+i)%sources.length]:sources.find(s=>s.side===Math.sign(across)));
   return source?[{q,source}]:[];
  });
- const shown=owned.filter(({q})=>api.visible(g,e,q));
- if(!shown.length||shown.length<Math.ceil(owned.length*.6))return 0;
- const k=INTRUSION_SIGNATURE.splash;
+ const shown=owned.flatMap(({q,source})=>{
+  const point=warningPoint(g,e,p,api,sea?{...q,w:splash.warning}:q);
+  return point?[{q:point,source}]:[];
+ });
+ if(shown.length<Math.max(1,Math.min(3,owned.length)))return 0;
  for(const {q,source:{sourcePartId,localMuzzle,localAngle}} of shown){
-  const hazard={sourcePartId,localMuzzle,localAngle,x:q.x,y:q.y,radius:sea?k.radius:q.r,warning:sea?k.warning:q.w,damage:sea?k.damage:q.dmg,signature:name};
+  const hazard={sourcePartId,localMuzzle,localAngle,x:q.x,y:q.y,radius:sea?splash.radius:q.r,warning:q.w,damage:sea?splash.damage:q.dmg,signature:name,...(q.edgeWarning?{edgeWarning:true}:{})};
   if(e.profileId==='seeadler')api.navalSplash(g,e,hazard,gun.world);
   else e.hazards.push({kind:sea?'naval-splash':'bomb',...hazard,age:0,done:false});
  }
@@ -165,18 +179,19 @@ function bombPattern(g,e,p,api,name){
 }
 
 function straddle(g,e,p,api){
- const k=INTRUSION_SIGNATURE.straddle,h=heading(p,api),lx=-Math.sin(h),ly=Math.cos(h);
+ const k=INTRUSION_SIGNATURE.straddle;
  const gun=seaGun(g,e,p,api);if(!gun)return 0;
- const c=signatureLead(p,finite(e.signatureTurn),k.warning,api);if(!api.visible(g,e,c))return 0;
- const enraged=intrusionEnraged(e),lanes=enraged?[-1,0,1,-2,2]:[-1,0,1];let n=0;
- lanes.forEach((l,i)=>{const q={x:c.x+lx*l*k.spread,y:c.y+ly*l*k.spread};if(!api.visible(g,e,q))return;
-  const hazard={...q,radius:k.radius,warning:k.warning,damage:k.damage,sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,signature:'straddle'};
+ const c=signatureLead(p,finite(e.signatureTurn),k.warning,api),lx=-Math.sin(c.a),ly=Math.cos(c.a);
+ const lanes=intrusionEnraged(e)?[-1,0,1,-2,2]:[-1,0,1];
+ const shown=lanes.map(l=>warningPoint(g,e,p,api,{x:c.x+lx*l*k.spread,y:c.y+ly*l*k.spread,w:k.warning})).filter(Boolean);
+ if(shown.length<2)return 0;
+ for(const {x,y,edgeWarning} of shown){
+  const hazard={x,y,radius:k.radius,warning:k.warning,damage:k.damage,sourcePartId:gun.gun.id,localMuzzle:gun.muzzle,localAngle:gun.a,signature:'straddle',...(edgeWarning?{edgeWarning:true}:{})};
   if(e.profileId==='seeadler')api.navalSplash(g,e,hazard,gun.world);
   else e.hazards.push({kind:'naval-splash',...hazard,age:0,done:false});
-  n++;
- });
- if(n&&e.profileId!=='seeadler')api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
- return n;
+ }
+ if(e.profileId!=='seeadler')api.muzzle?.(g,{x:gun.world.x,y:gun.world.y,angle:gun.a+e.a+Math.PI/2,scale:.9,heavy:true});
+ return shown.length;
 }
 
 function attempt(g,e,p,api,name){
@@ -188,26 +203,31 @@ function attempt(g,e,p,api,name){
 /** Advance the signature clock; returns the pattern that was launched, if any. */
 export function stepIntrusionSignature(g,e,dt,api){
  const set=INTRUSION_SIGNATURE_SETS[e?.profileId];
- if(!set||e.phase!=='active'||!(dt>0)||!api.ready(e))return null;
+ if(!set||!(dt>0)||!api.ready(e))return null;
+ const navalOpening=api.sea(e)&&!e.operationOwned;
+ const timing=navalOpening?INTRUSION_SIGNATURE.sea:INTRUSION_SIGNATURE;
+ if(e.phase!=='active'&&!(navalOpening&&e.phase==='entering'&&e.contactPlaced))return null;
  e.hazards||=[];e.shotCues||=[];
  const ps=api.alive(g);if(!ps.length)return null;
  const p=ps[finite(e.signatureSerial)%ps.length];
  trackTurn(e,p,api,dt);
- if(e.signatureClock==null)e.signatureClock=INTRUSION_SIGNATURE.first;
+ if(e.signatureClock==null)e.signatureClock=timing.first;
  e.signatureClock-=dt;
  if(e.signatureClock>0)return null;
- if(pending(e)){e.signatureClock=INTRUSION_SIGNATURE.retry;return null;}
- // A battery that bears takes the turn, but never twice running.
- const order=[...set.guns.filter(n=>n!==e.lastSignature)];
+ if(pending(e)){e.signatureClock=timing.retry;return null;}
+ const guns=set.guns.filter(n=>n!==e.lastSignature),bombs=[];
  const start=finite(e.signatureIndex)%Math.max(1,set.bombs.length);
- for(let i=0;i<set.bombs.length;i++)order.push(set.bombs[(start+i)%set.bombs.length]);
+ for(let i=0;i<set.bombs.length;i++)bombs.push(set.bombs[(start+i)%set.bombs.length]);
+ // Give the salvo shapes a turn even if the same guns can track every pass.
+ const gunTurn=!e.lastSignature||set.bombs.includes(e.lastSignature);
+ const order=gunTurn?[...guns,...bombs]:[...bombs,...guns];
  for(const name of order){
   if(!(attempt(g,e,p,api,name)>0))continue;
   if(set.bombs.includes(name))e.signatureIndex=(set.bombs.indexOf(name)+1)%set.bombs.length;
   e.signatureSerial=finite(e.signatureSerial)+1;e.lastSignature=name;
-  e.signatureClock=(intrusionEnraged(e)?INTRUSION_SIGNATURE.enraged:INTRUSION_SIGNATURE.interval)*finite(INTRUSION_SIGNATURE.pace[e.profileId],1);
+  e.signatureClock=(intrusionEnraged(e)?timing.enraged:timing.interval)*finite(INTRUSION_SIGNATURE.pace[e.profileId],1);
   return name;
  }
- e.signatureClock=INTRUSION_SIGNATURE.retry;
+ e.signatureClock=timing.retry;
  return null;
 }

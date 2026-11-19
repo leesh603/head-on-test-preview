@@ -74,7 +74,7 @@ export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
  return {close(){close();status.hidden=true;},createGame:(s,data)=>new OnlineCoopGame(s,data),input(g,inputs,joy){return g.localInput(inputs,joy);},controls(g){
   const p=g.player(g.localPlayerId),live=g.state==='playing'&&p.status==='alive';
   $('touchSkill').disabled=!live||p.cooldown>0;$('touchEvade').disabled=!live||p.evadeCooldown>0;$('reload').disabled=!live||p.reloadTime>0;
-  $('skillButtonState').textContent=p.cooldown>0?Math.ceil(p.cooldown)+onlineCopy('초','s'):onlineCopy('준비','Ready');$('maneuverButtonState').textContent=p.evadeCooldown>0?Math.ceil(p.evadeCooldown)+onlineCopy('초','s'):onlineCopy('준비','Ready');
+  $('skillButtonState').textContent=p.cooldown>0?Math.ceil(p.cooldown)+onlineCopy('초','s'):'';$('maneuverButtonState').textContent=p.evadeCooldown>0?Math.ceil(p.evadeCooldown)+onlineCopy('초','s'):'';
   $('touchSkill').style.setProperty('--ready',1-Math.min(1,p.cooldown/p.skillCooldown()));$('touchEvade').style.setProperty('--ready',1-Math.min(1,p.evadeCooldown/(8*(p.evadeCooldownMult||1))));
  }};
 }

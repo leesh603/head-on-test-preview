@@ -216,6 +216,7 @@ export function drawCannonProjectile(c,b,x,y){
  if(b.life<=0)return;
  if(b.secretDavisShell&&drawBossOrdnance(c,'he-big',x,y,42,Math.atan2(b.vy,b.vx)))return;
  const cow=!!b.cow37;
+ const moteur=!cow&&!b.secretWeapon&&!b.secretDavisShell;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
  if(b.ammunitionScale>1)c.scale(b.ammunitionScale,b.ammunitionScale);
  drawProjectileTactic(c,b,0,0,0);
@@ -224,13 +225,16 @@ export function drawCannonProjectile(c,b,x,y){
   fx(c,'smokeTrail',-20,0,37,8,0,.62);
   if(fx(c,'shellHeavy',0,0,32,10,0,1)){c.restore();return;}
  }
- // The COW's metal body stays legible without the white trail baked into its flight frame.
- if(FX3&&!cow&&!b.secretWeapon&&!b.secretDavisShell)fxTint(c,'tracerCore','#e8bc7d',-23,0,39,4.5,0,.87);
- const drawn=FX3&&(cow?fx(c,'cowBody',0,0,35,13):fx(c,'cannonMotor',0,0,38,10)||fx(c,'shellAuto',0,0,38,10));
+ // Keep a short tracer behind the compact moteur body. The flight cell already contains a long wake.
+ if(FX3&&moteur&&fxReady('moteurBody')){
+  fxTint(c,'tracerCore','#e8bc7d',-22,0,25,3,0,.78);
+  fx(c,'moteurBody',0,0,25,7);c.restore();return;
+ }
+ const drawn=FX3&&(cow?fx(c,'cowBody',0,0,25,10):moteur?fx(c,'shellAuto',0,0,25,7):fx(c,'cannonMotor',0,0,38,10)||fx(c,'shellAuto',0,0,38,10));
  if(drawn){c.restore();return;}
  // Original cannon atlas remains the rollback and loading fallback.
  if(cannonAtlas&&cannonAtlas.complete&&cannonAtlas.naturalWidth){
-  const sw=cannonAtlas.naturalWidth/2,sh=cannonAtlas.naturalHeight,dw=cow?24:20,dh=cow?56:49;
+  const sw=cannonAtlas.naturalWidth/2,sh=cannonAtlas.naturalHeight,dw=cow?18:moteur?15:20,dh=cow?35:moteur?34:49;
   c.imageSmoothingEnabled=false;c.rotate(Math.PI/2);
   c.drawImage(cannonAtlas,cow?0:sw,0,sw,sh,-dw/2,-dh*.42,dw,dh);
  }else{
