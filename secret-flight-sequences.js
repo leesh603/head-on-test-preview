@@ -150,7 +150,7 @@ function wakeCue(c,world,q,v,t,art,low){
    for(const side of [-1,1]){
     const tip=side*(22+t*10);
     strip(c,v,'vaporTrail',start[0]-Math.sin(a0)*tip,start[1]+Math.cos(a0)*tip,
-     end[2]-Math.sin(a1)*tip,end[3]+Math.cos(a1)*tip,9+t*8,(1-t)*.9);
+     end[2]-Math.sin(a1)*tip,end[3]+Math.cos(a1)*tip,12+t*8,(1-t)*.94);
    }
   }
  }
@@ -170,7 +170,8 @@ function liveWing(world,q){
 function impact(c,q,v,a,t,low){
  const z=v.z,age=t*(q.life||1),fade=1-t,x=v.sx(q.x),y=v.sy(q.y);
  if(q.kind==='armorImpact'){
-  if(age<.21)fx(c,'shellBurst'+Math.min(3,Math.floor(age/.05)),x,y,(42+age*100)*z,(33+age*75)*z,a,1-age/.23);
+  if(age<.22)fx(c,'shellBurst'+Math.min(3,Math.floor(age/.055)),x,y,(49+age*108)*z,(39+age*80)*z,a,1-age/.25);
+  if(age<.13)fx(c,'armorSpark',x,y,37*z,21*z,a,1-age/.13);
   const count=low?3:5;
   for(let i=0;i<count;i++){
    const h=a+(i-(count-1)/2)*.52,r=(1-(1-t)**2)*(25+(i%3)*11);
@@ -185,7 +186,8 @@ function impact(c,q,v,a,t,low){
  if(q.impactLayer==='water'&&drawWaterContact(c,x,y,96*z,t,a))return;
  if(age<.27&&q.impactLayer!=='water'){
   const family=q.impactLayer==='air'?'airblast':'bombfx';
-  fx(c,family+Math.min(3,Math.floor(age/.065)),x,y,(73+age*85)*z,(60+age*53)*z,a,1-age/.31);
+  fx(c,family+Math.min(3,Math.floor(age/.065)),x,y,(82+age*92)*z,(66+age*59)*z,a,1-age/.31);
+  if(age<.12)fx(c,'fireFlash',x,y,52*z,33*z,a,1-age/.12);
  }
  // A surface blast expands around the impact point; smoke from an airburst
  // follows the aircraft's heading in the map plane.
@@ -238,15 +240,16 @@ export function drawSecretFlightCue(c,world,q,v,art,low=false){
   // A brief discharge stays at the shot's real muzzle; its casing and smoke
   // stay behind as the wing leaves instead of tracking a moving muzzle flash.
   const recoil=clamp(age/.12);
-  if(age<.09)fx(c,q.rear?'muzzleRear':'muzzleTwin',x+dx*25*z,y+dy*25*z,41*z,17*z,a,1-age/.09);
+  if(age<.11)fx(c,q.rear?'muzzleRear':'muzzleTwin',x+dx*25*z,y+dy*25*z,48*z,19*z,a,1-age/.11);
   fx(c,'bulletBrass',x+(dx*9-dy*(7+recoil*12))*z,y+(dy*9+dx*(7+recoil*12)+recoil*recoil*6)*z,9*z,4*z,a+recoil*3,fade);
   return true;
  }
  case 'wingHit':{
   const target=q.targetId!=null&&(world.enemies||[]).find(e=>e.hp>0&&(e.id===q.targetId||e.tailId===q.targetId));
   const ex=v.sx(target?target.x+(q.offsetX||0):q.x),ey=v.sy(target?target.y+(q.offsetY||0):q.y);
-  if(age<.13)fx(c,'armorSpark',ex,ey,38*z,24*z,a,1-age/.13);
+  if(age<.14)fx(c,'armorSpark',ex,ey,43*z,25*z,a,1-age/.14);
   fx(c,'debrisShard',x+(dx*29-dy*9)*t*z,y+(dy*29+dx*9+18*t)*t*z,17*z,9*z,a+age*8,fade);
+  if(!low&&age<.19)fx(c,'ricochet',x+(dx*19+dy*12)*t*z,y+(dy*19-dx*12)*t*z,17*z,6*z,a-.38,1-age/.19);
   return true;
  }
  case 'wingSkill':{

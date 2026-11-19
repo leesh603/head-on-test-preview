@@ -20,7 +20,7 @@ const dartCharges=new WeakMap();
 const dartSalvos=new WeakMap();
 const dartBursts=new WeakMap();
 const clip=(n,a,b)=>Math.min(b,Math.max(a,n));
-export const POM_AIRBURST=Object.freeze({fuse:.82,radius:103,splash:.38});
+export const POM_AIRBURST=Object.freeze({fuse:.82,radius:103,splash:.44});
 export const SECRET_COMBAT=Object.freeze({cooperDamage:70,cooperRadius:66,signalDelay:2.65,chainInterval:3.2,wakeDelay:.40,wakeLife:.85,ramDelay:.8,armorDelay:15,bomberInterval:10});
 
 function cue(p,kind,origin=p,extra={}){
@@ -63,7 +63,7 @@ export function secretRankenDamageScale(b,e){
  return charge&&charge.body!==(e.stageBossBody||e) ? .28 : 1;
 }
 
-export const VILLAR_RANGE=138;
+export const VILLAR_RANGE=166;
 function tickVillar(p,dt){
  const s=secretWeaponEffect(p,'villarPerosa');
  s.delay=Math.max(0,(s.delay||0)-dt);
@@ -77,7 +77,8 @@ function tickVillar(p,dt){
   const score=d-(aceTarget(e)?400:e.eliteKind?200:0);
   if(score<best){best=score;target=e;}
  }
- const point=target||wimperisTarget(p,{range:VILLAR_RANGE,cone:Math.PI,filter:e=>airTarget(e)&&!!e.stageBossBody});
+ const speed=760,maxLife=(VILLAR_RANGE+36)/speed;
+ const point=target||wimperisTarget(p,{range:VILLAR_RANGE,cone:Math.PI,speed,front:18,filter:e=>airTarget(e)&&!!e.stageBossBody});
  if(!point){s.remaining=0;return;}
  const gloves=p.upgrades.flightGloves&&p.bishopGlovesTime>0&&!(p.invuln>0);
  if(!s.remaining){
@@ -86,9 +87,11 @@ function tickVillar(p,dt){
  }
  const a=Math.atan2(point.y-p.y,point.x-p.x),side=s.remaining%2?6:-6;
  const x=p.x+Math.cos(a)*18-Math.sin(a)*side,y=p.y+Math.sin(a)*18+Math.cos(a)*side;
- const speed=650,heading=Math.atan2(point.y-y,point.x-x);
+ const distance=Math.hypot(point.x-x,point.y-y);
+ const life=Math.min(maxLife,(distance+55)/speed);
+ const heading=target?fighterAim(g,{x,y},target,speed,life):Math.atan2(point.y-y,point.x-x);
  const damage=mgDamage(p)*.72*(aceTarget(target||point.entity)?1.4:1);
- emit(p,newAirRound('villarPerosa',x,y,heading,speed,(VILLAR_RANGE+10)/speed,damage,2));
+ emit(p,newAirRound('villarPerosa',x,y,heading,speed,life,damage,2));
  cue(p,'villarShot',{x,y,a:heading},{life:.13,slot:side});
  s.remaining--;
  s.delay=s.remaining?(gloves?.043:.062):(gloves?.47:.73);
@@ -154,12 +157,12 @@ export function tickSecretKettering(world,p,b,dt){
 }
 
 const RANKEN_ID='rankenExplosiveDarts';
-const RANKEN_SPEED=640,RANKEN_LIFE=.46,RANKEN_SPREAD=.085,RANKEN_BLAST_RADIUS=48;
+const RANKEN_SPEED=640,RANKEN_LIFE=.53,RANKEN_SPREAD=.064,RANKEN_BLAST_RADIUS=48;
 export function secretRankenPulse(p){
  if(!hasSecretWeapon(p,RANKEN_ID)||!ownerLive(p))return;
  const rear=p.a+Math.PI;
  const x=p.x+Math.cos(rear)*16,y=p.y+Math.sin(rear)*16;
- const target=wimperisTarget(p,{x,y,heading:rear,range:240,cone:1.05,speed:RANKEN_SPEED,filter:airTarget});
+ const target=wimperisTarget(p,{x,y,heading:rear,range:270,cone:1.05,speed:RANKEN_SPEED,filter:airTarget});
  if(!target||target.time>RANKEN_LIFE)return;
  const center=Math.atan2(target.y-y,target.x-x),damage=mgDamage(p);
  const burnScale=p.upgrades.buckinghamBelt?1+Math.max(0,p.gunUpgradeBonus||0):0;
@@ -337,10 +340,9 @@ export function secretGrapnelContact(p,target,round,targets,point){
  if(!nearby.length)return;
  state.readyAt=now+SECRET_COMBAT.chainInterval;state.activeUntil=now+1.4;
  for(const e of nearby){
-  const speed=980,lead=Math.hypot(e.x-point.x,e.y-point.y)/speed;
-  const x=e.x+Math.cos(e.a||0)*(e.speed||0)*lead,y=e.y+Math.sin(e.a||0)*(e.speed||0)*lead;
-  const a=Math.atan2(y-point.y,x-point.x),wwiTargetId=e.tailId??p.tailIdFor?.(e);
-  emit(p,{x:point.x,y:point.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:.22,damage:round.damage*3,collisionRadius:8,sweptProjectile:true,fieryGrapnel:true,wwiTargetId,secretWeapon:'farnboroughFirechain',secretChainOrigin:{x:point.x,y:point.y,id:target.id??target.tailId,offsetX:point.x-target.x,offsetY:point.y-target.y,bodyAngle:target.a||0}});
+  const speed=980,life=.34;
+  const a=fighterAim(worldOf(p),point,e,speed,life),wwiTargetId=e.tailId??p.tailIdFor?.(e);
+  emit(p,{x:point.x,y:point.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life,damage:round.damage*3,collisionRadius:8,sweptProjectile:true,fieryGrapnel:true,wwiTargetId,secretWeapon:'farnboroughFirechain',secretChainOrigin:{x:point.x,y:point.y,id:target.id??target.tailId,offsetX:point.x-target.x,offsetY:point.y-target.y,bodyAngle:target.a||0}});
  }
  sound(p,'secretChain');
 }
@@ -390,7 +392,7 @@ function tickWake(p,dt,previous){
  const distance=Math.hypot(dx,dy),base=p.badinCruiseReference||p.baseSpeed||p.speed||1;
  const cruise=(p.equipmentCruiseSpeed||p.baseSpeed||p.speed||0)*(p.airframeSpeed??1);
  const speed=Math.min(cruise,distance/dt),charge=p.equipmentStraight||0;
- const active=charge>=(state.breakthrough ? .25 : .55)&&speed>=base*(state.breakthrough ? .99 : 1.04)
+ const active=charge>=(state.breakthrough ? .13 : .42)&&speed>=base*(state.breakthrough ? .96 : 1.04)
   &&distance<=cruise*dt*2&&!p.evadeTime&&!p.chargeTime&&!p.aceRetreat129;
  if(active!==!!state.breakthrough){
   if(active)state.breakthrough=true;else delete state.breakthrough;
@@ -453,10 +455,10 @@ export function secretArmorHit(p,before,prepare){
  if(!(before>p.hp)||!ownerLive(p)||!hasSecretWeapon(p,'explosiveArmor'))return;
  const s=secretWeaponEffect(p,'explosiveArmor'),now=time(p);if(s.readyAt>now)return;
  s.readyAt=now+SECRET_COMBAT.armorDelay;
- const g=worldOf(p),damage=(p.payloadPower?.(SECRET_COMBAT.cooperDamage)??SECRET_COMBAT.cooperDamage)*.5;
+ const g=worldOf(p),damage=(p.payloadPower?.(SECRET_COMBAT.cooperDamage)??SECRET_COMBAT.cooperDamage)*.7;
  for(let i=0;i<6;i++){
   const a=p.a+i*Math.PI/3,duration=.40+i*.07,x=p.x+Math.cos(a)*76,y=p.y+Math.sin(a)*76;
-  (g.friendlyBombs??=[]).push(prepare(p,{x,y,sx:p.x,sy:p.y,life:duration,maxLife:duration,radius:SECRET_COMBAT.cooperRadius*.6,damage,secretWeapon:'explosiveArmor',secretArmorSlot:i,sprite:'cooper',releaseAngle:a}));
+  (g.friendlyBombs??=[]).push(prepare(p,{x,y,sx:p.x,sy:p.y,life:duration,maxLife:duration,radius:SECRET_COMBAT.cooperRadius*.67,damage,secretWeapon:'explosiveArmor',secretArmorSlot:i,sprite:'cooper',releaseAngle:a}));
  }
  const source=p.damageSource,a=source&&Number.isFinite(source.x)?Math.atan2(source.y-p.y,source.x-p.x):p.a;
  cue(p,'armorLaunch',p,{a,life:.53});sound(p,'secretArmor');
@@ -577,11 +579,21 @@ export function secretBomberWing(p,wing,targetFor,prepare){
  const target=targetFor();
  if(!live(target)||Math.hypot(target.x-wing.x,target.y-wing.y)>430)return;
  const impactLayer=target.navalVessel?'water':airTarget(target)?'air':'ground';
- const bomb=dropWingBomb(p,wing,target.x,target.y,prepare,'longRangeBombers',slot);bomb.secretImpactLayer=impactLayer;
+ const first=wingBombAim(target,.7,impactLayer);
+ const bomb=dropWingBomb(p,wing,first.x,first.y,prepare,'longRangeBombers',slot);bomb.secretImpactLayer=impactLayer;
  secretCooperRelease(p,bomb);
- wing.secretBombSecond={x:target.x-Math.sin(wing.a)*22,y:target.y+Math.cos(wing.a)*22,at:now+.30,impactLayer};
+ const second=wingBombAim(target,1,impactLayer);
+ wing.secretBombSecond={x:second.x-Math.sin(wing.a)*22,y:second.y+Math.cos(wing.a)*22,at:now+.30,impactLayer};
  wing.secretBombReadyAt=now+SECRET_COMBAT.bomberInterval;
  cue(p,'bomberRelease',wing,{life:.44});sound(p,'secretBomberRelease');
+}
+function wingBombAim(target,fallTime,layer){
+ if(layer!=='air'||target.stationary)return target;
+ const heading=target.a||0,speed=target.flightSpeed??target.speed??0;
+ const vx=Number.isFinite(target.vx)?target.vx:Math.cos(heading)*speed;
+ const vy=Number.isFinite(target.vy)?target.vy:Math.sin(heading)*speed;
+ const lead=Math.min(fallTime,110/(Math.hypot(vx,vy)||1));
+ return {x:target.x+vx*lead,y:target.y+vy*lead};
 }
 function dropWingBomb(p,wing,x,y,prepare,id='longRangeBombers',slot){
  const g=worldOf(p),duration=.7,baseDamage=SECRET_COMBAT.cooperDamage*(id==='eliteAirWing'?ELITE_WING_DAMAGE:1);

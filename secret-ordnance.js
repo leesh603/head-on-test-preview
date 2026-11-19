@@ -4,9 +4,9 @@ import {cameraTargetPoint} from './wwi-equipment.js';
 
 const ROCKET='lePrieurSalvo', DAVIS='davisRecoilless', PUW='puw50';
 export const SECRET_ORDNANCE=Object.freeze({
- rocket:Object.freeze({count:8,period:5.4,stagger:.064,speed:550,life:1.55,damage:72,splash:.5,radius:64}),
- davis:Object.freeze({speed:550,range:660,cone:.34,damageScale:1.55,armorScale:1.4,rearSpeed:300,rearLife:.23,rearDamageScale:.14}),
- puw:Object.freeze({count:4,period:8.8,spacing:72,maxRun:2.35,fallTime:.64,velocityRetention:.32,damage:110,radius:62})
+ rocket:Object.freeze({count:8,period:5.4,stagger:.064,speed:550,life:1.55,damage:72,splash:.5,radius:70}),
+ davis:Object.freeze({speed:550,range:660,cone:.34,damageScale:1.55,armorScale:1.4,rearSpeed:300,rearLife:.29,rearDamageScale:.20}),
+ puw:Object.freeze({count:4,period:8.8,spacing:72,maxRun:2.35,fallTime:.64,velocityRetention:.32,damage:110,radius:68})
 });
 const worldOf=p=>p.combatWorld?.()||p.world||p;
 const clock=p=>worldOf(p).t||0;
@@ -36,7 +36,7 @@ function tickLePrieur(p,now,{cue,sound,emit}){
  if(state.nextLaunch>now)return;
  const index=balance.count-state.remaining,side=index%2?-1:1,rack=Math.floor(index/2);
  const width=p.bomberTransfer?.hullWidth?Math.min(1.7,p.bomberTransfer.hullWidth/31):1;
- const a=p.a+side*(.027+.072*rack),pos=mount(p.x,p.y,p.a,13,(13+6*rack)*side*width);
+ const a=p.a+side*(.027+.052*rack),pos=mount(p.x,p.y,p.a,13,(13+6*rack)*side*width);
  const round=ballistic(pos.x,pos.y,a,balance.speed,balance.life,power(p,balance.damage),8,ROCKET);
  emit(p,{...round,rocket:true});
  cue(p,'lePrieurIgnition',pos,{a,slot:index,life:.44});
@@ -153,9 +153,15 @@ export function secretOrdnanceAllowsTarget(b,target){
 
 export function secretOrdnanceContact(p,b,target,{cue,sound}){
  if(b.secretWeapon!==ROCKET&&b.secretWeapon!==DAVIS)return false;
- if(b.secretDavisRear)return true;
  const impact=combatImpactResult(b,target),x=impact?.impactX??b.x,y=impact?.impactY??b.y;
  const a=Math.atan2(b.vy,b.vx),pos={x,y};
+ if(b.secretDavisRear){
+  if(!b.secretDavisContacted){
+   b.secretDavisContacted=true;
+   cue(p,'davisRearImpact',pos,{a,life:.30});
+  }
+  return true;
+ }
  if(b.secretWeapon===ROCKET){
   if(b.rocketDetonated)return true;
   b.rocketDetonated=true;

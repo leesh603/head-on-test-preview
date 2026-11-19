@@ -247,15 +247,14 @@ function cooperHasTarget(owner,world,x,y,vx,vy){
 
 function cooperBomb(owner,world,x,y,vx,vy,damage){
  const bomb={ownerId:ownerId(owner),cooperBomb:true,sprite:'cooper',sx:x,sy:y,x,y,vx,vy,age:0,life:WWI_BALANCE.cooper.fuse,maxLife:WWI_BALANCE.cooper.fuse,radius:WWI_BALANCE.cooper.radius,damage};
- correctWimperisBomb(owner,bomb);prepareSynthesisBomb(owner,bomb);(world.friendlyBombs??=[]).push(bomb);return bomb;
+ correctWimperisBomb(owner,bomb);prepareSynthesisBomb(owner,bomb);secretCooperRelease(owner,bomb);(world.friendlyBombs??=[]).push(bomb);
 }
 
 function beginCooperDrop(owner,world,previousPose,dt){
  if(owner.upgrades?.fieryGrapnel&&(world.bullets||[]).some(b=>b.fieryGrapnel&&b.ownerId===ownerId(owner)&&b.life>0))return false;
  const b=WWI_BALANCE.cooper,a=finite(owner.a),velocity=bombVelocity(owner,previousPose,dt),sideX=-Math.sin(a)*11,sideY=Math.cos(a)*11,damage=typeof owner.payloadPower==='function'?owner.payloadPower(b.damage):b.damage;
  if(!cooperHasTarget(owner,world,owner.x,owner.y,velocity.x,velocity.y))return false;
- const bomb=cooperBomb(owner,world,owner.x-sideX,owner.y-sideY,velocity.x,velocity.y,damage);
- secretCooperRelease(owner,bomb);
+ cooperBomb(owner,world,owner.x-sideX,owner.y-sideY,velocity.x,velocity.y,damage);
  owner.wwiCooperSecondIn=owner.upgrades?.combinedProjectiles?SYNTHESIS_BALANCE.bombDelay:b.stagger;owner.wwiCooperSecondDamage=damage;
  owner.wwiCooperCooldown=b.cooldown;
  return true;

@@ -126,7 +126,7 @@ function drawStrategicFall(c,b,{sx,sy,z,visible},faction,art){
  for(const side of [-1,1]){
   const tail=length*.40,off=side*length*.10;
   fx(c,'vaporTrail',bx-dx*tail-dy*off,by-dy*tail+dx*off,
-   (26+45*fall)*z,(5+5*fall)*z,a+side*.10,.22+.58*fall);
+   (31+56*fall)*z,(6+5*fall)*z,a+side*.10,.28+.62*fall);
  }
  paint(c,'sn1650',bx,by,length,length*(.28+.07*fall),a,1);
 }
@@ -145,6 +145,11 @@ function drawReleasedWings(c,cue,view,age,low){
   c.save();c.translate(x,y);c.rotate(a+Math.PI/2+side*(1-Math.exp(-age*2.1))*2.65);
   c.scale(1,.45+.55*Math.abs(Math.cos(age*5.2+side*.39)));c.globalAlpha*=alpha;
   drawSmallAirframe(c,ketteringFrames.wings[side<0?0:1],width);c.restore();
+  if(age<.39){
+   const fade=1-age/.39,travel=(8+age*44)*z;
+   fx(c,'vaporTrail',x-ca*travel,y-sa*travel,(27+age*35)*z,8*z,a+side*.28,fade*.88);
+   fx(c,'metalShard1',x-ca*travel-sa*side*8*z,y-sa*travel+ca*side*8*z,13*z,6*z,a+side*age*9,fade);
+  }
   if(!low||age<.33)drawSecretWarArt(c,'wingRibs',x,y,23*z,a+side*age*4,alpha*.82);
  }
 }
@@ -217,7 +222,8 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    if(remaining>=0&&remaining<.36){
     const a=Math.atan2(b.vy,b.vx),burn=1-remaining/.36;
     const tail=(12+burn*9)*z,x=sx(b.x)-Math.cos(a)*tail,y=sy(b.y)-Math.sin(a)*tail;
-    fx(c,'fireSmall',x,y,(13+burn*18)*z,(6+burn*6)*z,a,.52+.42*burn);
+    fx(c,'fireSmall',x,y,(16+burn*21)*z,(7+burn*6)*z,a,.60+.37*burn);
+    if(burn>.55)fx(c,'spark',x,y,13*z,8*z,a,.92*(burn-.55)/.45);
     if(!low)fx(c,'gunSmoke',x-Math.cos(a)*16*z,y-Math.sin(a)*16*z,(20+burn*16)*z,7*z,a,.52);
    }
    continue;
@@ -252,8 +258,8 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   case 'lePrieurIgnition': {
    // The eight rack mouths fire in alternation; each jet comes from its own rail.
    const side=cue.slot%2?-1:1;
-   if(age<.18)forward('exhaust',-14-age*105,0,57+age*68,15-age*22,a,1-age/.18);
-   forward('smokeHeavy',-17-age*72,side*(2+t*5),32+t*38,12+t*18,a+side*.08,.78*fade);
+   if(age<.18)forward('exhaust',-18-age*112,0,64+age*74,16-age*23,a,1-age/.18);
+   forward('smokeHeavy',-17-age*72,side*(4+t*7),32+t*38,13+t*19,a+side*.12,.84*fade);
    if(age<.14)forward('muzzle',3,0,31,13,a,1-age/.14);
    break;
   }
@@ -285,10 +291,21 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    }
    break;
   }
+  case 'davisRearImpact': {
+   if(age<.13)stamp('armorSpark',0,0,29,18,a,1-age/.13);
+   for(const side of [-1,1]){
+    const heading=a+side*.39,distance=4+age*83;
+    stamp('ricochet',Math.cos(heading)*distance,Math.sin(heading)*distance,12,5,heading,fade);
+   }
+   break;
+  }
   case 'salamanderImpact': {
    // Spall kicks back toward the incoming side of the actual plate contact.
    const wear=clamp(cue.wear||0);
-   if(age<.17)stamp('armorSpark',0,0,45+wear*19,27+wear*8,a,1-age/.17);
+   if(age<.17){
+    stamp('armorSpark',0,0,53+wear*17,28+wear*9,a,1-age/.17);
+    forward('ricochet',-5-age*63,cue.side<0?-5:5,30,9,a+Math.PI,1-age/.17);
+   }
    for(let i=0;i<(low?2:4);i++){
     const h=a+Math.PI+(i%2?1:-1)*(.40+Math.floor(i/2)*.49),d=4+age*(71+i*21);
     stamp(i<2?'ricochet':'metalShard1',Math.cos(h)*d,Math.sin(h)*d,i<2?19:10,i<2?7:5,h,fade);
@@ -307,6 +324,11 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    if(cue.water)break;
    if(age<.18)stamp('fireFlash',0,0,r*1.65,r*1.05,a,1-age/.18);
    if(age<.77)stamp('bombfx'+Math.min(3,Math.floor(age/.14)),0,0,r*(1.32+t*1.05),r*(1.11+t*.74),a,Math.min(1,(.77-age)*2.9));
+   if(age<.40){
+    const throwOut=age/.40,flank=cue.slot%2?-1:1;
+    forward('dirtBurst',r*(.18+throwOut*.63),flank*r*(.13+throwOut*.32),
+     r*(.56+throwOut*.29),r*.38,a+flank*.37,1-throwOut);
+   }
    stamp('dirtMix',0,3+r*t*.15,r*(1.07+t),r*(.72+t*.72),a,.91*fade);
    if(age>.18)stamp('smokeDark',0,-r*t*.45,r*(.78+t*.65),r*(.62+t*.54),a,.64*fade);
    spray(low?3:6,r*2.05,(i,h,dx,dy)=>stamp('rockChunk'+i,dx,dy,14,9,h+t*6));
@@ -315,7 +337,11 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   case 'siemensReversal': {
    // A short compression puff at the crank gives way to two curved wakes
    // shed at the wingtips exactly when the turn changes direction.
-   if(age<.19)forward('engineSmoke',18-age*38,0,29+age*40,15,a,.73*(1-age/.19));
+   if(age<.22){
+    forward('engineSmoke',18-age*38,0,33+age*46,17,a,.83*(1-age/.22));
+    forward('vaporTrail',-14-age*45,(cue.turnSide||1)*(13+age*37),36+age*42,8,
+     a-(cue.turnSide||1)*.37,1-age/.22);
+   }
    for(const side of [-1,1]){
     const curl=side*(.13+.58*t);
     forward('vaporTrail',-14-t*36,side*(22+t*13),38+t*25,8+t*5,a+curl,.77*fade);
@@ -325,13 +351,13 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
   case 'villarShot': {
    // The real alternating barrel emits one flash and one outward brass case.
    const side=Math.sign(cue.slot)||1;
-   if(age<.085)forward('muzzlePistol',8,0,37,18,a,1-age/.085);
-   forward('bulletBrass',-4-t*8,side*(5+t*16),10,4,a+side*(.5+t*3),fade);
+   if(age<.10)forward('muzzlePistol',9,0,44,19,a,1-age/.10);
+   forward('bulletBrass',-5-t*10,side*(6+t*20),11,4,a+side*(.5+t*3),fade);
    if(!low)forward('gunSmoke',5+age*44,0,23,10,a,.48*fade);
    break;
   }
   case 'villarHit': {
-   if(age<.095)stamp('armorSpark',0,0,26,14,a,1-age/.095);
+   if(age<.115)stamp('armorSpark',0,0,32,16,a,1-age/.115);
    for(let i=0;i<(low?2:3);i++){
     const h=a+(i-1)*.57,d=4+age*(69+i*21);
     stamp(i===1?'debrisShard':'ricochet',Math.cos(h)*d,Math.sin(h)*d,13,5,h,fade);
@@ -369,8 +395,9 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
    paint(c,'ranken',x-ca*12*z,y-sa*12*z,34*z,8*z,a);
    if(age<.13)stamp('armorSpark',0,0,28,21,a,1-age/.13);
    if(fuse>0){
-    const tail=-26+fuse*23,glow=10+fuse*10;
+    const tail=-26+fuse*23,glow=12+fuse*11;
     forward('fireSmall',tail,0,glow,glow*.76,a,.78+.22*fuse);
+    if(fuse>.60)forward('spark',tail,0,13,7,a,(fuse-.60)*2.5);
    }
    break;
   }
@@ -434,6 +461,8 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
     const travel=radius*(1-Math.pow(1-split,2))*(.61+(i%2)*.18);
     stamp('metalShard'+i,Math.cos(h)*travel,Math.sin(h)*travel+age*age*15,
      25-i,11-i*.6,h+age*(5+i),clamp((.66-age)/.19));
+    if(age<.27)stamp('ricochet',Math.cos(h)*travel,Math.sin(h)*travel,
+     14+6*split,5,h,.86*(1-age/.27));
    }
    // Split the black flak cloud around the hot center, leaving the fragments legible.
    for(const side of [-1,1])forward('smokeDark',-5-t*12,side*(7+t*18),51+t*49,33+t*33,a+side*.4,.56*fade);
@@ -485,6 +514,12 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
     const dx=Math.cos(h)*radius,dy=Math.sin(h)*radius;
     stamp(i%2?'dirtBurst':'dirtMix',dx,dy,r*(.40+.55*ground),r*(.27+.28*ground),h,opacity);
    }
+   if(age>.10&&age<.48){
+    const front=(age-.10)/.38,opacity=(1-front)*.76;
+    for(const side of [-1,1]){
+     forward('dirtBurst',0,side*r*(.31+.48*front),r*(.55+.25*front),r*.32,a+side*Math.PI/2,opacity);
+    }
+   }
    if(age<1.4)spray(low?5:10,r*.87,(i,h,dx,dy)=>stamp('rockChunk'+i%6,dx,dy,16+i%3*7,14,h+age*5,1-age/1.4));
    if(age>.27)for(let i=0;i<(low?3:5);i++){
     const rise=clamp((age-i*.10)/1.8),opacity=Math.min(1,(age-.27)*2)*fade*.76;
@@ -501,6 +536,10 @@ export function drawSecretWeaponFx(c,world,view,art,{low,factionFor}={}){
     const impact=1-age/.29;
     stamp('armorSpark',0,0,108*weight,69*weight,a,impact);
     stamp('ricochet',0,0,91*weight,39*weight,a+Math.PI/2,impact*.94);
+    if(age<.16){
+     const scatter=(10+age*140)*weight;
+     for(const side of [-1,1])forward('ricochet',-8,side*scatter,54*weight,13,a+side*1.08,1-age/.16);
+    }
    }
    if(age<.48){
     const opacity=1-age/.48,trail=22+age*65;

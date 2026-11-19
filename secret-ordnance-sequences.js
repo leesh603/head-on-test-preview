@@ -1,6 +1,7 @@
 // Mechanical layers for the six installed secret weapons. Clocks, salvos and
 // impact points belong to combat; rendering never creates a shot or a hit.
 import {hasSecretWeapon} from './secret-weapons.js';
+import {SECRET_ORDNANCE} from './secret-ordnance.js';
 import {fx} from './fx-art.js?v=tame3';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
 import {drawSecretWarArt} from './secret-impact-signatures.js';
@@ -129,7 +130,7 @@ export function drawOrdnanceRound(c,b,view,low){
  if(type==='lePrieurSalvo'){
   // A live rocket lays down a segmented corkscrew of spent propellant along
   // its actual velocity axis. The ordinary rocket renderer paints its nose.
-  const age=Math.max(0,1.55-b.life),limit=Math.min(78,Math.hypot(b.vx,b.vy)*age);
+  const age=Math.max(0,SECRET_ORDNANCE.rocket.life-b.life),limit=Math.min(78,Math.hypot(b.vx,b.vy)*age);
   for(let i=1;i<=(low?2:4);i++){
    const d=i*17;if(d>limit)break;
    const offset=Math.sin(age*22-i*.9)*(1+i*.7);
@@ -138,14 +139,14 @@ export function drawOrdnanceRound(c,b,view,low){
   return false;
  }
  if(b.secretDavisRear){
-  const spread=clamp(1-b.life/.23);
+  const spread=clamp(1-b.life/SECRET_ORDNANCE.davis.rearLife);
   for(let i=0;i<(low?3:5);i++){
    const side=i%2?1:-1,dx=-i*spread*3,dy=side*(1+i*.8)*spread*2;
    fx(c,'metalShard'+i,x+(dx*Math.cos(a)-dy*Math.sin(a))*z,y+(dx*Math.sin(a)+dy*Math.cos(a))*z,10*z,4*z,a+side*spread*5,.94);
   }
   return true;
  }
- fx(c,'tracerCore',x-Math.cos(a)*9*z,y-Math.sin(a)*9*z,19*z,2.4*z,a,.72);
+ fx(c,'tracerCore',x-Math.cos(a)*11*z,y-Math.sin(a)*11*z,24*z,2.6*z,a,.84);
  fx(c,'bulletBrass',x,y,15*z,4*z,a,.98);
  return true;
 }

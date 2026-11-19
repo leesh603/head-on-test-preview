@@ -105,8 +105,9 @@ function steelRelease(c,cue,age,view,art,low){
   if(distance<5)continue;
   const band=clamp((Math.hypot(dart.vx,dart.vy)-360)/160);
   const length=Math.min(distance,28+26*band),back=.5*length/distance;
-  fx(c,'vaporTrail',sx(dart.x-dx*back),sy(dart.y-dy*back),length*z,(3.8+band)*z,
-   Math.atan2(dy,dx),opacity*.63);
+  const x=sx(dart.x-dx*back),y=sy(dart.y-dy*back),heading=Math.atan2(dy,dx);
+  fx(c,'vaporTrail',x,y,length*z,(4.2+band)*z,heading,opacity*.74);
+  if(!low&&band>.9&&age<.23)fx(c,'tracerCore',x,y,length*.72*z,2.3*z,heading,.66*(1-age/.23));
  }
  if(age>=.48)return;
  const opening=1-(1-t)**2,fade=Math.min(1,(1-t)*4);
@@ -115,6 +116,7 @@ function steelRelease(c,cue,age,view,art,low){
  cassetteLids(c,opening*28,opening*.44,fade);
  if(age<.23){
   const burst=age/.23;
+  fx(c,'armorSpark',0,0,44+burst*19,34,0,1-burst);
   art.sprite(c,'flechetteBundle',0,0,36*(1-burst*.45),0,1-burst);
   // Release stencil is aligned with the emitted rounds. Only vapour marks the
   // muzzle lanes; all 24 pointed steel bodies are rendered from the bullet list.
@@ -148,6 +150,13 @@ function gasField(c,cue,age,view,art,low){
  // player a fixed point of origin once the outer folds reach full extent.
  const cx=x-Math.cos(a)*14*z*move,cy=y-Math.sin(a)*14*z*move;
  const bearing=a+.7*move;
+ if(age<.34){
+  const vent=age/.34,amount=1-vent;
+  for(const side of [-1,1]){
+   const h=a+side*(.91+vent*.23),dist=(.07+.39*vent)*r;
+   fx(c,'gasSmall',x+Math.cos(h)*dist,y+Math.sin(h)*dist,r*(.24+vent*.31),r*(.11+vent*.14),h,amount*.88);
+  }
+ }
  const streams=low?2:3;
  for(let i=0;i<streams;i++){
   const h=bearing+(i-1)*2.12;
@@ -214,7 +223,7 @@ function firechain(c,cue,age,world,view,art,low){
     const k=head+(pass?1:-1)*j*10*z/span;
     if(k<0||k>1)continue;
     const p=cablePoint(x0,y0,x1,y1,sag,k);
-    fx(c,j?'fireSmall':'flameJet',p.x,p.y,(j?18:31)*z,(j?7:13)*z,p.a+(pass?Math.PI:0),1-j/(count+1));
+    fx(c,j?'fireSmall':'flameJet',p.x,p.y,(j?20:39)*z,(j?8:15)*z,p.a+(pass?Math.PI:0),1-j/(count+1));
    }
   }
   hook(c,art,x1,y1,(52+Math.sin(bite*Math.PI)*11)*z,h);
