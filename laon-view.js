@@ -1,4 +1,4 @@
-import {LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS} from './laon-layout.js';
+import {LAON_LAYOUT,LAON_MISSION,LAON_NORMAL_CYCLE_SECONDS,LAON_CRITICAL_PARTS} from './laon-layout.js';
 import {LAON_ART_FRAMES} from './laon-art-frames.js';
 import {fx} from './fx-art.js?v=tame3';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
@@ -9,6 +9,9 @@ let images={},promise=null;
 const AIRCRAFT={breguet14:'breguet14',caudron_r11:'bank_plane_caudron_r11',salmson_2a2:'bank_plane_salmson_2a2'};
 const parts=b=>b?.parts instanceof Map?b.parts:new Map(Array.isArray(b?.parts)?b.parts.map(p=>[p.id,p]):Object.entries(b?.parts||{}));
 const state=p=>!p||p.hp<=0?2:p.hp<=p.maxHp*.55?1:0;
+const LAON_SHOT_DUST_SECONDS=3.2;
+const LAON_STRIP_OPTIONS={skipAlternate:false};
+const laonHudUpdates=new WeakMap();
 export function releaseLaonArt(){images={};promise=null;releaseLaonTerrain();}
 export function prepareLaonArt(){
  if(promise)return promise;
@@ -22,9 +25,18 @@ function sprite(c,sheet,col,row,x,y,w,h,angle=0,clip=null){
  const im=images[sheet],frames=LAON_ART_FRAMES[sheet],count=sheet==='mechanics'?4:2;
  if(!im?.naturalWidth||!frames)return false;
  const [sx,sy,sw,sh]=frames[row*count+col];
- c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;
+ c.save();c.translate(x,y);if(angle)c.rotate(angle);c.imageSmoothingEnabled=true;
  if(clip){c.beginPath();c.rect(...clip);c.clip();}
  c.drawImage(im,sx,sy,sw,sh,-w/2,-h/2,w,h);c.restore();return true;
+}
+function drawLaonShot(c,gun,age,recoil){
+ const muzzle=LAON_LAYOUT.muzzle.y,final=gun.shotCount>=LAON_MISSION.shots,scale=final?1.16:1;
+ if(gun.flash>0&&!gun.dead)fx(c,'muzzle',0,muzzle+recoil-32,108*scale,198*scale,0,Math.min(1,gun.flash/.12));
+ if(age<.36)fx(c,'shell',0,muzzle-age*1160,19*scale,53*scale,0,Math.min(1,(.36-age)/.11));
+ const q=age/LAON_SHOT_DUST_SECONDS,fade=(1-q)*(1-q),rise=Math.min(1,age/.15);
+ fx(c,'smokePuff',8+q*27,muzzle-30-q*152,102+q*142,145+q*165,0,fade*.72*rise);
+ fx(c,'smokeGray',-20-q*46,muzzle-51-q*107,124+q*139,160+q*151,-.15,fade*.5*rise);
+ for(const side of [-1,1])fx(c,'smokeDust',side*(57+q*145),20+q*58,115+q*195,78+q*106,side*.32,fade*.66*rise);
 }
 export function drawLaonGun(c,gun,visualClock=gun?.clock||0){
  if(!gun)return;const ps=parts(gun),s=gun.scale||gun.t?.geometryScale||1,dead=!!gun.dead;
@@ -53,9 +65,8 @@ export function drawLaonGun(c,gun,visualClock=gun?.clock||0){
   if(r===2&&['ammo','loader'].includes(p.id))fx(c,'fireSmall',x,y,30,34,0,.78);
   if(r===2||r===1&&['breech','recoil','loader'].includes(p.id))fx(c,'smokeDark',x+drift*12,y-22-drift*38,22+drift*34,28+drift*41,0,(1-drift)*(r===2?.48:.22));
  }
- if(gun.flash>0&&!dead){fx(c,'muzzle',0,-347+recoil,62,113,0,Math.min(1,gun.flash/.08));}
- if(gun.smoke>0){const a=Math.min(.55,gun.smoke*.48);fx(c,'smokePuff',9,-354+recoil,77,95,0,a);fx(c,'smokeGray',-11,-382+recoil,90,115,0,a*.7);}
- if(gun.phase==='recoil'||gun.phase==='return'&&(gun.phaseAge||0)<1){const a=gun.phase==='recoil'?.42:.22;for(const side of [-1,1])fx(c,'smokePuff',side*79,22,107,43,side*.25,a);}
+ const age=gun.lastShotAt==null?Infinity:visualClock-gun.lastShotAt;
+ if(age>=0&&age<LAON_SHOT_DUST_SECONDS)drawLaonShot(c,gun,age,recoil);
  c.restore();
 }
 export function drawLaonWorld(c,g,{layer='all',view=null,locale='ko'}={}){
@@ -65,7 +76,8 @@ export function drawLaonWorld(c,g,{layer='all',view=null,locale='ko'}={}){
   Math.abs(x-view.x)<=view.width/2+padX&&Math.abs(y-view.y)<=view.height/2+padY;
  if(layer!=='hazards'){
   const gunScale=gun.scale||gun.t?.geometryScale||1;
-  if(visible(gun.x,gun.y-140*gunScale,230*gunScale,320*gunScale))drawLaonGun(c,gun,clock);
+  const shotAge=gun.lastShotAt==null?Infinity:clock-gun.lastShotAt;
+  if(visible(gun.x,gun.y-140*gunScale,shotAge<LAON_SHOT_DUST_SECONDS?330*gunScale:250*gunScale,shotAge<LAON_SHOT_DUST_SECONDS?650*gunScale:320*gunScale))drawLaonGun(c,gun,clock);
   for(const p of raid?.planes||[]){if(p.hp<=0||p.mode==='pending'||p.mode==='destroyed')continue;
    const x=raid.x+p.x,y=raid.y+p.y,key=AIRCRAFT[p.aircraft];if(!key)continue;
    const scale=p.role==='escort'?1.3:p.role==='bomber'?1.15:1;
@@ -88,15 +100,16 @@ export function drawLaonWorld(c,g,{layer='all',view=null,locale='ko'}={}){
   for(const strike of raid?.strikes||[])if(visible(strike.x,strike.y,strike.radius*1.3+8))impactMark(c,strike.x,strike.y,strike.radius,Math.min(1,strike.age/strike.duration),{heavy:true});
   for(const shot of gun.aaShots||[])if(visible(shot.x,shot.y,12))fx(c,'bulletBrass',shot.x,shot.y,7,18,Math.atan2(shot.vy,shot.vx)+Math.PI/2,1);
   for(const e of b.cues||[]){const age=clock-e.at;if(age<0||age>1.15||!visible(e.x,e.y,90))continue;
-   if(['laon-bomb-impact','laon-counterbattery-impact','laon-ammo-explosion','laon-stopped','laon-air-destroyed'].includes(e.type)){
-    const size=e.type==='laon-stopped'?130:e.type==='laon-ammo-explosion'?150:85,frame=Math.min(3,Math.floor(age/.17));fx(c,'explosionDust'+frame,e.x,e.y,size,size,0,Math.max(0,1-age/1.15));
+   if(e.type==='laon-stopped'||e.type==='laon-air-destroyed'){
+    const size=e.type==='laon-stopped'?130:85,frame=Math.min(3,Math.floor(age/.17));fx(c,'explosionDust'+frame,e.x,e.y,size,size,0,Math.max(0,1-age/1.15));
    }else if(e.type==='laon-part-hit'&&age<.17)fx(c,'spark',e.x,e.y,24,24,0,1-age/.17);
   }
  }
  if(layer!=='hazards'&&view){
   const dx=gun.x-view.x,dy=gun.y-80-view.y,w=view.width/2-44,h=view.height/2-72;
   if(Math.abs(dx)>w||Math.abs(dy)>h){const k=Math.min(w/Math.max(1,Math.abs(dx)),h/Math.max(1,Math.abs(dy))),x=view.x+dx*k,y=view.y+dy*k,a=Math.atan2(dy,dx);
-   c.save();c.translate(x,y);c.rotate(a);c.strokeStyle='#e5ce93';c.lineWidth=2.5;c.beginPath();c.moveTo(-9,-7);c.lineTo(0,0);c.lineTo(-9,7);c.stroke();c.rotate(-a);c.fillStyle='#ede1bf';c.font='11px sans-serif';c.textAlign='center';c.fillText((locale==='en'?'GUN ':'포대 ')+Math.round(Math.hypot(dx,dy))+'m',0,19);c.restore();
+   const label=b.role==='defend'?(locale==='en'?'ALLIED GUN ':'아군 포대 '):(locale==='en'?'GUN ':'포대 ');
+   c.save();c.translate(x,y);c.rotate(a);c.strokeStyle='#e5ce93';c.lineWidth=2.5;c.beginPath();c.moveTo(-9,-7);c.lineTo(0,0);c.lineTo(-9,7);c.stroke();c.rotate(-a);c.fillStyle='#ede1bf';c.font='11px sans-serif';c.textAlign='center';c.fillText(label+Math.round(Math.hypot(dx,dy))+'m',0,19);c.restore();
   }
  }
 }
@@ -114,11 +127,16 @@ export function laonMissionCard(g,en=false){
 export function updateLaonBossHud(g,locale='ko'){
  const b=g?.laonBattle;if(!b||g.stageBoss?.stages.stageIndex!==19)return false;
  const slot=document.getElementById('stageBossHud'),en=locale==='en';if(!slot)return false;
+ const gun=b.gun,raid=b.raid,time=g.t||0;
+ const phase=gun?.phase,shot=b.shotCount,result=b.result,discovered=b.discovered;
+ const lastHud=laonHudUpdates.get(b);
+ if(lastHud?.slot===slot&&lastHud.locale===locale&&lastHud.phase===phase&&lastHud.shot===shot&&lastHud.result===result&&lastHud.discovered===discovered&&time>=lastHud.time&&time-lastHud.time<.10)return true;
+ laonHudUpdates.set(b,{slot,locale,phase,shot,result,discovered,time});
  const put=(id,value)=>{const el=document.getElementById(id);if(el&&el.textContent!==value)el.textContent=value;};
  document.body.classList.toggle('stageboss-playing',g.state!=='lost');
  slot.classList.toggle('hidden',!b.discovered);slot.classList.remove('gate-armored');
  slot.querySelectorAll('.gate-tick,#stageBossGate').forEach(e=>e.remove());
- const gun=b.gun,raid=b.raid,ps=parts(gun),target=b.role==='attack'?gun:raid;
+ const ps=parts(gun),target=b.role==='attack'?gun:raid;
  const names=en?{barrel:'Barrel',breech:'Breech',loader:'Loader',ammo:'Ammo',recoil:'Return'}:{barrel:'포신',breech:'약실',loader:'장전',ammo:'탄약',recoil:'복좌'},states=en?['OK','DMG','LOST']:['정상','손상','파괴'];
  const partState=id=>names[id]+' '+states[state(ps.get(id))];
  const detail=b.role==='attack'?[...LAON_CRITICAL_PARTS.map(partState),(en?'Delay: ':'지연: ')+['loader','ammo','recoil'].map(partState).join(' / ')].join(' · '):['bomber','escort','observer'].map(role=>{
@@ -132,11 +150,11 @@ export function updateLaonBossHud(g,locale='ko'){
  document.getElementById('stageBossHp').style.width=Math.max(0,Math.min(100,hp/max*100))+'%';slot.setAttribute('aria-valuenow',String(hp));slot.setAttribute('aria-valuemax',String(max));
  // Silhouette strip (skyline-strip.js): the Entente watches Paris take the shells;
  // the Central pilot watches the gun itself break part by part. One title line.
- const time=g.t||0,locale2=en?'en':'ko';
+ const locale2=en?'en':'ko';
  put('stageBossTitle',b.result?(en?(b.result==='victory'?'MISSION COMPLETE':'MISSION FAILED'):(b.result==='victory'?'임무 성공':'임무 실패')):b.role==='attack'?(en?`Stop the Paris Gun · ${Math.ceil(b.remaining)}s · gun ${Math.ceil((gun?.hp||0)/(gun?.maxHp||1)*100)}%`:`파리포 저지 · ${Math.ceil(b.remaining)}초 · 파리포 ${Math.ceil((gun?.hp||0)/(gun?.maxHp||1)*100)}%`):(en?`Defend the Paris Gun · shot ${b.shotCount}/${LAON_MISSION.shots}`:`파리포 방어 · 포격 ${b.shotCount}/${LAON_MISSION.shots}`));
  slot.classList.toggle('skyline-tall',b.role!=='attack');
- if(b.role==='attack')paintSlotStrip(slot,(c,w,h)=>drawParisStrip(c,{shotCount:b.shotCount,gunHp:(gun?.hp||0)/(gun?.maxHp||1),phase:gun?.dead?'':gun?.phase,time,locale:locale2},w,h));
- else paintSlotStrip(slot,(c,w,h)=>drawParisGunStrip(c,{gun,parts:ps,stateOf:state,time,locale:locale2},w,h));
+ if(b.role==='attack')paintSlotStrip(slot,(c,w,h)=>drawParisStrip(c,{shotCount:b.shotCount,gunHp:(gun?.hp||0)/(gun?.maxHp||1),phase:gun?.dead?'':gun?.phase,time,locale:locale2},w,h),LAON_STRIP_OPTIONS);
+ else paintSlotStrip(slot,(c,w,h)=>drawParisGunStrip(c,{gun,parts:ps,stateOf:state,time,locale:locale2},w,h),LAON_STRIP_OPTIONS);
  const coop=g.mode==='coop2';document.getElementById('coopXpHud')?.classList.toggle('hidden',!coop);
  if(coop)for(const p of g.players||[]){put(p.id+'XpLabel',p.id.toUpperCase()+' · LV. '+p.level);const bar=document.getElementById(p.id+'XpBar');if(bar)bar.style.width=Math.min(100,p.xp/p.need*100)+'%';}
  return true;

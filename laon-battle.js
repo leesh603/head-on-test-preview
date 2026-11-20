@@ -35,11 +35,14 @@ export function ensureLaonBattle(g){
 // hard-cap slots as ordinary aircraft. Pending members wait; nothing is evicted.
 export function laonAvailableSlots(g){
  const b=g.laonBattle,raid=b?.raid;if(!raid)return 0;
- const active=(raid.planes||[]).filter(p=>!p.destroyed&&p.mode!=='pending'&&p.mode!=='destroyed').length;
- const enemies=(g.enemies||[]).filter(live);
- const regular=enemies.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)).length;
+ let active=0,liveCount=0,regular=0;
+ for(const p of raid.planes||[])if(!p.destroyed&&p.mode!=='pending'&&p.mode!=='destroyed')active++;
+ for(const e of g.enemies||[])if(live(e)){
+  liveCount++;
+  if(!e.bossPilot&&!e.heavyBomber&&(e.type==='scout'||e.type==='hunter'||e.type==='bomber'))regular++;
+ }
  const limit=Math.max(0,g.regularEnemyLimit?.()??(g.mode==='coop2'?12:9));
- const hard=Math.max(0,(g.enemyCapacity?.()??60)-enemies.length-1);
+ const hard=Math.max(0,(g.enemyCapacity?.()??60)-liveCount-1);
  return Math.min(6,active+Math.min(Math.max(0,limit-regular),hard));
 }
 export function discoverLaonBattle(g){
@@ -56,15 +59,16 @@ export function handleLaonCue(g,e){
  if(!e.type?.startsWith('laon-')&&!(e.bossId===b.gun?.id&&['part-destroyed','body-defeated'].includes(e.type)))return false;
  if(e.type==='laon-shot'){
   b.shotCount=b.gun?.shotCount??e.shotCount??b.shotCount+1;
-  g.event?.('bossSound','railGunFire520');g.shake=Math.max(g.shake||0,b.discovered?(e.finalShot?4.8:3.2):.6);
-  g.event?.('wave',b.role==='attack'?'파리 포격 경보 · '+b.shotCount:'아군 파리포 발사 · '+b.shotCount+' / '+LAON_MISSION.shots);
+  const near=Math.hypot(g.x-e.x,g.y-e.y)<740;
+  g.event?.('bossSound',near?'laonGunFire':'laonGunFireDistant');
+  if(near)g.shake=Math.max(g.shake||0,e.finalShot?5:3.4);
+  g.event?.('wave',b.role==='attack'?'파리 시내 방면 포격 · '+b.shotCount:'아군 파리포 → 파리 시내 · '+b.shotCount+' / '+LAON_MISSION.shots);
  }
  if(e.type==='laon-loading')g.event?.('bossSound','railBreech');
  if(e.type==='laon-phase'&&e.phase==='ready'&&e.finalShot){
   g.event?.('bossSound','railBreech');
   g.event?.('wave',b.role==='attack'?'최종 포격 임박 · 포신 또는 약실을 파괴하세요':'최종 발사 준비 · 마지막 투하를 막으세요');
  }
- if(e.type==='laon-phase'&&e.phase==='return')g.event?.('bossSound','trainBrake');
  if(e.type==='laon-ammo-explosion'){g.combatBlast?.(e.x,e.y,e.radius||100,'enemy','structure','ammoCookoff');g.event?.('bossSound','metalBreak');g.shake=Math.max(g.shake||0,3);}
  if(e.type==='laon-bomb-impact'||e.type==='laon-counterbattery-impact'){
   const previous=g.combatFX?.at(-1);
@@ -80,15 +84,20 @@ export function handleLaonCue(g,e){
   const names={loader:'장전 설비',ammo:'탄약 적재장',recoil:'복좌 장치',barrel:'포신',breech:'약실'};
   if(names[e.partId])g.event?.('wave',names[e.partId]+' 파괴 · '+(LAON_CRITICAL_PARTS.includes(e.partId)?'포격 영구 중단':'포격 준비 지연'));
  }
- // Authored art draws the muzzle, moving ordnance, smoke and persistent debris.
- // A bounded cue history crosses the network with the mission snapshot.
- (b.cues??=[]).push({...e,at:b.elapsed});b.cues=b.cues.slice(-16);
+ // Only transient sprites need cue history. Gun pose and incoming ordnance
+ // are already in the mission snapshot, so hits cannot bury the shot or dust.
+ if(e.type==='laon-part-hit'||e.type==='laon-stopped'||e.type==='laon-air-destroyed'){
+  const cues=b.cues??=[];
+  if(e.type!=='laon-part-hit'||!cues.some(c=>c.type===e.type&&c.partId===e.partId&&b.elapsed-c.at<.07)){
+   cues.push({type:e.type,x:e.x,y:e.y,partId:e.partId,at:b.elapsed});if(cues.length>16)cues.shift();
+  }
+ }
  return true;
 }
 function settle(g,b,result){
  if(b.resolved)return;b.result=result;b.resolved=true;b.success=result==='victory';b.resultAt=b.elapsed;
  if(b.success){
-  b.resultAge=0;b.exitReady=b.role==='attack';b.exitDelay=.34+(b.gun?.returnSeconds?.()??2.8)+.25;
+  b.resultAge=0;b.exitReady=b.role==='attack';b.exitDelay=ParisGeschuetz.recoilSeconds+(b.gun?.returnSeconds?.()??2.8)+.25;
   if(b.raid){b.raid.missionResolved=true;b.raid.bombs.length=0;b.raid.strikes.length=0;g.stageBoss?.hazards?.clear(g.stageBoss.stages.encounter?.id);}
   g.event?.('wave',b.role==='attack'?'파리포 저지 성공 · 포격 영구 중단':`파리포 방어 성공 · ${LAON_MISSION.shots}회 포격 완료`);
  }else{

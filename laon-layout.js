@@ -4,7 +4,7 @@ export const LAON_NORMAL_CYCLE_SECONDS=15;
 // North-facing source-art and collision contract. Origin is the concrete
 // emplacement centre, never the player's current camera position.
 export const LAON_LAYOUT=Object.freeze({
-  width:160,height:420,top:-340,bottom:80,recoilDistance:32,
+  width:160,height:420,top:-340,bottom:80,recoilDistance:48,
   muzzle:Object.freeze({x:0,y:-335}),
   parts:Object.freeze([
     {id:'barrel',x:0,y:-185,rx:11,ry:148,kind:'barrel',hp:.72},

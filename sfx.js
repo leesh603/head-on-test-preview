@@ -1,5 +1,5 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
-import {railAudioSamples} from './rail-audio.js?v=tame3';
+import {railAudioSamples} from './rail-audio.js?v=laon';
 import {ruralSamplePath} from './rural-audio.js';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
@@ -75,7 +75,7 @@ let railWorker;
 function railSynthWorker(){
  if(railWorker!==undefined)return railWorker;
  try{
-  railWorker=new Worker('./rail-audio-worker.js?v=1',{type:'module'});
+  railWorker=new Worker('./rail-audio-worker.js?v=2',{type:'module'});
   railWorker.onmessage=e=>{const {name,sampleRate,data}=e.data||{};pendingRailReports.delete(name);
    if(data&&ctx&&ctx.sampleRate===sampleRate&&!railBuffers.has(name)){const buffer=ctx.createBuffer(1,data.length,sampleRate);buffer.getChannelData(0).set(data);railBuffers.set(name,buffer);}};
   railWorker.onerror=()=>{railWorker=null;pendingRailReports.clear();};
@@ -90,13 +90,20 @@ function prepareRailReport(name){
  const prepare=()=>{pendingRailReports.delete(name);if(ctx===audioContext&&!muted&&!paused&&!railBuffers.has(name))railBuffer(name);};
  if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(prepare,{timeout:3000});else setTimeout(prepare,0);
 }
-function railSample(name,level){
+function railSample(name,level,cut=7200){
  if(!reserve())return;
  // A voice still synthesising in the worker is skipped once rather than built in this frame.
  if(!railBuffers.has(name)&&railWorker&&pendingRailReports.has(name))return;
  const buffer=railBuffer(name);
- const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=7200;g.gain.value=level*master;
+ const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=cut;g.gain.value=level*master;
  n.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(n,f,g);n.start();
+}
+function playLaonGun(near){
+ if(railBuffers.has('laonGunFire'))railSample('laonGunFire',near?.87:.35,near?7200:680);
+ else{
+  prepareRailReport('laonGunFire');
+  fileSample('sfx/rail-fire',near?.6:.25,()=>VOICES.artilleryFire(),.85);
+ }
 }
 // Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
 const FILE_CUES=['rail-incoming-520','rail-incoming-bruno','rail-impact-520','rail-impact-bruno'];
@@ -147,6 +154,7 @@ export function prepareSfx(plane,region){
  if([1,7,16].includes(region))loadFileCue('sfx/ship-horn');
  if(region===5)loadFileCue('sfx/airship');
  if([2,3,8,10,13].includes(region))loadFileCue('sfx/armour');
+ if(region===19){prepareRailReport('laonGunFire');prepareRailReport('railBreech');}
  if(region===0||region===8||region===9){
   for(const name of FILE_CUES)loadFileCue(name);
   for(const name of ['railGunFire','railGunFire520','trainApproach','trainWhistle','trainRoll','trainBrake','railBreech'])prepareRailReport(name);
@@ -388,6 +396,8 @@ const VOICES={
   railBreech(){railSample('railBreech',.38)},
   railGunFire(){fileSample('sfx/rail-fire',.55,()=>railSample('railGunFire',.95))},
   railGunFire520(){fileSample('sfx/rail-fire',.64,()=>railSample('railGunFire520',1),.85)},
+  laonGunFire(){playLaonGun(true)},
+  laonGunFireDistant(){playLaonGun(false)},
   railShellIncoming(){fileSample('rail-incoming-bruno',.38)},
   railShellIncoming520(){fileSample('rail-incoming-520',.42)},
   railShellImpact(){fileSample('sfx/rail-impact',.50,()=>fileSample('rail-impact-bruno',.7,()=>VOICES.earthImpact()))},
@@ -602,7 +612,7 @@ export function sfx(name,arg){
   lastVoices.set(voiceKey,now);priority=arg?.tactical?0:critical&&arg?.player||name==='bomberArrival'?3:PRIORITY[name]??2;
   const armorApproach=name==='a7vApproach'||name==='markVApproach';
   const depth=armorApproach?.70:name==='hit'?.68:name==='explosion'?.84:name==='criticalPilot'?.86:.74;
-  if((armorApproach||['artilleryFire','artilleryNavalFire','artilleryImpact','hit','bossSiren','bossKlaxon','approachWarning','railGunFire','railGunFire520','railShellImpact','railShellImpact520','explosion','criticalPilot'].includes(name))&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
+  if((armorApproach||['artilleryFire','artilleryNavalFire','artilleryImpact','hit','bossSiren','bossKlaxon','approachWarning','railGunFire','railGunFire520','laonGunFire','railShellImpact','railShellImpact520','explosion','criticalPilot'].includes(name))&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
    lastDuck=now;lastDuckDepth=depth;
    ambienceBus.gain.cancelScheduledValues(now);ambienceBus.gain.setTargetAtTime(.45,now,.035);ambienceBus.gain.setTargetAtTime(1,now+.32,.38);
    try{duckListener(depth)}catch{}

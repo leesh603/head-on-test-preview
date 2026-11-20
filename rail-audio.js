@@ -6,7 +6,7 @@
 //  · 뿌우우우 — the steam whistle: three tuned pipes (A minor chord) with a pitch scoop on the
 //    attack, a little vibrato and a narrow breath *on each pipe's pitch* (tonal, never a hiss).
 // Everything sits above ~120 Hz so phone speakers carry it.
-export const RAIL_AUDIO_SECONDS=Object.freeze({trainApproach:4.2,trainWhistle:2.6,trainRoll:.5,trainBrake:.9,railBreech:.42,railGunFire:1.45,railGunFire520:1.95});
+export const RAIL_AUDIO_SECONDS=Object.freeze({trainApproach:4.2,trainWhistle:2.6,trainRoll:.5,trainBrake:.9,railBreech:.42,railGunFire:1.45,railGunFire520:1.95,laonGunFire:3.2});
 const TAU=Math.PI*2;
 // Deterministic white noise.
 function noiseSource(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/2147483648-1}}
@@ -85,9 +85,26 @@ function finish(data,sr,seconds,peak=.92){
  for(let i=0;i<data.length;i++){const t=i/sr,edge=Math.min(1,t/.004,(seconds-t)/.05);data[i]*=k*Math.max(0,edge)}
  return data;
 }
+function laonReport(sr,len,seconds){
+ const out=new Float32Array(len),dry=new Float32Array(len),rnd=noiseSource(19180323);
+ const pressure=bandpass(sr,148,.74),air=bandpass(sr,480,.95),metal=bandpass(sr,1030,2.5);
+ const echoes=[[.17,.27],[.36,.2],[.72,.16],[1.09,.11],[1.57,.07]].map(([t,gain])=>[Math.round(sr*t),gain]);
+ for(let i=0;i<len;i++){
+  const t=i/sr,n=rnd(),rest=t-.36;
+  const crack=n*.58*Math.exp(-t/.013);
+  const boom=pressure(n)*4.2*(1-Math.exp(-t/.006))*Math.exp(-t/.27);
+  const roll=air(n)*.96*Math.exp(-t/.62);
+  const returnClank=rest>0?metal(n)*.7*Math.exp(-rest/.075):0;
+  dry[i]=crack+boom+roll+returnClank;
+  let sample=dry[i];for(const [delay,gain] of echoes)if(i>=delay)sample+=dry[i-delay]*gain;
+  out[i]=sample;
+ }
+ return finish(out,sr,seconds);
+}
 export function railAudioSamples(name,sampleRate=48000){
  if(!RAIL_AUDIO_SECONDS[name]||!Number.isFinite(sampleRate)||sampleRate<8000)throw new Error('Invalid rail audio');
  const sr=sampleRate,seconds=RAIL_AUDIO_SECONDS[name],len=Math.ceil(seconds*sr);
+ if(name==='laonGunFire')return laonReport(sr,len,seconds);
  if(name==='railGunFire'||name==='railGunFire520'){
   // A broadband muzzle crack, turbulent pressure body and distant reflections.
   // No pitch sweep or sustained oscillator: one cached physical blast impulse.

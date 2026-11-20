@@ -11,16 +11,19 @@ export function prepareLaonTerrain(){
  if(typeof Image==='undefined')return Promise.resolve(false);
  loading=Promise.all(Object.entries(LAON_TERRAIN_ASSETS).map(([key,url])=>new Promise(resolve=>{
   const im=new Image();images[key]=im;im.decoding='async';
-  im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>resolve(!!im.naturalWidth));};
+  im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>{
+   if(key==='map'&&images.map===im&&ready(im))artwork(im);
+   resolve(ready(im));
+  });};
   im.onerror=()=>resolve(false);im.src=url;
  }))).then(results=>results.every(Boolean));return loading;
 }
 function artwork(im){
  if(source===im)return patch;
- const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(im.naturalWidth,im.naturalHeight):globalThis.document?.createElement?.('canvas');
+ const size=LAON_GROUND.size,cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(size,size):globalThis.document?.createElement?.('canvas');
  if(!cv)return im;
- cv.width=im.naturalWidth;cv.height=im.naturalHeight;
- const q=cv.getContext('2d');q.filter='saturate(.74) contrast(.87)';q.drawImage(im,0,0);q.filter='none';q.globalCompositeOperation='destination-in';
+ cv.width=size;cv.height=size;
+ const q=cv.getContext('2d');q.imageSmoothingQuality='high';q.filter='saturate(.74) contrast(.87)';q.drawImage(im,0,0,size,size);q.filter='none';q.globalCompositeOperation='destination-in';
  // Blend the full width of the bordering woodland, leaving the gun, revetments
  // and their service road at full opacity around the actual foundation.
  for(const [x,y] of [[cv.width,0],[0,cv.height]]){

@@ -29,7 +29,9 @@ export function nextFrontMap(front,order,{mission,boss,build,outcome}={}){
  const pool=legacy?(end===4?EARLY:end===8?LEGACY_MID:LEGACY_LATE):(end===3?EARLY:end===6?MID:LATE);
  const faction=front.capital===18?'entente':'central';
  const typeFor=map=>mapCombatProfileForStage(map,faction)?.type;
- const candidates=pool.filter(group=>group.length<=end-position&&group.every(map=>!order.includes(map)&&(map===8||map!==front.operationStage)));
+ const eligible=pool.filter(group=>group.length<=end-position&&group.every(map=>!order.includes(map)&&(map===8||map!==front.operationStage)));
+ const unplayed=eligible.filter(group=>group.every(map=>!front.previous?.includes(map)));
+ const candidates=!legacy&&unplayed.length?unplayed:eligible;
  const weighted=candidates.map(group=>{
   const type=typeFor(group[0]), recovery=type===T.DEFENSE||type===T.BREAKTHROUGH, offensive=type===T.SABOTAGE||type===T.DECISIVE;
   const components=[
@@ -41,7 +43,8 @@ export function nextFrontMap(front,order,{mission,boss,build,outcome}={}){
   ].filter(([v])=>v!=null);
   const affinity=components.reduce((a,[v,w,f])=>a+w*f(v),0)/components.reduce((a,[,w])=>a+w,0);
   const repeat=order.slice(-2).filter(map=>typeFor(map)===type).length;
-  return [.5+affinity,Math.pow(.58,repeat),group.every(map=>!front.previous?.includes(map))?1.45:1].reduce((a,v)=>a*v,1);
+  const varietyBonus=legacy&&unplayed.includes(group)?1.45:1;
+  return (.5+affinity)*Math.pow(.58,repeat)*varietyBonus;
  });
  let roll=random(front)*weighted.reduce((a,v)=>a+v,0);
  for(let i=0;i<candidates.length;i++)if((roll-=weighted[i])<0)return candidates[i];

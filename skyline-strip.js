@@ -5,6 +5,7 @@
 //  - Laon, Entente: Paris under the Paris Gun's shells.
 //  - Laon, Central: the Paris Gun on its rail mount, breaking part by part.
 import {fx} from './fx-art.js?v=tame3';
+import {LAON_LAYOUT} from './laon-layout.js';
 
 const CITY_LANDMARKS={entente:{west:'spire',docks:'dome',east:'clock',south:'twin'},central:{west:'twin',docks:'dome',east:'tower',south:'clock'}};
 const PARIS_LANDMARKS=[[.16,'notredame'],[.47,'eiffel'],[.8,'sacre']];
@@ -78,13 +79,13 @@ function paintSkyline(c,list,x0,pw,h,{damage,ruined,time,index=0,maxFires=4}){
 // forced a layout of the whole HUD every frame right after the title text changed).
 // The strip's slow animation is redrawn at most every other frame.
 let stripCanvas=null,stripSize=null,stripFrame=0;
-export function paintSlotStrip(slot,draw){
+export function paintSlotStrip(slot,draw,{skipAlternate=true}={}){
  if(!slot)return false;let strip=stripCanvas&&stripCanvas.parentNode===slot?stripCanvas:slot.querySelector('#skylineStrip');
  if(!strip){strip=document.createElement('canvas');strip.id='skylineStrip';strip.setAttribute('aria-hidden','true');slot.append(strip)}
  if(strip!==stripCanvas){stripCanvas=strip;stripSize=null;
   if(typeof ResizeObserver==='function')new ResizeObserver(entries=>{const b=entries[0]?.contentRect;if(b)stripSize={width:b.width,height:b.height}}).observe(strip);}
  if(!slot.classList.contains('skyline-hud'))slot.classList.add('skyline-hud');
- if(slot.classList.contains('skyline-ready')&&(++stripFrame&1))return true;
+ if(skipAlternate&&slot.classList.contains('skyline-ready')&&(++stripFrame&1))return true;
  const r=stripSize||strip.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1),W=Math.round(r.width*dpr),H=Math.round(r.height*dpr);
  let ok=false;if(W>0&&H>0){if(strip.width!==W||strip.height!==H){strip.width=W;strip.height=H}const c=strip.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);ok=!!draw(c,r.width,r.height);}
  if(slot.classList.contains('skyline-ready')!==ok)slot.classList.toggle('skyline-ready',ok);return ok;
@@ -188,7 +189,7 @@ export function drawParisGunStrip(c,{gun,parts:ps,stateOf,time=0,locale='ko'},w,
  // Low elevation so the gun spans the strip: as big as the strip height allows.
  const u=h*.95,gx=w*.42-u*1.15;glow(c,gx-u*.8,u*3,h,damage>0?.08+damage*.3:0);
  c.fillStyle='#0b0a09';c.fillRect(0,h-2,w,2);for(let x=3;x<w;x+=8)c.fillRect(x,h-3,4,1);
- const gunShape=paintGun(c,gx,h-2,u,st,{recoil:Math.min(1,(gun.recoil||0)/32),loader:gun.loaderProgress||0,elevation:.2});
+ const gunShape=paintGun(c,gx,h-2,u,st,{recoil:Math.min(1,(gun.recoil||0)/LAON_LAYOUT.recoilDistance),loader:gun.loaderProgress||0,elevation:.2});
  for(const [k,id] of Object.keys(gunShape.spots).entries()){const s2=st(id),[x,y]=gunShape.spots[id];
   if(s2===1)fx(c,'smokeDark',x,y-h*.3,h*.55,h*.6,0,.45);else if(s2===2)burn(c,x,y,h,time,k,h*.55,dead,damage);}
  if(gun.flash>0&&gunShape.muzzle)fx(c,'fire',gunShape.muzzle[0]+3,gunShape.muzzle[1],h*.7,h*.7,0,Math.min(1,gun.flash*5));

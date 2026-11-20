@@ -86,8 +86,9 @@ export class BossStages {
   }
   continueFront(){
     if(!this.front||this.phase!=='front-complete')return null;
-    const {seed,risk,recent}=this.front;
-    this.front=createFront(this.teamFaction,seed,this.order,risk,recent);
+    const {seed,risk,recent,operationStage}=this.front;
+    const previous=operationStage!=null&&!this.order.includes(operationStage)?[...this.order,operationStage]:this.order;
+    this.front=createFront(this.teamFaction,seed,previous,risk,recent);
     this.operation=null;
     this.loopIndex++;this.order=[0];this.orderPosition=0;this.stageIndex=0;this.capitalRound=0;
     this.phase='explore';resetFinalArenaRoute(this.finalArena);

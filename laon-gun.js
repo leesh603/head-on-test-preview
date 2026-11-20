@@ -22,10 +22,11 @@ export class ParisGeschuetz extends BaseBoss {
  partState(id){return laonPartState(this.parts.get(id));}
  loadMultiplier(){return [1,1.45,2.25][this.partState('loader')]*[1,1.3,1.8][this.partState('ammo')];}
  static normalReturnSeconds=2.3;
+ static recoilSeconds=.48;
  returnSeconds(){return [ParisGeschuetz.normalReturnSeconds,4.6,8][this.partState('recoil')];}
- static reloadSeconds=LAON_NORMAL_CYCLE_SECONDS-10.5-1.5-.34-ParisGeschuetz.normalReturnSeconds;
- phaseSeconds(phase=this.phase){return phase==='loading'?10.5*this.loadMultiplier():phase==='ready'?1.5:phase==='recoil'?.34:phase==='return'?this.returnSeconds():phase==='reload'?ParisGeschuetz.reloadSeconds*this.loadMultiplier():Infinity;}
- cycleSeconds(){return (10.5+ParisGeschuetz.reloadSeconds)*this.loadMultiplier()+1.5+this.returnSeconds()+.34;}
+ static reloadSeconds=LAON_NORMAL_CYCLE_SECONDS-10.5-1.5-ParisGeschuetz.recoilSeconds-ParisGeschuetz.normalReturnSeconds;
+ phaseSeconds(phase=this.phase){return phase==='loading'?10.5*this.loadMultiplier():phase==='ready'?1.5:phase==='recoil'?ParisGeschuetz.recoilSeconds:phase==='return'?this.returnSeconds():phase==='reload'?ParisGeschuetz.reloadSeconds*this.loadMultiplier():Infinity;}
+ cycleSeconds(){return (10.5+ParisGeschuetz.reloadSeconds)*this.loadMultiplier()+1.5+this.returnSeconds()+ParisGeschuetz.recoilSeconds;}
  muzzle(){return{x:this.x,y:this.y+(LAON_LAYOUT.muzzle.y+this.recoil)*this.scale};}
  coreOffset(){return{x:0,y:(-20+this.recoil)*this.scale};}
  syncParts(){for(const p of this.parts.values()){p.x=p.localX;p.y=p.localY+(LAON_CRITICAL_PARTS.includes(p.id)?this.recoil*this.scale:0);}}
@@ -33,7 +34,7 @@ export class ParisGeschuetz extends BaseBoss {
  transition(phase){this.phase=phase;this.phaseAge=0;this.phaseProgress=0;this.loadingCue=false;this.command('laon-phase',{phase,seconds:this.phaseSeconds(),shotCount:this.shotCount,finalShot:phase==='ready'&&this.shotCount+1===this.lastShotNumber()});}
  fire(){
   if(this.dead||LAON_CRITICAL_PARTS.some(id=>this.parts.get(id).destroyed))return false;
-  this.shotCount++;const finalShot=this.shotCount===this.lastShotNumber();this.lastShotAt=this.clock;this.flash=finalShot?.34:.20;this.smoke=1;this.transition('recoil');
+  this.shotCount++;const finalShot=this.shotCount===this.lastShotNumber();this.lastShotAt=this.clock;this.flash=finalShot?.42:.30;this.smoke=1;this.transition('recoil');
   this.command('laon-shot',{...this.muzzle(),shotCount:this.shotCount,clock:this.clock,recoil:LAON_LAYOUT.recoilDistance*this.scale,finalShot});
   return true;
  }
@@ -97,7 +98,8 @@ export class ParisGeschuetz extends BaseBoss {
  }
  updateAA(dt,ctx){
   this.aaClock-=dt;
-  const targets=this.friendly?(ctx.laonAirGroup?.planes||[]).filter(p=>!p.destroyed&&p.mode!=='pending').map(p=>({x:ctx.laonAirGroup.x+p.x,y:ctx.laonAirGroup.y+p.y,part:p})):(ctx.players||[]).filter(p=>p.alive);
+  const group=ctx.laonAirGroup;
+  const targets=this.aaClock>0?[]:this.friendly?(group?.planes||[]).filter(p=>!p.destroyed&&p.mode!=='pending').map(p=>({x:group.x+p.x,y:group.y+p.y})):(ctx.players||[]).filter(p=>p.alive);
   if(this.aaClock<=0&&targets.length){
    this.aaClock=3.8;for(const p of this.parts.values())if(p.kind==='gun'&&!p.destroyed){
     const x=this.x+p.x,y=this.y+p.y,target=targets.reduce((a,b)=>Math.hypot(a.x-x,a.y-y)<Math.hypot(b.x-x,b.y-y)?a:b);
@@ -108,7 +110,8 @@ export class ParisGeschuetz extends BaseBoss {
     else this.command('hazard',{kind:'projectile',x,y,vx:Math.cos(angle)*210,vy:Math.sin(angle)*210,radius:4,warning:.4,duration:3.4,damage:(this.t.damage||18)*.7,visual:'staaken-mg',tag:this.id+':'+p.id,sourcePartId:p.id});
    }
   }
-  const group=ctx.laonAirGroup;for(const shot of this.aaShots){shot.previousX=shot.x;shot.previousY=shot.y;shot.x+=shot.vx*dt;shot.y+=shot.vy*dt;shot.age+=dt;
+  if(!this.aaShots.length)return;
+  for(const shot of this.aaShots){shot.previousX=shot.x;shot.previousY=shot.y;shot.x+=shot.vx*dt;shot.y+=shot.vy*dt;shot.age+=dt;
    const hit=group?.locateHit(shot);if(hit){group.hit({...hit,damage:shot.damage});shot.age=shot.duration;}}
   this.aaShots=this.aaShots.filter(s=>s.age<s.duration);
  }
